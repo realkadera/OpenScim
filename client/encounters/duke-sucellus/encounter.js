@@ -32,9 +32,10 @@ import { CollisionFlag } from "../../engine/collision.js";
 import { rollNpcAttack } from "../shared/npcAttack.js";
 import { buildActorVisualTarget } from "../shared/npcHelpers.js";
 import { emitInfernoNpcAttack, emitInfernoVisual } from "../inferno/events.js";
+import { dukeLoadouts } from "./loadouts.js";
 
 export const dukeKind = "duke_sucellus";
-export const dukeAwakenedKind = "duke_sucellus_awakened"; // engine/encounterKinds.js
+export const dukeAwakenedKind = "duke_sucellus_awakened"; // dt2/bosses.js, awakenedKind
 // CACHE: the asylum of Ghorrock Prison, region 12132. Its floor is x 26 to 36,
 // y 35 to 51; he takes the 7 x 7 north of it.
 export const dukeMapSquare = { x: 47, y: 100 };
@@ -520,6 +521,7 @@ export const dukeDefinition = {
       { id: "awakened", encounterKind: dukeAwakenedKind, name: "Awakened", subtitle: "1,697 hitpoints; harder hits, four spits of gas. From the wiki, without the orb or the bile.", available: true, presetsKey: dukeKind },
     ],
     variantLabel: "Version",
+    loadouts: dukeLoadouts,
   },
   controls: { defaultMechanicsConfig: {}, mechanicsToggles: [], debugActions: [] },
   variantFactories: { [dukeAwakenedKind]: () => new DukeSucellusEncounter(dukeAwakenedKind, versions.awakened) },
