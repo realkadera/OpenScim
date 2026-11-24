@@ -1,4 +1,4 @@
-// How the fixture encounter is registered: the same three lists a contributor
+// How the fixture encounter is registered: the same two lists a contributor
 // adds a line to (docs/ADDING-AN-ENCOUNTER.md), with the lines put in when
 // the module is loaded instead of committed, so that the site never has the
 // fixture. The determinism harness applies them through its module hooks
@@ -16,11 +16,6 @@ export const fixtureUrlPrefix = "/test-fixtures/";
 export const fixtureDirectory = new URL("./", import.meta.url);
 
 export const registrations = [
-  {
-    module: "engine/encounterKinds.js",
-    find: "var encounterDefinitions = [",
-    replace: 'var encounterDefinitions = [\n  { kind: "training_ground", variantKinds: [], slug: "training-ground", registered: true },',
-  },
   {
     module: "encounters/registry.js",
     find: "var registeredEncounterDefinitions = [",
@@ -43,7 +38,7 @@ export function registerFixture(path, source) {
   return source.replace(registration.find, registration.replace) + (registration.importLine ? "\n" + registration.importLine + "\n" : "");
 }
 
-/** For a Playwright page: serves the fixture's modules and registers the fixture in the three client modules as they are served. */
+/** For a Playwright page: serves the fixture's modules and registers the fixture in the two client modules as they are served. */
 export async function serveFixture(page) {
   await page.route("**" + fixtureUrlPrefix + "**", (route) => {
     const path = new URL(route.request().url()).pathname;

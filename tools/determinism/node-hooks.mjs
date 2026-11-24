@@ -8,7 +8,7 @@
 //   "@foxglove/wasm-bz2/..." the bzip2 decoder's Node branch asks for the npm
 //                            package; give it the copy the browser loads
 //   "/test-fixtures/..."     the fixture's modules, from test/fixtures/
-//   three client modules     get the fixture's lines when they are loaded
+//   two client modules       get the fixture's lines when they are loaded
 //                            (test/fixtures/register.mjs says which)
 import { pathToFileURL } from "node:url";
 import { fixtureDirectory, fixtureUrlPrefix, registerFixture } from "../../test/fixtures/register.mjs";

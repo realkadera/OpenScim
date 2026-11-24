@@ -1,6 +1,6 @@
 // An encounter that no file under client/ knows loads on a route, is drawn
 // and can be fought. The fixture is test/fixtures/training-ground/; the page
-// gets it the way a contributor adds an encounter, as three lines in three
+// gets it the way a contributor adds an encounter, as two lines in two
 // modules (test/fixtures/register.mjs), put in while the modules are served.
 // Without those lines the site does not have it.
 import assert from "node:assert/strict";
@@ -40,7 +40,7 @@ try {
     });
   }
 
-  // The route: the slug of engine/encounterKinds.js, and a page title from
+  // The route: the kind with "-" for "_" (engine/encounterKinds.js), and a page title from
   // the descriptor, because application.js has no entry for the kind.
   await page.goto(origin + "/training-ground/");
   await page.waitForFunction(() => window.engine && window.scene, null, { timeout: 60000 });
