@@ -131,7 +131,11 @@ State on 2026-11-21. Sizes: S = hours, M = days, L = weeks.
       fight that way with 71 modules loaded.
 - [ ] A smoke test: home page and each encounter load with zero console
       errors (`browser-equivalence.mjs` in the Scim workspace does most of this).
-- [ ] GitHub Actions: install, build, test.
+- [x] GitHub Actions (`.github/workflows/ci.yml`): no game data is tracked,
+      install, import graph, test markers, build.
+- [ ] The determinism harness and `npm test` in GitHub Actions. Both need
+      the game assets, which must not reach GitHub (`ci.yml` says why), and
+      `npm test` a browser as well. Until then they are run locally.
 - [ ] Prettier is already a dependency; add a format check. ESLint later.
 
 ## Phase 5 — Backend (L)
