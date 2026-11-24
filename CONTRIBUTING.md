@@ -21,7 +21,8 @@ rules and known pitfalls.
 
 ## Where to help
 
-- **New fights**: follow `docs/ADDING-AN-ENCOUNTER.md`.
+- **New fights**: check that nobody is building it (below), then follow
+  `docs/ADDING-AN-ENCOUNTER.md`.
 - **Readability**: most of the client was reconstructed from published
   bundles and still has short machine names. Renames and cleanup are welcome,
   as long as behaviour stays the same.
@@ -31,6 +32,19 @@ rules and known pitfalls.
   a recording or clip if you have one.
 
 The wider plan is in `ROADMAP.md`.
+
+## Before you start a fight
+
+Every fight being built has a post in the `#bosses` channel of the
+[Discord](https://discord.gg/openscim):
+
+- **No post**: nobody is on it. Make one, tag it `In progress`, and link a
+  draft pull request within 3 days.
+- **`Up for grabs`**: say in the post that you are taking it.
+- **`In progress` or `In review`**: taken. Ask in the post how you can help.
+
+Not on Discord? Check the open pull requests, then open a draft of your own
+early so that others can see it.
 
 ## Before you open a pull request
 
@@ -65,4 +79,4 @@ broke it; fix the change, do not re-record the digest. Record only your own:
 
 ## Questions
 
-Ask in the Discord or open an issue.
+Ask in the [Discord](https://discord.gg/openscim) or open an issue.
