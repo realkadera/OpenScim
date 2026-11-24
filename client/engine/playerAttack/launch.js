@@ -404,6 +404,7 @@ function launchPlayerAttack(attack) {
     outgoingDamageMultiplier: attack.outgoingDamageMultiplier,
     specDamageMultiplier: attack.specialAttackDamageMultiplier,
     getAttackSpeed: () => attack.finalSpeed,
+    ...(attack.attackOnCooldown ? { attackOnCooldown: attack.attackOnCooldown } : {}),
     resolveAttack: () => ({
       style: primaryHit.style,
       attackKind: primaryHit.attackKind,
@@ -832,7 +833,12 @@ function performPlayerAutoAttack(player, deps) {
     return;
   }
   const nextAttackTick = deps.combatSystem.getNextAttackTick(player.id);
-  if (nextAttackTick !== undefined && deps.world.tick < nextAttackTick) {
+  const onCooldown = nextAttackTick !== undefined && deps.world.tick < nextAttackTick;
+  // An encounter may let a target be attacked while the weapon cools down,
+  // and say whether that attack keeps the timer or starts it again (the Doom
+  // of Mokhaiotl's larvae and volatile earth). Without the rule, none is.
+  const attackOnCooldown = onCooldown ? deps.encounterRules?.playerAttackOnCooldown?.(target, deps.world.tick) : undefined;
+  if (onCooldown && !attackOnCooldown) {
     return;
   }
   const isSpecialAttackActive = player.isSpecialAttackActive;
@@ -1120,6 +1126,7 @@ function performPlayerAutoAttack(player, deps) {
     player: player,
     target: target,
     deps: deps,
+    ...(attackOnCooldown ? { attackOnCooldown: attackOnCooldown } : {}),
     hits: primaryOutcome.hits,
     expectedHit: primaryOutcome.expectedHit,
     supplementalTargets: supplementalTargets,

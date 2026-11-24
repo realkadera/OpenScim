@@ -680,7 +680,15 @@ var CombatSystem = class {
     if (
       tick < (this.nextAttackTickByActor.get(attacker.id) ?? Number.NEGATIVE_INFINITY)
     ) {
-      return false;
+      // Allowed on cooldown by the encounter (performPlayerAutoAttack): the
+      // timer stays as it was, or starts again from this attack.
+      const attackOnCooldown = combatContext.attackOnCooldown;
+      if (!attackOnCooldown) {
+        return false;
+      }
+      if (attackOnCooldown.keepCooldown) {
+        return true;
+      }
     }
     const attackSpeed = this.getAttackSpeed(attacker, combatContext);
     const attackCycleTicks = Math.max(1, attackSpeed);
