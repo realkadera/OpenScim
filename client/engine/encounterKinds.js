@@ -4,7 +4,8 @@
 // in it as soon as it has a definition, and in the order of that list.
 //
 //   kind           the definition's kind
-//   variantKinds   the keys of its variantFactories
+//   variantKinds   the keys of its variantFactories; for a boss of Desert
+//                  Treasure II also his awakened variant, written or not
 //   slug           the address of its route ("/sol-heredit/"): the kind with
 //                  "-" for "_", unless the definition has a `slug` of its own
 //                  (`null` for a kind without a route: the lobby)
@@ -19,12 +20,14 @@
 import { registeredEncounterDefinitions, getDefinitionKinds } from "../encounters/registry.js";
 import { bosses, awakenedKind } from "../dt2/bosses.js";
 var slugOfKind = (kind) => kind.replace(/_/g, "-");
+// A boss may get his fight before his awakened one: that stays an announced kind, without an encounter of its own.
+var awakenedKindsOf = (kind) => (bosses.some((boss) => boss.kind === kind) ? [awakenedKind(kind)] : []);
 var encounterDefinitions = [
   ...registeredEncounterDefinitions.map((definition) => {
     const retiredKinds = Object.keys(definition.retiredEntries ?? {}).map((kind) => ({ kind, slug: slugOfKind(kind) }));
     return {
       kind: definition.kind,
-      variantKinds: getDefinitionKinds(definition).slice(1),
+      variantKinds: [...new Set([...getDefinitionKinds(definition).slice(1), ...awakenedKindsOf(definition.kind)])],
       slug: definition.slug === undefined ? slugOfKind(definition.kind) : definition.slug,
       registered: true,
       ...(retiredKinds.length > 0 ? { retiredKinds } : {}),
