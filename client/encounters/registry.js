@@ -1,25 +1,10 @@
 import { zebakDefinition } from "/toa/zebak/native.js";
 import { nexusDefinition } from "/toa/nexus.js";
 import { doomDefinition } from "./doom-of-mokhaiotl/encounter.js";
-import { LobbyEncounter } from "./lobby/LobbyEncounter.js";
-import {
-  divineSeveranceContract,
-  forfeitBreathContract,
-  sensoryCloudingContract,
-  bloodiedBlowsContract,
-  glyphicAttenuationContract,
-  yamaContractVariants,
-} from "./yama/contracts.js";
-import { buildYamaControls } from "./yama/controls.js";
-import { YamaEncounter } from "./yama/YamaEncounter.js";
-import { solPlayerStart, solMapSquare } from "./sol-heredit/constants.js";
-import { buildSolHereditControls } from "./sol-heredit/controls.js";
-import { solHereditModifiers, solHereditSetupNotes, solHereditOptionsSchema } from "./sol-heredit/modifiers.js";
-import { SolHereditEncounter } from "./sol-heredit/SolHereditEncounter.js";
-import { infernoMapSquare, infernoMapSquareOffsets, infernoExcludedStaticLocIds, infernoPlayerStart } from "./inferno/constants.js";
-import { infernoPillarDynamicLocs } from "./inferno/pillars.js";
-import { infernoStartWaveKey, getInfernoSetup, buildInfernoControls } from "./inferno/controls.js";
-import { InfernoEncounter } from "./inferno/InfernoEncounter.js";
+import { definition as yamaDefinition } from "./yama/encounter.js";
+import { definition as lobbyDefinition } from "./lobby/encounter.js";
+import { definition as solHereditDefinition } from "./sol-heredit/encounter.js";
+import { definition as infernoDefinition } from "./inferno/encounter.js";
 import { getArenaWalkableTiles } from "../engine/arena.js";
 import { CollisionFlag, createCollisionMap } from "../engine/collision.js";
 import { createSeededRandom } from "../engine/random.js";
@@ -28,7 +13,6 @@ import { rollNpcAttack } from "./shared/npcAttack.js";
 import { buildNpcProjectileVisual } from "./shared/npcHelpers.js";
 import { emitInfernoVisual, emitInfernoNpcAttack } from "./inferno/events.js";
 import { getMonsterFormulaStats } from "../engine/monsterStats.js";
-import { solBoundaryLocs } from "./sol-heredit/boundaryLocs.js";
 import { colosseumDefinition } from "./colosseum/ColosseumEncounter.js";
 import { vardorvisDefinition } from "./vardorvis/encounter.js";
 import { buildSandboxDefinition } from "./sandbox/encounter.js";
@@ -59,8 +43,9 @@ import { buildSandboxDefinition } from "./sandbox/encounter.js";
 //   retiredEntries     optional: names that are kinds no more, each with the
 //                      mechanics it stands for (resolveKindOrRetiredEntry)
 //   countdownMovement  optional; hasCountdownMovement answers from it
-// The first two definitions come from client/toa/; Zebak's is built from the
-// rules handed to it here.
+// A definition is written beside its encounter and imported here. The first
+// two come from client/toa/; Zebak's is built from the rules handed to it
+// here.
 //
 // engine/encounterKinds.js reads its table of kinds (variant kinds, route
 // slugs, retired kinds) off this list: a kind is written here and nowhere
@@ -83,153 +68,12 @@ var registeredEncounterDefinitions = [
   zebakDefinition({makeCollision:createCollisionMap,solidFlag:CollisionFlag.OBJECT,walkable:getArenaWalkableTiles,stats:getMonsterFormulaStats, seedRandom:createSeededRandom, rollAttack:rollNpcAttack, showAttack:emitInfernoNpcAttack, projectile:buildNpcProjectileVisual, animate:emitInfernoVisual, startNpcDeath:startScriptedNpcDeath}),
   nexusDefinition,
   doomDefinition,
-  {
-    kind: "yama_p3",
-    slug: "yama",
-    factory: () => new YamaEncounter(),
-    enableIntro: true,
-    descriptor: {
-      kind: "yama_p3",
-      displayName: "Yama - Phase 3",
-      description: "The Yama boss encounter",
-      mapSquare: {
-        x: 23,
-        y: 157,
-      },
-      playerStart: [31, 37],
-      loadsMapLocs: true,
-      variants: yamaContractVariants,
-      variantLabel: "Contract",
-      collision: {
-        mode: "auto",
-        seed: [32, 30],
-      },
-      victory: {
-        eyebrow: "Triumphant",
-        title: "VICTORY",
-        narrative: "YAMA DEFEATED",
-        accent: "blood",
-      },
-    },
-    variantFactories: {
-      yama_p3_divine: () => new YamaEncounter(divineSeveranceContract),
-      yama_p3_forfeit_breath: () => new YamaEncounter(forfeitBreathContract),
-      yama_p3_sensory: () => new YamaEncounter(sensoryCloudingContract),
-      yama_p3_bloodied: () => new YamaEncounter(bloodiedBlowsContract),
-      yama_p3_glyphic: () => new YamaEncounter(glyphicAttenuationContract),
-    },
-    controls: buildYamaControls(),
-    variantControls: {
-      yama_p3_divine: buildYamaControls(divineSeveranceContract),
-      yama_p3_forfeit_breath: buildYamaControls(forfeitBreathContract),
-      yama_p3_sensory: buildYamaControls(sensoryCloudingContract),
-      yama_p3_bloodied: buildYamaControls(bloodiedBlowsContract),
-      yama_p3_glyphic: buildYamaControls(glyphicAttenuationContract),
-    },
-  },
-  {
-    kind: "lobby",
-    slug: null,
-    factory: () => new LobbyEncounter(),
-    descriptor: {
-      kind: "lobby",
-      displayName: "Lobby",
-      description: "Prifddinas lobby area",
-      mapSquare: {
-        x: 25,
-        y: 73,
-      },
-      playerStart: [31, 25],
-      collision: {
-        mode: "custom",
-      },
-    },
-    controls: {
-      defaultMechanicsConfig: {
-        infiniteHealth: false,
-      },
-      mechanicsToggles: [],
-      debugActions: [],
-    },
-  },
-  {
-    kind: "sol_heredit",
-    factory: function (options) {
-      const parsedOptions = solHereditOptionsSchema.parse(options ?? {});
-      return new SolHereditEncounter(undefined, parsedOptions.modifiers);
-    },
-    descriptor: {
-      kind: "sol_heredit",
-      displayName: "Sol Heredit",
-      description: "The final wave of the Fortis Colosseum.",
-      mapSquare: solMapSquare,
-      playerStart: [...solPlayerStart],
-      modifiers: solHereditModifiers,
-      setupNotes: solHereditSetupNotes,
-      defaultModifierSelection: {
-        blasphemy: 3,
-      },
-      loadsMapLocs: true,
-      isWorkInProgress: true,
-      collision: {
-        mode: "auto",
-        seed: [...solPlayerStart],
-        dynamicLocs: solBoundaryLocs,
-      },
-      victory: {
-        eyebrow: "Triumphant",
-        title: "VICTORY",
-        narrative: "SOL HEREDIT DEFEATED",
-        accent: "gold",
-      },
-    },
-    controls: buildSolHereditControls(),
-  },
+  yamaDefinition,
+  lobbyDefinition,
+  solHereditDefinition,
   colosseumDefinition,
   vardorvisDefinition,
-  {
-    kind: "inferno",
-    factory: function (options) {
-      const optionKeys = Object.keys(options ?? {});
-      if (optionKeys.length > 0) {
-        throw new TypeError(
-          `Encounter 'inferno' accepts no constructor options; got: ${optionKeys.join(", ")}`,
-        );
-      }
-      return new InfernoEncounter();
-    },
-    enableIntro: true,
-    descriptor: {
-      kind: "inferno",
-      displayName: "The Inferno",
-      description:
-        "Start from any wave. Each cleared wave leads straight into the next, through to TzKal-Zuk at wave 69.",
-      mapSquare: infernoMapSquare,
-      mapSquareOffsets: infernoMapSquareOffsets,
-      playerStart: [...infernoPlayerStart],
-      loadsMapLocs: true,
-      isWorkInProgress: true,
-      collision: {
-        mode: "auto",
-        seed: [...infernoPlayerStart],
-        dynamicLocs: infernoPillarDynamicLocs,
-        excludedStaticLocIds: infernoExcludedStaticLocIds,
-      },
-      victory: {
-        eyebrow: "Triumphant",
-        title: "VICTORY",
-        narrative: "TZKAL-ZUK DEFEATED",
-        accent: "gold",
-      },
-    },
-    controls: buildInfernoControls(),
-    retiredEntries: {
-      zuk: {
-        [infernoStartWaveKey]: "69",
-      },
-    },
-    countdownMovement: (mechanics) => getInfernoSetup(mechanics).startWave !== 69,
-  },
+  infernoDefinition,
 ];
 // The sandbox runs the other encounters as the hosts of its arenas: it is
 // handed their definitions.
