@@ -4,6 +4,7 @@
 // model and draws him as the sleeping NPC type until he has woken; the gaze's
 // overlay (sight.js) is brought in step with the fight every frame.
 import { buildScene } from "../shared/buildScene.js";
+import { dukeAudio } from "./audio.js";
 import { bossStart, dukeKind, dukeMapSquare, ids, models, seqs, sightStrength, sightTint, spots, wakeAnimationTicks } from "./encounter.js";
 import { setSightTools, syncSight } from "./sight.js";
 
@@ -106,6 +107,7 @@ export const dukePresentation = (BaseScene, packHsl, { widgetModelView } = {}) =
     }
     return buildScene(DukeScene, renderConfig, context);
   },
+  audio: dukeAudio,
   // He is north of the player and 7 tiles wide: from the south, looking north at him, further out than Vardorvis's.
   defaultCamera: { yaw: 0, pitch: -40, zoom: 240 },
   presentation: {

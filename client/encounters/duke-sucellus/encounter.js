@@ -331,7 +331,11 @@ class DukeSucellusEncounter {
       hits.push({ source: "Duke Sucellus' slam", attackType: "melee", baseDamage: [0, this.version.slamMaxHit], prayerReduction: slamPrayerReduction, playerPosition: at });
     this.slams = this.slams.filter((tick) => tick > context.tick);
     if (this.sight !== null && context.tick >= this.sight + sightTicks) this.sight = null;
-    if (this.gaze && context.tick === this.gaze.checkTick) this.gaze.hit = alive && !isBehindPillar(at);
+    if (this.gaze && context.tick === this.gaze.checkTick) {
+      this.gaze.hit = alive && !isBehindPillar(at);
+      // For its sound (audio.js).
+      if (alive && !this.gaze.hit) emitInfernoVisual(context.tickEvents, { animations: [], projectiles: [], graphics: [], gazeAvoided: true });
+    }
     if (this.gaze && context.tick === this.gaze.hitTick) {
       if (this.gaze.hit && alive) hits.push({ source: "Duke Sucellus' gaze", attackType: "typeless", baseDamage: [this.version.gazeMinHit, this.version.gazeMaxHit], playerPosition: at });
       this.gaze = null;

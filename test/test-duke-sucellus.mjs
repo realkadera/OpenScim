@@ -103,17 +103,24 @@ try {
   });
   assert.deepEqual(eye, { faces: 442, idle: 442, melee: 442, gaze: 0 });
 
-  // The overlay of his gaze, which the player stands in: ticked to the gaze,
-  // and drawn by the application's own loop, coming and going with it.
-  const gazed = await page.evaluate(() => {
+  // The overlay of his gaze, which the player stands in: ticked to just before
+  // the gaze, which the application's own loop starts, with the sound the game's
+  // server sends (audio.js), and draws, coming and going with it.
+  const due = await page.evaluate(() => {
+    const { engine: sounds } = scene.eventAudioPlayer, { play } = sounds;
+    window.played = new Set();
+    sounds.play = function (id, ...rest) {
+      played.add(id);
+      return play.call(this, id, ...rest);
+    };
     engine.setMechanicsConfig({ ...engine.mechanicsConfig, infiniteHealth: true });
     for (let tick = 0; tick < 100; tick++) {
-      if (engine.getEncounterSnapshot().state.gaze) return true;
+      if (engine.encounter.autos === 5 && engine.worldState.getNpc("duke-sucellus").combat.nextActionTick - engine.worldState.tick <= 2) return !engine.getEncounterSnapshot().state.gaze;
       engine.advanceTick(engine.player().position);
     }
     return false;
   });
-  assert.equal(gazed, true);
+  assert.equal(due, true);
   await page.waitForFunction(() => document.querySelector(".scene-viewport > .duke-sight"), null, { timeout: 30000 });
   // The tint comes all the way and is gone before the eye is, whose lens is
   // some 104 pixels across (290 units at 512 / 1399) in a view 605 high.
@@ -140,13 +147,15 @@ try {
     };
     step();
   }));
+  assert.equal(await page.evaluate(() => played.has(7215)), true, "the gaze is heard");
   assert.ok(overlay.most > 0.9, `the tint came to ${overlay.most}`);
   assert.equal(overlay.last, 0, "the tint goes before the eye");
   const lens = overlay.lens / (overlay.viewHeight / 605);
   assert.ok(lens > 94 && lens < 114, `the eye's lens is ${overlay.lens} across in a view ${overlay.viewHeight} high`);
 
   // As recorded (OBS 11/24 in encounter.js). The overlay is up for 6 ticks,
-  // behind a pillar too; a gaze that finds the player hits 5 ticks in.
+  // behind a pillar too; a gaze that finds the player hits 5 ticks in, and one
+  // that does not says so at 4.
   const gazes = await page.evaluate(() => {
     const state = () => engine.getEncounterSnapshot().state;
     const through = (position) => {
@@ -154,16 +163,18 @@ try {
       for (let tick = 0; tick < 100 && !state().gaze; tick++) engine.advanceTick(position);
       const start = engine.worldState.tick, from = engine.damageHistory.length;
       let open = 0;
+      const avoided = [];
       for (let tick = 0; tick < 8; tick++) {
         if (state().sight !== null) open++;
+        if (engine.getLastTickEvents().some((event) => event.gazeAvoided)) avoided.push(tick);
         engine.advanceTick(position);
       }
-      return { open, hits: engine.damageHistory.slice(from).filter((hit) => hit.source === "Duke Sucellus' gaze").map((hit) => hit.tick - start) };
+      return { open, avoided, hits: engine.damageHistory.slice(from).filter((hit) => hit.source === "Duke Sucellus' gaze").map((hit) => hit.tick - start) };
     };
     engine.queueAttackTarget(null);
     return { before: through([31, 44]), behind: through([27, 51]) };
   });
-  assert.deepEqual(gazes, { before: { open: 6, hits: [5] }, behind: { open: 6, hits: [] } });
+  assert.deepEqual(gazes, { before: { open: 6, avoided: [], hits: [5] }, behind: { open: 6, avoided: [4], hits: [] } });
 
   // The slam lands on whoever is in the row before him by then, wherever they
   // were when he struck, and on no one on a diagonal.
