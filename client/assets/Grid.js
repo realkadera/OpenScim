@@ -13696,6 +13696,8 @@ var Yse = {
   uiScale: 1,
   stretchedModePluginEnabled: true,
   autoOverlayScaleEnabled: true,
+  sceneOverlaysFollowUiScale: true,
+  sceneOverlayScalePercent: 100,
   showTickCounter: true,
   showTickCounterOverhead: false,
   tickCounterAbovePrayerIcon: false,
@@ -14043,6 +14045,10 @@ var kRe = {
   uiScale: zUnknown().transform(dRe),
   stretchedModePluginEnabled: zBoolean().catch(Yse.stretchedModePluginEnabled),
   autoOverlayScaleEnabled: zBoolean().catch(Yse.autoOverlayScaleEnabled),
+  sceneOverlaysFollowUiScale: zBoolean().catch(Yse.sceneOverlaysFollowUiScale),
+  sceneOverlayScalePercent: zUnknown().transform((ez) =>
+    hRe(ez, 50, 400, Yse.sceneOverlayScalePercent),
+  ),
   showTickCounter: zBoolean().catch(Yse.showTickCounter),
   showTickCounterOverhead: zBoolean().catch(Yse.showTickCounterOverhead),
   tickCounterAbovePrayerIcon: zBoolean().catch(Yse.tickCounterAbovePrayerIcon),
@@ -53420,6 +53426,7 @@ var mn = (ez) => {
     overlayScale: h9 = 1,
     chromeScale: hb = h9,
     stretchedModePluginEnabled: hc = true,
+    sceneOverlayScale: sceneOverlayScale = null,
     overlayOuterScale: hd = 1,
     framePaintScale: hf = null,
     onGamePanelPositionChange: onGamePanelPositionChange,
@@ -55114,7 +55121,9 @@ var mn = (ez) => {
                               height: l5 ? l5.height : jI.height,
                               logicalHeight: l5 ? jY.height : undefined,
                               paintScale: hf,
-                              overlayGameScale: jO ? jP : k0,
+                              // Health bars, hitsplats and prayers follow the interface scale
+                              // unless Stretched Mode pins their own (sceneOverlayScale).
+                              overlayGameScale: sceneOverlayScale ?? (jO ? jP : k0),
                               onCameraChange: lO,
                               speedMultiplier: gl,
                               playerOverheadNumbers: n0,

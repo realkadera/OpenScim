@@ -22947,6 +22947,28 @@ var Yme = [
         "high dpi",
       ],
     }),
+    _me("stretchedMode", "Stretched Mode", "Scale health bars, hitsplats and prayers with UI", {
+      description:
+        "Untick to size health bars, hitsplats and overhead prayers apart from the UI scale.",
+      keywords: [
+        "hp bar size",
+        "health bar size",
+        "overhead prayer size",
+        "hitsplat size",
+        "overlay scale",
+      ],
+    }),
+    _me("stretchedMode", "Stretched Mode", "Health bar, hitsplat and prayer scale", {
+      whenUnavailable: {
+        reason: "Untick Scale health bars, hitsplats and prayers with UI to use this.",
+        route: {
+          label: "Show the setting",
+          target: gs("stretchedMode", "Scale health bars, hitsplats and prayers with UI"),
+        },
+      },
+      description: "Sizes health bars, hitsplats and overhead prayers.",
+      keywords: ["hp bar size", "health bar size", "prayer size", "percent"],
+    }),
     $me("tickAudioMetronome", "Tick Audio Metronome", {
       description: "Plays a soft tick-tock on every game tick.",
       keywords: [
@@ -24912,6 +24934,59 @@ function afe({ enabled: enabled, onToggle: onToggle }) {
     }),
   });
 }
+// Health bars, hitsplats and overhead prayers: follow the UI scale, or a
+// scale of their own (CSS pixels per game pixel, as a percent).
+function sceneOverlayScaleSetting({
+  follow: follow,
+  onFollowToggle: onFollowToggle,
+  percent: percent,
+  onPercentChange: onPercentChange,
+}) {
+  return (0, jsxRuntime.jsxs)("div", {
+    className: "overlay-size-setting",
+    children: [
+      (0, jsxRuntime.jsx)(f5, {
+        isModified: !follow,
+        onReset: () => !follow && onFollowToggle(),
+        searchId: gs("stretchedMode", "Scale health bars, hitsplats and prayers with UI"),
+        children: (0, jsxRuntime.jsx)(fd, {
+          label: "Scale health bars, hitsplats and prayers with UI",
+          checked: follow,
+          onChange: onFollowToggle,
+        }),
+      }),
+      !follow &&
+        (0, jsxRuntime.jsxs)("div", {
+          className: "stretched-mode-heading",
+          "data-search-id": gs("stretchedMode", "Health bar, hitsplat and prayer scale"),
+          children: [
+            (0, jsxRuntime.jsx)("label", {
+              className: "plugin-group-label",
+              htmlFor: "stretched-mode-scene-overlay-scale",
+              title: "Sizes health bars, hitsplats and overhead prayers.",
+              children: "Health bar, hitsplat and prayer scale",
+            }),
+            (0, jsxRuntime.jsx)(dP, {
+              id: "stretched-mode-scene-overlay-scale",
+              value: percent,
+              min: 50,
+              max: 400,
+              step: 1,
+              fieldWidth: 38,
+              suffix: "%",
+              onMouseDown: tfe,
+              onChange: (lC) => {
+                const lE = Number.parseFloat(lC.target.value);
+                if (Number.isFinite(lE) && lE >= 50 && lE <= 400) {
+                  onPercentChange(Math.round(lE));
+                }
+              },
+            }),
+          ],
+        }),
+    ],
+  });
+}
 function ife({ pluginKey: pluginKey, options: options, onChange: onChange }) {
   const h6 = aW;
   return (0, jsxRuntime.jsxs)(jsxRuntime.Fragment, {
@@ -25482,6 +25557,10 @@ var cfe = (0, React.memo)(
     onStretchedModePluginToggle: onStretchedModePluginToggle,
     autoOverlayScaleEnabled: autoOverlayScaleEnabled,
     onAutoOverlayScaleToggle: onAutoOverlayScaleToggle,
+    sceneOverlaysFollowUiScale: sceneOverlaysFollowUiScale,
+    onSceneOverlaysFollowUiScaleToggle: onSceneOverlaysFollowUiScaleToggle,
+    sceneOverlayScalePercent: sceneOverlayScalePercent,
+    onSceneOverlayScalePercentChange: onSceneOverlayScalePercentChange,
     fixedLayout: kX = false,
     mobileLayout: kY = false,
     compactOrbsEnabled: compactOrbsEnabled,
@@ -27841,6 +27920,12 @@ var cfe = (0, React.memo)(
                         (0, jsxRuntime.jsx)(afe, {
                           enabled: autoOverlayScaleEnabled,
                           onToggle: onAutoOverlayScaleToggle,
+                        }),
+                        (0, jsxRuntime.jsx)(sceneOverlayScaleSetting, {
+                          follow: sceneOverlaysFollowUiScale,
+                          onFollowToggle: onSceneOverlaysFollowUiScaleToggle,
+                          percent: sceneOverlayScalePercent,
+                          onPercentChange: onSceneOverlayScalePercentChange,
                         }),
                       ],
                     }),
@@ -49149,6 +49234,8 @@ function eCe({ devHarness: devHarness } = {}) {
     uiScale: uiScale,
     stretchedModePluginEnabled: stretchedModePluginEnabled,
     autoOverlayScaleEnabled: autoOverlayScaleEnabled,
+    sceneOverlaysFollowUiScale: sceneOverlaysFollowUiScale,
+    sceneOverlayScalePercent: sceneOverlayScalePercent,
     showTickCounter: showTickCounter,
     showTickCounterOverhead: showTickCounterOverhead,
     tickCounterAbovePrayerIcon: tickCounterAbovePrayerIcon,
@@ -53861,6 +53948,11 @@ function eCe({ devHarness: devHarness } = {}) {
                                     chromeScale: o1,
                                     stretchedModePluginEnabled:
                                       stretchedModePluginEnabled,
+                                    sceneOverlayScale:
+                                      stretchedModePluginEnabled &&
+                                      !sceneOverlaysFollowUiScale
+                                        ? sceneOverlayScalePercent / 100
+                                        : null,
                                     overlayOuterScale: qR,
                                     framePaintScale: qT,
                                     replayViewportWidth: nU.width,
@@ -54348,6 +54440,12 @@ function eCe({ devHarness: devHarness } = {}) {
               autoOverlayScaleEnabled: autoOverlayScaleEnabled,
               onAutoOverlayScaleToggle: () =>
                 hS("autoOverlayScaleEnabled", !autoOverlayScaleEnabled),
+              sceneOverlaysFollowUiScale: sceneOverlaysFollowUiScale,
+              onSceneOverlaysFollowUiScaleToggle: () =>
+                hS("sceneOverlaysFollowUiScale", !sceneOverlaysFollowUiScale),
+              sceneOverlayScalePercent: sceneOverlayScalePercent,
+              onSceneOverlayScalePercentChange: (sP) =>
+                hS("sceneOverlayScalePercent", sP),
               onUiScaleChange: commit2,
               fixedLayoutScale: fixedLayoutScale,
               onFixedLayoutScaleChange: (sP) => hS("fixedLayoutScale", sP),
