@@ -1,8 +1,8 @@
 # Adding an encounter
 
 An encounter is a fight: its rules, what is known of it before a fight
-exists, and what draws it. You add one as files of its own and three lines
-in three modules. No file under `client/assets/` (the bundles) has to be
+exists, and what draws it. You add one as files of its own and two lines
+in two modules. No file under `client/assets/` (the bundles) has to be
 edited, and you do not have to read one.
 
 The worked example is the fixture encounter of the tests,
@@ -84,7 +84,7 @@ lacks one throws when the engine gets there.
 
 | Member | The fixture's | What it is for |
 |---|---|---|
-| `kind` | `"training_ground"` | the encounter's name; the same string as in the three lists |
+| `kind` | `"training_ground"` | the encounter's name; the same string as in the two lists |
 | `reset(seeds?)` | draws a seed, makes its random generator, sets the outcome to active | a new run. `seeds` is what `getSeeds()` returned when a run is repeated (a restart with the same seeds, a replay). Call it from the constructor |
 | `getSeeds()` | `{ encounterSeed }` | everything random in the fight must follow from these, so that a replay repeats it |
 | `getDefaultMechanicsConfig()` | `{ trainingGroundHardHits: false }` | the encounter's own settings and their defaults; the player's settings are laid over them |
@@ -365,17 +365,15 @@ fight exists. The engine reads none of it.
 
 ## 4. The kind and the route
 
-Add an entry to `encounterDefinitions` in `client/engine/encounterKinds.js`:
+There is nothing to write. The engine's table of kinds
+(`client/engine/encounterKinds.js`) is read off the registry: a kind with a
+definition has a route, and its variant kinds are the keys of the
+definition's `variantFactories`.
 
-```js
-  { kind: "training_ground", variantKinds: [], slug: "training-ground", registered: true },
-```
-
-`slug` is the address (`/training-ground/`); `null` for none. `registered:
-true` says that the kind has a definition; the flag is written by hand, and
-a kind with `registered: false` gets no route (the Desert Treasure II kinds
-in that table are waiting for their fights this way). `variantKinds` lists
-further kinds that are variants of this one.
+The **slug**, the address of the route, is the kind with `-` for `_`:
+`training_ground` is at `/training-ground/`. A definition that wants another
+says so (`slug: "yama"` for the kind `yama_p3`), and `slug: null` is an
+encounter without a route (the lobby).
 
 That is all a route needs. The page's title is the descriptor's display
 name ("Training Ground | OpenScim.dev"), its description the descriptor's, and
@@ -719,9 +717,8 @@ same is open to you:
      that is dying has a `death` record before it stops being `alive`.
 
    The harness reaches an encounter through the registry alone. It runs a
-   fight whose kind is missing from `encounterKinds.js` or whose
-   presentation is missing from `presentations.js`: those two lines are
-   only proved in the browser.
+   fight whose presentation is missing from `presentations.js`: that line
+   is only proved in the browser.
 2. `node tools/check-import-graph.mjs`: your modules import no bundle and
    are in no import cycle (section 1).
 3. **The route in a browser.** `npm run dev`, then
@@ -779,16 +776,14 @@ What still needs an edit in a bundle, each with its reason:
 2. `client/encounters/<name>/presentation.js`: the render config and the
    presentation function.
 3. `client/encounters/registry.js`: the definition in
-   `registeredEncounterDefinitions`.
-4. `client/engine/encounterKinds.js`: the kind, with its slug and
-   `registered: true`.
-5. `client/encounters/presentations.js`: the function in
+   `registeredEncounterDefinitions`. Its kind gives the route.
+4. `client/encounters/presentations.js`: the function in
    `presentationBuilders`.
-6. `tools/determinism/scenarios/<name>.mjs`, its digests recorded
+5. `tools/determinism/scenarios/<name>.mjs`, its digests recorded
    (`test/determinism-digests/<name>/`).
-7. The harness, the import graph check, `npm test`, `npm run build`, the
+6. The harness, the import graph check, `npm test`, `npm run build`, the
    route in a browser.
-8. The sandbox: `npm run sandbox:catalog` adds your monsters to its catalog
+7. The sandbox: `npm run sandbox:catalog` adds your monsters to its catalog
    (`client/encounters/sandbox/discovered.js`); `node
    test/test-sandbox-catalog.mjs` fights each, and `node
    tools/determinism/harness.mjs --update --only sandbox/catalog/` records

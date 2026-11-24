@@ -25,7 +25,7 @@ import { buildNpcProjectileVisual, healNpc } from "../shared/npcHelpers.js";
 import { emitInfernoNpcAttack, emitInfernoVisual } from "../inferno/events.js";
 
 export const vardorvisKind = "vardorvis";
-export const vardorvisAwakenedKind = "vardorvis_awakened"; // engine/encounterKinds.js
+export const vardorvisAwakenedKind = "vardorvis_awakened";
 // CACHE: the Ritual Site of the Stranglewood, region 4405. The arena is the
 // 13 x 13 inside the tendril barrier (OBS: 1123 to 1135, 3412 to 3424): the
 // barrier takes its edge, eight pillars stand inside.

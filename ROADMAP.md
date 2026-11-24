@@ -479,7 +479,7 @@ Progress (2026-11-22):
 
 ## Phase 8 — Content (L, ongoing)
 
-New fights, each added as modules through the three lists
+New fights, each added as modules through the two lists
 (`docs/ADDING-AN-ENCOUNTER.md`). Where the wiki and the game's cache leave
 timing open, record it from the game itself.
 
@@ -487,8 +487,8 @@ timing open, record it from the game itself.
       in (`client/encounters/vardorvis/`); his awakened version follows the
       wiki, is inferred where the wiki is silent, and has not been recorded.
       Duke Sucellus, the Whisperer and the Leviathan do not exist yet: their
-      kinds are in `client/engine/encounterKinds.js` (`registered: false`)
-      and their lobby entry is `client/dt2/`.
+      kinds and their lobby entry are `client/dt2/` (`bosses.js`; the
+      engine's table of kinds has them with `registered: false`).
 - [ ] Doom of Mokhaiotl
       (https://oldschool.runescape.wiki/w/Doom_of_Mokhaiotl/Strategies).
       Delves 1 to 8 can be fought (`client/encounters/doom-of-mokhaiotl/`).

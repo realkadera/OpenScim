@@ -38,6 +38,9 @@ import { buildSandboxDefinition } from "./sandbox/encounter.js";
 //
 // One definition per encounter. Its keys:
 //   kind               the name the encounter goes by ("yama_p3", "inferno")
+//   slug               optional: the address of its route, when that is not
+//                      the kind with "-" for "_" ("yama" for "yama_p3");
+//                      `null` for an encounter without a route (the lobby)
 //   factory(options)   makes the encounter object; `options` is what
 //                      encounterRegistry.create was given
 //   descriptor         what is known of the encounter before a fight exists:
@@ -59,10 +62,10 @@ import { buildSandboxDefinition } from "./sandbox/encounter.js";
 // The first two definitions come from client/toa/; Zebak's is built from the
 // rules handed to it here.
 //
-// engine/encounterKinds.js lists the kinds a second time, with their variant
-// kinds, route slugs and retired kinds, and four kinds that have no
-// definition here. The presentations (what draws an encounter) are a third
-// list: presentations.js beside this module has those that are written in
+// engine/encounterKinds.js reads its table of kinds (variant kinds, route
+// slugs, retired kinds) off this list: a kind is written here and nowhere
+// else. The presentations (what draws an encounter) are a second list:
+// presentations.js beside this module has those that are written in
 // modules, the chunk rendering.js its own four.
 //
 // The engine reads no descriptor. The application does, in the hook that
@@ -82,6 +85,7 @@ var registeredEncounterDefinitions = [
   doomDefinition,
   {
     kind: "yama_p3",
+    slug: "yama",
     factory: () => new YamaEncounter(),
     enableIntro: true,
     descriptor: {
@@ -125,6 +129,7 @@ var registeredEncounterDefinitions = [
   },
   {
     kind: "lobby",
+    slug: null,
     factory: () => new LobbyEncounter(),
     descriptor: {
       kind: "lobby",

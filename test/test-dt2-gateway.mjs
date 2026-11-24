@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { register } from "node:module";
 import { awakenedKind, bosses } from "../client/dt2/bosses.js";
 import * as dt2 from "../client/dt2/gateway.js";
 import * as toa from "../client/toa/gateway.js";
@@ -8,14 +8,18 @@ import { gatewayFloor, gatewayPortals } from "../client/lobby/gateways.js";
 
 // The four bosses, one ancient element each.
 assert.deepEqual(bosses.map((boss) => boss.element), ["blood", "ice", "shadow", "smoke"]);
-// The engine knows every boss and its awakened variant; only Vardorvis has a fight yet.
-const engine = readFileSync(new URL("../client/engine/encounterKinds.js", import.meta.url), "utf8");
-for (const { kind } of bosses)
-  assert.match(
-    engine,
-    new RegExp(`\\{kind:"${kind}",variantKinds:\\["${awakenedKind(kind)}"\\],slug:"[a-z-]+",registered:${kind === "vardorvis"}\\}`),
-    kind + " and its awakened variant are engine kinds",
-  );
+// The engine knows every boss and its awakened variant, and gives a route to those that have a fight. Its table of
+// kinds reads the registry, which Node loads through the determinism harness's hooks.
+register("../tools/determinism/node-hooks.mjs", import.meta.url);
+globalThis.self ??= globalThis;
+const { encounterDefinitions } = await import("../client/engine/encounterKinds.js");
+const { encounterRegistry } = await import("../client/encounters/registry.js");
+for (const { kind } of bosses) {
+  const entry = encounterDefinitions.find((definition) => definition.kind === kind);
+  assert.deepEqual(entry?.variantKinds, [awakenedKind(kind)], kind + " and its awakened variant are engine kinds");
+  assert.equal(entry.registered, encounterRegistry.isRegistered(kind), kind + " has a route when it has a fight, and only then");
+}
+assert.ok(encounterRegistry.isRegistered("vardorvis"), "Vardorvis has a fight");
 
 // The door's tiles open the chooser; none of them is a tile of the other gateway.
 assert.ok(dt2.gatewayPortals.length >= 6, "the door and the row in front of it are portals");

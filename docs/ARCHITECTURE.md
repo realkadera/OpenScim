@@ -103,7 +103,8 @@ them imports `rendering.js`. Five take lookups from `client/data/`
 (`combatFormulas.js`, `weapons.js`, `ammunition.js`, `equipmentStats.js`,
 `monsterStats.js`). None of the other 23 modules imports a chunk either:
 `createSimulationEngine.js` takes the encounter registry from
-`client/encounters/registry.js` (see "What is left in rendering.js for the
+`client/encounters/registry.js`, and `encounterKinds.js` reads its table of
+kinds off the same module, so it must be imported by no encounter (see "What is left in rendering.js for the
 engine": nothing). Three take the logger
 from `client/util/` (`CombatSystem.js`, `SimulationEngine.js`, `replay.js`),
 and `SimulationEngine.js` the colour packing.
@@ -131,7 +132,7 @@ and `SimulationEngine.js` the colour packing.
 | `replayLimits.js` | 34 | `ReplaySafetyError` (a reason and details), the limits a replay is held to before it is played or taken over (`snapshotNpcLimit`, `snapshotWorkLimit`, `projectileWorkLimit`, ...) and the tests of its values (`isSafeReplayCycle`, `isSafeReplayPosition`, `isSafeReplaySize`) | |
 | `logEventTypes.js` | 9 | `LogEventType`, the types of the events in the log | |
 | `supplies.js` | 231 | Zod schemas of item references, the rune pouch and the combat supplies; parsing, cloning and comparing them; `normalizeInventory`, `isItemStackable` | playerState |
-| `encounterKinds.js` | 94 | `encounterDefinitions` (kind, variant kinds, route slug), retired kinds | |
+| `encounterKinds.js` | 84 | `encounterDefinitions` (kind, variant kinds, route slug) and the retired kinds, read off the registered definitions (`client/encounters/registry.js`) and, for the fights that are not built, `client/dt2/bosses.js` | |
 | `spells.js` | 273 | rune ids, combination runes, staves, level and rune requirements, `canCastSpell` | |
 | `prayers.js` | 223 | `applyPrayerActions`, prayer restore formulas | prayerTables |
 | `consumables.js` | 1,003 | the consumable table (`consumableDefinitionByItemId`), stat boosts and restores, cooldown tracks, `applyConsumableEffects` | prayers, playerState |
@@ -230,7 +231,7 @@ the engine or an encounter.
 
 ## Engine and encounter
 
-An encounter is registered in three lists, all of them modules
+An encounter is registered in two lists, both of them modules
 (`docs/ADDING-AN-ENCOUNTER.md` is the guide to adding one):
 
 - a definition in `registeredEncounterDefinitions`
@@ -251,8 +252,10 @@ An encounter is registered in three lists, all of them modules
   of the four presentations it still holds itself (Yama, the lobby, Sol
   Heredit, the Inferno) in its list `KV`, from which it fills the scene
   builder registry `de`, the audio layers and the cameras.
-- its kind, variant kinds and route slug in the engine's
-  `encounterDefinitions` (`client/engine/encounterKinds.js`).
+
+The engine's `encounterDefinitions` (`client/engine/encounterKinds.js`: a
+kind's variant kinds and route slug) are not a third list: they are read off
+the definitions when the module is loaded.
 
 ### What the engine calls on an encounter
 
@@ -732,11 +735,10 @@ rules only through what `rendering.js` passes to `zebakDefinition`: `stats`,
 6. Restart: `engine.reset(startTile, { encounter: { kind, seeds } }?,
    runMechanics)`, then the loadout again.
 
-A new encounter needs: an entry in the engine's `encounterDefinitions`
-(`client/engine/encounterKinds.js`), a definition in
+A new encounter needs: a definition in
 `registeredEncounterDefinitions` (`client/encounters/registry.js`), and a
 presentation function in `presentationBuilders`
-(`client/encounters/presentations.js`). None of the three is a chunk. The
+(`client/encounters/presentations.js`). Neither is a chunk. The
 route's title and description come from the descriptor when `application.js`
 has no search-engine entry for the kind (`Qfe`; `buildDescriptorSeoEntry`
 is the fallback, and it marks the page `noindex`). Default loadouts (`_le`
