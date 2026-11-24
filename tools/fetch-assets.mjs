@@ -8,7 +8,8 @@
 // tools/assets/manifest.json     every untracked media file: sha256 or pixels, source (null = no upstream),
 //                                and for a file with no upstream the recipe of a stand-in (standIn,
 //                                tools/assets/standins.mjs), written where the file is absent
-// tools/assets/cache-groups.json groups kept in the trimmed client/osrs-cache/disk.zip
+// tools/assets/cache-groups.json groups kept in the trimmed client/osrs-cache/disk.zip, with those of
+//                                tools/assets/cache-groups/*.json (tools/assets/cache-groups.mjs)
 import fs from "node:fs/promises";
 import { existsSync, createWriteStream } from "node:fs";
 import path from "node:path";
@@ -18,6 +19,7 @@ import { Readable } from "node:stream";
 import { pipeline } from "node:stream/promises";
 import JSZip from "jszip";
 import { SECTOR, container, unpack, unzipCache } from "./assets/cache.mjs";
+import { readCacheGroups } from "./assets/cache-groups.mjs";
 import { decodePng, decodeSprites, encodePng, onCanvas, pixelHash } from "./assets/sprites.mjs";
 import { isStandIn, makeStandIn } from "./assets/standins.mjs";
 
@@ -46,7 +48,7 @@ const COMPRESSION = ["none", "bzip2", "gzip"];
 
 const readJson = async (file) => JSON.parse(await fs.readFile(file, "utf8"));
 const manifest = await readJson(path.join(repo, "tools/assets/manifest.json"));
-const cacheGroups = await readJson(path.join(repo, "tools/assets/cache-groups.json"));
+const cacheGroups = readCacheGroups();
 const sha256 = (bytes) => crypto.createHash("sha256").update(bytes).digest("hex");
 const readIfExists = (file) => fs.readFile(file).catch((e) => (e.code === "ENOENT" ? null : Promise.reject(e)));
 

@@ -35,11 +35,12 @@ import test from "node:test";
 import JSZip from "jszip";
 import { chromium } from "playwright-core";
 import { unpack, unzipCache } from "../tools/assets/cache.mjs";
+import { readCacheGroups } from "../tools/assets/cache-groups.mjs";
 import { SAMPLE_RATE, soundEffectWav, synthesizeSoundEffect } from "../client/audio/soundEffects.js";
 
 const repo = path.resolve(import.meta.dirname, "..");
 const cache = await unzipCache(fs.readFileSync(path.join(repo, "client/osrs-cache/disk.zip")));
-const ids = JSON.parse(fs.readFileSync(path.join(repo, "tools/assets/cache-groups.json"), "utf8"))[4];
+const ids = readCacheGroups()[4];
 const effect = async (id) => unpack(await cache.group(4, id));
 
 const stepperTest = "if (max >= ticks) {";

@@ -608,24 +608,33 @@ Colosseum's waves do (`client/encounters/colosseum/`):
 The client runs on a trimmed copy of the game cache (`client/osrs-cache/`,
 made by `npm run assets`). It holds what the existing encounters need. Your
 map square, your NPCs' models and animations, your spot animations and
-sounds must be in it:
+sounds must be in it. What yours adds is listed in a file of its own,
+`tools/assets/cache-groups/<name>.json` (`<name>` as your directory:
+lower case, digits, `-`), which the command below writes. Nobody edits the
+list the existing encounters share, `tools/assets/cache-groups.json`, so two
+encounters being added never meet in a file; the trimmed cache holds what
+any of the lists has (`tools/assets/cache-groups.mjs`).
 
 - `node tools/cache-objects.mjs deps <region>` lists the cache groups a map
-  square and its objects need that the trimmed cache lacks; `--add` puts
-  them into `tools/assets/cache-groups.json`. The region of a map square is
+  square and its objects need that no list has; `deps --add --to <name>
+  <region>` puts them into your file. The region of a map square is
   `x << 8 | y`. Then `npm run assets -- --force` rebuilds the cache.
-- `node tools/cache-objects.mjs deps npc:<id> seq:<id> spot:<id>` does the
-  same for an NPC type (its models, the sequences it stands, walks and runs
-  with), a sequence and a spot animation, each with the sounds of its
-  frames. Name every sequence your render config names: an attack or a
-  death is not in the NPC's own definition.
+- `node tools/cache-objects.mjs deps --add --to <name> npc:<id> seq:<id>
+  spot:<id>` does the same for an NPC type (its models, the sequences it
+  stands, walks and runs with), a sequence and a spot animation, each with
+  the sounds of its frames. Name every sequence your render config names:
+  an attack or a death is not in the NPC's own definition.
 - The cache loader throws `Empty container <index>:<group>` for a model or
   an animation that is still missing: the browser's console names the
-  index and the group to add to `cache-groups.json`. A missing sound throws
-  nothing: it is silent. `deps` finds the sounds of an animation's frames
-  only: a sound an `audio` rule plays is in no definition, and its id goes
-  under `"4"` in `cache-groups.json` by hand (`test/test-colosseum-audio.mjs`
-  checks the Colosseum's).
+  index and the group, and `deps --add --to <name> group:<index>:<group>`
+  adds it. A missing sound throws nothing: it is silent. `deps` finds the
+  sounds of an animation's frames only: a sound an `audio` rule plays is in
+  no definition, and `deps --add --to <name> sound:<id>` adds it
+  (`test/test-colosseum-audio.mjs` checks the Colosseum's).
+- With `--to`, a group counts as listed when the shared list or your file
+  has it, whatever other encounters' files hold: yours stays whole when
+  theirs change. `node test/test-cache-groups.mjs` checks every file and
+  needs no cache.
 
 `node tools/cache-objects.mjs npc <id>...` and `spot <id>...` print a
 definition from the full cache: an NPC's name, size, models and its own

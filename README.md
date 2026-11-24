@@ -42,7 +42,8 @@ sprite it was recoloured from, a recoloured RuneLite bar, an item icon, or an
 empty picture; `tools/assets/standins.mjs`), so that the client shows no
 broken image. An original put back from a backup is never replaced.
 
-After pulling a change to `tools/assets/cache-groups.json`, run
+After pulling a change to `tools/assets/cache-groups.json` or to a file of
+`tools/assets/cache-groups/` (one per encounter), run
 `npm run assets -- --force` to rebuild the trimmed cache.
 
 ## Test

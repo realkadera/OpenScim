@@ -56,7 +56,10 @@ not a digest to re-record. Record only your own:
 - encounter.executeCommand returns { gameEvents } or nothing, not a boolean.
 - An NPC with role "boss" gets no death animation from the default scene.
 - Missing cache group: the browser console names it ("Empty container
-  <index>:<group>"). Add it with `node tools/cache-objects.mjs deps --add
-  npc:<id> seq:<id> spot:<id>`, then `npm run assets -- --force`.
+  <index>:<group>"). Add it to your encounter's own list,
+  tools/assets/cache-groups/<name>.json, with `node tools/cache-objects.mjs
+  deps --add --to <name> npc:<id> seq:<id> spot:<id>` (or
+  `group:<index>:<group>`, `sound:<id>`), then `npm run assets -- --force`.
+  Do not edit tools/assets/cache-groups.json.
 - Monsters in this engine do not path around obstacles unless coded to; a
   scripted fight must stand where the straight walk is free.

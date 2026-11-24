@@ -64,7 +64,9 @@ State on 2026-11-21. Sizes: S = hours, M = days, L = weeks.
 - [x] Nothing in the project requests beta.scim.gg any more.
 - [x] `npm run assets` (`tools/fetch-assets.mjs`): downloads OpenRS2 cache
       2762, builds the trimmed `client/osrs-cache/disk.zip` from the group
-      list in `tools/assets/cache-groups.json`, and fetches every media file
+      lists in `tools/assets/cache-groups.json` and
+      `tools/assets/cache-groups/` (one file per encounter added since), and
+      fetches every media file
       that has a proven source, checking each against
       `tools/assets/manifest.json` (SHA-256, or a hash of the pixels for
       images the fetcher encodes itself). 2057 of 2119 files are covered.
@@ -73,7 +75,8 @@ State on 2026-11-21. Sizes: S = hours, M = days, L = weeks.
       (`client/audio/soundEffects.js`, a port of the game client's
       synthesizer). The 392 `.ogg` files are gone. The trimmed cache carries
       399 effects, which adds 176 KB to `disk.zip`. An effect that is not
-      listed under `"4"` in `cache-groups.json` is silent: add its id and
+      listed under `"4"` in one of those lists is silent: add its id
+      (`node tools/cache-objects.mjs deps --add --to <name> sound:<id>`) and
       rebuild with `npm run assets -- --force`. All of index 4 would add
       about 20 MB.
 - [x] 144 interface images are decoded from cache sprites (index 8) by the

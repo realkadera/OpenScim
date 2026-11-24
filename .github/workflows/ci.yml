@@ -52,6 +52,11 @@ jobs:
       - name: Import graph
         run: node tools/check-import-graph.mjs
 
+      # The lists of the trimmed cache's groups, one file per encounter: ids
+      # only, no game data.
+      - name: Cache group lists
+        run: node test/test-cache-groups.mjs
+
       # Against HEAD, its default, the check compares a clean checkout with
       # itself. A pull request is checked out merged: HEAD^1 is its base.
       - name: Test markers
