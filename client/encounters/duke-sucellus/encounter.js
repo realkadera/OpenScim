@@ -3,9 +3,10 @@
 // https://oldschool.runescape.wiki/w/Duke_Sucellus/Strategies
 //
 // He sits at the north end of his asylum and never moves. He sleeps until the
-// player first clicks on him, from any distance, which wakes him and starts
-// the fight (the poison that wakes him in the game is skipped); then he acts
-// every five ticks, every four once enraged:
+// player first clicks on him, from any distance. The click stands for the last
+// of the poison that wakes him in the game: he wakes two ticks later, can be
+// attacked from the tick after, and then acts every five ticks, every four once
+// enraged:
 // - with the player beside him, diagonals included, icicles (they hit at
 //   once) and, two ticks later, a slam on the player if they are in the row
 //   in front of him by then, which cannot reach a diagonal;
@@ -96,6 +97,11 @@ export const spots = {
 const bossActorId = "duke-sucellus";
 const attackTicks = 5; // WIKI, TABLE
 const enragedAttackTicks = 4; // WIKI
+// OBS 11/24 (2 of 2): the last poison shows on him a tick after it is fed ("Duke
+// is waking up."), he wakes a tick after that, and the player's first attack went
+// off a tick later still, on him as he woke.
+const wakeDelayTicks = 2;
+const attackableTicks = 1;
 const wakeTicks = 5; // OBS, OBS 11/24: his first attack 5 ticks after he wakes
 export const wakeAnimationTicks = 3; // CACHE: the wake sequence is 90 cycles
 const slamTicks = 2; // OBS, OBS 11/24: the slam lands 2 ticks after the icicles
@@ -346,11 +352,15 @@ class DukeSucellusEncounter {
     const idle = { environmentalDamages: [] };
     if (npc.id !== bossActorId) return idle;
     if (this.wakeTick === null) {
-      // Asleep until the player clicks on him. The click is an attack on him,
-      // which the player carries out from this tick on, once in range.
+      // Asleep until the player clicks on him. The engine takes the player off him
+      // again, and refuses further clicks, while he cannot be attacked.
       if (context.world.getPlayer()?.attackTarget !== npc.id) return idle;
-      this.wakeTick = context.tick;
-      npc.combat.nextActionTick = context.tick + wakeTicks;
+      this.wakeTick = context.tick + wakeDelayTicks;
+      npc.attackBlockedUntilTick = this.wakeTick + attackableTicks;
+      npc.combat.nextActionTick = this.wakeTick + wakeTicks;
+      return idle;
+    }
+    if (context.tick === this.wakeTick) {
       emitInfernoVisual(context.tickEvents, { animations: [{ actorId: npc.id, clipId: "wake", delayCycles: 0 }], projectiles: [], graphics: [] });
       return idle;
     }
@@ -492,7 +502,7 @@ class DukeSucellusEncounter {
     return {
       kind: this.kind,
       state: {
-        wakeTick: this.wakeTick, // null while he sleeps
+        wakeTick: this.wakeTick, // null until he is clicked on; then the tick he wakes
         gaze: this.gaze && { checkTick: this.gaze.checkTick, hitTick: this.gaze.hitTick },
         sight: this.sight,
         gas: this.clouds.map((cloud) => ({ vent: [...cloud.vent], riseTick: cloud.riseTick, hurtFrom: cloud.hurtFrom, endTick: cloud.endTick })),

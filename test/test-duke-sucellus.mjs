@@ -50,6 +50,29 @@ try {
   });
   assert.deepEqual(raised, [314, 314, 0]);
 
+  // Clicked on every tick by a player beside him: he wakes two ticks after the
+  // first click, can be attacked from the next, and attacks at the fifth.
+  const waking = await page.evaluate(() => {
+    const player = engine.player();
+    engine.setMechanicsConfig({ ...engine.mechanicsConfig, infiniteHealth: true });
+    for (let tick = 0; tick < 16; tick++) engine.advanceTick([31, 51]);
+    const clicked = engine.worldState.tick + 1;
+    let attacked = null, struck = null;
+    for (let tick = 0; tick < 12; tick++) {
+      engine.queueAttackTarget("duke-sucellus");
+      engine.advanceTick(player.position);
+      const now = engine.worldState.tick;
+      if (attacked === null && engine.getPlayerAttackCooldown(player.id, now) > 0) attacked = now - clicked;
+      if (struck === null && engine.encounter.slams.length > 0) struck = now - clicked;
+    }
+    return { beside: player.position.join(), wakes: engine.getEncounterSnapshot().state.wakeTick - clicked, attacked, struck };
+  });
+  assert.deepEqual(waking, { beside: "31,51", wakes: 2, attacked: 3, struck: 7 });
+  await page.reload();
+  await page.waitForFunction(() => window.engine && window.scene, null, { timeout: 60000 });
+  await page.locator(".loading-screen").waitFor({ state: "hidden", timeout: 60000 });
+  await page.waitForFunction(() => scene.isTerrainLoaded() && scene.isPlayerLoaded() && scene.isNpcTypeLoaded(12191) && scene.isNpcTypeLoaded(12167), null, { timeout: 60000 });
+
   // Asleep, however long the player stays, and drawn as the sleeping type.
   const drawnType = () => page.evaluate(() => [...scene.npcInstanceManager.instanceRegistry.values()].find((npc) => [12167, 12191].includes(npc.npcTypeId)).npcTypeId);
   const asleep = await page.evaluate(() => {
