@@ -1,0 +1,191 @@
+// Duke Sucellus loads on his route, is drawn from the trimmed cache (his
+// asylum and his model), sleeps until he is clicked on, gazes with the eye in
+// his mouth and the overlay on the screen, spits gas, and dies into the
+// victory screen.
+// The mechanics themselves are digested by the determinism harness
+// (tools/determinism/scenarios/duke-sucellus.mjs).
+import assert from "node:assert/strict";
+import { chromium } from "playwright-core";
+
+const origin = "http://127.0.0.1:8791";
+const browser = await chromium.launch({
+  executablePath: process.env.CHROME_PATH || "C:/Program Files/Google/Chrome/Application/chrome.exe",
+  args: ["--enable-unsafe-swiftshader"],
+});
+
+try {
+  const page = await browser.newPage({ viewport: { width: 1280, height: 850 } });
+  const errors = [];
+  page.on("pageerror", (error) => errors.push(error.stack));
+  // A model or an animation missing from the trimmed cache is logged, not thrown.
+  page.on("console", (message) => message.text().includes("Empty container") && errors.push(message.text()));
+  for (const [path, marker, probe] of [
+    ["**/engine/SimulationEngine.js*", "this.encounter = options.encounter;", "if (options.encounter.kind === 'duke_sucellus') window.engine = this;"],
+    ["**/encounters/shared/buildScene.js*", "const scene = new Scene();", "window.scene = scene;"],
+  ]) {
+    await page.route(path, async (route) => {
+      const response = await route.fetch();
+      const body = await response.text();
+      assert.ok(body.includes(marker));
+      await route.fulfill({ response, body: body.replace(marker, marker + probe) });
+    });
+  }
+
+  await page.goto(origin + "/duke-sucellus/");
+  await page.waitForFunction(() => window.engine && window.scene, null, { timeout: 60000 });
+  await page.locator(".loading-screen").waitFor({ state: "hidden", timeout: 60000 });
+  assert.equal(new URL(page.url()).pathname, "/duke-sucellus/");
+  await page.waitForFunction(() => scene.isTerrainLoaded() && scene.isPlayerLoaded() && scene.isNpcLoaded() && scene.npcInstanceManager.instanceRegistry.size > 0, null, { timeout: 60000 });
+  await page.waitForFunction(() => scene.isNpcTypeLoaded(12191) && scene.isNpcTypeLoaded(12167), null, { timeout: 60000 });
+
+  // The pillars' fades into black are drawn in front of the stone they share a
+  // plane with: the plain pillar (48738) and the one with salt (48751).
+  await page.waitForFunction(() => scene.isLocsLoaded(), null, { timeout: 60000 });
+  const raised = await page.evaluate(() => {
+    const { loader } = scene.locRenderer.recipe;
+    return [48738, 48751, 47013].map((modelId) => {
+      const model = loader.modelLoader.getModel(modelId);
+      return Array.from({ length: model.faceCount }, (_, face) => face).filter((face) => model.faceBias[face] === 1).length;
+    });
+  });
+  assert.deepEqual(raised, [314, 314, 0]);
+
+  // Asleep, however long the player stays, and drawn as the sleeping type.
+  const drawnType = () => page.evaluate(() => [...scene.npcInstanceManager.instanceRegistry.values()].find((npc) => [12167, 12191].includes(npc.npcTypeId)).npcTypeId);
+  const asleep = await page.evaluate(() => {
+    for (let tick = 0; tick < 30; tick++) engine.advanceTick(engine.player().position);
+    return { wakeTick: engine.getEncounterSnapshot().state.wakeTick, hp: engine.player().vitals.hp };
+  });
+  assert.deepEqual(asleep, { wakeTick: null, hp: 99 });
+  assert.equal(await drawnType(), 12167);
+
+  // A click on the middle of his body wakes him.
+  await page.mouse.click(640, 180);
+  await page.waitForFunction(() => engine.getEncounterSnapshot().state.wakeTick !== null, null, { timeout: 20000 });
+  await page.waitForFunction(() => [...scene.npcInstanceManager.instanceRegistry.values()].some((npc) => npc.npcTypeId === 12191), null, { timeout: 20000 });
+
+  // His eye (the faces of labels 94 to 108), which every animation hides but
+  // the gaze: 253 is the most an animation hides a face.
+  const eye = await page.evaluate(() => {
+    const { modelAdapter } = [...scene.npcInstanceManager.instanceRegistry.values()].find((npc) => npc.npcTypeId === 12191);
+    const { model } = modelAdapter;
+    const faces = Array.from({ length: 15 }, (_, n) => [...(model.faceLabels[94 + n] ?? [])]).flat();
+    const hidden = (clip, tick) => {
+      modelAdapter.resetPose();
+      modelAdapter.applySkeletal(clip.seq, clip.skeletalStart + tick);
+      return faces.filter((face) => (model.faceAlphas[face] & 255) === 253).length;
+    };
+    const { idle, attackClips } = scene.npcInstanceManager.typeRegistry.get(12191).animationSet;
+    return { faces: faces.length, idle: hidden(idle, 0), melee: hidden(attackClips.melee, 45), gaze: hidden(attackClips.gaze, 90) };
+  });
+  assert.deepEqual(eye, { faces: 442, idle: 442, melee: 442, gaze: 0 });
+
+  // The overlay of his gaze, which the player stands in: ticked to the gaze,
+  // and drawn by the application's own loop, coming and going with it.
+  const gazed = await page.evaluate(() => {
+    engine.setMechanicsConfig({ ...engine.mechanicsConfig, infiniteHealth: true });
+    for (let tick = 0; tick < 100; tick++) {
+      if (engine.getEncounterSnapshot().state.gaze) return true;
+      engine.advanceTick(engine.player().position);
+    }
+    return false;
+  });
+  assert.equal(gazed, true);
+  await page.waitForFunction(() => document.querySelector(".scene-viewport > .duke-sight"), null, { timeout: 30000 });
+  await page.waitForFunction(() => !document.querySelector(".duke-sight"), null, { timeout: 30000 });
+
+  // As recorded (OBS 11/24 in encounter.js). The overlay is up for 6 ticks,
+  // behind a pillar too; a gaze that finds the player hits 5 ticks in.
+  const gazes = await page.evaluate(() => {
+    const state = () => engine.getEncounterSnapshot().state;
+    const through = (position) => {
+      for (let tick = 0; tick < 10 && state().gaze; tick++) engine.advanceTick(position);
+      for (let tick = 0; tick < 100 && !state().gaze; tick++) engine.advanceTick(position);
+      const start = engine.worldState.tick, from = engine.damageHistory.length;
+      let open = 0;
+      for (let tick = 0; tick < 8; tick++) {
+        if (state().sight !== null) open++;
+        engine.advanceTick(position);
+      }
+      return { open, hits: engine.damageHistory.slice(from).filter((hit) => hit.source === "Duke Sucellus' gaze").map((hit) => hit.tick - start) };
+    };
+    engine.queueAttackTarget(null);
+    return { before: through([31, 44]), behind: through([27, 51]) };
+  });
+  assert.deepEqual(gazes, { before: { open: 6, hits: [5] }, behind: { open: 6, hits: [] } });
+
+  // The slam lands on whoever is in the row before him by then, wherever they
+  // were when he struck, and on no one on a diagonal.
+  const slams = await page.evaluate(() => {
+    const fight = (struck, then) => {
+      let strikes = 0, landed = 0;
+      for (let tick = 0; tick < 120; tick++) {
+        const due = engine.encounter.slams.length;
+        engine.advanceTick(struck);
+        if (engine.encounter.slams.length === due) continue;
+        const from = engine.damageHistory.length;
+        engine.advanceTick(then);
+        engine.advanceTick(then);
+        strikes++;
+        if (engine.damageHistory.slice(from).some((hit) => hit.source === "Duke Sucellus' slam")) landed++;
+      }
+      return strikes < 5 ? "too few strikes: " + strikes : landed === strikes ? "all" : landed === 0 ? "none" : landed + " of " + strikes;
+    };
+    const diagonal = [27, 51], row = [28, 51];
+    return { row: fight(row, row), intoRow: fight(diagonal, row), outOfRow: fight(row, diagonal), diagonal: fight(diagonal, diagonal) };
+  });
+  assert.deepEqual(slams, { row: "all", intoRow: "all", outOfRow: "none", diagonal: "none" });
+
+  // Enraged at 126 hitpoints and not at 130, and the gas that is out for 16
+  // ticks, 14 once he is.
+  const enrage = await page.evaluate(() => {
+    const fight = (hp) => {
+      engine.setBossHp(hp);
+      const strikes = [], lives = new Set();
+      for (let tick = 0; tick < 120; tick++) {
+        const due = engine.encounter.slams.length;
+        engine.advanceTick([27, 51]);
+        if (engine.encounter.slams.length > due) strikes.push(engine.worldState.tick);
+        for (const cloud of engine.getEncounterSnapshot().state.gas) if (tick > 40) lives.add(cloud.endTick - cloud.riseTick);
+      }
+      return { attackTicks: Math.min(...strikes.slice(1).map((tick, n) => tick - strikes[n]).slice(2)), lives: [...lives].sort() };
+    };
+    return { 485: fight(485), 130: fight(130), 126: fight(126) };
+  });
+  // Below half his hitpoints a second spit comes 3 ticks later, at the same vent
+  // for a player who has not moved, and its gas goes a tick later.
+  assert.deepEqual(enrage, { 485: { attackTicks: 5, lives: [16] }, 130: { attackTicks: 5, lives: [16, 17] }, 126: { attackTicks: 4, lives: [14, 15] } });
+
+  // A gaze that finds the player hits for 85 to 101.
+  const gazeHits = await page.evaluate(() => {
+    const from = engine.damageHistory.length;
+    for (let tick = 0; tick < 500; tick++) engine.advanceTick([31, 44]);
+    return engine.damageHistory.slice(from).filter((hit) => hit.source === "Duke Sucellus' gaze").map((hit) => hit.effectiveDamage);
+  });
+  assert.ok(gazeHits.length >= 8, `${gazeHits.length} gazes hit`);
+  assert.ok(gazeHits.every((hit) => hit >= 85 && hit <= 101), `gazes hit for ${gazeHits}`);
+
+  // Below half his hitpoints, the player standing in the room: ticked until
+  // he has gazed and spat gas at a vent.
+  const seen = await page.evaluate(() => {
+    engine.setMechanicsConfig({ ...engine.mechanicsConfig, infiniteHealth: true });
+    engine.setBossHp(200);
+    const seen = { gaze: false, gas: false };
+    for (let tick = 0; tick < 150 && !(seen.gaze && seen.gas); tick++) {
+      engine.advanceTick(engine.player().position);
+      const state = engine.getEncounterSnapshot().state;
+      if (state.gaze) seen.gaze = true;
+      if (state.gas.length) seen.gas = true;
+    }
+    return seen;
+  });
+  assert.deepEqual(seen, { gaze: true, gas: true });
+
+  // Killed; the application's own loop plays his death and ends the fight.
+  await page.evaluate(() => engine.setBossHp(0));
+  await page.waitForFunction(() => engine.getEncounterOutcome().phase === "victory" && document.body.innerText.includes("DUKE SUCELLUS DEFEATED"), null, { timeout: 120000 });
+  assert.deepEqual(errors, []);
+  console.log("Duke Sucellus loaded on /duke-sucellus/, was drawn, slept until clicked, gazed with his overlay, spat gas and was won");
+} finally {
+  await browser.close();
+}

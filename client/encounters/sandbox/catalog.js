@@ -263,6 +263,8 @@ export const curatedNpcCatalog = [
 export const sandboxCatalogExclusions = {
   11730: "Zebak is a head and a tail of nine tiles with mechanics of his own: he is fought as the host of his room",
   11732: "Zebak, enraged: as above",
+  12167: "Duke Sucellus asleep: only drawn until he wakes, and has no attack",
+  12191: "Duke Sucellus never leaves his seat and has no walk: he is fought in his own asylum",
   12825: "the healing totem of a Colosseum modifier: it heals and never moves",
 };
 
