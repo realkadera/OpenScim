@@ -59,6 +59,11 @@ not a digest to re-record. Record only your own:
 - A branch built on another open pull request says "Built on #N"; after #N
   is squash-merged, rebase with `git rebase --onto origin/main <last commit
   of #N> <branch>`.
+- A new boss gets its equipment and inventory setups before it is pushed:
+  its descriptor's `loadouts` (docs/ADDING-AN-ENCOUNTER.md, section 3),
+  from the Equipment section of its wiki strategies page, for example
+  https://oldschool.runescape.wiki/w/The_Leviathan/Strategies. Where the
+  client lacks the page's item, use the next best and say so in a comment.
 
 ## Pitfalls
 

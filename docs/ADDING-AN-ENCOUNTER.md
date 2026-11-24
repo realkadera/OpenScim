@@ -810,3 +810,7 @@ Every step adds files of your own; none edits a list.
    their digests. A monster that is not one to place on its own goes to
    `sandboxCatalogExclusions` in `client/encounters/sandbox/catalog.js`
    with its reason (`docs/SANDBOX.md`, "New encounters' monsters").
+6. For a boss, its equipment and inventory setups, before it is pushed: the
+   descriptor's `loadouts` (section 3), from the Equipment section of its
+   wiki strategies page (`<boss>/Strategies`, as
+   https://oldschool.runescape.wiki/w/The_Leviathan/Strategies).
