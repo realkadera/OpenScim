@@ -489,9 +489,14 @@ timing open, record it from the game itself.
 - [ ] Desert Treasure II bosses, each with its awakened version. Vardorvis is
       in (`client/encounters/vardorvis/`); his awakened version follows the
       wiki, is inferred where the wiki is silent, and has not been recorded.
-      Duke Sucellus, the Whisperer and the Leviathan do not exist yet: their
-      kinds and their lobby entry are `client/dt2/` (`bosses.js`; the
-      engine's table of kinds has them with `registered: false`).
+      The Leviathan's post-quest fight is in (`client/encounters/leviathan/`),
+      from the wiki and RSPSApp's reading of rsprox recordings and videos;
+      its lightning damage, the smoke's 59 or 60, the stun's 25%, the width of
+      its weak spot and the rounding of its special's reduction wait for a
+      recording, and its awakened version is not written. Duke Sucellus and
+      the Whisperer do not exist yet: their kinds and their lobby entry are
+      `client/dt2/` (`bosses.js`; the engine's table of kinds has them with
+      `registered: false`).
 - [ ] Doom of Mokhaiotl
       (https://oldschool.runescape.wiki/w/Doom_of_Mokhaiotl/Strategies).
       Delves 1 to 8 can be fought (`client/encounters/doom-of-mokhaiotl/`).
