@@ -14,6 +14,20 @@ import { buildSandboxDefinition } from "./sandbox/encounter.js";
 //                      display name, map square, the player's start tile,
 //                      how the arena's collision is built, variants or
 //                      modifiers, the victory text
+//                      Three optional fields of it are the menus' own,
+//                      read by assets/application.js, so that an encounter
+//                      needs no entry in a table of that chunk:
+//                        loadouts           { key: { name, equipment: { slot:
+//                                           item id }, inventory: [item id or
+//                                           null, ...], supplies? } }: the
+//                                           default loadouts, the first being
+//                                           the one a player starts with
+//                        seo                { title, description, h1?, intro?,
+//                                           keywords?, noindex? }: the route's
+//                                           texts for search engines
+//                        tileMarkerPresets  [{ id, name, description, link?,
+//                                           defaultActive?, markers: [[x, y,
+//                                           "#AARRGGBB", label?], ...] }]
 //   controls           what its menus offer: defaultMechanicsConfig,
 //                      mechanicsToggles, debugActions; some have more
 //   enableIntro        optional; isIntroEnabledForKind answers from it

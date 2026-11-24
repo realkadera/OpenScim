@@ -28,9 +28,12 @@ try {
   await serveFixture(page);
   // Two probes: the engine of the fixture's fight, and the scene as the
   // default scene builder made it.
+  // Two more, into the application's tables that an encounter's descriptor
+  // fills: its tile-marker presets and the What's New entries.
   for (const [path, marker, probe] of [
     ["**/engine/SimulationEngine.js*", "this.encounter = options.encounter;", "if (options.encounter.kind === 'training_ground') window.engine = this;"],
     ["**/encounters/shared/buildScene.js*", "const scene = new Scene();", "window.scene = scene;"],
+    ["**/assets/application.js*", "var eve = \"Check your gear, then press Start.\";", "window.tilePresetsOf = Qbe; window.whatsNew = Ibe;"],
   ]) {
     await page.route(path, async (route) => {
       const response = await route.fetch();
@@ -41,12 +44,12 @@ try {
   }
 
   // The route: the kind with "-" for "_" (engine/encounterKinds.js), and a page title from
-  // the descriptor, because application.js has no entry for the kind.
+  // the descriptor's `seo`: application.js has no entry for the kind.
   await page.goto(origin + "/training-ground/");
   await page.waitForFunction(() => window.engine && window.scene, null, { timeout: 60000 });
   await page.locator(".loading-screen").waitFor({ state: "hidden", timeout: 60000 });
   assert.equal(new URL(page.url()).pathname, "/training-ground/");
-  await page.waitForFunction(() => document.title === "Training Ground | OpenScim.dev");
+  await page.waitForFunction(() => document.title === "Training Ground Simulator | OpenScim.dev");
   assert.equal(await page.evaluate(() => engine.getEncounterKind()), "training_ground");
 
   // The scene: terrain, the player and the monster are loaded, and the
@@ -63,10 +66,16 @@ try {
   // fight loads: ghost, skeleton, zombie (client/engine/thralls.js).
   assert.deepEqual(drawn, { sceneClass: "InfernoScene", renderConfigNpcTypes: [7697, 10880, 10883, 10886], npcTypeLoaded: true, hitTest: ["sparring-partner"], hitpoints: { hp: 75, maxHp: 75 } });
 
+  // What the descriptor gives the menus. Its tile-marker preset, as the application keeps one; and the What's New
+  // entries: the files of client/whats-new/ before the entries of their date that application.js lists.
+  const menus = await page.evaluate(() => ({ presets: tilePresetsOf("training_ground"), news: whatsNew.slice(0, 2).map((entry) => entry.id), dated: whatsNew.filter((entry) => entry.date).map((entry) => entry.date) }));
+  assert.deepEqual(menus.presets, [{ id: "training_ground_ring", name: "Sparring ring", description: "Where the partner starts", encounterKind: "training_ground", markers: [{ x: 30, y: 30, color: "#14D74F", opacity: 1, label: "Partner" }, { x: 31, y: 30, color: "#D81414", opacity: 0.5 }] }]);
+  assert.deepEqual(menus.news, ["2026-11-24-colosseum", "2026-11-24-zebak"]);
+  assert.deepEqual(menus.dated, [...menus.dated].sort().reverse(), "What's New is newest first");
+
   // A fight, ticked from here until the monster is nearly dead: it walks up
   // and hits, and the debug action of the fixture's controls reaches the
-  // encounter. The player has nothing worn: application.js has no default
-  // loadout for the kind.
+  // encounter. The player starts with the first loadout of the descriptor.
   const fight = await page.evaluate(() => {
     const partner = engine.worldState.actors.get("sparring-partner");
     const start = [...partner.position];
@@ -82,9 +91,9 @@ try {
       walked ||= partner.position[0] !== start[0] || partner.position[1] !== start[1];
       attacks += engine.getLastTickEvents().filter((event) => event.type === "zuk_attack" && event.attack === "training_ground_melee").length;
     }
-    return { walked, attacked: attacks > 0, healedTo, alive: partner.alive, nearlyDead: partner.vitals.hp <= 12, worn: Object.keys(engine.player().equipment).length };
+    return { walked, attacked: attacks > 0, healedTo, alive: partner.alive, nearlyDead: partner.vitals.hp <= 12, worn: engine.player().equipment, carried: engine.player().inventory.slice(0, 4).map((item) => item?.id ?? null) };
   });
-  assert.deepEqual(fight, { walked: true, attacked: true, healedTo: 75, alive: true, nearlyDead: true, worn: 0 });
+  assert.deepEqual(fight, { walked: true, attacked: true, healedTo: 75, alive: true, nearlyDead: true, worn: { cape: 22109 }, carried: [6685, null, 6685, null] });
   // The application's own tick loop ends the fight. The scene plays the
   // monster's death, and the interface shows the victory text of the
   // fixture's descriptor.

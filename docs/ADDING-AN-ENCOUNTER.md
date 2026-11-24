@@ -350,7 +350,10 @@ fight exists. The engine reads none of it.
 | `mapSquareOffsets` | no | further map squares around the first (the Inferno's arena spans five) |
 | `victory` | no | `{ title, narrative, accent, eyebrow? }`: the text of the victory screen; `accent` is `"gold"` or `"blood"`. Without it a won fight shows no victory screen |
 | `isWorkInProgress` | no | a "Beta" badge in the menus |
-| `variants`, `variantLabel`, `modifiers`, `setupNotes` | no | Yama's contracts and Sol Heredit's modifiers; see their definitions in `registry.js` |
+| `variants`, `variantLabel`, `modifiers`, `setupNotes` | no | Yama's contracts and Sol Heredit's modifiers; see their definitions |
+| `loadouts` | no | the default loadouts, by a key of your choosing: `{ max: { name: "Max (Scythe)", equipment: { head: 30750, weapon: 22325 }, inventory: [13652, 23685, null, 3024], supplies: { ... } } }`. `equipment` is item ids by slot (`head`, `cape`, `amulet`, `weapon`, `body`, `shield`, `legs`, `hands`, `boots`, `ring`), `inventory` up to 28 item ids with `null` for an empty slot, `supplies` the ammunition, rune pouch, blowpipe, spell and spellbook as `parseCombatSupplies` of `client/engine/supplies.js` reads them (rune ids are `RUNE_ITEM_IDS` of `client/engine/spells.js`). The first is what a player starts with; "No Equipment" is added. Without `loadouts` the player starts with nothing worn. When they grow, keep them in a `loadouts.js` beside the encounter |
+| `seo` | no | the route's texts for search engines: `{ title, description, h1?, intro?, keywords?, noindex? }`. With it the encounter is listed on the home page and its route indexed, unless it says `noindex: true`. Without it the page's title and description are the display name and the description, and the route is not indexed |
+| `tileMarkerPresets` | no | tile markers the player can switch on: `[{ id, name, description, link?, defaultActive?, markers: [[x, y, "#AARRGGBB", label?], ...] }]`. `id` is unique among all encounters; a marker's colour is RuneLite's, alpha first, as its ground marker plugin exports it |
 
 **`controls`** is what the menus offer:
 
@@ -388,7 +391,7 @@ encounter without a route (the lobby).
 That is all a route needs. The page's title is the descriptor's display
 name ("Training Ground | OpenScim.dev"), its description the descriptor's, and
 the page asks search engines not to index it. Texts written for search
-engines are an entry in a table of `application.js`: see section 9.
+engines are the descriptor's `seo` (section 3).
 
 Once a kind is in the registry it is offered in the encounter picker and
 the quick search, under its display name.
@@ -749,6 +752,11 @@ same is open to you:
 Without touching a bundle, an encounter gets:
 
 - the route, the encounter picker and the quick search (sections 3 and 4);
+- its default loadouts, its texts for search engines and its tile-marker
+  presets, from the descriptor's `loadouts`, `seo` and `tileMarkerPresets`
+  (section 3);
+- an entry in the What's New window: a file of its own in
+  `client/whats-new/`, as `2026-11-24-colosseum.js` there;
 - the arena from the map, the terrain, the map's objects (section 3);
 - clicks on the ground and on its NPCs: walking and attacking. An NPC the
   player must not attack is refused in the rule `validateAttack` of
@@ -774,10 +782,8 @@ What still needs an edit in a bundle, each with its reason:
 |---|---|---|
 | A click that means something other than "attack" or "walk here" (Zebak's jugs: push, pull) | `Grid.js`, the click handlers and the context menu | what a click on an NPC means is decided there, by actor id |
 | A replay that contains one of your debug actions | `Grid.js`, the replay's schema | it lists the commands of each encounter by name; a command it does not know runs live, is recorded, and makes the replay invalid when it is loaded |
-| Default loadouts | `application.js`, the table of presets by kind | without an entry the player starts with nothing worn and an empty inventory, and the loadout editor offers only the player's own presets |
-| Texts for search engines, and being listed on the home page | `application.js`, the table of route metadata | the fallback of section 4 is deliberately `noindex` |
 | An NPC in the lobby that leads to the encounter | `rendering.js`, the lobby's tables | which lobby NPC and which tile enter which kind is written there. A gateway is modules, not a bundle: `client/lobby/gateways.js` lists them, one module each (`client/toa/gateway.js`, `client/dt2/gateway.js`) |
-| A set-up panel of the encounter's own or a "retry" button (the Inferno has both), tile-marker presets, tutorials, plugins scoped to an encounter | `Grid.js`, `application.js` | each is a table or a component keyed by kind |
+| A set-up panel of the encounter's own or a "retry" button (the Inferno has both), tutorials, plugins scoped to an encounter | `Grid.js`, `application.js` | each is a table or a component keyed by kind |
 | A scene that is not built on the Inferno's (Yama's and Sol Heredit's extend the compositor directly) | `rendering.js` | a presentation is handed one base class |
 | A method of the base scene that has no name yet | `rendering.js` | about a hundred are left; `tools/rename-members.mjs` renames one everywhere it is used, with a names file in `tools/names/` (`scene-members.json` is the example) |
 | A kind of visual event the scene does not know | `rendering.js` | a scene plays the event types its code was written for |

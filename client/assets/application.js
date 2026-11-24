@@ -7103,6 +7103,18 @@ var _le = {
     naked: Ple,
   },
 };
+// Default loadouts written beside an encounter: its descriptor's `loadouts` (client/encounters/registry.js), the
+// presets by key, the first being the one a player starts with. An inventory there is a list of item ids, `null`
+// for an empty slot. "No Equipment" is added, as every kind above has it.
+for (const kind of cE.getRegisteredKinds()) {
+  const loadouts = cE.getDescriptor(kind)?.loadouts;
+  if (loadouts) {
+    _le[kind] = {
+      ...Object.fromEntries(Object.entries(loadouts).map(([key, preset]) => [key, { ...preset, inventory: gT((preset.inventory ?? []).map((id) => (id === null ? null : { id }))) }])),
+      naked: Ple,
+    };
+  }
+}
 for (const e of new Set(Object.values(_le))) {
   for (const [t, n] of Object.entries(e)) {
     if (!n.isFallback) {
@@ -31042,7 +31054,31 @@ function buildDescriptorSeoEntry(encounterKind) {
   if (!descriptor) {
     return;
   }
-  const { displayName, description } = descriptor;
+  const { displayName, description, seo } = descriptor;
+  // Texts written beside the encounter: its descriptor's `seo` (client/encounters/registry.js). With them the
+  // route is listed and indexed like those of the table above, unless it says `noindex`.
+  if (seo) {
+    const name = seo.name ?? displayName;
+    return {
+      name,
+      description: seo.summary ?? description,
+      buildRoute: (path) => {
+        const breadcrumbs = [{ name: "Home", path: "/" }, { name: seo.breadcrumb ?? name, path }];
+        return {
+          path,
+          title: seo.title + " | " + Yfe,
+          description: seo.description,
+          h1: seo.h1 ?? name,
+          intro: seo.intro ?? seo.description,
+          keywords: seo.keywords ?? [name],
+          ogImagePath: Jfe,
+          breadcrumbs,
+          jsonLd: [tye(breadcrumbs), { "@context": "https://schema.org", "@type": "VideoGame", name: "Old School RuneScape", alternateName: "OSRS", publisher: { "@type": "Organization", name: "Jagex" }, genre: ["MMORPG", "Role-playing game"], url: "https://oldschool.runescape.com/" }],
+          ...(seo.noindex ? { noindex: true } : {}),
+        };
+      },
+    };
+  }
   return {
     name: displayName,
     description,
@@ -36478,14 +36514,6 @@ var Pbe = ["All", "Encounters", "Combat", "Training", "Plugins", "Interface"];
 var Ibe = [
   {
     date: "2026-11-24",
-    id: "2026-11-24-colosseum",
-    category: "Encounters",
-    title: "Fortis Colosseum",
-    impact:
-      "All Colosseum waves are in, with modifiers, a waves overlay, a line-of-sight simulator and an in-game Colosseum helper plugin.",
-  },
-  {
-    date: "2026-11-24",
     id: "2026-11-24-zebak",
     category: "Encounters",
     title: "Zebak",
@@ -37705,6 +37733,14 @@ var Ibe = [
     impact: "Game audio, with volume controls in Settings.",
   },
 ];
+// Entries written as files: the default export of every client/whats-new/*.js, so that two pull requests that each
+// announce something edit no list. A new entry is a file there, not a line above. It stands before the entries
+// above of its date and of earlier ones; the files of one date go by id. (Oldest first here: each is put in front.)
+const whatsNewFiles = Object.values(import.meta.glob("/whats-new/*.js", { eager: true, import: "default" })).sort((a, b) => a.date.localeCompare(b.date) || b.id.localeCompare(a.id));
+for (const entry of whatsNewFiles) {
+  const at = Ibe.findIndex((listed) => !listed.date || listed.date <= entry.date);
+  Ibe.splice(at < 0 ? Ibe.length : at, 0, entry);
+}
 var Abe = [
   "Jan",
   "Feb",
@@ -38365,6 +38401,11 @@ function Qbe(h2) {
 }
 Xbe(Ybe);
 Xbe(Jbe);
+// Presets written beside an encounter: its descriptor's `tileMarkerPresets` (client/encounters/registry.js). A
+// marker there is the arguments of Hbe above: [x, y, "#AARRGGBB", label?, fillOpacity?].
+for (const kind of cE.getRegisteredKinds()) {
+  Xbe((cE.getDescriptor(kind)?.tileMarkerPresets ?? []).map((preset) => ({ ...preset, encounterKind: kind, markers: preset.markers.map((marker) => Hbe(...marker)) })));
+}
 var eve = "Check your gear, then press Start.";
 var tve = [...W, ...aP, D];
 var nve = {
