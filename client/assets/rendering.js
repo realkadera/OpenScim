@@ -46821,7 +46821,11 @@ var SceneCompositor = class e {
       return Ty(uF.background);
     }
     this.reusableQueue ||= Ty(uF.background);
-    const n = Iy(this.reusableQueue, uF.background);
+    // Skybox: the sky of the map square drawn, where the plugin is on.
+    const skyColor = getSkyboxColor(this.encounterRenderConfig?.terrainMapSquare);
+    const n = Iy(this.reusableQueue, skyColor ? TW(skyColor) : uF.background);
+    // Blindfold: null, or what the scene draws of the terrain, the scenery, the entities and the interface.
+    const blindfoldNow = getBlindfold();
     const {
       simulationState: simulationState,
       events: events,
@@ -47101,7 +47105,17 @@ var SceneCompositor = class e {
         : 1;
     const H = options.renderMode === "2d";
     const M = {
-      entityHider: options.entityHider ?? null,
+      // Blindfold hides NPCs and projectiles, and the 2D of the NPCs and the
+      // player, through the Entity Hider's own switches; the player stays.
+      entityHider:
+        blindfoldNow && (!blindfoldNow.enableEntities || !blindfoldNow.enableUi)
+          ? {
+              ...(options.entityHider ?? iF),
+              hideAttackers: true,
+              ...(blindfoldNow.enableEntities ? {} : { hideNpcs: true, hideProjectiles: true }),
+              ...(blindfoldNow.enableUi ? {} : { hideNpcs2D: true, hideLocalPlayer2D: true }),
+            }
+          : options.entityHider ?? null,
       tzhaarHpTracker: options.tzhaarHpTracker ?? null,
     };
     const T = M.entityHider?.hideLocalPlayer === true;
@@ -47148,24 +47162,32 @@ var SceneCompositor = class e {
       this.terrainHeights,
     );
     if (!H) {
-      n.commands.push(...this.cachedTerrainMeshes);
+      if (!blindfoldNow || blindfoldNow.enableTerrain) {
+        n.commands.push(...this.cachedTerrainMeshes);
+      }
       fy.Lk("locs");
       this.locRenderer.setTerrainHeights(this.terrainHeights);
       this.locRenderer.Xz(this.speedMultiplier);
       this.locRenderer.tw(x);
-      this.locRenderer.renderLocs(n);
+      if (!blindfoldNow || blindfoldNow.enableScenery) {
+        this.locRenderer.renderLocs(n);
+      }
       fy.Dk("locs");
-      this.groundItemRenderer.render(n);
+      if (!blindfoldNow || blindfoldNow.enableEntities) {
+        this.groundItemRenderer.render(n);
+      }
       fy.Lk("sceneObjects");
-      this.vH(
-        n,
-        currentTick,
-        interpolatedTick ?? currentTick,
-        simulationState,
-        A,
-        x,
-        e.fightStartCountdown,
-      );
+      if (!blindfoldNow || blindfoldNow.enableScenery) {
+        this.vH(
+          n,
+          currentTick,
+          interpolatedTick ?? currentTick,
+          simulationState,
+          A,
+          x,
+          e.fightStartCountdown,
+        );
+      }
       fy.Dk("sceneObjects");
       fy.Lk("encounterFx");
       this.tH(
@@ -57385,6 +57407,9 @@ import {gatewayMeshes, gatewayPortals, gatewayCovers, gatewayFloor, extendLobbyA
 import {toaFragmentShader} from "/toa/shader.js";
 import {getAttackRangeOverlay} from "/plugins/attackRanges.js";
 import {overrideProjectile} from "/plugins/projectileOverride.js";
+// The plugins Blindfold and Skybox (client/plugins/): what the scene leaves out, and the colour of the sky.
+import {getBlindfold} from "/plugins/blindfold.js";
+import {getSkyboxColor} from "/plugins/skybox.js";
 import {dt2FragmentShader} from "/dt2/shader.js";
 import { LobbyEncounter } from "../encounters/lobby/LobbyEncounter.js";
 import { divineSeveranceContract, forfeitBreathContract, sensoryCloudingContract, bloodiedBlowsContract, glyphicAttenuationContract, yamaContractVariants } from "../encounters/yama/contracts.js";

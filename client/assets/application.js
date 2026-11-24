@@ -5,6 +5,10 @@ import { colosseumLobbyLabel, getLobbyFights } from "/encounters/colosseum/lobby
 import { loadSandboxCode } from "/encounters/sandbox/menuImport.js";
 import { attackRangesOptions, attackRangesDefaults, updateAttackRanges, listenForAttackRangesHotkey, describeHotkey } from "/plugins/attackRanges.js";
 import { projectileOverrideOptions, projectileOverrideDefaults, updateProjectileOverride } from "/plugins/projectileOverride.js";
+// Plugins that keep their own settings (client/plugins/pluginStore.js): an entry each in the Plugins panel.
+import { blindfoldStore, listenForBlindfold } from "/plugins/blindfold.js";
+import { skyboxStore } from "/plugins/skybox.js";
+if (typeof window !== "undefined") listenForBlindfold(window);
 import { thrallSpells, THRALL_END_SOUND_ID } from "/engine/thralls.js";
 const zebakSoundSearch = location.pathname === "/zebak/" ? new URLSearchParams(location.search).get("sound") : null;
 import { toEsModule } from "./rolldown-runtime.js";
@@ -22732,6 +22736,20 @@ var Yme = [
         keywords: [],
       }),
     ),
+    $me("blindfold", "Blindfold", {
+      description: "Stops drawing the terrain, the scenery, NPCs or the interface: with Skybox, a floor of your colour.",
+      keywords: ["blindfold", "hide terrain", "hide scenery", "floor color", "floor colour", "greenscreen", "render"],
+    }),
+    ...blindfoldStore.options.map((option) =>
+      _me("blindfold", "Blindfold", option.label, { description: option.info, keywords: [] }),
+    ),
+    $me("skybox", "Skybox", {
+      description: "The colour of the sky, and of the floor where Blindfold hides the terrain.",
+      keywords: ["skybox", "sky", "background", "floor color", "floor colour"],
+    }),
+    ...skyboxStore.options.map((option) =>
+      _me("skybox", "Skybox", option.label, { description: option.info, keywords: [] }),
+    ),
     $me("inventoryTags", "Inventory Tags", {
       description: "Outlines tagged inventory items in color.",
       keywords: [
@@ -25162,8 +25180,30 @@ function ife({ pluginKey: pluginKey, options: options, onChange: onChange }) {
     ],
   });
 }
+// A plugin of client/plugins/pluginStore.js in the Plugins panel: its switch and its settings, read from its store.
+function PluginStoreEntry({ label: label, store: store, expanded: expanded, onToggleExpand: onToggleExpand }) {
+  const state = (0, React.useSyncExternalStore)(store.subscribe, store.getState);
+  return (0, jsxRuntime.jsx)(efe, {
+    label: label,
+    pluginKey: store.key,
+    isOn: state.enabled,
+    onToggle: () => store.setEnabled(!state.enabled),
+    hasSettings: true,
+    expanded: expanded,
+    onToggleExpand: onToggleExpand,
+    children: (0, jsxRuntime.jsx)(AttackRangesSettings, {
+      pluginKey: store.key,
+      options: state.settings,
+      onChange: (settings) => store.setSettings(settings),
+      defaults: store.defaults,
+      optionList: store.options,
+      sections: [...new Set(store.options.map((option) => option.section))],
+    }),
+  });
+}
 // The options of a plugin that lists them as data: Attack Ranges by default,
-// Projectile Override with its own list (its options have no section).
+// Projectile Override with its own list (its options have no section), and
+// the plugins of client/plugins/pluginStore.js with theirs.
 function AttackRangesSettings({ pluginKey: pluginKey, options: options, onChange: onChange, optionList = attackRangesOptions, defaults = attackRangesDefaults, sections = ["Options", "Styles"] }) {
   const set = (key, value) => onChange({ ...options, [key]: value });
   const row = (option, label, control) =>
@@ -26593,6 +26633,12 @@ var cfe = (0, React.memo)(
                         onChange: onAttackRangesChange,
                       }),
                     }),
+                    (0, jsxRuntime.jsx)(PluginStoreEntry, {
+                      label: "Blindfold",
+                      store: blindfoldStore,
+                      expanded: l6.blindfold,
+                      onToggleExpand: () => lx("blindfold"),
+                    }),
                     (0, jsxRuntime.jsxs)(efe, {
                       label: "Boss Health Bar",
                       pluginKey: "bossHealthBar",
@@ -27836,6 +27882,12 @@ var cfe = (0, React.memo)(
                         defaults: projectileOverrideDefaults,
                         sections: [null],
                       }),
+                    }),
+                    (0, jsxRuntime.jsx)(PluginStoreEntry, {
+                      label: "Skybox",
+                      store: skyboxStore,
+                      expanded: l6.skybox,
+                      onToggleExpand: () => lx("skybox"),
                     }),
                     (0, jsxRuntime.jsx)(efe, {
                       label: "Status Bars",
