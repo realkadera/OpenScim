@@ -680,6 +680,8 @@ function buildEngineState(worldState, engine) {
             }),
         // Drawn by the overlay renderer (rendering.js, npcOverheadsAndBars).
         ...(npc.overheadPrayers?.length ? { overheadPrayers: [...npc.overheadPrayers] } : {}),
+        // The colour of the NPC's name in the right-click menu, when its encounter sets one (Grid.js, npcMenuColor).
+        ...(npc.menuColor ? { menuColor: npc.menuColor } : {}),
         ...(npc.chargeBar ? { chargeBar: { ...npc.chargeBar } } : {}),
         ...(npc.shieldBar ? { shieldBar: { ...npc.shieldBar } } : {}),
         ...(npc.alwaysShowHealthBar

@@ -774,7 +774,12 @@ Without touching a bundle, an encounter gets:
 - restarts, replays of the player's inputs, the victory screen, the death
   screen;
 - the default scene, visual events, an audio layer of its own (sections 5
-  and 6).
+  and 6). A graphic of a visual event with `onGround: true` lies on the
+  floor and is drawn over it, not into it (the Doom's falling-rock shadows);
+- a colour for an NPC's name in the menus: `menuColor` ("#RRGGBB") on its
+  actor, as the Doom's Larva Tracker sets it (`larvaTracker.js`);
+- infoboxes beside the Inferno's: `infoboxes` in the state of its snapshot,
+  each `{ id, spriteUrl, text, tooltipTitle, tooltipDetail }`.
 
 What still needs an edit in a bundle, each with its reason:
 

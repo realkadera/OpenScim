@@ -56883,6 +56883,11 @@ var cG = class {
               };
             },
           },
+          // A graphic flat on the floor (a shadow, a marker) asks to be drawn
+          // over the terrain it lies on, as the other scenes' tile graphics
+          // are: without the bias it fights the floor and all but vanishes
+          // (the Doom of Mokhaiotl's: client/encounters/doom-of-mokhaiotl/).
+          ...(n.onGround === true ? { style: { depthBias: _R } } : {}),
           heightOffsetMode: "actor",
           fallbackDurationCycles: 0,
         },
