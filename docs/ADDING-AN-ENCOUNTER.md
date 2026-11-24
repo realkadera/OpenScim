@@ -678,8 +678,10 @@ same is open to you:
 
 1. **A fight without a browser.** The determinism harness runs scripted
    fights in Node and digests the engine's state at every tick. Add a file
-   `tools/determinism/scenarios/<name>.mjs` that exports `scenarios`, and
-   its name to `scenarioFiles` in `tools/determinism/harness.mjs`. The
+   `tools/determinism/scenarios/<name>.mjs` that exports `scenarios`: the
+   harness runs every file of that directory, and there is no list to add
+   it to. Its digests are recorded as files of their own,
+   `test/determinism-digests/<scenario name>.json`. The
    fixture's file, `scenarios/fixture.mjs`, is two fights in forty lines;
    the top of `scenarios/common.mjs` says what a scenario holds, and the
    file has the gear and the inputs a script can give.
@@ -782,8 +784,8 @@ What still needs an edit in a bundle, each with its reason:
    `registered: true`.
 5. `client/encounters/presentations.js`: the function in
    `presentationBuilders`.
-6. `tools/determinism/scenarios/<name>.mjs`, its name in `scenarioFiles`,
-   its digests recorded.
+6. `tools/determinism/scenarios/<name>.mjs`, its digests recorded
+   (`test/determinism-digests/<name>/`).
 7. The harness, the import graph check, `npm test`, `npm run build`, the
    route in a browser.
 8. The sandbox: `npm run sandbox:catalog` adds your monsters to its catalog
