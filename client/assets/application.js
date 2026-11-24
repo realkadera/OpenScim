@@ -33102,6 +33102,7 @@ var _ye = (0, React.memo)(
     visible: visible,
     onClose: onClose,
     onOpenShortcuts: onOpenShortcuts,
+    onOpenWhatsNew: onOpenWhatsNew,
     onOpenCredits: onOpenCredits,
     simulationControls: simulationControls,
     displayControls: displayControls,
@@ -33236,6 +33237,16 @@ var _ye = (0, React.memo)(
                     (0, jsxRuntime.jsx)(_ge, {
                       search: hk,
                       fieldId: fieldId,
+                    }),
+                    (0, jsxRuntime.jsx)(eB, {
+                      type: "button",
+                      className: "panel-header-action",
+                      onClick: onOpenWhatsNew,
+                      hint: "What's New",
+                      "aria-label": "See what's new in OpenScim",
+                      children: (0, jsxRuntime.jsx)(dy, {
+                        glyph: "news",
+                      }),
                     }),
                     (0, jsxRuntime.jsx)(CommunityLinks, {
                       className: "panel-header-action",
@@ -53716,6 +53727,7 @@ function eCe({ devHarness: devHarness } = {}) {
               visible: kR,
               onClose: () => kX(false),
               onOpenShortcuts: () => hG(true),
+              onOpenWhatsNew: () => hL(true),
               onOpenCredits: () => hI(true),
               simulationControls: {
                 onReset: handleReset,
