@@ -137,8 +137,12 @@ const helmetWeapons = [
   28991 /* Atlatl dart */,
 ];
 
-/** The kinds of engine/encounterKinds.js when this list was written; the scenario below shows their entries and no others. */
-const kindsOfTheTable = ["zebak", "toa_nexus", "vardorvis", "duke_sucellus", "whisperer", "leviathan", "yama_p3", "lobby", "sol_heredit", "inferno"];
+/**
+ * Kinds of engine/encounterKinds.js that had an encounter when this list was written; the scenario below shows their
+ * entries and no others. None that is waiting for its fight: its entry changes when the fight is added, and that
+ * must not change a digest of the engine's.
+ */
+const kindsOfTheTable = ["zebak", "toa_nexus", "vardorvis", "yama_p3", "lobby", "sol_heredit", "inferno"];
 /** The functions of the engine chunk that the interface calls directly, on fixed arguments. */
 function exportedHelpers(engine, objTypeLoader) {
   const pouch = { kind: "divine", slots: [{ id: rune.fire }, null, { id: rune.blood }, { id: 4699 /* Lava rune */ }] };
