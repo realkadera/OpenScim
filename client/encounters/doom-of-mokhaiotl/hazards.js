@@ -8,16 +8,18 @@ import { defineNpc } from "../shared/npcDefinitions.js";
 import { buildActorVisualTarget, healNpc } from "../shared/npcHelpers.js";
 import { emitInfernoVisual } from "../inferno/events.js";
 import {
-  npcTypeIds, seqIds, spotAnims, floor, earthPool, bossSize, bossStart,
+  npcTypeIds, seqIds, spotAnims, floor, earthPool, earthPoolAtStart, bossSize, bossStart,
   debrisMaxHit, larvaBlastMaxHit, acidDamage, shockwaveDamage,
 } from "./delves.js";
+import { larvaTrackerKeys, larvaTrackerSetting } from "./larvaTracker.js";
 
 const key = ([x, y]) => x + "," + y;
 const unkey = (text) => text.split(",").map(Number);
 const chebyshev = (a, b) => Math.max(Math.abs(a[0] - b[0]), Math.abs(a[1] - b[1]));
 const onFloor = ([x, y]) => x >= floor.minX && x <= floor.maxX && y >= floor.minY && y <= floor.maxY;
 const tileTarget = (position) => ({ kind: "tile", position: [...position] });
-const graphic = (spotAnimId, position, delayCycles = 0, height = 0) => ({ spotAnimId, target: tileTarget(position), height, delayCycles });
+// On the floor: drawn over the terrain (onGround), or a shadow or a marker all but vanishes into it.
+const graphic = (spotAnimId, position, delayCycles = 0, height = 0) => ({ spotAnimId, target: tileTarget(position), height, delayCycles, ...(height === 0 ? { onGround: true } : {}) });
 export const inFootprint = (actor, [x, y]) =>
   x >= actor.position[0] && x < actor.position[0] + actor.size && y >= actor.position[1] && y < actor.position[1] + actor.size;
 export const bossCentre = (boss) => [boss.position[0] + (bossSize >> 1), boss.position[1] + (bossSize >> 1)];
@@ -69,10 +71,11 @@ function animate(context, actorId, clipId, graphics = [], projectiles = []) {
 // drop lands (captured: +28 and +19 to 20 over the seven); each landing
 // clears acid in a 3x3 (wiki).
 const holyWaterPrayer = 20;
-export function holyWater(doom, context) {
+export function holyWater(doom, context, boss) {
   const player = context.world.getPlayer();
   player.specialAttack.energy = Math.min(100, player.specialAttack.energy + 25);
-  const centre = [bossStart[0] + (bossSize >> 1), bossStart[1] + (bossSize >> 1)];
+  // Where he died: a burrow may have moved him.
+  const centre = bossCentre(boss);
   const tiles = [];
   for (let dx = -4; dx <= 4; dx++) for (let dy = -4; dy <= 4; dy++) if (Math.max(Math.abs(dx), Math.abs(dy)) >= 2) tiles.push([centre[0] + dx, centre[1] + dy]);
   const graphics = [];
@@ -99,11 +102,13 @@ export function holyWater(doom, context) {
 // pieces: one on the player's tile, the rest within four tiles. The player's
 // protection prayers go off. Three ticks later a rock stands on the marked
 // tile (a player there is pushed aside), a player on any piece is hit for up
-// to 21, and the rock's orbs leave from the pieces, a tick apart, alternating
-// styles (captured; the wiki agrees on what, not when).
+// to 21, and the rock's orbs leave from the pieces, landing a tick apart,
+// alternating styles (captured; the wiki agrees on what, not when).
+// At delve 8 the two rocks leave together for the same tile, the second
+// flying 3 ticks longer, so it bursts 3 ticks after the first (OBS: 158 of
+// 158 double throws, cycles 60-180 and 60-270).
 export class Rocks {
   standing = new Set();
-  inAir = 0;
   orbsLandAt = 0;
   collision = null; // set by the encounter's refineArenaConfig
   constructor(doom) {
@@ -112,7 +117,6 @@ export class Rocks {
   reset() {
     for (const tile of this.standing) this.collision?.unflag(...unkey(tile), CollisionFlag.OBJECT);
     this.standing.clear();
-    this.inAir = 0;
     this.orbsLandAt = 0;
   }
   has(tile) {
@@ -121,17 +125,19 @@ export class Rocks {
   throw(context) {
     const doom = this.doom;
     const style = doom.random() < 0.5 ? "range" : "magic";
-    const throwOne = (ctx, index) => {
-      const boss = doom.boss(ctx.world);
-      if (!boss?.alive) return;
-      const at = this.burstTile(boss, ctx.world.getPlayer().position);
-      animate(ctx, boss.id, "rockThrow", [], [projectile(spotAnims.rockLaunch[style], bossCentre(boss), at, 60, 210, 340, 500, 50)]);
-      this.inAir++;
-      doom.later(doom.rules.rockBurstTicks, (later) => this.burst(at, style, later, index));
-    };
-    throwOne(context, 0);
-    // Delve 8: a second, identical rock (a guess: 3 ticks later).
-    if (doom.rules.rocks > 1) doom.later(3, (ctx) => throwOne(ctx, 1));
+    const boss = doom.boss(context.world);
+    if (!boss?.alive) return;
+    const at = this.burstTile(boss, context.world.getPlayer().position);
+    const flights = [doom.rules.rockFlightCycles, doom.rules.secondRockFlightCycles].slice(0, doom.rules.rocks);
+    animate(context, boss.id, "rockThrow", [], flights.map((end) => projectile(spotAnims.rockLaunch[style], bossCentre(boss), at, 60, end, 340, 500, 50)));
+    // Its orbs leave as it lands (3 ticks after the burst), the last landing
+    // this many ticks later: the boss's next orb waits on it (orbHold).
+    const lastOrb = Math.ceil((doom.rules.rockOrbFirstCycles + 30 * (doom.rules.rockOrbs - 1)) / 30);
+    flights.forEach((end, index) => {
+      const burstsIn = doom.rules.rockBurstTicks + (end - flights[0]) / 30;
+      this.orbsLandAt = Math.max(this.orbsLandAt, context.tick + burstsIn + 3 + lastOrb);
+      doom.later(burstsIn, (later) => this.burst(at, style, later, index));
+    });
   }
   burstTile(boss, playerTile) {
     const centre = bossCentre(boss);
@@ -156,10 +162,12 @@ export class Rocks {
     doom.later(2, (ctx) => animate(ctx, null, null, pieces.map((tile, piece) => graphic(spotAnims.debrisImpact, tile, Math.max(0, ends[piece] - 60)))));
     doom.later(3, (ctx) => this.land(marked, pieces, style, ctx, index));
   }
-  debrisTiles(centre, count, avoid = new Set()) {
+  // The rest of the pieces: `picks` tiles within four of the player's, a tile
+  // picked twice (or the player's again) making one piece (OBS: delves.js).
+  debrisTiles(centre, picks, avoid = new Set()) {
     const taken = new Set([key(centre), ...avoid]);
     const tiles = [];
-    for (let attempt = 0; attempt < 120 && tiles.length < count; attempt++) {
+    for (let pick = 0; pick < picks; pick++) {
       const tile = [centre[0] + this.doom.randomInt(-4, 4), centre[1] + this.doom.randomInt(-4, 4)];
       if (taken.has(key(tile)) || !onFloor(tile) || this.has(tile)) continue;
       taken.add(key(tile));
@@ -169,7 +177,6 @@ export class Rocks {
   }
   land(marked, pieces, style, context, index) {
     const doom = this.doom;
-    this.inAir = Math.max(0, this.inAir - 1);
     const here = context.world.getPlayer().position;
     if (pieces.some((tile) => key(tile) === key(here))) {
       doom.pendingDamages.push({ baseDamage: [0, debrisMaxHit], attackType: "typeless", source: "Rock", playerPosition: [...here] });
@@ -179,8 +186,7 @@ export class Rocks {
       const aside = this.freeNeighbours(marked);
       if (aside.length) context.teleportPlayer(aside[Math.floor(doom.random() * aside.length)]);
     }
-    // Delve 8: two identical rock throws (wiki), each sending its own set as a single throw does.
-    // ponytail: the 3 ticks between the throws is a guess (TSPS's), not captured; a delve 8 observer log would settle it.
+    // Delve 8: two rock throws (wiki), each sending its own set as a single throw does.
     const orbs = doom.rules.rockOrbs;
     const sources = pieces.filter((tile) => key(tile) !== key(marked));
     const player = context.world.getPlayer();
@@ -190,11 +196,9 @@ export class Rocks {
       const end = doom.rules.rockOrbFirstCycles + 30 * orb;
       const impactDelayTicks = Math.ceil(end / 30);
       context.queueNpcHit(doom.rollOrb(boss, player, current, { impactDelayTicks }));
-      // The orb follows the player, as the boss's own do.
-      // From delve 7 each leaves a tick after the last on the same short flight, so all are fast (wiki: "extremely
-      // fast"; player report: three fast ones, then the second rock's three the tick after). Before, they leave together.
-      const start = doom.rules.delve >= 7 ? 30 * orb : 0;
-      animate(context, null, null, [], [{ ...projectile(spotAnims.orb[current], from, player.position, start, end, 100, 100), target: buildActorVisualTarget(player) }]);
+      // The orb follows the player, as the boss's own do. They all leave
+      // together, at every delve (OBS: from delve 7, cycles 0-30, 0-60, 0-90).
+      animate(context, null, null, [], [{ ...projectile(spotAnims.orb[current], from, player.position, 0, end, 100, 100), target: buildActorVisualTarget(player) }]);
       doom.orbImpact(current, impactDelayTicks);
       this.orbsLandAt = Math.max(this.orbsLandAt, context.tick + impactDelayTicks);
     }
@@ -204,6 +208,13 @@ export class Rocks {
     this.standing.add(key(tile));
     this.collision?.flag(...tile, CollisionFlag.OBJECT);
     this.doom.acid.clear(tile);
+  }
+  // A rock broken by the burrowed Doom (OBS: graphic 2699 where it stood).
+  crumble(tile, context) {
+    if (!this.has(tile)) return;
+    this.standing.delete(key(tile));
+    this.collision?.unflag(...tile, CollisionFlag.OBJECT);
+    animate(context, null, null, [graphic(spotAnims.rockCrumble, tile)]);
   }
   freeNeighbours([x, y]) {
     const tiles = [];
@@ -230,6 +241,14 @@ export class Rocks {
 // and, only during the shield, red (melee), each taking only its own style
 // (wiki). Every larva, red ones too, steps 1 tick after it lands, then
 // every 2 ticks (captured: 30 larvae, 230 steps).
+// OBS: they drop with the attack, on its tick. Outside the shield, delves 5-7
+// drop two of one colour side by side, and delve 8 one giant (2x2, ranged or
+// magic, 4 hitpoints; wiki: a 4x4 burst, and three times the heal and the
+// hit if it reaches him). A larva crawls on into him to his centre tile and
+// is taken in the tick after it gets there (OBS: 50 of 59 taken 5 ticks
+// after their first step into him, three steps). One that has not reached
+// him 30 ticks after it dropped goes, if a burrow has moved him since (OBS:
+// 71 of 78; wiki: "about 20 seconds").
 // ponytail: larvae walking around rocks.
 const larvaDefinition = defineNpc({
   id: "doom-larva",
@@ -237,9 +256,17 @@ const larvaDefinition = defineNpc({
   tick: ({ actor, context, config }) => ({ environmentalDamages: config.larvae.reach(actor, context) }),
 });
 const larvaHitpoints = 2;
-const larvaReachCap = 12;
+const giantHitpoints = 4;
+const giantReachCap = 30; // TSPS, seen in game
 const larvaHeal = 9;
 const larvaStepTicks = 2;
+const larvaLostTicks = 30;
+// A larva over his centre tile (a giant's 2x2 over it).
+const overCentre = (larva, centre) =>
+  centre[0] >= larva.position[0] && centre[0] < larva.position[0] + larva.size && centre[1] >= larva.position[1] && centre[1] < larva.position[1] + larva.size;
+const footprintsOverlap = (a, b) =>
+  a.position[0] < b.position[0] + b.size && b.position[0] < a.position[0] + a.size &&
+  a.position[1] < b.position[1] + b.size && b.position[1] < a.position[1] + a.size;
 
 export class Larvae {
   definition = larvaDefinition;
@@ -258,12 +285,31 @@ export class Larvae {
     const boss = doom.boss(context.world);
     const tile = duringShield ? this.northWestTile(boss) : this.pastPlayerTile(boss, context.world.getPlayer().position);
     if (!tile) return;
-    const { npcTypeId, prayer = null, style = null } = this.kind(duringShield);
+    const kind = this.kind(duringShield);
+    this.spawnOne(context, tile, kind);
+    if (duringShield || doom.rules.larvaeAtOnce < 2) return;
+    const beside = this.besideTile(tile, boss);
+    if (beside) this.spawnOne(context, beside, kind);
+  }
+  spawnOne(context, tile, { npcTypeId, prayer = null, style = null, giant = false }) {
     const id = "doom-larva-" + this.count++;
     // Overhead: the prayer a plain larva uses, or the two a coloured one's style leaves (captured: one combined icon).
     const overheadPrayers = prayer ? [prayer] : style ? ["melee", "range", "magic"].filter((other) => other !== style) : undefined;
-    context.spawnNpc(roomNpc(larvaDefinition, { id, npcTypeId, position: tile, hp: larvaHitpoints, tick: context.tick, overheadPrayers }, { prayer, style, movedAt: context.tick - 1 }));
-    animate(context, id, "spawn", [graphic(spotAnims.larvaSpawn, tile)]);
+    const hp = giant ? giantHitpoints : larvaHitpoints;
+    const bossAt = [...(this.doom.boss(context.world)?.position ?? bossStart)];
+    context.spawnNpc(roomNpc(larvaDefinition, { id, npcTypeId, size: giant ? 2 : 1, position: tile, hp, tick: context.tick, overheadPrayers }, { prayer, style, giant, movedAt: context.tick - 1, bossAt }));
+    // Larva Tracker can leave the landing animation out (larvaTracker.js); the graphic stays.
+    const withAnimation = !larvaTrackerSetting(this.doom.mechanics, larvaTrackerKeys.removeSpawnAnimation);
+    animate(context, withAnimation ? id : null, withAnimation ? "spawn" : null, [graphic(spotAnims.larvaSpawn, tile)]);
+  }
+  // The second of a pair: beside the first, on a side more often than a
+  // corner (OBS: 62 of 84 pairs).
+  besideTile([x, y], boss) {
+    const free = (offsets) => offsets.map(([dx, dy]) => [x + dx, y + dy]).filter((tile) => onFloor(tile) && !this.doom.rocks.has(tile) && !inFootprint(boss, tile));
+    const sides = free([[0, 1], [0, -1], [1, 0], [-1, 0]]);
+    const corners = free([[1, 1], [-1, 1], [1, -1], [-1, -1]]);
+    const from = sides.length && (!corners.length || this.doom.random() < 62 / 84) ? sides : corners;
+    return from.length ? from[this.doom.randomInt(0, from.length - 1)] : null;
   }
   // A plain larva with the prayer it uses, or a coloured one with the style it takes.
   kind(duringShield) {
@@ -272,6 +318,9 @@ export class Larvae {
     if (doom.rules.delve === 3) return { npcTypeId: npcTypeIds.larva, prayer: ["melee", "range", "magic"][doom.randomInt(0, 2)] };
     const styles = duringShield ? ["range", "magic", "melee"] : ["range", "magic"];
     const style = styles[doom.randomInt(0, styles.length - 1)];
+    if (!duringShield && doom.rules.giantLarvae) {
+      return { npcTypeId: style === "range" ? npcTypeIds.giantRangedLarva : npcTypeIds.giantMagicLarva, style, giant: true };
+    }
     return { npcTypeId: { range: npcTypeIds.rangedLarva, magic: npcTypeIds.magicLarva, melee: npcTypeIds.meleeLarva }[style], style };
   }
   pastPlayerTile(boss, playerTile) {
@@ -300,21 +349,31 @@ export class Larvae {
   step(larva, context) {
     const boss = this.doom.boss(context.world);
     if (!larva.alive || !boss?.alive || context.tick - larva.state.movedAt < larvaStepTicks) return [];
-    larva.state.movedAt = context.tick;
     const centre = bossCentre(boss);
+    if (overCentre(larva, centre)) return [];
+    larva.state.movedAt = context.tick;
     const next = [larva.position[0] + Math.sign(centre[0] - larva.position[0]), larva.position[1] + Math.sign(centre[1] - larva.position[1])];
     // A crawl: the tile drawn over its 2 ticks, so it keeps moving rather than stepping and waiting (game: NPC crawl).
     return [{ npcId: larva.id, path: [next], movementSpeed: "crawl" }];
   }
-  // Into the Doom: the charge, the player's hit and his heal.
+  // Into the Doom: the charge, the player's hit and his heal (a giant's three times over).
   reach(larva, context) {
     const boss = this.doom.boss(context.world);
-    if (!larva.alive || !boss?.alive || !inFootprint(boss, larva.position)) return [];
+    if (!larva.alive || !boss?.alive) return [];
+    const moved = boss.position[0] !== larva.state.bossAt[0] || boss.position[1] !== larva.state.bossAt[1];
+    if (moved && context.tick - larva.spawnTick >= larvaLostTicks && !footprintsOverlap(boss, larva)) {
+      context.despawnNpc(larva.id);
+      return [];
+    }
+    // On his centre since an earlier tick.
+    if (!overCentre(larva, bossCentre(boss)) || context.tick <= larva.state.movedAt) return [];
     context.despawnNpc(larva.id);
     this.charge++;
+    const times = larva.state.giant ? 3 : 1;
+    const cap = larva.state.giant ? giantReachCap : this.doom.rules.larvaReachCap;
     animate(context, null, null, [{ spotAnimId: spotAnims.larvaImpact, target: buildActorVisualTarget(context.world.getPlayer()), height: 0, delayCycles: 0 }]);
-    healNpc(boss, larvaHeal + this.charge, context.tickEvents);
-    return [{ baseDamage: Math.min(this.charge, larvaReachCap), attackType: "typeless", source: "Demonic larva", playerPosition: [...context.world.getPlayer().position] }];
+    healNpc(boss, times * (larvaHeal + this.charge), context.tickEvents);
+    return [{ baseDamage: Math.min(times * this.charge, cap), attackType: "typeless", source: "Demonic larva", playerPosition: [...context.world.getPlayer().position] }];
   }
   // A hit on a larva: nothing through its prayer (a coloured one prays the
   // other two styles), 1 unless demonbane.
@@ -327,7 +386,8 @@ export class Larvae {
     const doom = this.doom;
     const [x, y] = larva.position;
     const blast = [];
-    for (let dx = -1; dx <= 1; dx++) for (let dy = -1; dy <= 1; dy++) blast.push([x + dx, y + dy]);
+    // Its own tiles and a ring around them: 3x3, a giant's 4x4.
+    for (let dx = -1; dx <= larva.size; dx++) for (let dy = -1; dy <= larva.size; dy++) blast.push([x + dx, y + dy]);
     animate(context, null, null, blast.map((tile) => graphic(spotAnims.larvaBlast, tile)));
     const boss = doom.boss(context.world);
     if (boss?.alive && blast.some((tile) => inFootprint(boss, tile))) {
@@ -347,13 +407,14 @@ export class Larvae {
 
 // --- volatile earth, the earthen shield and the shockwave -------------------
 
-// Volatile earth comes up on 19-28 tiles of the captured pool, 79-96 ticks
-// into the fight and every 100 after (a guess). The Doom attacks for 15 ticks
-// more, then charges: a slam at 19, landing at 21 and every 2 ticks after
-// for each further shockwave (26-42 each) on anyone outside the earthen
-// shield. The second earth destroyed brings the shield (3x3) on its tile; it
-// walks to the first, diagonally first, and its centre clears acid. It goes
-// when it arrives or the shockwaves end.
+// Volatile earth comes up on 19-28 tiles of its pool (delves.js) when the
+// encounter says: at delves 1-4 on the turn after his 11th (OBS), from delve
+// 5 as he surfaces (burrow.js). The Doom attacks for 15 ticks more, then
+// charges: a slam at 19, landing at 21 and every 2 ticks after for each
+// further shockwave (26-42 each) on anyone outside the earthen shield, the
+// slams spreading from where he stands. The second earth destroyed brings
+// the shield (3x3) on its tile; it walks to the first, diagonally first, and
+// its centre clears acid. It goes when it arrives or the shockwaves end.
 const idle = () => ({ environmentalDamages: [] });
 const earthDefinition = defineNpc({ id: "doom-volatile-earth", move: false, tick: idle });
 const earthenShieldDefinition = defineNpc({
@@ -369,7 +430,6 @@ export class Shockwave {
   }
   reset() {
     this.active = null; // { at }
-    this.nextAt = Infinity;
     this.earth = new Set();
     this.destroyed = [];
     this.shieldTile = null; // the shield NPC's destination
@@ -377,9 +437,13 @@ export class Shockwave {
   }
   start(context) {
     const doom = this.doom;
-    this.active = { at: context.tick };
     const boss = doom.boss(context.world);
-    const free = earthPool.filter((tile) => !doom.rocks.has(tile) && !inFootprint(boss, tile));
+    if (!boss?.alive) return;
+    this.active = { at: context.tick };
+    const centre = bossCentre(boss);
+    const atStart = boss.position[0] === bossStart[0] && boss.position[1] === bossStart[1];
+    const pool = atStart ? earthPool.slice(0, earthPoolAtStart) : earthPool;
+    const free = pool.filter((tile) => !doom.rocks.has(tile) && chebyshev(tile, centre) > 3);
     const count = Math.min(free.length, doom.randomInt(19, 28));
     for (let picked = 0; picked < count; picked++) {
       const [tile] = free.splice(Math.floor(doom.random() * free.length), 1);
@@ -398,8 +462,7 @@ export class Shockwave {
     doom.later(last, (ctx) => animate(ctx, "doom", "areaReturn"));
     doom.later(last + 1, (ctx) => {
       this.active = null;
-      this.nextAt = ctx.tick + 100;
-      doom.nextAt = Math.max(doom.nextAt, ctx.tick);
+      doom.shockwaveEnded(ctx);
     });
     doom.later(last + 3, (ctx) => this.clear(ctx));
     return at;
@@ -408,17 +471,21 @@ export class Shockwave {
   holdsAttacks(tick) {
     return this.active !== null && tick >= this.active.at + wave.charge;
   }
-  land(context) {
-    // Captured: a slam on every floor tile 2 to 12 tiles from his centre, a cycle later
-    // for each tile further out; which of the three looks random (here a hash of the tile).
-    const centre = [bossStart[0] + (bossSize >> 1), bossStart[1] + (bossSize >> 1)];
+  // Captured: a slam on every floor tile 2 to `reach` tiles from his centre, a
+  // cycle later for each tile further out; which of the three looks random
+  // (here a hash of the tile). The car slam's is the same (OBS).
+  floorSlam(context, centre, reach) {
     const graphics = [];
     for (let x = floor.minX; x <= floor.maxX; x++)
       for (let y = floor.minY; y <= floor.maxY; y++) {
         const ring = chebyshev([x, y], centre);
-        if (ring >= 2 && ring <= 12 && isArenaTileWalkable(x, y)) graphics.push(graphic(spotAnims.floorSlam[(x * 5 + y * 3 + context.tick) % 3], [x, y], ring - 2));
+        if (ring >= 2 && ring <= reach && isArenaTileWalkable(x, y)) graphics.push(graphic(spotAnims.floorSlam[(x * 5 + y * 3 + context.tick) % 3], [x, y], ring - 2));
       }
     animate(context, null, null, graphics);
+  }
+  land(context) {
+    const boss = this.doom.boss(context.world);
+    this.floorSlam(context, boss ? bossCentre(boss) : [bossStart[0] + (bossSize >> 1), bossStart[1] + (bossSize >> 1)], 12);
     if (this.sheltered(context)) return;
     this.doom.pendingDamages.push({ baseDamage: shockwaveDamage, attackType: "typeless", source: "Shockwave", playerPosition: [...context.world.getPlayer().position] });
   }
@@ -475,7 +542,8 @@ export class Shockwave {
 // blob to the tile just past his edge that way, plus one more at delve 3 (2-6
 // out, up to 2 to the side), two from delve 4 and three from 8 (1-9 out, up to
 // 4 to the side); a pool forms where each lands. Standing in one hurts 3-7 a
-// tick. None while he is shielded. Rocks cover acid. ponytail: the venom.
+// tick. None while he is shielded or burrowed (wiki). Rocks cover acid.
+// ponytail: the venom.
 export class Acid {
   pools = new Set();
   constructor(doom) {
@@ -487,7 +555,7 @@ export class Acid {
   }
   spray(boss, context) {
     const doom = this.doom;
-    if (!doom.rules.acid || doom.shield.up) return;
+    if (!doom.rules.acid || doom.shield.up || doom.burrow.burrowed) return;
     const [dx, dy] = this.direction;
     const centre = bossCentre(boss);
     const offsets = [[3, 0]];

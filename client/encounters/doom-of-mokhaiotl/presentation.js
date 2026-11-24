@@ -5,6 +5,7 @@
 import { buildScene } from "../shared/buildScene.js";
 import { doomKind, doomMapSquare, doomDeepKind, doomDeepMapSquare, bossActorId } from "./encounter.js";
 import { npcTypeIds, seqIds, spotAnims, locIds, bossStart, bossSize } from "./delves.js";
+import { withLarvaTracker } from "./larvaTracker.js";
 
 const identity = new Float32Array([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
 const loc = (prefix, locId, [x, y]) => ({
@@ -39,28 +40,48 @@ const renderConfig = {
         orb: seqIds.orb, rockThrow: seqIds.rockThrow, tongue: seqIds.tongue, emerge: seqIds.emerge,
         beamCharge: seqIds.beamCharge, beamLoop: seqIds.beamLoop, beamCancel: seqIds.beamCancel, beamFire: seqIds.beamFire,
         areaCharge: seqIds.areaCharge, areaLoop: seqIds.areaLoop, areaSlam: seqIds.areaSlam, areaReturn: seqIds.areaReturn,
+        shieldBreak: seqIds.shieldBreak,
       },
       deathSeqId: seqIds.despawn,
       bossDeathAnimationEnabled: true,
+    },
+    // Burrowed (delve 5+): the boss actor takes this type while under ground (burrow.js).
+    {
+      npcTypeId: npcTypeIds.burrowed,
+      idleSeqId: seqIds.burrowIdle,
+      walkSeqId: seqIds.burrowMove,
+      attackClips: { burrowMove: seqIds.burrowMove, burrowAttack: seqIds.burrowAttack },
+      deathSeqId: seqIds.despawn,
     },
     larva(npcTypeIds.larva),
     larva(npcTypeIds.rangedLarva),
     larva(npcTypeIds.magicLarva),
     larva(npcTypeIds.meleeLarva),
+    larva(npcTypeIds.giantRangedLarva),
+    larva(npcTypeIds.giantMagicLarva),
     { npcTypeId: npcTypeIds.volatileEarth, idleSeqId: seqIds.earthIdle, attackClips: { spawn: seqIds.earthSpawn, death: seqIds.earthDeath }, deathSeqId: seqIds.earthPop },
     { npcTypeId: npcTypeIds.earthenShield, idleSeqId: seqIds.shieldIdle, walkSeqId: seqIds.shieldIdle, attackClips: { spawn: seqIds.shieldSpawn }, deathSeqId: seqIds.shieldDeath },
   ],
 };
 
+// Every frame the scene draws what Larva Tracker leaves (larvaTracker.js):
+// larvae about to die and coloured larvae's overheads taken out, tiles marked.
+const larvaTrackerScene = (BaseScene) =>
+  class DoomScene extends BaseScene {
+    build(input, ...rest) {
+      return super.build(withLarvaTracker(input), ...rest);
+    }
+  };
+
 export const doomPresentation = (BaseScene) => ({
   kind: doomKind,
   renderConfig,
-  sceneBuilder: (context) => buildScene(BaseScene, renderConfig, context),
+  sceneBuilder: (context) => buildScene(larvaTrackerScene(BaseScene), renderConfig, context),
   defaultCamera: { yaw: 0, pitch: -45, zoom: 330 },
   presentation: {
     title: "Doom of Mokhaiotl",
     tagline: "Ruins of Mokhaiotl",
-    blurb: "Delves 1 to 8. Orbs, rocks, larvae, shockwaves, acid and the demonic shield.",
+    blurb: "Delves 1 to 8. Orbs, rocks, larvae, shockwaves, acid, the demonic shield and burrowing.",
     wikiUrl: "https://oldschool.runescape.wiki/w/Doom_of_Mokhaiotl",
     portrait: { npcTypeId: npcTypeIds.doom, framing: { yaw: -30, pitch: -12, focusHeight: 0.6, span: 0.7 } },
   },
@@ -72,7 +93,7 @@ export const doomDeepPresentation = (BaseScene) => ({
   ...doomPresentation(BaseScene),
   kind: doomDeepKind,
   renderConfig: deepRenderConfig,
-  sceneBuilder: (context) => buildScene(BaseScene, deepRenderConfig, context),
+  sceneBuilder: (context) => buildScene(larvaTrackerScene(BaseScene), deepRenderConfig, context),
 });
 // How presentations.js finds them. The deeper room's after the Doom's own: its kind takes this one.
 export const presentations = [doomPresentation, doomDeepPresentation];

@@ -494,10 +494,11 @@ timing open, record it from the game itself.
       engine's table of kinds has them with `registered: false`).
 - [ ] Doom of Mokhaiotl
       (https://oldschool.runescape.wiki/w/Doom_of_Mokhaiotl/Strategies).
-      Delves 1 to 8 can be fought (`client/encounters/doom-of-mokhaiotl/`).
-      Open, as its `encounter.js` says: burrowing (delve 5 on), giant larvae
-      (delve 8), holy water, the shield's own hitpoint bar, the acid's venom,
-      sounds.
+      Delves 1 to 8 can be fought (`client/encounters/doom-of-mokhaiotl/`),
+      their timings checked against 20 recorded runs (`delves.js`, OBS), with
+      the burrow of delve 5 on, giant larvae and the Plugin Hub's Larva
+      Tracker. Open, as its `encounter.js` says: the shield's own hitpoint
+      bar, the acid's venom, sounds.
 - [ ] Nex (https://oldschool.runescape.wiki/w/Nex/Strategies).
 - [ ] Tumeken's Warden, Tombs of Amascut
       (https://oldschool.runescape.wiki/w/Tumeken%27s_Warden), next to Zebak

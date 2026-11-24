@@ -264,6 +264,7 @@ export const sandboxCatalogExclusions = {
   11730: "Zebak is a head and a tail of nine tiles with mechanics of his own: he is fought as the host of his room",
   11732: "Zebak, enraged: as above",
   12825: "the healing totem of a Colosseum modifier: it heals and never moves",
+  14709: "the Doom of Mokhaiotl burrowed: the Doom himself under the floor, between his shield and his surfacing",
 };
 
 // The curated entries and those tools/sandbox-catalog.mjs found in the

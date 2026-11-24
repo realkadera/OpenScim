@@ -116,7 +116,22 @@ export const scenarios = [
     },
   },
   {
-    // Delve 8: two rocks a throw, three splits each, 4-tick attacks.
+    // Delve 5: the shield broken, he burrows. Falling rocks, two eyes and
+    // zooms that crumble what they cross, larvae in pairs, then he surfaces
+    // and the floor shakes.
+    name: "doom/delve-5-burrow",
+    kind: DEEP,
+    seed: 9,
+    ticks: 300,
+    mechanics: { doomDelve: "5", infiniteHealth: true },
+    ...rangedGear,
+    script(tick, api) {
+      keepAttacking(api);
+    },
+  },
+  {
+    // Delve 8: two rocks a throw, three splits each, 4-tick attacks; giant
+    // larvae, and a burrow whose zooms slam the floor.
     name: "doom/delve-8-ranged",
     kind: DEEP,
     seed: 11,

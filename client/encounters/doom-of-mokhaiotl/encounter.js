@@ -7,23 +7,28 @@
 // then, every attack:
 // - beside him, the tongue (up to 40, halved by Protect from Melee), and he
 //   acts again 4 ticks later;
-// - otherwise one to three orbs between rock throws (sometimes a throw at
-//   once): blue magic, green ranged, from delve 2 red melee, each rolled where
-//   it lands. A throw is followed by twice his attack speed;
-// - about one throw in three, 2 ticks later, the melee charge: he takes only
+// - otherwise orbs or a rock throw: blue magic, green ranged, from delve 2 red
+//   melee, each rolled where it lands. A throw is followed by twice his attack
+//   speed (three times at delve 8). The more orbs since his last throw, the
+//   likelier the next is one (OBS, below);
+// - about one throw in two, 2 ticks later, the melee charge: he takes only
 //   melee, and 13 ticks later fires a beam no prayer stops (60/80/99). A
 //   melee hit stops it, adds a fifth of the Strength bonus as a hit of its own
 //   a tick after each hitsplat (the "punish"), clears acid around the player and holds his next attack;
 // - with some attacks, larvae (hazards.js).
+// At delves 1-4 his 12th turn (OBS: 11 attacks, a shield counting as one)
+// brings the volatile earth and the shockwaves (hazards.js).
 // From delve 3, at 75% hitpoints after two attacks, the demonic shield: 500
 // points that only demonbane harms (a larva bursting on it takes 100), larvae
 // from the north-west, and a beam charging all the while (17 ticks, restarted
-// by each demonbane hit). It ends broken or when the beam fires, with a rock
-// throw. Larvae killed meanwhile store 3 damage each (up to 50) for him.
+// by each demonbane hit). It ends broken or when the beam fires. Larvae killed
+// meanwhile store 3 damage each (up to 50) for him. From delve 5 it ends in a
+// burrow (burrow.js), and it comes again two attacks after the shockwaves
+// that follow (wiki; OBS: 35 of 35).
+// The Plugin Hub's Larva Tracker is in the set-up's aids (larvaTracker.js).
 //
-// ponytail: not yet: burrowing (delve 5+), giant
-// larvae (8), holy water, the shield's own hitpoint bar (the interface shows
-// his hitpoints), acid's venom, sounds.
+// ponytail: not yet: the shield's own hitpoint bar (the interface shows his
+// hitpoints), acid's venom, sounds.
 import { getMonsterFormulaStats } from "../../engine/monsterStats.js";
 import { canNpcActAtTick } from "../../engine/npcState.js";
 import { createSeededRandom } from "../../engine/random.js";
@@ -36,6 +41,8 @@ import { buildActorVisualTarget, faceActorToward } from "../shared/npcHelpers.js
 import { emitInfernoVisual } from "../inferno/events.js";
 import { delveRules, npcTypeIds, spotAnims, bossStart, bossSize, tongueMaxHit } from "./delves.js";
 import { Rocks, Larvae, Shockwave, Acid, roomDefinitions, bossCentre, holyWater } from "./hazards.js";
+import { Burrow } from "./burrow.js";
+import { larvaTrackerToggles, larvaTrackerKeys, larvaTrackerSetting, larvaColor, larvaCounterInfobox } from "./larvaTracker.js";
 
 export const doomKind = "doom_of_mokhaiotl";
 // The room of the delves, below the Ruins of Mokhaiotl.
@@ -55,14 +62,28 @@ const formulaStyles = { range: "ranged", magic: "magic", melee: "melee_crush" };
 const attackKinds = { range: "range_arrow", magic: "magic_fire", melee: "melee_crush" };
 const firstAttackTicks = 6;
 const tongueTicks = 4;
-const charge = { chance: 1 / 3, delay: 2, ticks: 13 };
+// OBS: a melee charge after 305 of 644 throws that came before no shockwave or shield.
+const charge = { chance: 1 / 2, delay: 2, ticks: 13 };
+// OBS: the chance his attack is a rock throw, by the orbs since his last:
+// none at once, then 0.5 and 0.83 at delves 1-2 (394 attacks), 0.3 and 0.71
+// deeper (925), and always after three. At a delve's start and after a shield
+// or a burrow, 0.3 (321 such attacks).
+const rockChance = (delve) => (delve <= 2 ? [0, 0.5, 0.83, 1] : [0, 0.3, 0.71, 1]);
+const freshRockChance = 0.3;
+// OBS: the earth comes on the turn after his 11th at delves 1-2 (23 of 23);
+// at 3-4 the shield takes one of them (39 of 39).
+const turnsBeforeShockwave = 11;
+// OBS: the shield gone, he attacks at once in 20 of 40 (a turn that does not
+// count towards the shockwave), otherwise a full attack later.
+const shieldEndAttackChance = 0.5;
 const shieldPoints = 500;
 const shieldChargeTicks = 17;
 const shieldStoreCap = 50;
 
 const bossDefinition = defineNpc({
   id: "doom-of-mokhaiotl",
-  move: false,
+  // Still but for the burrowed zooms (burrow.js).
+  move: ({ actor, context, config }) => config.burrow.move(actor, context),
   tick: ({ actor, context, config }) => config.bossTurn(actor, context),
 });
 
@@ -98,6 +119,7 @@ class DemonicShield {
   store() {
     this.stored = Math.min(shieldStoreCap, this.stored + 3);
   }
+  // His turn while it is up. True when it ends and he may act at once.
   turn(boss, context) {
     const doom = this.doom;
     if (this.points <= 0) return this.end(boss, context);
@@ -111,18 +133,28 @@ class DemonicShield {
       this.nextLarvaAt = context.tick + doom.randomInt(7, 9);
       doom.larvae.spawn(context, { duringShield: true });
     }
+    return false;
   }
+  // OBS: no rock throw as it ends (TSPS had one): at delves 3-4 he goes back
+  // to his attacks, at once half the time; from delve 5 he burrows.
   end(boss, context) {
     const doom = this.doom;
     this.up = false;
-    doom.phase = "attacks";
     doom.setChargeAccuracy(boss, false);
     if (this.stored > 0) doom.hitBoss(boss, this.stored, context);
-    // The shockwave's timer stands still while the shield is up.
-    doom.shockwave.nextAt += context.tick - this.raisedAt;
-    doom.sinceRock = 0;
-    doom.rocks.throw(context);
-    doom.nextAt = context.tick + 2 * doom.rules.attackSpeed;
+    doom.orbsSinceRock = null;
+    if (doom.rules.burrows) {
+      doom.burrow.start(context);
+      return false;
+    }
+    doom.phase = "attacks";
+    if (doom.random() < shieldEndAttackChance) {
+      doom.nextAt = context.tick;
+      doom.freeTurn = true;
+      return true;
+    }
+    doom.nextAt = context.tick + doom.rules.attackSpeed;
+    return false;
   }
 }
 
@@ -137,6 +169,7 @@ class DoomEncounter {
     this.shockwave = new Shockwave(this);
     this.acid = new Acid(this);
     this.shield = new DemonicShield(this);
+    this.burrow = new Burrow(this);
     this.definitions = new NpcDefinitionRegistry([bossDefinition, ...roomDefinitions].map((definition) => definition.register(this)));
     this.reset();
   }
@@ -155,16 +188,21 @@ class DoomEncounter {
     this.pendingDamages = [];
     this.phase = "attacks";
     this.nextAt = firstAttackTicks;
-    this.sinceRock = 1;
+    this.orbsSinceRock = null; // null: none thrown yet, or a shield or burrow since
     this.attacksMade = 0;
+    this.turnsSinceWave = 0; // towards the shockwave, delves 1-4
+    this.attacksSinceWave = null; // from the last shockwave, towards the shield again (delve 5+)
+    this.freeTurn = false; // the shield's last, which does not count
     this.charge = null; // { firesAt }
     this.punish = null; // { tick, bonus }
+    this.lastPlayerTargetId = null;
+    this.doomed = [];
     this.rocks.reset();
     this.larvae.reset();
     this.shockwave.reset();
-    this.shockwave.nextAt = this.randomInt(79, 96);
     this.acid.reset();
     this.shield.reset();
+    this.burrow.reset();
     // He surfaces as the fight starts (captured: anim 12418 with graphic 3372).
     this.later(1, (ctx) => this.animate(ctx, "emerge", [{ spotAnimId: spotAnims.emerge, target: buildActorVisualTarget(this.boss(ctx.world)), height: 0, delayCycles: 0 }]));
   }
@@ -211,6 +249,12 @@ class DoomEncounter {
     this.startRun();
     const boss = context?.world.actors.get(bossActorId);
     if (!boss) return;
+    // A burrow moves him: each run starts with him in the middle.
+    if (boss.position[0] !== bossStart[0] || boss.position[1] !== bossStart[1]) {
+      boss.position = [...bossStart];
+      boss.previousPosition = [...bossStart];
+    }
+    boss.npcTypeId = doomNpcTypeId;
     boss.vitals = { hp: this.rules.hitpoints, maxHp: this.rules.hitpoints };
     boss.formulaStats = structuredClone(getMonsterFormulaStats(doomNpcTypeId, `Delve ${this.rules.delve}`));
     boss.combat.attackSpeed = this.rules.attackSpeed;
@@ -235,10 +279,29 @@ class DoomEncounter {
   }
 
   // Every tick, before the NPCs: what is due, and the acid underfoot.
-  resolveHazards(context) {
+  resolveHazards(context, mechanics) {
     this.now = context.tick;
+    this.mechanics = mechanics;
     for (let due = this.takeDueTask(); due; due = this.takeDueTask()) due.task(context);
+    this.colourLarvaMenus(context.world);
     return [...this.drainDamages(), ...this.acid.hurt(context)];
+  }
+  // Larva Tracker (larvaTracker.js): a larva's name in the menu in its colour.
+  colourLarvaMenus(world) {
+    const recolor = larvaTrackerSetting(this.mechanics, larvaTrackerKeys.recolorMenu);
+    for (const npc of world.getNpcs()) if (this.larvae.isLarva(npc)) npc.menuColor = recolor ? larvaColor(npc.npcTypeId) : undefined;
+  }
+  // Larva Tracker's death prediction: the larvae that the player's hits on
+  // their way will kill, by the larvae's own rules (hazards.js).
+  doomedLarvae(world) {
+    const incoming = new Map();
+    for (const hit of world.pendingHits) {
+      const larva = hit.sourceId === "player" ? world.getNpc(hit.targetId) : undefined;
+      if (!larva?.alive || !this.larvae.isLarva(larva) || !hit.accuracySucceeded) continue;
+      const damage = this.larvae.damage(larva, Number(hit.rolledDamage) || 0, hit, isDemonbaneAttack(hit));
+      incoming.set(larva.id, (incoming.get(larva.id) ?? 0) + damage);
+    }
+    return [...incoming].filter(([id, damage]) => damage >= world.getNpc(id).vitals.hp).map(([id]) => id);
   }
   takeDueTask() {
     const index = this.tasks.findIndex((entry) => entry.tick <= this.now);
@@ -253,6 +316,7 @@ class DoomEncounter {
   processPostTick(context) {
     if (this.outcome.phase === "resolving" && context.tick >= this.outcome.completionTick) this.outcome = { ...this.outcome, phase: "victory" };
     this.showOverhead(this.boss(context.world));
+    this.doomed = this.doomedLarvae(context.world);
     if (this.shieldResisted) {
       this.shieldResisted = false;
       context.tickEvents.emit({ type: "game_message", kind: "game", segments: [{ text: "The demonic shield resists your attack!" }] });
@@ -266,10 +330,12 @@ class DoomEncounter {
   showOverhead(boss) {
     if (!boss) return;
     const shield = this.shield.up && this.phase === "shield";
+    const burrowCharge = this.burrow.burrowed ? this.burrow.active.chargeFrom : null;
     boss.overheadPrayers = this.charge && boss.alive ? ["range", "magic"] : undefined;
     boss.chargeBar = !boss.alive ? undefined
       : this.charge ? { fromTick: this.charge.firesAt - charge.ticks, toTick: this.charge.firesAt }
       : shield ? { fromTick: this.shield.firesAt - shieldChargeTicks, toTick: this.shield.firesAt }
+      : burrowCharge !== null ? { fromTick: burrowCharge, toTick: burrowCharge + 20 }
       : undefined;
     boss.shieldBar = shield && boss.alive ? { ratio: this.shield.points / shieldPoints } : undefined;
   }
@@ -281,11 +347,15 @@ class DoomEncounter {
       kind: this.kind,
       state: {
         delve: this.rules.delve,
-        charging: this.charge !== null || this.shield.up,
+        charging: this.charge !== null || this.shield.up || this.burrow.burrowed,
+        burrowed: this.burrow.burrowed,
         shieldPoints: this.shield.up ? this.shield.points : null,
         larvaCharge: this.larvae.charge,
         acid: this.acid.tiles(),
         rocks: [...this.rocks.standing].map((tile) => tile.split(",").map(Number)),
+        // Larva Tracker (larvaTracker.js): what the scene hides, and the infobox Grid.js lists.
+        doomedLarvae: [...(this.doomed ?? [])],
+        infoboxes: larvaCounterInfobox(this.mechanics, this.larvae.charge),
       },
       visuals: {},
     };
@@ -304,12 +374,25 @@ class DoomEncounter {
       // Charging, he protects himself from ranged and magic.
       validateAttack: (attackKind, targetId) => (this.charge && targetId === bossActorId && !attackKind.startsWith("melee") ? false : null),
       playerDamageOnNpc: (damage, { attacker, target, attack }) => this.playerDamage(damage, attacker, target, attack),
+      playerAttackOnCooldown: (target) => this.attackOnCooldown(target),
     };
+  }
+  // A larva or volatile earth can be attacked while the weapon cools down, if
+  // it is not what was attacked last (wiki; TSPS). OBS, a 4-tick bow over 20
+  // runs: a new larva shot 1-3 ticks after the last attack 21 times, and the
+  // timer kept (the next attack on him came on its beat); TSPS's capture:
+  // volatile earth starts the full delay again.
+  attackOnCooldown(target) {
+    if (target.id === this.lastPlayerTargetId) return undefined;
+    if (this.larvae.isLarva(target)) return { keepCooldown: true };
+    if (this.shockwave.earth.has(target.id)) return { keepCooldown: false };
+    return undefined;
   }
   playerDamage(damage, player, target, attack) {
     const demonbane = isDemonbaneAttack(attack);
     if (this.larvae.isLarva(target)) return this.larvae.damage(target, damage, attack, demonbane);
     if (target.id !== bossActorId) return damage;
+    this.burrow.hit();
     if (this.shield.up) {
       if (demonbane) this.shield.hit(Math.max(1, damage), { restartsCharge: true });
       else this.shieldResisted = true; // told after the tick (processPostTick)
@@ -327,6 +410,7 @@ class DoomEncounter {
   }
   // The melee punish.
   onPlayerAttackStarted(attack, context) {
+    this.lastPlayerTargetId = attack.targetId;
     if (!this.charge || attack.targetId !== bossActorId || !attack.attackKind?.startsWith("melee")) return;
     const player = context.world.getPlayer();
     this.charge = null;
@@ -349,9 +433,12 @@ class DoomEncounter {
     this.tasks = [];
     this.charge = null;
     this.shield.up = false;
+    // Killed burrowed, he dies as himself (his despawn is the surfaced model's).
+    if (this.burrow.burrowed && npc) npc.npcTypeId = doomNpcTypeId;
+    this.burrow.reset();
     for (const other of context.world.getNpcs()) if (other.id !== bossActorId && other.alive) context.despawnNpc(other.id);
     emitInfernoVisual(context.tickEvents, { animations: [], projectiles: [], graphics: [{ spotAnimId: spotAnims.despawn, target: buildActorVisualTarget(npc), height: 0, delayCycles: 0 }] });
-    if (this.punish && defeat.tick - this.punish.tick <= 1) holyWater(this, context);
+    if (npc && this.punish && defeat.tick - this.punish.tick <= 1) holyWater(this, context, npc);
     if (completionOwnership !== "encounter-owned") return;
     this.outcome = { phase: "resolving", decisiveTick: defeat.tick, completionTick: defeat.tick + ticksFromDefeatToVictory, primaryActorId: bossActorId, completionActorIds: [bossActorId] };
   }
@@ -362,13 +449,13 @@ class DoomEncounter {
     const result = { environmentalDamages: [], npcAttacks: [] };
     const player = context.world.getPlayer();
     if (!canNpcActAtTick(boss, context.tick) || !player.alive) return result;
-    faceActorToward(boss, player);
-    if (this.phase === "shield") {
-      this.shield.turn(boss, context);
+    if (this.phase === "burrow") {
+      this.burrow.turn(boss, context);
       return result;
     }
+    faceActorToward(boss, player);
+    if (this.phase === "shield" && !this.shield.turn(boss, context)) return result;
     if (this.phase !== "attacks") return result; // raising the shield
-    if (!this.shockwave.active && context.tick >= this.shockwave.nextAt) this.shockwave.start(context);
     if (this.charge) {
       if (context.tick >= this.charge.firesAt) {
         this.charge = null;
@@ -380,7 +467,16 @@ class DoomEncounter {
     }
     if (context.tick < this.nextAt || this.shockwave.holdsAttacks(context.tick)) return result;
     if (this.shieldDue(boss)) {
+      this.countTurn();
       this.raiseShield(context);
+      return result;
+    }
+    // Delves 1-4: the turn after his 11th brings the earth (the tick after)
+    // in place of an attack, and he goes on as after an orb (OBS).
+    if (!this.rules.burrows && !this.shockwave.active && this.turnsSinceWave >= turnsBeforeShockwave) {
+      this.turnsSinceWave = 0;
+      this.later(1, (ctx) => this.shockwave.start(ctx));
+      this.nextAt = context.tick + this.rules.attackSpeed;
       return result;
     }
     const hold = this.orbHold(boss, player, context.tick);
@@ -388,10 +484,16 @@ class DoomEncounter {
       this.nextAt = context.tick + hold;
       return result;
     }
+    if (this.freeTurn) this.freeTurn = false;
+    else this.countTurn();
     this.attacksMade++;
+    if (this.attacksSinceWave !== null) this.attacksSinceWave++;
     this.nextAt = context.tick + this.attack(boss, player, context, result);
     if (this.random() < this.rules.larvaChance) this.larvae.spawn(context);
     return result;
+  }
+  countTurn() {
+    if (!this.shockwave.active) this.turnsSinceWave++;
   }
   attack(boss, player, context, result) {
     if (isNpcInAttackRange(boss, player, 1)) {
@@ -401,29 +503,49 @@ class DoomEncounter {
       }));
       return tongueTicks;
     }
-    const rock = this.sinceRock >= 3 || (this.sinceRock >= 1 && this.random() < 0.5);
-    if (!rock) {
-      this.sinceRock++;
+    const odds = this.orbsSinceRock === null ? freshRockChance : rockChance(this.rules.delve)[Math.min(this.orbsSinceRock, 3)];
+    if (!(odds >= 1 || (odds > 0 && this.random() < odds))) {
+      this.orbsSinceRock = (this.orbsSinceRock ?? 0) + 1;
       this.throwOrb(boss, player, context, result);
       return this.rules.attackSpeed;
     }
-    this.sinceRock = 0;
+    this.orbsSinceRock = 0;
     this.rocks.throw(context);
     // Never before a shockwave (wiki).
     if (!this.shockwave.active && this.random() < charge.chance) this.later(charge.delay, (ctx) => this.startCharge(ctx));
-    return 2 * this.rules.attackSpeed;
+    return this.rules.afterRockTicks;
   }
-  // His next orb waits for a rock in the air, and lands after its orbs.
+  // His next orb lands after a rock's orbs, even one still in the air (OBS:
+  // at delve 7 the orb after a throw comes 8 ticks on, in 27 of 27, while the
+  // rock lands at 9).
   orbHold(boss, player, tick) {
     if (isNpcInAttackRange(boss, player, 1)) return 0;
-    if (this.rocks.inAir > 0) return 1;
     return Math.max(0, this.rocks.orbsLandAt + 1 - (tick + Math.ceil(this.rules.orbEndCycles / 30)));
   }
   shieldDue(boss) {
-    return this.rules.demonicShield && !this.shield.used && !this.shockwave.active && this.attacksMade >= 2 && boss.vitals.hp <= boss.vitals.maxHp * 0.75;
+    if (!this.rules.demonicShield || this.shockwave.active) return false;
+    // From delve 5, again two attacks after the shockwaves that followed a burrow.
+    if (this.attacksSinceWave !== null) return this.attacksSinceWave >= 2;
+    return !this.shield.used && this.attacksMade >= 2 && boss.vitals.hp <= boss.vitals.maxHp * 0.75;
+  }
+  // From the burrow (burrow.js): he is up again where he stopped. He attacks
+  // 5 ticks later, and the earth comes up a tick after that (OBS).
+  surfaced(boss, context) {
+    this.phase = "attacks";
+    this.orbsSinceRock = null;
+    this.nextAt = context.tick + 5;
+    this.animate(context, "emerge", [{ spotAnimId: spotAnims.emerge, target: buildActorVisualTarget(boss), height: 0, delayCycles: 0 }]);
+    this.later(6, (ctx) => this.shockwave.start(ctx));
+  }
+  // The last shockwave has landed; from delve 5 the shield counts its two attacks from here.
+  shockwaveEnded(context) {
+    this.nextAt = Math.max(this.nextAt, context.tick);
+    this.turnsSinceWave = 0;
+    if (this.rules.burrows) this.attacksSinceWave = 0;
   }
   raiseShield(context) {
     this.shield.used = true;
+    this.attacksSinceWave = null;
     this.phase = "raising";
     this.animate(context, "beamCharge");
     this.later(2, (ctx) => this.shield.start(ctx));
@@ -484,7 +606,10 @@ class DoomEncounter {
       spotAnimId, sourcePosition: [centre[0] + 0.5, centre[1] + 0.5], target: buildActorVisualTarget(player),
       startDelayCycles, endDelayCycles, slope: 0, startOffset: 0, startHeight: 100, endHeight: 100,
     });
-    this.animate(context, "beamFire", [], [segment(spotAnims.beamHead, 0, 25), segment(spotAnims.beamMiddle, 1, 27), segment(spotAnims.beamEnd, 2, 29)]);
+    const projectiles = [segment(spotAnims.beamHead, 0, 25), segment(spotAnims.beamMiddle, 1, 27), segment(spotAnims.beamEnd, 2, 29)];
+    // Burrowed, the beam comes out of the ground: no sequence of his for it was recorded.
+    if (this.burrow.burrowed) emitInfernoVisual(context.tickEvents, { animations: [], projectiles, graphics: [] });
+    else this.animate(context, "beamFire", [], projectiles);
     this.later(1, (ctx) => {
       emitInfernoVisual(ctx.tickEvents, { animations: [], projectiles: [], graphics: [{ spotAnimId: spotAnims.beamImpact, target: buildActorVisualTarget(ctx.world.getPlayer()), height: 50, delayCycles: 0 }] });
       this.pendingDamages.push({ baseDamage: this.rules.beamMaxHit, attackType: "typeless", source: "Beam", playerPosition: [...ctx.playerPos] });
@@ -505,7 +630,7 @@ class DoomEncounter {
 
 const delveControls = (delves) => ({
   defaultMechanicsConfig: { [delveKey]: String(delves[0]) },
-  mechanicsToggles: [{ key: delveKey, label: "Delve", setup: true, choices: delves.map((n) => ({ value: String(n), label: String(n) })) }],
+  mechanicsToggles: [{ key: delveKey, label: "Delve", setup: true, choices: delves.map((n) => ({ value: String(n), label: String(n) })) }, ...larvaTrackerToggles],
   debugActions: [],
 });
 const roomVariants = [
