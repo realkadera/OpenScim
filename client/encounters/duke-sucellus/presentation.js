@@ -4,7 +4,7 @@
 // model and draws him as the sleeping NPC type until he has woken; the gaze's
 // overlay (sight.js) is brought in step with the fight every frame.
 import { buildScene } from "../shared/buildScene.js";
-import { bossStart, dukeKind, dukeMapSquare, ids, models, seqs, sightStrength, spots, wakeAnimationTicks } from "./encounter.js";
+import { bossStart, dukeKind, dukeMapSquare, ids, models, seqs, sightStrength, sightTint, spots, wakeAnimationTicks } from "./encounter.js";
 import { setSightTools, syncSight } from "./sight.js";
 
 // The two types share their model, so the one that wakes has the wake and the
@@ -78,7 +78,8 @@ export const dukePresentation = (BaseScene, packHsl, { widgetModelView } = {}) =
       }
       build(input, ...rest) {
         const queue = super.build(input, ...rest);
-        syncSight(sightStrength(input.simulationState?.encounter?.state?.sight, this.primaryCycle));
+        const sight = input.simulationState?.encounter?.state?.sight;
+        syncSight(sightStrength(sight, this.primaryCycle), sightTint(sight, this.primaryCycle));
         return queue;
       }
       // The overlay is the page's, not the scene's: it goes when the scene does.

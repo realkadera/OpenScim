@@ -125,11 +125,21 @@ const gazeTicks = 6;
 // 6 ticks later, with his next attack (11 of 11), also for a player behind a
 // pillar all the while. CACHE: its model fades in over 120 cycles (seq 10216),
 // which are the 4 ticks to the check, and out over 64 (10215), the 2 that are
-// left; that it plays one and then the other is inferred from that.
+// left; that it plays one and then the other is inferred from that. OBS: so it
+// looks in the wiki's clip (sight.js).
 export const sightAppearCycles = 120;
 const sightDisappearCycles = 64;
 const sightTicks = 6;
 const cyclesPerTick = 30;
+// The tint under the eye. OBS (the wiki's clip, sight.js): it comes evenly with
+// the eye, up to the check, and is gone a tick later, before the eye is. It is
+// there for a player behind a pillar (the one in the clip is).
+const tintDisappearCycles = 30;
+export function sightTint(startTick, cycle) {
+  const strength = sightStrength(startTick, cycle);
+  const past = cycle - (startTick ?? Infinity) * cyclesPerTick - sightAppearCycles;
+  return past <= 0 ? strength / sightAppearCycles : Math.max(0, 1 - past / tintDisappearCycles);
+}
 // How far in the overlay is at `cycle`, of sightAppearCycles; `startTick` is
 // the gaze's, null when there is none.
 export function sightStrength(startTick, cycle) {

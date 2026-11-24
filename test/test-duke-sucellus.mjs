@@ -92,7 +92,35 @@ try {
   });
   assert.equal(gazed, true);
   await page.waitForFunction(() => document.querySelector(".scene-viewport > .duke-sight"), null, { timeout: 30000 });
-  await page.waitForFunction(() => !document.querySelector(".duke-sight"), null, { timeout: 30000 });
+  // The tint comes all the way and is gone before the eye is, whose lens is
+  // some 104 pixels across (290 units at 512 / 1399) in a view 605 high.
+  const overlay = await page.evaluate(() => new Promise((resolve) => {
+    const tints = [];
+    let lens = 0;
+    const copy = document.createElement("canvas").getContext("2d", { willReadFrequently: true });
+    const step = () => {
+      const element = document.querySelector(".duke-sight");
+      if (!element && tints.length > 0) return resolve({ most: Math.max(...tints), last: tints.at(-1), lens, viewHeight: document.querySelector(".scene-viewport").clientHeight });
+      if (element) {
+        tints.push(Number(element.querySelector(".duke-sight__tint").style.opacity));
+        const eye = element.querySelector("canvas");
+        if (tints.at(-1) > 0.8 && eye.width > 0) {
+          Object.assign(copy.canvas, { width: eye.width, height: eye.height });
+          copy.drawImage(eye, 0, 0);
+          const row = copy.getImageData(0, Math.round(eye.height / 2) - 4, eye.width, 1).data;
+          let left = eye.width, right = 0;
+          for (let x = Math.round(eye.width / 2) - 90; x < eye.width / 2 + 90; x++) if (row[x * 4 + 3] > 40) [left, right] = [Math.min(left, x), Math.max(right, x)];
+          lens = Math.max(lens, ((right - left) * eye.clientWidth) / eye.width);
+        }
+      }
+      requestAnimationFrame(step);
+    };
+    step();
+  }));
+  assert.ok(overlay.most > 0.9, `the tint came to ${overlay.most}`);
+  assert.equal(overlay.last, 0, "the tint goes before the eye");
+  const lens = overlay.lens / (overlay.viewHeight / 605);
+  assert.ok(lens > 94 && lens < 114, `the eye's lens is ${overlay.lens} across in a view ${overlay.viewHeight} high`);
 
   // As recorded (OBS 11/24 in encounter.js). The overlay is up for 6 ticks,
   // behind a pillar too; a gaze that finds the player hits 5 ticks in.
