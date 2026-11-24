@@ -1,6 +1,7 @@
 import { toEsModule } from "./rolldown-runtime.js";
 import { parseDisplayMode } from "./deployment.js";
 import { attackRangesDefaults, readAttackRangesSettings, isAttackDragProtected } from "/plugins/attackRanges.js";
+import { projectileOverrideDefaults, readProjectileOverrideSettings } from "/plugins/projectileOverride.js";
 import {
   pako,
   requireJsxRuntime,
@@ -13782,6 +13783,9 @@ var Yse = {
   interfaceStylesHdHealthBars: false,
   attackRangesEnabled: true,
   attackRanges: attackRangesDefaults,
+  // Every boss at Default: on, it draws nothing differently until one is chosen.
+  projectileOverrideEnabled: true,
+  projectileOverride: projectileOverrideDefaults,
   prayerEnabled: true,
   prayerFlickOrbEnabled: true,
   prayerFlickAlwaysOn: false,
@@ -14200,6 +14204,8 @@ var kRe = {
   ),
   attackRangesEnabled: zBoolean().catch(Yse.attackRangesEnabled),
   attackRanges: zUnknown().transform(readAttackRangesSettings),
+  projectileOverrideEnabled: zBoolean().catch(Yse.projectileOverrideEnabled),
+  projectileOverride: zUnknown().transform(readProjectileOverrideSettings),
   prayerEnabled: zBoolean().catch(Yse.prayerEnabled),
   prayerFlickOrbEnabled: zBoolean().catch(Yse.prayerFlickOrbEnabled),
   prayerFlickAlwaysOn: zBoolean().catch(Yse.prayerFlickAlwaysOn),
