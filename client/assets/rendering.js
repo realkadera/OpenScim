@@ -58046,10 +58046,39 @@ var oK = new Float32Array([
 // the game. It is drawn from far off with a narrow view, which is
 // orthographic within 2% over the depth of such a model. `width` and
 // `height` are the widget's, in interface pixels; the canvas is transparent
-// where the model is not. setSequence
+// where the model is not. Its faces that are not opaque are drawn in the
+// order of their render priorities (the model's), lowest first, as the
+// game's painter draws them: a face of a higher priority covers one of a
+// lower whatever their depth (the strangle's spore keeps its glow, priority
+// 2, under its body, 4). Within a priority they keep the pose's order; the
+// game's puts the farthest first, and its 10 and 11 among the others by
+// depth: not done. setSequence
 // switches the animation (an interface's script does, between spawn, idle and
 // despawn).
 // client/encounters/vardorvis/strangle.js draws the strangle's overlay with it.
+// The triangles of a mesh part (Pb), each 3 vertices, reordered by the render
+// priority of the model face each came from (0 to 11), keeping the order of
+// those of one priority.
+function inFacePriorityOrder(part, modelFaceIndices, priorities) {
+  const count = modelFaceIndices.length;
+  const priorityOf = (tri) => Math.min(11, Math.max(0, priorities[modelFaceIndices[tri]] ?? 0));
+  const order = Array.from({ length: count }, (_, tri) => tri).sort((a, b) => priorityOf(a) - priorityOf(b) || a - b);
+  const permute = (values, perTri) => {
+    if (!values) return values;
+    const out = new values.constructor(values.length);
+    order.forEach((tri, at) => out.set(values.subarray(tri * perTri, (tri + 1) * perTri), at * perTri));
+    return out;
+  };
+  return {
+    positions: permute(part.positions, 9),
+    normals: permute(part.normals, 9),
+    hslColors: permute(part.hslColors, 3),
+    alphas: permute(part.alphas, 3),
+    faceBias: permute(part.faceBias, 3),
+    uvs: permute(part.uvs, 6),
+    textureIds: permute(part.textureIds, 3),
+  };
+}
 function widgetModelView({ canvas, width, height, dpr, npcModelLoader, animationSystem, modelId, seqId, zoom, orthographic = false, baseHeight = height }) {
   const model = npcModelLoader.modelLoader.getModel(modelId);
   if (!model) {
@@ -58104,6 +58133,9 @@ function widgetModelView({ canvas, width, height, dpr, npcModelLoader, animation
         return;
       }
       const parts = Pb(pose.poseAt(elapsedMs));
+      if (parts.transparent && parts.transparentModelFaceIndices && model.faceRenderPriorities) {
+        parts.transparent = inFacePriorityOrder(parts.transparent, parts.transparentModelFaceIndices, model.faceRenderPriorities);
+      }
       Iy(queue, clear);
       for (const [kind, part] of [["opaque", parts.opaque], ["transparent", parts.transparent]]) {
         if (!part) {
