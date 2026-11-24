@@ -4,6 +4,7 @@
 // modules (test/fixtures/register.mjs), put in while the modules are served.
 // Without those lines the site does not have it.
 import assert from "node:assert/strict";
+import { readdirSync } from "node:fs";
 import { chromium } from "playwright-core";
 import { serveFixture } from "./fixtures/register.mjs";
 
@@ -68,9 +69,12 @@ try {
 
   // What the descriptor gives the menus. Its tile-marker preset, as the application keeps one; and the What's New
   // entries: the files of client/whats-new/ before the entries of their date that application.js lists.
-  const menus = await page.evaluate(() => ({ presets: tilePresetsOf("training_ground"), news: whatsNew.slice(0, 2).map((entry) => entry.id), dated: whatsNew.filter((entry) => entry.date).map((entry) => entry.date) }));
+  const menus = await page.evaluate(() => ({ presets: tilePresetsOf("training_ground"), news: whatsNew.map((entry) => entry.id), dated: whatsNew.filter((entry) => entry.date).map((entry) => entry.date) }));
   assert.deepEqual(menus.presets, [{ id: "training_ground_ring", name: "Sparring ring", description: "Where the partner starts", encounterKind: "training_ground", markers: [{ x: 30, y: 30, color: "#14D74F", opacity: 1, label: "Partner" }, { x: 31, y: 30, color: "#D81414", opacity: 0.5 }] }]);
-  assert.deepEqual(menus.news, ["2026-11-24-colosseum", "2026-11-24-zebak"]);
+  const newsFiles = readdirSync(new URL("../client/whats-new/", import.meta.url)).map((name) => name.replace(/\.js$/, "")); // ids, which begin with the date
+  const before = newsFiles.filter((id) => id >= "2026-11-24").sort((a, b) => b.slice(0, 10).localeCompare(a.slice(0, 10)) || a.localeCompare(b));
+  assert.ok(before.includes("2026-11-24-colosseum"));
+  assert.deepEqual(menus.news.slice(0, before.length + 1), [...before, "2026-11-24-zebak"]);
   assert.deepEqual(menus.dated, [...menus.dated].sort().reverse(), "What's New is newest first");
 
   // A fight, ticked from here until the monster is nearly dead: it walks up
