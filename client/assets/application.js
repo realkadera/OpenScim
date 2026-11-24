@@ -36456,6 +36456,166 @@ var Mbe = ({ visible: visible, width: width, height: height }) =>
 var Pbe = ["All", "Encounters", "Combat", "Training", "Plugins", "Interface"];
 var Ibe = [
   {
+    date: "2026-11-24",
+    id: "2026-11-24-colosseum",
+    category: "Encounters",
+    title: "Fortis Colosseum",
+    impact:
+      "All Colosseum waves are in, with modifiers, a waves overlay, a line-of-sight simulator and an in-game Colosseum helper plugin.",
+  },
+  {
+    date: "2026-11-24",
+    id: "2026-11-24-zebak",
+    category: "Encounters",
+    title: "Zebak",
+    impact:
+      "The first Tombs of Amascut boss is in. More ToA bosses are on the way.",
+  },
+  {
+    date: "2026-11-24",
+    id: "2026-11-24-vardorvis",
+    category: "Encounters",
+    title: "Vardorvis",
+    impact:
+      "Vardorvis is in, including the awakened version.",
+  },
+  {
+    date: "2026-11-24",
+    id: "2026-11-24-doom-of-mokhaiotl",
+    category: "Encounters",
+    title: "Doom of Mokhaiotl",
+    impact:
+      "You can now fight the Doom of Mokhaiotl.",
+  },
+  {
+    date: "2026-11-24",
+    id: "2026-11-24-thralls",
+    category: "Combat",
+    title: "Thralls",
+    impact:
+      "Thralls can now be summoned.",
+  },
+  {
+    date: "2026-11-24",
+    id: "2026-11-24-zaryte-crossbow-and-bolt-specs",
+    category: "Combat",
+    title: "Zaryte crossbow and bolt specs",
+    impact:
+      "The Zaryte crossbow special attack and all enchanted bolt specials now work.",
+  },
+  {
+    date: "2026-11-24",
+    id: "2026-11-24-eldritch-nightmare-staff-spec",
+    category: "Combat",
+    title: "Eldritch nightmare staff",
+    impact:
+      "The Eldritch nightmare staff special attack now works.",
+  },
+  {
+    date: "2026-11-24",
+    id: "2026-11-24-arkan-blade-spec",
+    category: "Combat",
+    title: "Arkan blade",
+    impact:
+      "The Arkan blade special attack now works.",
+  },
+  {
+    date: "2026-11-24",
+    id: "2026-11-24-accursed-sceptre-spec",
+    category: "Combat",
+    title: "Accursed sceptre",
+    impact:
+      "The Accursed sceptre special attack now works.",
+  },
+  {
+    date: "2026-11-24",
+    id: "2026-11-24-sanguinesti-staff",
+    category: "Combat",
+    title: "Sanguinesti staff",
+    impact:
+      "The Sanguinesti staff now has its healing effect.",
+  },
+  {
+    date: "2026-11-24",
+    id: "2026-11-24-necklace-of-rupture",
+    category: "Combat",
+    title: "Necklace of rupture",
+    impact:
+      "The Necklace of rupture can now be equipped.",
+  },
+  {
+    date: "2026-11-24",
+    id: "2026-11-24-slayer-staff",
+    category: "Combat",
+    title: "Slayer's staff",
+    impact:
+      "The Slayer's staff can now be equipped.",
+  },
+  {
+    date: "2026-11-24",
+    id: "2026-11-24-torva-platebody-left-click",
+    category: "Combat",
+    title: "Torva platebody fix",
+    impact:
+      "Left-clicking the Torva platebody now equips it.",
+  },
+  {
+    date: "2026-11-24",
+    id: "2026-11-24-attack-range-plugin",
+    category: "Plugins",
+    title: "Attack Range",
+    impact:
+      "The new Attack Range plugin shows how far you can attack from where you stand.",
+  },
+  {
+    date: "2026-11-24",
+    id: "2026-11-24-hp-bars",
+    category: "Interface",
+    title: "HP bars",
+    impact:
+      "Default HP bars are back, and the HD bars moved to the Interface Styles plugin. HP bars now have the right scale and follow the player as they should.",
+  },
+  {
+    date: "2026-11-24",
+    id: "2026-11-24-prayer-icon-scale",
+    category: "Interface",
+    title: "Prayer icon scale",
+    impact:
+      "Prayer icons now scale correctly.",
+  },
+  {
+    date: "2026-11-24",
+    id: "2026-11-24-inventory-switch-lag",
+    category: "Interface",
+    title: "Faster item switching",
+    impact:
+      "Switching inventory items no longer lags or lands late.",
+  },
+  {
+    date: "2026-11-24",
+    id: "2026-11-24-inventory-keybind-tab",
+    category: "Interface",
+    title: "Inventory keybind on Tab",
+    impact:
+      "The inventory keybinding can now be set to Tab.",
+  },
+  {
+    date: "2026-11-24",
+    id: "2026-11-24-performance",
+    category: "Interface",
+    title: "Performance",
+    impact:
+      "OpenScim runs faster.",
+  },
+  {
+    date: "2026-11-24",
+    id: "2026-11-24-architecture",
+    category: "Interface",
+    title: "Under the hood",
+    impact:
+      "Large internal clean-up that makes new encounters and fixes quicker to add.",
+  },
+  {
     date: "2026-11-13",
     id: "2026-11-13-stretch-to-window",
     category: "Plugins",
