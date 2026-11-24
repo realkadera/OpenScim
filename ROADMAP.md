@@ -104,9 +104,10 @@ State on 2026-11-21. Sizes: S = hours, M = days, L = weeks.
 
 - [x] `npm test` starts its own server (port 8791, production React).
 - [x] Tests for the engine without a browser: `tools/determinism/` runs
-      the engine in Node with the real cache, 88 scripted fights (engine,
-      Yama, Inferno, Sol Heredit, Zebak, and two of the fixture encounter
-      of `test/fixtures/`) and 23 scenarios that call code no
+      the engine in Node with the real cache, 114 scripted fights (engine,
+      Yama, Inferno, Sol Heredit, Zebak, the Colosseum, Vardorvis, the Doom
+      of Mokhaiotl, and two of the fixture encounter of `test/fixtures/`)
+      and 25 scenarios that call code no
       fight reaches (the shared rules' refusals and error paths, the menus'
       setup helpers, the player's rules and starting state, the replay
       limits, the lookups over the data tables, the prayer projection,
@@ -440,8 +441,8 @@ Progress (2026-11-22):
       and 25 gaps, which the guide now fills. What it could not test
       without a browser is the scene; what a contributor still has to get
       from outside is the game's ids.
-- [ ] The waves of the Fortis Colosseum (`client/encounters/colosseum/`,
-      branch `colosseum-waves`): the first encounter added without a chunk.
+- [ ] The waves of the Fortis Colosseum (`client/encounters/colosseum/`):
+      the first encounter added without a chunk.
       Waves 1 to 11 with their six monsters, the reinforcements, Minimus and
       his offer of three modifiers in the game's own interface, all fourteen
       modifiers, and what two RuneLite plugins show. Waves 1 to 4 follow a
@@ -456,8 +457,8 @@ Progress (2026-11-22):
 
 ## Phase 7 — Community (S)
 
-- [ ] `README.md`: what it is, how to run, build, test.
-- [ ] `CONTRIBUTING.md`: setup, the asset rule, the readability rule.
+- [x] `README.md`: what it is, how to run, build, test.
+- [ ] `CONTRIBUTING.md`: the readability rule. Setup and the asset rule are in.
 - [x] Tidy `docs/`: the deobfuscation history and the Zebak notes are gone
       (Zebak is complete).
 - [ ] Issue templates for "bug" and "mechanic inaccuracy" (with a source link).
@@ -469,12 +470,18 @@ New fights, each added as modules through the three lists
 (`docs/ADDING-AN-ENCOUNTER.md`). Where the wiki and the game's cache leave
 timing open, record it from the game itself.
 
-- [ ] Desert Treasure II bosses: Vardorvis, Duke Sucellus, the Whisperer and
-      the Leviathan, each with its awakened version. Their kinds are already
-      in `client/engine/encounterKinds.js` (`registered: false`) and their
-      lobby entry is `client/dt2/`; the fights do not exist yet.
+- [ ] Desert Treasure II bosses, each with its awakened version. Vardorvis is
+      in (`client/encounters/vardorvis/`); his awakened version follows the
+      wiki, is inferred where the wiki is silent, and has not been recorded.
+      Duke Sucellus, the Whisperer and the Leviathan do not exist yet: their
+      kinds are in `client/engine/encounterKinds.js` (`registered: false`)
+      and their lobby entry is `client/dt2/`.
 - [ ] Doom of Mokhaiotl
       (https://oldschool.runescape.wiki/w/Doom_of_Mokhaiotl/Strategies).
+      Delves 1 to 8 can be fought (`client/encounters/doom-of-mokhaiotl/`).
+      Open, as its `encounter.js` says: burrowing (delve 5 on), giant larvae
+      (delve 8), holy water, the shield's own hitpoint bar, the acid's venom,
+      sounds.
 - [ ] Nex (https://oldschool.runescape.wiki/w/Nex/Strategies).
 - [ ] Tumeken's Warden, Tombs of Amascut
       (https://oldschool.runescape.wiki/w/Tumeken%27s_Warden), next to Zebak
