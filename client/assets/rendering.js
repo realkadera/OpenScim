@@ -16951,26 +16951,23 @@ function withThrallRenderConfig(config) {
   return withThralls;
 }
 // RuneLite's stretched mode: the game draws at the window's size divided by a
-// fixed factor and stretches the picture back up, so a bar is always 30x5
-// game pixels times that factor on screen, while the scene (its zoom follows
-// the viewport height) comes out the same size as ours. The overlay model is
+// factor and stretches the picture back up, so a bar is always 30x5 game
+// pixels times that factor on screen, while the scene (its zoom follows the
+// viewport height) comes out the same size as ours. The overlay model is
 // built in game pixels and its layers scaled by `overlayScale`
-// (scaleOverlayLayers): this many device pixels per game pixel, as tsps does
-// (client/render/render/quality.ts, computeUiRenderMetrics). A whole number
-// keeps the bars' edges on device pixels.
-// Measured: observer crops doom-20261123-192925 and Pictures/hp_test.png,
-// the 30x5 bar drawn 90x15, the 25 px prayer 75.
-// ponytail: fixed factor, make it a setting (RuneLite's scaling %) when
-// someone plays at another one.
-var OVERLAY_DEVICE_PIXELS_PER_GAME_PIXEL = 3;
+// (scaleOverlayLayers), as tsps does (client/render/render/quality.ts,
+// computeUiRenderMetrics). The factor is the interface's own: CSS pixels per
+// game pixel of the Fixed frame, or the Stretched Mode UI scale in the
+// resizable layouts (Grid.js passes it as `overlayGameScale`), so the bars,
+// hitsplats and prayers match the inventory and orbs at every setting.
+// Measured at a 3x interface: observer crops doom-20261123-192925 and
+// Pictures/hp_test.png, the 30x5 bar drawn 90x15, the 25 px prayer 75.
 var OVERLAY_LAYER_SELECTOR =
   "[data-overhead-icons],[data-tick-counters],[data-overhead-texts],[data-hitsplats],[data-healthbars],[data-timerbars]";
 // The camera the overlay renderer projects with: screen points in game
 // pixels. Only the 3D camera (it has a viewport) projects like the game.
-function overlayCamera(camera, model) {
-  const k = camera.viewport
-    ? OVERLAY_DEVICE_PIXELS_PER_GAME_PIXEL / (globalThis.devicePixelRatio || 1)
-    : 1;
+function overlayCamera(camera, model, gameScale) {
+  const k = camera.viewport && gameScale > 0 ? gameScale : 1;
   model.overlayScale = k;
   if (k === 1) {
     return camera;
@@ -47457,7 +47454,7 @@ var SceneCompositor = class e {
     fy.Dk("spotAnims");
     fy.Lk("uiOverlays");
     this.uiOverlayRenderer.setTerrainHeights(this.terrainHeights);
-    const uiCamera = overlayCamera(a, n);
+    const uiCamera = overlayCamera(a, n, options?.overlayGameScale);
     const Y = this.WH(simulationState.npcs);
     const X = H
       ? simulationState.npcs
@@ -59836,7 +59833,6 @@ var dZ = ({
           s.style.position = "absolute";
           s.style.imageRendering = "pixelated";
           s.style.pointerEvents = "none";
-          s.style.filter = "drop-shadow(0 0 3px rgba(0, 0, 0, 0.8))";
           t.appendChild(s);
         }
         if (s.getAttribute("data-icon") !== n.iconPath) {
@@ -60873,6 +60869,7 @@ var bZ = ({
   showAttackTimerMetronome: X = false,
   showNpcAttackTimerMetronome: J = false,
   hdHealthBars: hdHealthBars,
+  overlayGameScale: overlayGameScale = 1,
   entityHider: Q = null,
   tzhaarHpTracker: ee = null,
   pillarAdditions: te = null,
@@ -61039,6 +61036,8 @@ var bZ = ({
   const Qa = (0, pn.useRef)(X);
   const et = (0, pn.useRef)(J);
   const hdHealthBarsRef = (0, pn.useRef)(hdHealthBars);
+  const overlayGameScaleRef = (0, pn.useRef)(overlayGameScale);
+  overlayGameScaleRef.current = overlayGameScale;
   const at = (0, pn.useRef)(Q);
   const tt = (0, pn.useRef)(ee);
   const nt = (0, pn.useRef)(te);
@@ -61741,7 +61740,6 @@ var bZ = ({
           s.style.position = "absolute";
           s.style.imageRendering = "pixelated";
           s.style.pointerEvents = "none";
-          s.style.filter = "drop-shadow(0 0 3px rgba(0, 0, 0, 0.8))";
           t.appendChild(s);
         }
         if (s.getAttribute("data-icon") !== n.iconPath) {
@@ -62556,6 +62554,7 @@ var bZ = ({
         events: n?.events ?? st.current ?? xa.current?.getLastTickEvents() ?? [],
         options: {
           renderMode: "3d",
+          overlayGameScale: overlayGameScaleRef.current,
           showCoordinates: Ba.current,
           tileGrid: Wa.current,
           showNpcClickbox: Pa.current,

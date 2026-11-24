@@ -55114,6 +55114,7 @@ var mn = (ez) => {
                               height: l5 ? l5.height : jI.height,
                               logicalHeight: l5 ? jY.height : undefined,
                               paintScale: hf,
+                              overlayGameScale: jO ? jP : k0,
                               onCameraChange: lO,
                               speedMultiplier: gl,
                               playerOverheadNumbers: n0,
