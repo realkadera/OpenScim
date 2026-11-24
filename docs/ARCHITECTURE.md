@@ -26,8 +26,8 @@ Names in `code font` are the names in the code today, short ones included.
 | `client/assets/Grid.js` | 55,965 | React components, and the hook that owns the engine and runs the tick loop (`mse`), the replay recorder and player. |
 | `client/assets/application.js` | 54,723 | The React application: routes, settings, the encounter manager hook (`qwe`, log tag `useEncounterManager`). |
 | `client/encounters/shared/` | 1,169 | What the encounters share and the engine itself does not need: the NPC definition framework, NPC attack rolls, the default pursuit, the route search, the default scene builder. Six modules. See "Shared rules" below. |
-| `client/encounters/registry.js` | 349 | The encounter definitions (for each encounter its kind, the factory of its encounter object, its descriptor and its controls), the lookups over them, and `encounterRegistry`, which the engine asks for the encounter of a kind. Moved out of `rendering.js` and cleaned. See "The encounters" below. |
-| `client/encounters/presentations.js` | 35 | What draws an encounter, for the encounters written in modules: `presentationBuilders`, a list of functions that `rendering.js` calls with its base scene class. See "Engine and encounter" below and `docs/ADDING-AN-ENCOUNTER.md`. |
+| `client/encounters/registry.js` | 212 | The encounter definitions (for each encounter its kind, the factory of its encounter object, its descriptor and its controls), found in the `encounter.js` of every directory beside it; the lookups over them, and `encounterRegistry`, which the engine asks for the encounter of a kind. Moved out of `rendering.js` and cleaned. See "The encounters" below. |
+| `client/encounters/presentations.js` | 57 | What draws an encounter, for the encounters written in modules: `presentationBuilders`, the functions found in the `presentation.js` of every encounter's directory, which `rendering.js` calls with its base scene class. See "Engine and encounter" below and `docs/ADDING-AN-ENCOUNTER.md`. |
 | `client/encounters/lobby/` | 177 | The lobby encounter, `LobbyEncounter.js`, and its three NPCs, `lobbyNpcs.js`. Moved out of `rendering.js` and cleaned. |
 | `client/encounters/yama/` | 2,798 | Yama, phase 3, in fourteen modules. Moved out of `rendering.js` and cleaned. See "The encounters" below. |
 | `client/encounters/sol-heredit/` | 3,882 | Sol Heredit, in fifteen modules. Moved out of `rendering.js` and cleaned. |
@@ -52,7 +52,8 @@ import the rule modules, the data modules and the logger directly: see
 "The import cycle" below, which is no longer one. `Grid.js` and
 `application.js` import
 all of the chunks and each other. The Zebak modules import nothing from the
-chunks; `registry.js` imports them and hands them the rules they need
+chunks; `client/encounters/tombs-of-amascut/encounter.js` imports them and
+hands them the rules they need
 (`zebakDefinition({ makeCollision, rollAttack, ... })`).
 
 ### rendering.js
@@ -231,11 +232,16 @@ the engine or an encounter.
 
 ## Engine and encounter
 
-An encounter is registered in two lists, both of them modules
-(`docs/ADDING-AN-ENCOUNTER.md` is the guide to adding one):
+An encounter registers itself: `client/encounters/registry.js` takes every
+`encounter.js` of a directory beside it and `presentations.js` every
+`presentation.js`, with Vite's glob import, so no list is written by hand
+(`docs/ADDING-AN-ENCOUNTER.md` is the guide to adding one;
+`tools/determinism/import-glob.mjs` writes the glob out for Node). An
+encounter has
 
-- a definition in `registeredEncounterDefinitions`
-  (`client/encounters/registry.js`): `{ kind, factory(options), descriptor, controls,
+- a definition, the `definition` of its `encounter.js`, in
+  `registeredEncounterDefinitions` (`client/encounters/registry.js`), in the
+  order of the modules' `order`: `{ kind, factory(options), descriptor, controls,
   enableIntro?, variantFactories?, variantControls?, retiredEntries?,
   countdownMovement? }`. `factory` returns the encounter object. The
   descriptor holds what the interface needs before a fight exists: display
@@ -246,8 +252,9 @@ An encounter is registered in two lists, both of them modules
 - a presentation: `{ kind, sceneBuilder(context), renderConfig?, audio?,
   defaultCamera, presentation? }`. The scene classes are in `rendering.js`,
   so a presentation written in a module is a function that is handed the
-  base scene and returns the entry; `presentationBuilders`
-  (`client/encounters/presentations.js`) lists those functions.
+  base scene and returns the entry, the `presentation` of the encounter's
+  `presentation.js`; `presentationBuilders`
+  (`client/encounters/presentations.js`) is those functions.
   `rendering.js` calls each when it is loaded and puts the results in front
   of the four presentations it still holds itself (Yama, the lobby, Sol
   Heredit, the Inferno) in its list `KV`, from which it fills the scene
@@ -735,10 +742,10 @@ rules only through what `rendering.js` passes to `zebakDefinition`: `stats`,
 6. Restart: `engine.reset(startTile, { encounter: { kind, seeds } }?,
    runMechanics)`, then the loadout again.
 
-A new encounter needs: a definition in
-`registeredEncounterDefinitions` (`client/encounters/registry.js`), and a
-presentation function in `presentationBuilders`
-(`client/encounters/presentations.js`). Neither is a chunk. The
+A new encounter needs: a directory under `client/encounters/` whose
+`encounter.js` exports its `definition` and whose `presentation.js` exports
+its `presentation`. The registry and `presentations.js` find both; neither
+is a chunk, and neither is edited. The
 route's title and description come from the descriptor when `application.js`
 has no search-engine entry for the kind (`Qfe`; `buildDescriptorSeoEntry`
 is the fallback, and it marks the page `noindex`). Default loadouts (`_le`
@@ -771,8 +778,8 @@ The graph has one direction now:
 - Whoever imports an encounter module, a rule module, a data module or a
   utility gets it evaluated in full first. An encounter module can call
   `defineNpc({ ... })` or read `CollisionFlag`, `Prayer` or `spotAnimIds`
-  while it is loaded, and `registry.js` reads `yamaContractVariants` and
-  calls `buildYamaControls()` while it builds the definitions.
+  while it is loaded, and `yama/encounter.js` reads `yamaContractVariants`
+  and calls `buildYamaControls()` while it builds Yama's definition.
 
 The check is `node tools/check-import-graph.mjs`. It lists every import of
 a chunk by one of the 115 modules (none) and

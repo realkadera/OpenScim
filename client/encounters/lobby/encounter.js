@@ -27,3 +27,4 @@ export const definition = {
     debugActions: [],
   },
 };
+export const order = 40;

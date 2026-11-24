@@ -1,15 +1,17 @@
 # Adding an encounter
 
 An encounter is a fight: its rules, what is known of it before a fight
-exists, and what draws it. You add one as files of its own and two lines
-in two modules. No file under `client/assets/` (the bundles) has to be
-edited, and you do not have to read one.
+exists, and what draws it. You add one as files of its own: a directory
+under `client/encounters/` registers itself, and there is no list to add a
+line to. No file under `client/assets/` (the bundles) has to be edited, and
+you do not have to read one.
 
 The worked example is the fixture encounter of the tests,
 `test/fixtures/training-ground/`: one monster that walks up to the player
 and hits, a toggle, a debug action. It is 220 lines in two files. The tests
-register it while they run (`test/fixtures/register.mjs` holds the three
-lines); the site does not have it. The code quoted below is the fixture's,
+register it while they run (`test/fixtures/register.mjs` says how: it is
+outside `client/`, where an encounter is found by itself); the site does
+not have it. The code quoted below is the fixture's,
 except where the text calls it a sketch. The import lines are shown as you
 would write them for an encounter in `client/encounters/`.
 
@@ -49,6 +51,11 @@ A new directory `client/encounters/<name>/` with two modules:
 - `encounter.js`: the encounter class and its definition (section 2 and 3);
 - `presentation.js`: what draws it (section 5).
 
+The two names are fixed: `client/encounters/registry.js` takes every
+`encounter.js` of a directory beside it, and `presentations.js` every
+`presentation.js`. That is the whole registration. Two pull requests that
+each add a fight touch no file in common.
+
 More modules as the fight grows (the original encounters have fourteen to
 twenty-four each). Import the engine's rules and the shared helpers
 relatively (`../../engine/monsterStats.js`, `../shared/npcAttack.js`). The
@@ -59,8 +66,8 @@ Two rules hold for every module under `client/encounters/`, and
 `node tools/check-import-graph.mjs` fails when one is broken:
 
 - no import of `client/assets/rendering.js`, `Grid.js` or `application.js`;
-- no import cycle. The two lists you add a line to import your modules, so
-  your modules must not import `registry.js` or `presentations.js` back.
+- no import cycle. `registry.js` and `presentations.js` import your
+  modules, so your modules must not import either of them back.
 
 What you may import: `client/engine/`, `client/data/`, `client/util/`,
 `client/encounters/shared/` (the default scene builder is there, section
@@ -283,10 +290,11 @@ drawing a seed in `reset`.
 
 ## 3. The definition
 
-What is registered for a kind. Export it from `encounter.js`:
+What is registered for a kind. Export it from `encounter.js` as
+`definition`:
 
 ```js
-export const trainingGroundDefinition = {
+export const definition = {
   kind: trainingGroundKind,
   factory: () => new TrainingGroundEncounter(),
   descriptor: {
@@ -308,21 +316,23 @@ export const trainingGroundDefinition = {
 };
 ```
 
-and add it to the list in `client/encounters/registry.js`, with its import:
+The registry finds it there. A module with several kinds of its own exports
+`definitions`, a list, instead (`client/encounters/tombs-of-amascut/`).
+
+The encounter picker shows the encounters in the order of the registry's
+list. To choose your place in it, export a number:
 
 ```js
-import { trainingGroundDefinition } from "./training-ground/encounter.js";
-...
-var registeredEncounterDefinitions = [
-  trainingGroundDefinition,
-  ...
+export const order = 80;
 ```
 
+Lower is earlier. Those that ship have 10 to 70, and the Inferno 100, so 80
+stands just before the Inferno; two encounters with the same number go by
+the name of their directory. Without an `order` yours comes after all that
+have one.
+
 The header of `registry.js` describes every key of a definition, the
-optional ones included (`enableIntro`, variants, retired names). The
-definition can stand anywhere in the list; the order of the list is the
-order of the encounter picker. (The fixture's line goes to the front only
-because that is the simplest place for a test to put it.)
+optional ones included (`slug`, `enableIntro`, variants, retired names).
 
 **`factory(options)`** returns a new encounter object.
 
@@ -399,7 +409,7 @@ const renderConfig = {
   preloadNpcTypes: [{ npcTypeId: partnerNpcTypeId, idleSeqId: 7595, attackClips: { attack: 7597 }, deathSeqId: 7599 }],
 };
 
-export const trainingGroundPresentation = (BaseScene) => ({
+export const presentation = (BaseScene) => ({
   kind: trainingGroundKind,
   renderConfig,
   sceneBuilder: (context) => buildScene(BaseScene, renderConfig, context),
@@ -407,20 +417,16 @@ export const trainingGroundPresentation = (BaseScene) => ({
 });
 ```
 
-Add the function to the list in `client/encounters/presentations.js`, with
-its import:
+Export it from `presentation.js` as `presentation`: `presentations.js`
+finds it there. An encounter with several exports `presentations`, a list
+(the Doom's two rooms).
 
-```js
-import { trainingGroundPresentation } from "./training-ground/presentation.js";
-...
-export const presentationBuilders = [zebakPresentation, nexusPresentation, trainingGroundPresentation];
-```
-
-`rendering.js` calls every function of the list once, with the base scene
-class and the renderer's colour packing (`packHsl`, also importable from
-`client/util/packHsl.js`). A kind without a presentation cannot be entered:
-the interface throws "No scene builder registered for encounter kind". Put
-yours at the end of the list: its order is the order of the audio layers.
+`rendering.js` calls every function that was found once, with the base
+scene class and the renderer's colour packing (`packHsl`, also importable
+from `client/util/packHsl.js`). A kind without a presentation cannot be
+entered: the interface throws "No scene builder registered for encounter
+kind". The presentations are in the order of the encounters (`order`,
+section 3), which is also the order of the audio layers.
 
 The keys of what the function returns (the header of `presentations.js`
 has them too):
@@ -726,8 +732,8 @@ same is open to you:
      that is dying has a `death` record before it stops being `alive`.
 
    The harness reaches an encounter through the registry alone. It runs a
-   fight whose presentation is missing from `presentations.js`: that line
-   is only proved in the browser.
+   fight that has no `presentation.js`, or one that exports nothing under
+   the name `presentation`: that is only proved in the browser.
 2. `node tools/check-import-graph.mjs`: your modules import no bundle and
    are in no import cycle (section 1).
 3. **The route in a browser.** `npm run dev`, then
@@ -780,19 +786,18 @@ What still needs an edit in a bundle, each with its reason:
 
 ## Checklist
 
+Every step adds files of your own; none edits a list.
+
 1. `client/encounters/<name>/encounter.js`: the class with the thirteen
-   required members, the NPC definitions, the definition.
+   required members, the NPC definitions, and the definition, exported as
+   `definition`. Its kind gives the route; `order` its place in the picker.
 2. `client/encounters/<name>/presentation.js`: the render config and the
-   presentation function.
-3. `client/encounters/registry.js`: the definition in
-   `registeredEncounterDefinitions`. Its kind gives the route.
-4. `client/encounters/presentations.js`: the function in
-   `presentationBuilders`.
-5. `tools/determinism/scenarios/<name>.mjs`, its digests recorded
+   presentation function, exported as `presentation`.
+3. `tools/determinism/scenarios/<name>.mjs`, its digests recorded
    (`test/determinism-digests/<name>/`).
-6. The harness, the import graph check, `npm test`, `npm run build`, the
+4. The harness, the import graph check, `npm test`, `npm run build`, the
    route in a browser.
-7. The sandbox: `npm run sandbox:catalog` adds your monsters to its catalog
+5. The sandbox: `npm run sandbox:catalog` adds your monsters to its catalog
    (`client/encounters/sandbox/discovered.js`); `node
    test/test-sandbox-catalog.mjs` fights each, and `node
    tools/determinism/harness.mjs --update --only sandbox/catalog/` records

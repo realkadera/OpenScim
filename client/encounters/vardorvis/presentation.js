@@ -59,3 +59,5 @@ export const vardorvisPresentation = (BaseScene, packHsl, { widgetModelView } = 
     portrait: { npcTypeId: ids.boss, framing: { yaw: -30, pitch: -12, focusHeight: 0.6, span: 0.7 } },
   },
 });
+// How presentations.js finds it.
+export { vardorvisPresentation as presentation };

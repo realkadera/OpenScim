@@ -49,3 +49,5 @@ export const definition = {
   },
   countdownMovement: (mechanics) => getInfernoSetup(mechanics).startWave !== 69,
 };
+// Last of those that have a place: a new fight stands before the Inferno unless it says otherwise.
+export const order = 100;

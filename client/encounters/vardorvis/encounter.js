@@ -746,3 +746,6 @@ export const vardorvisDefinition = {
   variantFactories: { [vardorvisAwakenedKind]: () => new VardorvisEncounter(vardorvisAwakenedKind, versions.awakened) },
   variantControls: { [vardorvisAwakenedKind]: { defaultMechanicsConfig: {}, mechanicsToggles: [], debugActions: [] } },
 };
+// How the registry finds it (encounters/registry.js), and where it stands in the encounter picker.
+export { vardorvisDefinition as definition };
+export const order = 70;

@@ -176,7 +176,7 @@ class TrainingGroundEncounter {
   }
 }
 
-export const trainingGroundDefinition = {
+export const definition = {
   kind: trainingGroundKind,
   factory: () => new TrainingGroundEncounter(),
   descriptor: {

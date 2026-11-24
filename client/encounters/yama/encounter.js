@@ -56,3 +56,4 @@ export const definition = {
     yama_p3_glyphic: buildYamaControls(glyphicAttenuationContract),
   },
 };
+export const order = 30;

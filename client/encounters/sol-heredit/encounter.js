@@ -39,3 +39,4 @@ export const definition = {
   },
   controls: buildSolHereditControls(),
 };
+export const order = 50;

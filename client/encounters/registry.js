@@ -1,20 +1,3 @@
-import { zebakDefinition } from "/toa/zebak/native.js";
-import { nexusDefinition } from "/toa/nexus.js";
-import { doomDefinition } from "./doom-of-mokhaiotl/encounter.js";
-import { definition as yamaDefinition } from "./yama/encounter.js";
-import { definition as lobbyDefinition } from "./lobby/encounter.js";
-import { definition as solHereditDefinition } from "./sol-heredit/encounter.js";
-import { definition as infernoDefinition } from "./inferno/encounter.js";
-import { getArenaWalkableTiles } from "../engine/arena.js";
-import { CollisionFlag, createCollisionMap } from "../engine/collision.js";
-import { createSeededRandom } from "../engine/random.js";
-import { startScriptedNpcDeath } from "../engine/npcState.js";
-import { rollNpcAttack } from "./shared/npcAttack.js";
-import { buildNpcProjectileVisual } from "./shared/npcHelpers.js";
-import { emitInfernoVisual, emitInfernoNpcAttack } from "./inferno/events.js";
-import { getMonsterFormulaStats } from "../engine/monsterStats.js";
-import { colosseumDefinition } from "./colosseum/ColosseumEncounter.js";
-import { vardorvisDefinition } from "./vardorvis/encounter.js";
 import { buildSandboxDefinition } from "./sandbox/encounter.js";
 // The encounters the client can run, and the registry the engine asks for
 // the encounter of a kind (engine/createSimulationEngine.js calls
@@ -43,13 +26,12 @@ import { buildSandboxDefinition } from "./sandbox/encounter.js";
 //   retiredEntries     optional: names that are kinds no more, each with the
 //                      mechanics it stands for (resolveKindOrRetiredEntry)
 //   countdownMovement  optional; hasCountdownMovement answers from it
-// A definition is written beside its encounter and imported here. The first
-// two come from client/toa/; Zebak's is built from the rules handed to it
-// here.
+// A definition is written beside its encounter, in the encounter.js of its
+// directory, and found here: see the list below.
 //
 // engine/encounterKinds.js reads its table of kinds (variant kinds, route
 // slugs, retired kinds) off this list: a kind is written here and nowhere
-// else. The presentations (what draws an encounter) are a second list:
+// else. The presentations (what draws an encounter) are found the same way:
 // presentations.js beside this module has those that are written in
 // modules, the chunk rendering.js its own four.
 //
@@ -64,17 +46,31 @@ import { buildSandboxDefinition } from "./sandbox/encounter.js";
 // take it (reapplyArenaConfig). Until an arena is registered for the kind,
 // and always with "custom", the engine runs on the encounter's own
 // getArenaConfig().
-var registeredEncounterDefinitions = [
-  zebakDefinition({makeCollision:createCollisionMap,solidFlag:CollisionFlag.OBJECT,walkable:getArenaWalkableTiles,stats:getMonsterFormulaStats, seedRandom:createSeededRandom, rollAttack:rollNpcAttack, showAttack:emitInfernoNpcAttack, projectile:buildNpcProjectileVisual, animate:emitInfernoVisual, startNpcDeath:startScriptedNpcDeath}),
-  nexusDefinition,
-  doomDefinition,
-  yamaDefinition,
-  lobbyDefinition,
-  solHereditDefinition,
-  colosseumDefinition,
-  vardorvisDefinition,
-  infernoDefinition,
-];
+// An encounter registers itself: every ./<directory>/encounter.js beside this
+// module is found here, so a new encounter edits no list. (The call below is
+// Vite's glob import; tools/determinism/import-glob.mjs writes it out for
+// Node.) Such a module exports
+//   definition   its definition; or `definitions`, a list of them (the Tombs
+//                of Amascut have two)
+//   order        optional, a number: where it stands in this list, which is
+//                the order of the encounter picker. Lower is earlier; without
+//                one it comes after all that have one, and equal ones go by
+//                the name of the directory
+// The sandbox's encounter.js is found too and is no such module: it is left
+// out here and its definition added last, below.
+const foundModules = import.meta.glob("./*/encounter.js", { eager: true });
+const encounterModules = Object.entries(foundModules);
+const directoryOf = (path) => path.split("/")[1];
+const orderedModules = encounterModules
+  .filter(([path]) => directoryOf(path) !== "sandbox")
+  .sort(([pathA, a], [pathB, b]) => (a.order ?? Infinity) - (b.order ?? Infinity) || (pathA < pathB ? -1 : 1));
+// The encounters' directories in the order of the list: presentations.js puts what it finds in the same order.
+var encounterDirectories = orderedModules.map(([path]) => directoryOf(path));
+var registeredEncounterDefinitions = orderedModules.flatMap(([path, module]) => {
+  const definitions = module.definitions ?? (module.definition ? [module.definition] : undefined);
+  if (!definitions) throw new Error(`${path} exports neither \`definition\` nor \`definitions\``);
+  return definitions;
+});
 // The sandbox runs the other encounters as the hosts of its arenas: it is
 // handed their definitions.
 registeredEncounterDefinitions.push(buildSandboxDefinition([...registeredEncounterDefinitions]));
@@ -213,4 +209,4 @@ for (const definition of registeredEncounterDefinitions) {
 for (const definition of registeredEncounterDefinitions) {
   for (const [variantKind, descriptor] of Object.entries(definition.variantDescriptors ?? {})) variantDescriptors.set(variantKind, descriptor);
 }
-export { registeredEncounterDefinitions, getDefinitionKinds, controlsByKind, getEncounterControls, isIntroEnabledForKind, hasCountdownMovement, resolveKindOrRetiredEntry, encounterRegistry };
+export { registeredEncounterDefinitions, encounterDirectories, getDefinitionKinds, controlsByKind, getEncounterControls, isIntroEnabledForKind, hasCountdownMovement, resolveKindOrRetiredEntry, encounterRegistry };
