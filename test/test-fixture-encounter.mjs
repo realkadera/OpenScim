@@ -59,7 +59,9 @@ try {
     hitTest: scene.getAllNpcHitTestData().map((entry) => entry.actorId),
     hitpoints: engine.worldState.actors.get("sparring-partner").vitals,
   }));
-  assert.deepEqual(drawn, { sceneClass: "InfernoScene", renderConfigNpcTypes: [7697], npcTypeLoaded: true, hitTest: ["sparring-partner"], hitpoints: { hp: 75, maxHp: 75 } });
+  // The partner, and the player's greater thralls, which the scene of every
+  // fight loads: ghost, skeleton, zombie (client/engine/thralls.js).
+  assert.deepEqual(drawn, { sceneClass: "InfernoScene", renderConfigNpcTypes: [7697, 10880, 10883, 10886], npcTypeLoaded: true, hitTest: ["sparring-partner"], hitpoints: { hp: 75, maxHp: 75 } });
 
   // A fight, ticked from here until the monster is nearly dead: it walks up
   // and hits, and the debug action of the fixture's controls reaches the
