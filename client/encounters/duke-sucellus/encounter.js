@@ -3,10 +3,10 @@
 // https://oldschool.runescape.wiki/w/Duke_Sucellus/Strategies
 //
 // He sits at the north end of his asylum and never moves. He sleeps until the
-// player first clicks on him, from any distance. The click stands for the last
-// of the poison that wakes him in the game: he wakes two ticks later, can be
-// attacked from the tick after, and then acts every five ticks, every four once
-// enraged:
+// player has clicked on him and is beside him: a click from further off has them
+// run up to him. That stands for the last of the poison that wakes him in the
+// game: he wakes two ticks later, can be attacked from the tick after, and then
+// acts every five ticks, every four once enraged:
 // - with the player beside him, diagonals included, icicles (they hit at
 //   once) and, two ticks later, a slam on the player if they are in the row
 //   in front of him by then, which cannot reach a diagonal;
@@ -97,9 +97,10 @@ export const spots = {
 const bossActorId = "duke-sucellus";
 const attackTicks = 5; // WIKI, TABLE
 const enragedAttackTicks = 4; // WIKI
-// OBS 11/24 (2 of 2): the last poison shows on him a tick after it is fed ("Duke
-// is waking up."), he wakes a tick after that, and the player's first attack went
-// off a tick later still, on him as he woke.
+// OBS 11/24 (2 of 2): the poison is fed from the row before him; the last of it
+// shows on him a tick after ("Duke is waking up."), he wakes a tick after that,
+// and the player's first attack went off a tick later still, at the first click
+// on him awake.
 const wakeDelayTicks = 2;
 const attackableTicks = 1;
 const wakeTicks = 5; // OBS, OBS 11/24: his first attack 5 ticks after he wakes
@@ -182,12 +183,13 @@ const inFootprint = ([x, y]) => x >= bossStart[0] && x < bossStart[0] + bossSize
 // Beside him, diagonals included (WIKI).
 const isBeside = ([x, y]) =>
   !inFootprint([x, y]) && x >= bossStart[0] - 1 && x <= bossStart[0] + bossSize && y >= bossStart[1] - 1 && y <= bossStart[1] + bossSize;
-// WIKI: the slam cannot reach a diagonal. OBS 11/24: it lands on a player
+// Beside him, and not on a diagonal: where he is woken from and where the slam
+// lands. WIKI: the slam cannot reach a diagonal. OBS 11/24: it lands on a player
 // anywhere else beside him (the row of seven before him, the rest being
 // walled off), wherever they were when he struck: 59 of 59 fit, the 4 that
 // hit were struck at a player on a diagonal who had stepped into the row, and
 // 13 struck at one in it, who had stepped out, missed.
-const isSlamReachable = ([x, y]) => {
+const isSquarelyBeside = ([x, y]) => {
   const [bx, by] = bossStart;
   const alongX = x >= bx && x < bx + bossSize, alongY = y >= by && y < by + bossSize;
   return (alongX && (y === by - 1 || y === by + bossSize)) || (alongY && (x === bx - 1 || x === bx + bossSize));
@@ -327,7 +329,7 @@ class DukeSucellusEncounter {
     const boss = context.world.getNpc(bossActorId);
     const at = [...context.playerPos];
     const alive = player?.alive;
-    if (this.slams.includes(context.tick) && alive && isSlamReachable(at))
+    if (this.slams.includes(context.tick) && alive && isSquarelyBeside(at))
       hits.push({ source: "Duke Sucellus' slam", attackType: "melee", baseDamage: [0, this.version.slamMaxHit], prayerReduction: slamPrayerReduction, playerPosition: at });
     this.slams = this.slams.filter((tick) => tick > context.tick);
     if (this.sight !== null && context.tick >= this.sight + sightTicks) this.sight = null;
@@ -347,6 +349,13 @@ class DukeSucellusEncounter {
   processPostTick(context) {
     const boss = context.world.getNpc(bossActorId);
     const player = context.world.getPlayer();
+    if (this.wakeTick === null && boss?.alive && player?.alive && player.attackTarget === boss.id && isSquarelyBeside(player.position)) {
+      // The engine takes the player off him again, and refuses further clicks,
+      // while he cannot be attacked.
+      this.wakeTick = context.tick + wakeDelayTicks;
+      boss.attackBlockedUntilTick = this.wakeTick + attackableTicks;
+      boss.combat.nextActionTick = this.wakeTick + wakeTicks;
+    }
     for (const { endTick } of this.spits.filter(({ tick }) => tick === context.tick)) if (boss?.alive && player?.alive) this.spit(boss, player, context, endTick);
     this.spits = this.spits.filter(({ tick }) => tick > context.tick);
     if (this.outcome.phase === "resolving" && context.tick >= this.outcome.completionTick) this.outcome = { ...this.outcome, phase: "victory" };
@@ -356,12 +365,12 @@ class DukeSucellusEncounter {
     const idle = { environmentalDamages: [] };
     if (npc.id !== bossActorId) return idle;
     if (this.wakeTick === null) {
-      // Asleep until the player clicks on him. The engine takes the player off him
-      // again, and refuses further clicks, while he cannot be attacked.
-      if (context.world.getPlayer()?.attackTarget !== npc.id) return idle;
-      this.wakeTick = context.tick + wakeDelayTicks;
-      npc.attackBlockedUntilTick = this.wakeTick + attackableTicks;
-      npc.combat.nextActionTick = this.wakeTick + wakeTicks;
+      // Asleep. The player who has clicked on him keeps him as a target, to run
+      // up to him whatever their weapon's range, and does not attack him (as with
+      // Zebak's jugs); nor does their thrall.
+      const player = context.world.getPlayer();
+      if (player?.attackTarget === npc.id) player.attackInteractionActive = false;
+      if (player?.thrall) player.thrall.nextAttackTick = Math.max(player.thrall.nextAttackTick, context.tick + 1);
       return idle;
     }
     if (context.tick === this.wakeTick) {
@@ -506,7 +515,7 @@ class DukeSucellusEncounter {
     return {
       kind: this.kind,
       state: {
-        wakeTick: this.wakeTick, // null until he is clicked on; then the tick he wakes
+        wakeTick: this.wakeTick, // null until the player has roused him; then the tick he wakes
         gaze: this.gaze && { checkTick: this.gaze.checkTick, hitTick: this.gaze.hitTick },
         sight: this.sight,
         gas: this.clouds.map((cloud) => ({ vent: [...cloud.vent], riseTick: cloud.riseTick, hurtFrom: cloud.hurtFrom, endTick: cloud.endTick })),

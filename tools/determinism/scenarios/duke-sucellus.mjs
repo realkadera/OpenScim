@@ -1,8 +1,9 @@
 // Duke Sucellus (client/encounters/duke-sucellus/). He sits at 28,52 (7 x 7)
 // at the north end of the asylum and never moves; the player starts at
-// 31,40, and the first click on him wakes him, two ticks later. Pillars stand beside him at 25..27,52 and 35..37,52, so 27,51 and
-// 35,51 are behind them and diagonal to him.
-import { attack, item, meleeGear, offensive, protect, setBossHp } from "./common.mjs";
+// 31,40. A click on him has the player run up to him, which wakes him two ticks
+// later. Pillars stand beside him at 25..27,52 and 35..37,52, so 27,51 and 35,51
+// are behind them and diagonal to him.
+import { attack, item, meleeGear, offensive, protect, rangedGear, setBossHp } from "./common.mjs";
 
 const KIND = "duke_sucellus";
 const BOSS = "duke-sucellus";
@@ -61,8 +62,8 @@ export const scenarios = [
       if (tick === 1) setBossHp(api, 1000);
       if (tick === 1) protect(api, "ProtectMagic");
       if (tick === 1) attack(api, BOSS);
-      if (tick === 2) attack(api, null);
-      if (tick === 2) api.moveTo(31, 47);
+      if (tick === 8) attack(api, null);
+      if (tick === 8) api.moveTo(31, 47);
     },
   },
   {
@@ -77,6 +78,19 @@ export const scenarios = [
     script(tick, api) {
       if (tick === 1) api.moveTo(31, 51);
       if (tick >= 15) attack(api, BOSS);
+    },
+  },
+  {
+    // Clicked on every tick with a bow: no arrow until he is awake, and then from
+    // where he was woken from.
+    name: "duke-sucellus/wake-ranged",
+    kind: KIND,
+    seed: 14,
+    ticks: 30,
+    mechanics: { infiniteHealth: true },
+    ...rangedGear,
+    script(tick, api) {
+      attack(api, BOSS);
     },
   },
   {

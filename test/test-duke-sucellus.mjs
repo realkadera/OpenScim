@@ -50,28 +50,58 @@ try {
   });
   assert.deepEqual(raised, [314, 314, 0]);
 
-  // Clicked on every tick by a player beside him: he wakes two ticks after the
-  // first click, can be attacked from the next, and attacks at the fifth.
-  const waking = await page.evaluate(() => {
-    const player = engine.player();
+  // Clicked on once from where the player starts, they run up to him and he is
+  // roused as they get there; a staff and a thrall, which reach him from afar, do
+  // not hurt him asleep. He wakes two ticks after, can be attacked from the next
+  // and attacks at the fifth.
+  const loaded = async () => {
+    await page.waitForFunction(() => window.engine && window.scene, null, { timeout: 60000 });
+    await page.locator(".loading-screen").waitFor({ state: "hidden", timeout: 60000 });
+    await page.waitForFunction(() => scene.isTerrainLoaded() && scene.isPlayerLoaded() && scene.isNpcTypeLoaded(12191) && scene.isNpcTypeLoaded(12167), null, { timeout: 60000 });
+  };
+  const rouse = (weapon) => page.evaluate((weapon) => {
+    const player = engine.player(), duke = engine.worldState.getNpc("duke-sucellus");
+    const wakeTick = () => engine.getEncounterSnapshot().state.wakeTick;
     engine.setMechanicsConfig({ ...engine.mechanicsConfig, infiniteHealth: true });
-    for (let tick = 0; tick < 16; tick++) engine.advanceTick([31, 51]);
-    const clicked = engine.worldState.tick + 1;
-    let attacked = null, struck = null;
-    for (let tick = 0; tick < 12; tick++) {
-      engine.queueAttackTarget("duke-sucellus");
+    player.equipment.weapon = weapon;
+    delete player.equipment.shield;
+    player.thrall = { id: "thrall", spellName: "Resurrect Greater Skeleton", npcTypeId: 10883, size: 1, position: [31, 47], previousPosition: [31, 47], facing: 0, spawnTick: 0, expiresTick: 100000, nextAttackTick: 0 };
+    const from = player.position.join(), began = engine.worldState.tick;
+    let roused = null, tile = null, hp = null, attacked = null, struck = null;
+    for (let tick = 0; tick < 25; tick++) {
+      if (tick === 0 || roused !== null) engine.queueAttackTarget("duke-sucellus");
       engine.advanceTick(player.position);
       const now = engine.worldState.tick;
-      if (attacked === null && engine.getPlayerAttackCooldown(player.id, now) > 0) attacked = now - clicked;
-      if (struck === null && engine.encounter.slams.length > 0) struck = now - clicked;
+      if (roused === null && wakeTick() !== null) [roused, tile] = [now, player.position.join()];
+      if (now === wakeTick()) hp = duke.vitals.hp;
+      if (attacked === null && engine.getPlayerAttackCooldown(player.id, now) > 0) attacked = now - roused;
+      if (struck === null && engine.encounter.slams.length > 0) struck = now - roused;
     }
-    return { beside: player.position.join(), wakes: engine.getEncounterSnapshot().state.wakeTick - clicked, attacked, struck };
+    return { from, ran: roused - began, tile, wakes: wakeTick() - roused, hp, attacked, struck };
+  }, weapon);
+  for (const weapon of [22325, 27275]) { // a scythe, a Tumeken's shadow
+    assert.deepEqual(await rouse(weapon), { from: "31,40", ran: 6, tile: "31,51", wakes: 2, hp: 485, attacked: 3, struck: 7 }, `with weapon ${weapon}`);
+    await page.reload();
+    await loaded();
+  }
+
+  // A click that is taken back on the way leaves him asleep, the player walking
+  // on to the row before him and to a diagonal.
+  const left = await page.evaluate(() => {
+    const player = engine.player();
+    const walk = (position, ticks) => {
+      for (let tick = 0; tick < ticks; tick++) engine.advanceTick(position);
+      return player.position.join() + " " + engine.getEncounterSnapshot().state.wakeTick;
+    };
+    engine.queueAttackTarget("duke-sucellus");
+    const before = walk(player.position, 3);
+    engine.queueAttackTarget(null);
+    const at = walk([31, 51], 10), diagonal = walk([27, 51], 10);
+    return { before, at, diagonal };
   });
-  assert.deepEqual(waking, { beside: "31,51", wakes: 2, attacked: 3, struck: 7 });
+  assert.deepEqual(left, { before: "31,46 null", at: "31,51 null", diagonal: "27,51 null" });
   await page.reload();
-  await page.waitForFunction(() => window.engine && window.scene, null, { timeout: 60000 });
-  await page.locator(".loading-screen").waitFor({ state: "hidden", timeout: 60000 });
-  await page.waitForFunction(() => scene.isTerrainLoaded() && scene.isPlayerLoaded() && scene.isNpcTypeLoaded(12191) && scene.isNpcTypeLoaded(12167), null, { timeout: 60000 });
+  await loaded();
 
   // Asleep, however long the player stays, and drawn as the sleeping type.
   const drawnType = () => page.evaluate(() => [...scene.npcInstanceManager.instanceRegistry.values()].find((npc) => [12167, 12191].includes(npc.npcTypeId)).npcTypeId);
@@ -82,9 +112,10 @@ try {
   assert.deepEqual(asleep, { wakeTick: null, hp: 99 });
   assert.equal(await drawnType(), 12167);
 
-  // A click on the middle of his body wakes him.
+  // A click on the middle of his body has the player run up to him and wake him.
   await page.mouse.click(640, 180);
   await page.waitForFunction(() => engine.getEncounterSnapshot().state.wakeTick !== null, null, { timeout: 20000 });
+  assert.equal(await page.evaluate(() => engine.player().position.join()), "31,51");
   await page.waitForFunction(() => [...scene.npcInstanceManager.instanceRegistry.values()].some((npc) => npc.npcTypeId === 12191), null, { timeout: 20000 });
 
   // His eye (the faces of labels 94 to 108), which every animation hides but
@@ -247,7 +278,7 @@ try {
   await page.evaluate(() => engine.setBossHp(0));
   await page.waitForFunction(() => engine.getEncounterOutcome().phase === "victory" && document.body.innerText.includes("DUKE SUCELLUS DEFEATED"), null, { timeout: 120000 });
   assert.deepEqual(errors, []);
-  console.log("Duke Sucellus loaded on /duke-sucellus/, was drawn, slept until clicked, gazed with his overlay, spat gas and was won");
+  console.log("Duke Sucellus loaded on /duke-sucellus/, was drawn, slept until the player was beside him, gazed with his overlay, spat gas and was won");
 } finally {
   await browser.close();
 }
