@@ -42,6 +42,8 @@ not a digest to re-record. Record only your own:
 - Every game number in code names its source in a comment: WIKI (the OSRS
   wiki), OBS (recorded from the game), CACHE, TABLE (client/data/monsters.js),
   or "inferred". Recorded game behaviour wins over the wiki and simulators.
+- A post for the Discord (a boss's post, a log, a bug) is the template in
+  docs/DISCORD-POSTS.md, filled in as it says there.
 - Randomness only from seeded generators (client/engine/random.js);
   Math.random only to draw a seed.
 - One kind of change per commit; stage explicit paths.
