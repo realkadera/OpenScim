@@ -310,7 +310,7 @@ If present:
 members are optional: `onTickStart`, `playerInputLocked`,
 `modifyPlayerCombatParams`, `validateAttack`, `multiCombat`,
 `incomingDamageMultiplier`, `outgoingDamageMultiplier`, `specialAttacks`,
-`playerMinimumHit`, `consumePlayerGuaranteedMaxHit`, `playerMaxHpReduction`,
+`playerMinimumHit`, `playerAlwaysAccurate`, `consumePlayerGuaranteedMaxHit`, `playerMaxHpReduction`,
 `prayerDrain`, `prayerRestrictions`, `itemRestrictions`,
 `monsterStatOverrides`, `onPlayerDamageTaken`, `isTombsOfAmascut`,
 `playerDamageOnNpc`. The last, `(damage, { attacker, target, attack }) =>
@@ -318,6 +318,11 @@ damage`, decides a player's hit on one of the encounter's NPCs as it lands
 (the Doom of Mokhaiotl's larvae and shield); `isDemonbaneAttack(attack)` of
 `engine/playerAttack/formula.js` tells a demonbane weapon or spell. An NPC
 whose `formulaStats.alwaysAccuratePlayerHit` is true is hit by every attack.
+Two rules are asked as a player's attack is planned, with the rules
+context and `{ style, target }` (`style` is "melee", "range" or "magic"):
+`playerMinimumHit(maximumRolledDamage, context, attack)` returns the least
+the hit does, and `playerAlwaysAccurate(context, attack)` makes it sure to
+hit when it returns true (the Leviathan's weak spot and its pathfinder).
 
 `getNpcDefinitions()` returns a set of per-NPC behaviours (class
 `NpcDefinitionRegistry`, built from definitions made with
