@@ -46,6 +46,17 @@ not a digest to re-record. Record only your own:
   Math.random only to draw a seed.
 - One kind of change per commit; stage explicit paths.
 - Behaviour of existing encounters must not change unless that is the task.
+- A fight's pull request edits the fight's own files: its directory, tests,
+  scenario file and digests. A change to how client/engine/, client/assets/
+  or client/encounters/shared/ behaves is a pull request of its own, first.
+  Only a new, optional hook or field that changes nothing for other fights
+  may come with the fight, as its own commit (CONTRIBUTING.md, "Yours and
+  shared"). Never write a fight's map square, NPC ids or kind into a bundle:
+  propose a seam in an issue.
+- A pull request follows .github/pull_request_template.md, every heading.
+- A branch built on another open pull request says "Built on #N"; after #N
+  is squash-merged, rebase with `git rebase --onto origin/main <last commit
+  of #N> <branch>`.
 
 ## Pitfalls
 

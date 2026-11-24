@@ -60,6 +60,40 @@ If a scenario of an encounter you did not touch turns `DIFFERENT`, your change
 broke it; fix the change, do not re-record the digest. Record only your own:
 `node tools/determinism/harness.mjs --update --only <yourkind>/`.
 
+## Yours and shared
+
+Two people building two fights should not have to edit the same file.
+
+- **Yours**: your fight's directory under `client/encounters/`, its tests,
+  its scenario file and its digests. To change another fight's directory,
+  ask its author in the pull request.
+- **Shared**: everything else, above all `client/engine/`,
+  `client/assets/` and `client/encounters/shared/`.
+
+A change to how shared code behaves goes in a pull request of its own,
+merged before the fight that needs it, with every scenario "ok": it reaches
+every fight, and is reviewed for that. A fight's pull request may carry a
+hook or a field that is new, optional and changes nothing for the other
+fights, as a commit of its own, named under "Shared files" in the pull
+request.
+
+If your fight needs a bundle to know something about it (its map square, an
+NPC id, its kind), do not write that into the bundle. Open an issue titled
+"Seam: what you need": the bundle should read it from your encounter.
+
+## Stacked branches
+
+Pull requests are squash-merged, so a branch built on another open pull
+request conflicts with `main` once that one is merged. Avoid it where you
+can. Where you cannot, say "Built on #N" in the pull request, and when #N
+is merged:
+
+```sh
+git fetch origin
+git rebase --onto origin/main <last commit of #N on your branch> <your branch>
+git push --force-with-lease
+```
+
 ## Rules
 
 - **Never commit game data**: cache files, models, sprites, sounds, fonts,
@@ -70,7 +104,7 @@ broke it; fix the change, do not re-record the digest. Record only your own:
   `inferred`. Recorded game behaviour wins over the wiki.
 - Randomness only from the seeded generators in `client/engine/random.js`.
 - Avoid editing `client/assets/`. If your feature needs it, say so in the PR
-  and keep the edit minimal.
+  and keep the edit minimal ("Yours and shared" above).
 - Modules under `client/encounters/` must not import `client/assets/` chunks
   or create import cycles.
 - Existing encounters must not change behaviour unless that is the point of
