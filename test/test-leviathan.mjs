@@ -36,6 +36,14 @@ try {
   assert.equal(new URL(page.url()).pathname, "/leviathan/");
   await page.waitForFunction(() => scene.isNpcTypeLoaded(12214) && scene.isNpcTypeLoaded(12220), null, { timeout: 60000 });
 
+  // The player starts in the first of its setups (loadouts.js, the wiki's strategies page): the crossbow and its
+  // ammunition worn, the rune pouch of Shadow Rush, 27 items so that the twisted bow has a slot for the buckler.
+  const setup = await page.evaluate(() => {
+    const { equipment, inventory, combatSupplies: supplies } = engine.player();
+    return { weapon: equipment.weapon, shield: equipment.shield, items: inventory.filter(Boolean).length, ammo: supplies.equippedAmmo.id, runes: supplies.runePouch.slots.map((slot) => slot.id), spellbook: supplies.spellbook };
+  });
+  assert.deepEqual(setup, { weapon: 26374, shield: 21000, items: 27, ammo: 21944, runes: [560, 562, 566, 556], spellbook: "ancient" });
+
   // To the first roar's rocks: one on the player's tile, two that tell the
   // first special. Each is drawn as the loc it leaves, and none can be walked on.
   const rocks = await page.evaluate(() => {

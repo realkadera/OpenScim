@@ -42,6 +42,7 @@ import { setArenaConfig, getArenaDefaultWalkable } from "../../engine/arena.js";
 import { rollNpcAttack } from "../shared/npcAttack.js";
 import { buildActorVisualTarget } from "../shared/npcHelpers.js";
 import { emitInfernoNpcAttack, emitInfernoVisual } from "../inferno/events.js";
+import { leviathanLoadouts } from "./loadouts.js";
 
 export const leviathanKind = "leviathan";
 export const leviathanAwakenedKind = "leviathan_awakened"; // dt2/bosses.js, awakenedKind
@@ -814,6 +815,7 @@ export const leviathanDefinition = {
       { id: "awakened", encounterKind: leviathanAwakenedKind, name: "Awakened", subtitle: "2,700 hitpoints, a tornado and five rocks to a roar. Not yet written.", available: false, presetsKey: leviathanKind },
     ],
     variantLabel: "Version",
+    loadouts: leviathanLoadouts,
   },
   controls: { defaultMechanicsConfig: {}, mechanicsToggles: [], debugActions: [] },
 };
