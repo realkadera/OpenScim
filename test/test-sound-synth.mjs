@@ -49,12 +49,20 @@ const originalSiteConverter = (
   await import("data:text/javascript;base64," + Buffer.from(source.replace(stepperTest, "if (max > ticks) {")).toString("base64"))
 ).synthesizeSoundEffect;
 
+// The loudest sample of an effect is at least 12 of 128, except where the
+// effect itself asks for less. CACHE, 10352: one noise oscillator at volume 10
+// of 100 under an envelope that peaks at 7638 of 65535, which is 381 of 32768;
+// its filter (one zero pair, magnitude 0.53) raises that to 891 at most, and
+// 891 is 4 of 128.
+const AUDIBLE = 12;
+const faint = new Map([[10352, 4]]);
+
 test("every sound effect in the trimmed cache synthesizes to audible PCM", async () => {
   assert.equal(SAMPLE_RATE, 22050);
   for (const id of ids) {
     const pcm = synthesizeSoundEffect(await effect(id));
     assert.ok(pcm.length >= 1000 && pcm.length <= 10 * SAMPLE_RATE, id + ": " + pcm.length + " samples");
-    assert.ok(pcm.some((sample) => Math.abs(sample) >= 12), id + " is silent");
+    assert.ok(pcm.some((sample) => Math.abs(sample) >= (faint.get(id) ?? AUDIBLE)), id + " is silent");
   }
   // Requested by the simulator but never among the old files.
   for (const id of [8143, 8248]) {
