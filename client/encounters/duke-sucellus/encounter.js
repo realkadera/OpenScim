@@ -41,7 +41,7 @@ export const dukeAwakenedKind = "duke_sucellus_awakened"; // dt2/bosses.js, awak
 // y 35 to 51; he takes the 7 x 7 north of it.
 export const dukeMapSquare = { x: 47, y: 100 };
 export const bossStart = [28, 52]; // CACHE: the floor's 7 x 7 north of the asylum; OBS
-const bossSize = 7; // CACHE, WIKI
+export const bossSize = 7; // CACHE, WIKI
 const mouth = [31, 53]; // inferred (RSPSApp's): where his projectiles start
 // In the room, out of his reach (inferred: the game brings the player in at
 // the gate, 31,34, to gather and feed him first; the simulator skips that).
@@ -94,13 +94,14 @@ export const spots = {
   meleeRow: [2440, 2441, 2442, 2443, 2442, 2441, 2440],
 };
 
-const bossActorId = "duke-sucellus";
+export const bossActorId = "duke-sucellus";
 const attackTicks = 5; // WIKI, TABLE
 const enragedAttackTicks = 4; // WIKI
 // OBS 11/24 (2 of 2): the poison is fed from the row before him; the last of it
 // shows on him a tick after ("Duke is waking up."), he wakes a tick after that,
 // and the player's first attack went off a tick later still, at the first click
 // on him awake.
+const poisonTicks = 1;
 const wakeDelayTicks = 2;
 const attackableTicks = 1;
 const wakeTicks = 5; // OBS, OBS 11/24: his first attack 5 ticks after he wakes
@@ -373,6 +374,8 @@ class DukeSucellusEncounter {
       if (player?.thrall) player.thrall.nextAttackTick = Math.max(player.thrall.nextAttackTick, context.tick + 1);
       return idle;
     }
+    // For its sound (audio.js): the last of the poison shows on him.
+    if (context.tick === this.wakeTick - wakeDelayTicks + poisonTicks) emitInfernoVisual(context.tickEvents, { animations: [], projectiles: [], graphics: [], poisonFelt: true });
     if (context.tick === this.wakeTick) {
       emitInfernoVisual(context.tickEvents, { animations: [{ actorId: npc.id, clipId: "wake", delayCycles: 0 }], projectiles: [], graphics: [] });
       return idle;

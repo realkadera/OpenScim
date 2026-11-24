@@ -112,11 +112,23 @@ try {
   assert.deepEqual(asleep, { wakeTick: null, hp: 99 });
   assert.equal(await drawnType(), 12167);
 
-  // A click on the middle of his body has the player run up to him and wake him.
+  // A click on the middle of his body has the player run up to him and wake him,
+  // with the sounds the game's server sends (audio.js): of the poison, and of the
+  // icicles once he attacks.
+  await page.evaluate(() => {
+    engine.setMechanicsConfig({ ...engine.mechanicsConfig, infiniteHealth: true });
+    const { engine: sounds } = scene.eventAudioPlayer, { play } = sounds;
+    window.played = new Set();
+    sounds.play = function (id, ...rest) {
+      played.add(id);
+      return play.call(this, id, ...rest);
+    };
+  });
   await page.mouse.click(640, 180);
   await page.waitForFunction(() => engine.getEncounterSnapshot().state.wakeTick !== null, null, { timeout: 20000 });
   assert.equal(await page.evaluate(() => engine.player().position.join()), "31,51");
   await page.waitForFunction(() => [...scene.npcInstanceManager.instanceRegistry.values()].some((npc) => npc.npcTypeId === 12191), null, { timeout: 20000 });
+  await page.waitForFunction(() => [7249, 2707].every((id) => played.has(id)), null, { timeout: 20000 });
 
   // His eye (the faces of labels 94 to 108), which every animation hides but
   // the gaze: 253 is the most an animation hides a face.
@@ -135,16 +147,9 @@ try {
   assert.deepEqual(eye, { faces: 442, idle: 442, melee: 442, gaze: 0 });
 
   // The overlay of his gaze, which the player stands in: ticked to just before
-  // the gaze, which the application's own loop starts, with the sound the game's
-  // server sends (audio.js), and draws, coming and going with it.
+  // the gaze, which the application's own loop starts, with its sound, and draws,
+  // coming and going with it.
   const due = await page.evaluate(() => {
-    const { engine: sounds } = scene.eventAudioPlayer, { play } = sounds;
-    window.played = new Set();
-    sounds.play = function (id, ...rest) {
-      played.add(id);
-      return play.call(this, id, ...rest);
-    };
-    engine.setMechanicsConfig({ ...engine.mechanicsConfig, infiniteHealth: true });
     for (let tick = 0; tick < 100; tick++) {
       if (engine.encounter.autos === 5 && engine.worldState.getNpc("duke-sucellus").combat.nextActionTick - engine.worldState.tick <= 2) return !engine.getEncounterSnapshot().state.gaze;
       engine.advanceTick(engine.player().position);
