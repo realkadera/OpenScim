@@ -2,7 +2,7 @@
 // strangle's overlay (strangle.js) brought in step with the fight every frame.
 import { buildScene } from "../shared/buildScene.js";
 import { bossStart, ids, seqs, spots, vardorvisKind, vardorvisMapSquare } from "./encounter.js";
-import { setStrangleTools, syncStrangle } from "./strangle.js";
+import { disposeStrangle, setStrangleTools, syncStrangle } from "./strangle.js";
 import { drawHulls, removeHulls, withHighlights } from "./highlights.js";
 
 const renderConfig = {
@@ -41,7 +41,7 @@ export const vardorvisPresentation = (BaseScene, packHsl, { widgetModelView } = 
       }
       // The overlay is the page's, not the scene's: it goes when the scene does.
       dispose(...rest) {
-        syncStrangle(null, 0);
+        disposeStrangle();
         removeHulls();
         return super.dispose?.(...rest);
       }

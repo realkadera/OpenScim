@@ -94,6 +94,7 @@ function interfaceScale() {
 function layer(view) {
   let seq = "spawn";
   let startMs = performance.now();
+  view.setSequence(interfaceModels[view.kind].seqs.spawn); // a kept view may hold the last strangle's
   return {
     view,
     play(name) {
@@ -109,43 +110,102 @@ function layer(view) {
   };
 }
 
-function open(strangle) {
+// The overlay's three WebGL views (widgetModelView), kept from one strangle
+// to the next and made before the first, at a moment of idle: making them
+// (a context each, its shaders, the lit model) is what stalled the frame the
+// overlay opened on, Firefox's above all. Made anew only when the view's size
+// or the interface's scale has changed; gone with the scene.
+let views = null; // { key, background, tendrils, spore }, each { canvas, view }
+let preparing = 0;
+
+// The overlay's size and scale in the view as it is now, or null without one.
+function measure() {
   const viewport = gameView();
-  if (!viewport || !tools?.widgetModelView || !tools.npcModelLoader || !tools.animationSystem) return null;
+  if (!viewport) return null;
   const rect = viewport.getBoundingClientRect();
-  // Laid out in the interface's pixels and scaled onto the view, as the game
-  // draws it. The view's own scale on the page (a layout that scales its
-  // frame) is already applied to the overlay as a child of it.
   const scale = interfaceScale();
   const page = viewPageScale(viewport);
   const width = Math.round(rect.width / scale.x), height = Math.round(rect.height / scale.y);
-  const element = document.createElement("div");
-  element.className = "vardorvis-strangle";
-  Object.assign(element.style, { width: width + "px", height: height + "px", transform: `scale(${scale.x / page.x},${scale.y / page.y})`, transformOrigin: "0 0" });
   // A transform does not reach a canvas's own pixels: they are sized for it.
   const dpr = (window.devicePixelRatio || 1) * Math.max(scale.x, scale.y);
-  const canvasOf = (w, h, css) => {
-    const canvas = document.createElement("canvas");
-    canvas.style.cssText = `position:absolute;width:${w}px;height:${h}px;pointer-events:none;${css}`;
-    return canvas;
-  };
+  return { scale, page, width, height, dpr, key: `${width}x${height}@${dpr}` };
+}
+
+const canvasOf = (w, h, css) => {
+  const canvas = document.createElement("canvas");
+  canvas.style.cssText = `position:absolute;width:${w}px;height:${h}px;pointer-events:none;${css}`;
+  return canvas;
+};
+
+function viewsFor({ width, height, dpr, key }) {
+  if (views?.key === key) return views;
+  disposeViews();
   const viewOf = (kind, canvas, w, h) => {
     const model = interfaceModels[kind];
     const baseHeight = model.orthographic ? Math.min(model.baseHeight, h / minOrthoScale) : h;
     const view = tools.widgetModelView({ canvas, width: w, height: h, dpr, npcModelLoader: tools.npcModelLoader, animationSystem: tools.animationSystem, modelId: model.modelId, seqId: model.seqs.spawn, zoom: model.zoom, orthographic: model.orthographic, baseHeight });
     view.kind = kind;
-    return view;
+    return { canvas, view };
   };
-  const backgroundCanvas = canvasOf(width, height, "left:0;top:0;");
+  const drawnSize = sporeSize + 2 * sporeReach;
+  views = {
+    key,
+    background: viewOf("background", canvasOf(width, height, "left:0;top:0;"), width, height),
+    tendrils: viewOf("tendrils", canvasOf(width, height, "left:0;top:0;"), width, height),
+    // One view draws every spore; each spore's own canvas takes a copy of its frame.
+    spore: viewOf("spore", document.createElement("canvas"), drawnSize, drawnSize),
+  };
+  return views;
+}
+
+function disposeViews() {
+  if (!views) return;
+  for (const kind of ["background", "tendrils", "spore"]) views[kind].view.dispose();
+  views = null;
+}
+
+const toolsReady = () => Boolean(tools?.widgetModelView && tools.npcModelLoader && tools.animationSystem);
+
+// Makes the views at the browser's next idle moment, once there is a view to measure.
+function prepare() {
+  if (views || preparing || !toolsReady()) return;
+  const run = () => {
+    preparing = 0;
+    const size = measure();
+    if (size && toolsReady() && !shown) viewsFor(size);
+  };
+  preparing = typeof requestIdleCallback === "function" ? requestIdleCallback(run, { timeout: 2000 }) : setTimeout(run, 500);
+}
+
+function cancelPrepare() {
+  if (!preparing) return;
+  if (typeof cancelIdleCallback === "function") cancelIdleCallback(preparing);
+  else clearTimeout(preparing);
+  preparing = 0;
+}
+
+function open(strangle) {
+  if (!toolsReady()) return null;
+  const size = measure();
+  if (!size) return null;
+  const { width, height, scale, page, dpr } = size;
+  cancelPrepare();
+  const kept = viewsFor(size);
+  // Laid out in the interface's pixels and scaled onto the view, as the game
+  // draws it. The view's own scale on the page (a layout that scales its
+  // frame) is already applied to the overlay as a child of it.
+  const element = document.createElement("div");
+  element.className = "vardorvis-strangle";
+  Object.assign(element.style, { width: width + "px", height: height + "px", transform: `scale(${scale.x / page.x},${scale.y / page.y})`, transformOrigin: "0 0" });
   const boxElement = document.createElement("div");
   boxElement.style.cssText = `position:absolute;left:${Math.round((width - box.width) / 2)}px;top:${Math.round((height - box.height) / 2)}px;width:${box.width}px;height:${box.height}px;overflow:hidden;`;
-  const tendrilsCanvas = canvasOf(width, height, "left:0;top:0;");
-  element.append(backgroundCanvas, boxElement, tendrilsCanvas);
-  // One view draws every spore in turn; each spore's own canvas takes a copy of its frame.
-  const sporeGl = document.createElement("canvas");
-  const layers = [layer(viewOf("background", backgroundCanvas, width, height)), layer(viewOf("tendrils", tendrilsCanvas, width, height))];
+  element.append(kept.background.canvas, boxElement, kept.tendrils.canvas);
+  const layers = [layer(kept.background.view), layer(kept.tendrils.view)];
+  // A kept canvas still holds the last strangle's last frame: this one's first, before it shows.
+  for (const each of layers) each.draw(performance.now());
+  const sporeGl = kept.spore.canvas;
+  const sporeView = kept.spore.view;
   const drawnSize = sporeSize + 2 * sporeReach;
-  const sporeView = viewOf("spore", sporeGl, drawnSize, drawnSize);
   const spores = strangle.spores.map((spore, index) => {
     // The 48 x 48 that is clicked, and the model drawn round it. The game
     // draws 833:6 to 833:11 in turn: spore N is 12 - N, so the first is on top.
@@ -178,6 +238,9 @@ function open(strangle) {
     if (shown !== state) return;
     const now = performance.now();
     for (const each of layers) each.draw(now);
+    // The spores that show one frame (all of them, as they come and stay
+    // together) take it from one drawing of the view.
+    let drawn = null;
     for (const spore of spores) {
       if (spore.goneMs !== null && now - spore.goneMs > sporeFadeMs) {
         spore.target.style.display = "none";
@@ -185,8 +248,12 @@ function open(strangle) {
       }
       if (spore.seq === "spawn") spore.target.style.opacity = String(Math.min(1, (now - spore.startMs) / sporeFadeInMs));
       if (spore.seq === "spawn" && now - spore.startMs >= sporeFadeInMs) Object.assign(spore, { seq: "idle", startMs: now });
-      sporeView.setSequence(interfaceModels.spore.seqs[spore.seq]);
-      sporeView.draw(spore.seq === "idle" ? now - spore.startMs : Math.min(now - spore.startMs, sporeView.cycleMs - 20));
+      const elapsed = spore.seq === "idle" ? now - spore.startMs : Math.min(now - spore.startMs, sporeView.cycleMs - 20);
+      if (spore.seq + ":" + Math.round(elapsed) !== drawn) {
+        sporeView.setSequence(interfaceModels.spore.seqs[spore.seq]);
+        sporeView.draw(elapsed);
+        drawn = spore.seq + ":" + Math.round(elapsed);
+      }
       const context = spore.canvas.getContext("2d");
       context.clearRect(0, 0, spore.canvas.width, spore.canvas.height);
       context.drawImage(sporeGl, 0, 0, spore.canvas.width, spore.canvas.height);
@@ -198,13 +265,19 @@ function open(strangle) {
   return state;
 }
 
+// The overlay goes; its views are kept for the next strangle.
 function close() {
   if (!shown) return;
   cancelAnimationFrame(shown.frame);
-  for (const each of shown.layers) each.view.dispose();
-  shown.sporeView.dispose();
   shown.element.remove();
   shown = null;
+}
+
+/** The overlay and its views go: the scene is going. */
+export function disposeStrangle() {
+  close();
+  cancelPrepare();
+  disposeViews();
 }
 
 /**
@@ -216,6 +289,7 @@ export function syncStrangle(strangle, tick) {
   const open_ = strangle && tick >= strangle.holdTick && (strangle.endTick === null || tick <= strangle.endTick + 1);
   if (!open_) {
     close();
+    prepare();
     return;
   }
   if (shown && shown.holdTick !== strangle.holdTick) close();
