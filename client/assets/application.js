@@ -54204,6 +54204,7 @@ function eCe({ devHarness: devHarness } = {}) {
                                                 open: kY,
                                                 inset: nT.right,
                                                 onToggle: () => kZ((sP) => !sP),
+                                                onWhatsNew: () => hL(true),
                                               }
                                             : null,
                                           modifiers: sF,

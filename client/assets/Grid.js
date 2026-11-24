@@ -42467,6 +42467,9 @@ var FHe = (ez) => {
           style: fX,
           "aria-hidden": "true",
           children: [
+            (0, wn.jsx)("span", {
+              className: "launcher-btn launcher-btn--icon",
+            }),
             communityLinks.map(({ name }) => (0, wn.jsx)("span", {
               className: "launcher-btn launcher-btn--icon",
             }, name)),
@@ -42483,6 +42486,15 @@ var FHe = (ez) => {
           "data-tucked": fJ,
           style: fY(fA.x, fA.y),
           children: [
+            (0, wn.jsx)(Jie, {
+              type: "button",
+              className: "launcher-btn launcher-btn--icon launcher-btn--link",
+              hint: "What's New",
+              "aria-label": "See what's new in OpenScim",
+              onMouseDown: (eC) => eC.preventDefault(),
+              onClick: plugins.onWhatsNew,
+              children: (0, wn.jsx)(zae, { glyph: "news" }),
+            }),
             (0, wn.jsx)(CommunityLinks, {
               className: "launcher-btn launcher-btn--icon launcher-btn--link",
             }),
