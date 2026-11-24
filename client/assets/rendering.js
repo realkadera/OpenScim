@@ -58055,18 +58055,17 @@ function widgetModelView({ canvas, width, height, dpr, npcModelLoader, animation
   if (!model) {
     throw new Error(`Interface model ${modelId} did not load`);
   }
+  restoreWidgetModel(model);
   let top = 0;
   for (const y of model.verticesY) top = Math.min(top, y);
   const litColors = model.Rh(64, 768, -50, -10, -50);
-  // A pose keeps a copy of the vertices it starts each frame from: it is made
-  // from the model as loaded, not as the last pose left it. One per sequence.
-  const original = [new Int32Array(model.verticesX), new Int32Array(model.verticesY), new Int32Array(model.verticesZ)];
+  // A pose keeps a copy of the vertices and face alphas it starts each frame
+  // from: it is made from the model as loaded, not as the last pose left it.
+  // One per sequence.
   const poses = new Map();
   const poseOf = (id) => {
     if (!poses.has(id)) {
-      model.verticesX.set(original[0]);
-      model.verticesY.set(original[1]);
-      model.verticesZ.set(original[2]);
+      restoreWidgetModel(model);
       poses.set(id, iK({ hf: () => ({ mergedModel: model, litColors, widthScale: 128, heightScale: 128 }), loadNpcType: () => ({ idleSeqId: id }) },
         animationSystem, { npcTypeId: modelId, idleSeqId: id }));
     }
@@ -58130,6 +58129,28 @@ function widgetModelView({ canvas, width, height, dpr, npcModelLoader, animation
     },
     dispose,
   };
+}
+// The loader keeps one model of an id, and a pose leaves it as its last frame
+// left it, face alphas too (an animation's alpha transforms: the strangle's
+// spores add some on every frame). What a model is as loaded is kept the first
+// time a view is made of it and put back before anything is taken from it, so
+// that each pose, and each view made later, starts from it as the game does.
+const widgetModelsAsLoaded = new WeakMap();
+function restoreWidgetModel(model) {
+  const kept = widgetModelsAsLoaded.get(model);
+  if (!kept) {
+    widgetModelsAsLoaded.set(model, {
+      x: new Int32Array(model.verticesX),
+      y: new Int32Array(model.verticesY),
+      z: new Int32Array(model.verticesZ),
+      alphas: model.faceAlphas ? new Int8Array(model.faceAlphas) : null,
+    });
+    return;
+  }
+  model.verticesX.set(kept.x);
+  model.verticesY.set(kept.y);
+  model.verticesZ.set(kept.z);
+  if (kept.alphas && model.faceAlphas) model.faceAlphas.set(kept.alphas);
 }
 function dK(e) {
   const {
