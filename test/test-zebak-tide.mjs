@@ -20,73 +20,137 @@ for (const direction of [-1, 1]) {
   assert.equal(rolls.length, 0);
 }
 
-// A crest strikes the player's true tile before it steps (OBS, rev 243 recording,
-// 2026-11-25): running or walking through it is safe, ending a tick on its tile
-// is not, and a hit throws him 3 tiles the way it runs or off the platform.
-for (const direction of [-1, 1]) {
+const REC = "20261125-160410-Tombs-of-Amascut.jsonl.gz";
+// OBS (REC, the six wave hits of ticks 176, 192, 193, 195, 449 and 450, the miss of tick 455): a wave is
+// three rows deep, the crest and the two rows behind it. When the crest's turn comes it hits a player who
+// stands in those rows outside its gap, if the tile of his last step was in them too. In the tick of the hit
+// he first takes the step he was making and is thrown 3 rows from where it ends, or off the platform; the
+// walk he had clicked is dropped.
+/** Plays ticks with a crest standing on `row` (gap 28-30), the player starting on `start`. `moves[i]` is his
+ *  step in tick i+1: null (he stands) or {click, path}, the tile he clicked and the tiles he steps on. */
+function playTide(direction, start, row, moves, raid = 0) {
   const tiles = new Set();
   for (let x = 22; x <= 38; x++)
     for (let y = 22; y <= 42; y++) tiles.add([x,y].join(","));
   const shore = direction > 0 ? 21 : 43;
-  /** Plays ticks with a crest standing on `row` (gap 28-30), the player starting on `start`.
-   *  `moves[i]` is where he walks in tick i+1 (null: stands); a push replaces his step. */
-  function play(start, row, moves) {
-    const phases = new ZebakPhases(() => 0, () => tiles, () => {});
-    const offset = (row - shore) * direction;
-    phases.waveFronts = [{startTick: -offset, direction, gap: 28, gapWidth: 3, actors: [], y: row, tick: 0}];
-    const player = {alive: true, position: [...start], facing: 0, attackTarget: null};
-    const log = [];
-    moves.forEach((move, index) => {
-      const context = {tick: index + 1};
-      const hits = phases.advanceWaveFronts(context, player, []).filter(hit => hit.source === "Tidal Wave");
-      const pushed = phases.moveWithTide(player, move, to => { player.position = [...to]; });
-      if (pushed === undefined && move) player.position = [...move];
-      log.push({hits: hits.length, at: [...player.position], crest: phases.waveFronts[0]?.y,
-        water: phases.water && {...phases.water}, shove: phases.waveShove && {...phases.waveShove}});
-      if (phases.waveShove?.tick !== context.tick) phases.waveShove = null;
-    });
-    return log;
-  }
-  const hits = log => log.reduce((sum, entry) => sum + entry.hits, 0);
+  const heard = [];
+  const phases = new ZebakPhases(() => 0, () => tiles, (_, event) => heard.push(event));
+  phases.raid = raid;
+  const offset = (row - shore) * direction;
+  phases.waveFronts = [{startTick: -offset, direction, gap: 28, gapWidth: 3, actors: [], y: row, tick: 0}];
+  const player = {alive: true, position: [...start], previousPosition: [...start], movementPath: [], facing: 0, attackTarget: null};
+  const log = [];
+  moves.forEach((move, index) => {
+    const context = {tick: index + 1, tickEvents: {}};
+    phases.tick = context.tick; // as step() sets it
+    heard.length = 0;
+    const struck = phases.advanceWaveFronts(context, player, []).filter(hit => hit.source === "Tidal Wave");
+    const path = move?.path ?? [];
+    const origin = [...player.position];
+    // What the engine hands over: the step toward the clicked tile, whether or not the click was dropped.
+    const step = {position: path.length ? [...path.at(-1)] : origin, stepTiles: path};
+    const pushed = phases.moveWithTide(player, move?.click ?? null, to => {
+      player.previousPosition = origin;
+      player.position = [...to];
+      player.movementPath = [[...to]];
+    }, step);
+    if (pushed === undefined) {
+      player.previousPosition = origin;
+      player.position = [...step.position];
+      player.movementPath = path.map(tile => [...tile]);
+    }
+    log.push({hits: struck.length, damage: struck[0]?.baseDamage, heard: heard.filter(event => event.waveHit).length,
+      at: [...player.position], crest: phases.waveFronts[0]?.y,
+      water: phases.water && {...phases.water}, shove: phases.waveShove && {...phases.waveShove}});
+    if (phases.waveShove?.tick !== context.tick) phases.waveShove = null;
+  });
+  return log;
+}
+for (const direction of [-1, 1]) {
   const d = direction;
-  // On the crest's tile when its turn comes: hit once, thrown 3 tiles, his own click dropped.
-  let log = play([33, 32], 32, [[33, 32 - 5 * d]]);
+  const play = (start, row, moves, raid) => playTide(d, start, row, moves, raid);
+  const hits = log => log.map(entry => entry.hits);
+  const stand = count => Array(count).fill(null);
+  // On the crest's tile when its turn comes (tick 175, hit on 176): hit once, heard, thrown 3 rows.
+  let log = play([33, 32], 32, [null]);
   assert.equal(log[0].hits, 1);
+  assert.equal(log[0].heard, 1);
   assert.deepEqual(log[0].at, [33, 32 + 3 * d]);
   assert.deepEqual(log[0].shove, {tick: 1, from: [33, 32], to: [33, 32 + 3 * d], facing: 0});
   assert.equal(log[0].crest, 32 + d);
   assert.equal(log[0].water, null);
+  // WIKI: 6-10, times the raid level's scale: 14-24 at raid level 370 (OBS, REC: 17, 14, 17, 19, 19).
+  assert.deepEqual(log[0].damage, [6, 10]);
+  assert.deepEqual(play([33, 32], 32, [null], 370)[0].damage, [14, 24]);
+  // The depth: one and two rows behind the crest are hit, three behind and a row ahead are not.
+  assert.deepEqual(hits(play([33, 32 - d], 32, [null])), [1]);
+  assert.deepEqual(hits(play([33, 32 - 2 * d], 32, [null])), [1]);
+  assert.deepEqual(hits(play([33, 32 - 3 * d], 32, [null])), [0]);
+  assert.deepEqual(hits(play([33, 32 + d], 32, [null])), [0]);
+  // The throw follows his own step (tick 176: two tiles west, into the gap's column, then 3 rows on).
+  log = play([31, 32], 32, [{click: [20, 32], path: [[30, 32], [29, 32]]}]);
+  assert.equal(log[0].hits, 1);
+  assert.deepEqual(log[0].at, [29, 32 + 3 * d]);
+  assert.deepEqual(log[0].shove, {tick: 1, from: [31, 32], to: [29, 32 + 3 * d], facing: 0});
   // The click stays dropped while the engine keeps passing the same tile; a new click walks again.
-  const click = [33, 32 - 5 * d];
-  log = play([33, 32], 32, [click, click, [33, 32 + 2 * d]]);
-  assert.deepEqual(log.map(entry => entry.at), [[33, 32 + 3 * d], [33, 32 + 3 * d], [33, 32 + 2 * d]]);
-  // The wave skip (ticks 1916-1917 of the recording): a row ahead of the crest, he runs two tiles
-  // through it in the tick it steps onto his row, and is never on its tile when it strikes.
-  log = play([33, 32 + d], 32, [[33, 32 - d], null, null]);
-  assert.equal(hits(log), 0);
-  assert.deepEqual(log.map(entry => entry.crest), [32 + d, 32 + 2 * d, 32 + 3 * d]);
-  // Walking one tile into it works the same: he ends behind it.
-  assert.equal(hits(play([33, 32 + d], 32, [[33, 32], null])), 0);
+  const click = [20, 32];
+  log = play([33, 32], 32, [{click, path: [[32, 32], [31, 32]]}, {click, path: [[30, 32 + 3 * d], [29, 32 + 3 * d]]},
+    {click: [30, 32 + 3 * d], path: [[30, 32 + 3 * d]]}]);
+  assert.deepEqual(log.map(entry => entry.at), [[31, 32 + 3 * d], [31, 32 + 3 * d], [30, 32 + 3 * d]]);
+  assert.deepEqual(hits(log), [1, 0, 0]);
+  // Ticks 190-195, with no wave skip in them. Two rows ahead of a crest he runs two tiles back through it
+  // and ends a row behind it, his last step on its tile: hit on its next turn (192), his run on and the
+  // throw leaving him a row on, behind the crest still (the last step of a throw is the row before it):
+  // hit again (193) and thrown a row ahead of it, where its next turn spares him (194). He runs two tiles
+  // back through it once more as it steps onto his row, ends two rows behind it and is hit a third time
+  // (195), thrown from the end of a new step east.
+  const back = {click: [33, 32 - 9 * d], path: [[33, 32 + d], [33, 32]]};
+  log = play([33, 32 + 2 * d], 32, [
+    back,
+    {click: back.click, path: [[33, 32 - d], [33, 32 - 2 * d]]},
+    null,
+    {click: [33, 32 - 8 * d], path: [[33, 32 + 3 * d], [33, 32 + 2 * d]]},
+    {click: [38, 32 + 2 * d], path: [[34, 32 + 2 * d], [35, 32 + 2 * d]]},
+  ]);
+  assert.deepEqual(hits(log), [0, 1, 1, 0, 1]);
+  assert.deepEqual(log.map(entry => entry.at),
+    [[33, 32], [33, 32 + d], [33, 32 + 4 * d], [33, 32 + 2 * d], [35, 32 + 5 * d]]);
+  assert.deepEqual(log.map(entry => entry.crest), [1, 2, 3, 4, 5].map(rows => 32 + rows * d));
+  // Ticks 447-450: a row behind the crest in its gap, he runs two tiles out of the gap and ends two rows
+  // behind it, both tiles of the run in the wave: hit (449), thrown from the end of his next two tiles onto
+  // the crest's own row, and hit again on its next turn (450).
+  log = play([30, 32 - d], 32, [
+    {click: [36, 32 - d], path: [[31, 32 - d], [32, 32 - d]]},
+    {click: [36, 32 - d], path: [[33, 32 - d], [34, 32 - d]]},
+    null,
+  ]);
+  assert.deepEqual(hits(log), [0, 1, 1]);
+  assert.deepEqual(log.map(entry => entry.at), [[32, 32 - d], [34, 32 + 2 * d], [34, 32 + 5 * d]]);
+  assert.equal(log[1].crest, 32 + 2 * d); // thrown onto its row
+  // Tick 455: the same run a column further west, its first tile still in the gap: nothing.
+  log = play([29, 32 - d], 32, [{click: [36, 32 - d], path: [[30, 32 - d], [31, 32 - d]]}, null, null]);
+  assert.deepEqual(hits(log), [0, 0, 0]);
   // Standing still a row ahead: the crest steps onto him and strikes on its next turn.
-  log = play([33, 32 + d], 32, [null, null]);
-  assert.deepEqual(log.map(entry => entry.hits), [0, 1]);
+  log = play([33, 32 + d], 32, stand(2));
+  assert.deepEqual(hits(log), [0, 1]);
   assert.deepEqual(log[1].at, [33, 32 + 4 * d]);
-  // Standing still afterwards, the same crest catches him again three ticks later.
-  log = play([33, 32], 32, [null, null, null, null]);
-  assert.deepEqual(log.map(entry => entry.hits), [1, 0, 0, 1]);
+  // inferred: standing still afterwards, the same crest catches him again three ticks later.
+  log = play([33, 32], 32, stand(4));
+  assert.deepEqual(hits(log), [1, 0, 0, 1]);
   assert.deepEqual(log[3].at, [33, 32 + 6 * d]);
-  // In the gap of the crest: nothing.
-  assert.equal(hits(play([29, 32], 32, [null, null, null])), 0);
+  // In the gap of the crest: nothing, on its row or behind it.
+  assert.deepEqual(hits(play([29, 32], 32, stand(3))), [0, 0, 0]);
+  assert.deepEqual(hits(play([28, 32 - 2 * d], 32, stand(1))), [0]);
   // Fewer than 3 tiles of platform ahead: off the edge, into the water beyond it.
   const edge = d > 0 ? 42 : 22;
-  log = play([33, edge - d], edge - d, [null, null]);
+  log = play([33, edge - d], edge - d, stand(2));
   assert.equal(log[0].hits, 1);
   assert.deepEqual(log[0].at, [33, edge + d]);
   assert.deepEqual(log[0].water, {direction: d, entered: 1});
   // In the water a crest no longer finds him.
   assert.equal(log[1].hits, 0);
 }
-console.log("Both tide directions: struck on the crest's tile before it steps, skipped by running or walking through it, re-struck when standing still, the gap, and thrown 3 tiles or into the water.");
+console.log("Both tide directions: the wave's three rows and its gap, the last step, the throw after his own step and off the platform, the dropped walk, the recorded hits of ticks 176-195 and 449-450 and the miss of 455.");
 for (const direction of [-1, 1]) {
   const tiles = new Set();
   for (let x = 22; x <= 38; x++)
@@ -113,25 +177,33 @@ for (const direction of [-1, 1]) {
         assert.deepEqual(next,[22,32+3*direction]);
         player.position = next;
       }), true);
-      player.position = [30,32]; // waits in the gap (29-31 for every crest here) for the next one
+      player.position = [30,32]; // waits in the gap (28-30 for every crest here) for the next one
 
     }
     for (const object of phases.actors.values()) {
       if (object.destination) object.actor.position = phases.movementFor(object.actor)[0].path[0];
     }
-    if (context.tick === 21 || context.tick === 28) {
-      assert.equal(phases.waveFronts.length, context.tick === 21 ? 2 : 3);
+    // OBS (REC, crests at ticks 162/169/176, 314/321/328 and 434/441/448, their waves starting on 147, 299
+    // and 419): the crests rise 15, 22 and 29 ticks after the waves start, 18 NPCs on columns 19-39.
+    if (context.tick === 14 || context.tick === 15) assert.equal(phases.waveFronts.length, context.tick - 14);
+    if (context.tick === 22 || context.tick === 29) {
+      assert.equal(phases.waveFronts.length, context.tick === 22 ? 2 : 3);
       const [older, younger] = phases.waveFronts;
       assert.equal(older.y - younger.y, direction * 7);
       assert.ok(older.actors.every(o => o.actor.position[1] === older.y));
       assert.ok(younger.actors.every(o => o.actor.position[1] === younger.y));
-      assert.equal(phases.of("wave").length, phases.waveFronts.length * 19);
-      assert.deepEqual([older.actors[0].actor.position[0], older.actors.at(-1).actor.position[0]], [18,39]);
+      assert.equal(phases.of("wave").length, phases.waveFronts.length * 18);
+      assert.deepEqual([older.actors[0].actor.position[0], older.actors.at(-1).actor.position[0]], [19,39]);
+      assert.deepEqual([older.gap, older.gapWidth], [28, 3]);
     }
+    // A crest crosses in 24 ticks: the last is gone on tick 54, and the waves are over then.
+    if (context.tick === 53) assert.deepEqual([phases.waveFronts.length, phases.active?.kind], [1, "waves"]);
+    if (context.tick === 54) assert.deepEqual([phases.waveFronts.length, phases.active], [0, null]);
   }
   assert.equal(damage, 3);
   assert.deepEqual(cues.filter(c => c.event.tidalSurgeSound).map(c => c.tick),[14,25,38]);
-  assert.equal(cues.filter(c => c.event.graphics.some(g => g.spotAnimId === 2195)).length, 1);
+  // OBS (REC, ticks 155, 307, 427): the boulders fall 8 ticks after the waves start.
+  assert.deepEqual(cues.filter(c => c.event.graphics.some(g => g.spotAnimId === 2195)).map(c => c.tick), [8]);
   assert.equal(cues.filter(c => c.event.graphics.length === 1 && c.event.graphics[0].spotAnimId === 2449
     && c.event.graphics[0].target.position[0] === 22).length, 1);
   assert.equal(phases.actors.has(jug.actor.id), false);
@@ -176,3 +248,17 @@ for (const path of [0, 3, 4]) {
   assert.deepEqual(cues.filter(c => c.event.tidalSurgeSound).map(c => c.tick),path ? [13,24,37] : [14,25,38]);
 }
 console.log("A queued roar starts with water still moving and preserves existing jugs on paths 0, 3 and 4.");
+// OBS (REC, ticks 192-193 and 449-450): the second hit comes a tick after the first, while the engine still
+// hands over the step toward the click the first throw dropped. He was thrown from where he stood, (24,36)
+// to (24,39) and (30,28) to (30,25), without that step.
+for (const d of [-1, 1]) {
+  const back = [33, 32 - 9 * d];
+  const log = playTide(d, [33, 32 + 2 * d], 32, [
+    {click: back, path: [[33, 32 + d], [33, 32]]},
+    {click: back, path: [[33, 32 - d], [33, 32 - 2 * d]]},
+    {click: back, path: [[33, 32], [33, 32 - d]]},
+  ]);
+  assert.deepEqual(log.map(entry => entry.hits), [0, 1, 1]);
+  assert.deepEqual(log.map(entry => entry.at), [[33, 32], [33, 32 + d], [33, 32 + 4 * d]]);
+}
+console.log("A second throw a tick after the first ignores the step of the dropped walk.");
