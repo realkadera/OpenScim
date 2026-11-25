@@ -8,7 +8,16 @@ const distance = (a, b) =>
 const offsetFromFootprint = (origin, size, target) =>
   target.map((value, axis) => value - Math.max(origin[axis], Math.min(value, origin[axis] + size - 1)));
 const tile = (position) => ({ kind: "tile", position });
-const shoreRockColumns = [18, 21, 24, 27, 30, 33, 36, 39];
+const REC = "20261125-160410-Tombs-of-Amascut.jsonl.gz";
+// OBS (REC, ticks 155, 307, 427): seven boulders fall on the shore row, every third column from 19 to 37.
+const shoreRockColumns = [19, 22, 25, 28, 31, 34, 37];
+// OBS (REC, 9 crests, e.g. ticks 162, 314, 434): a crest is 21 columns wide, 19 to 39, less its gap.
+const crestColumns = [19, 39];
+// OBS (REC, 9 crests): the gap began on columns 23, 24, 25, 28 (3), 30 (3). inferred: up to 33, as before.
+const gapStart = { first: 23, count: 11 };
+// OBS (REC, spit animations at ticks 148, 300, 420): the spit is animated one tick after the special starts
+// (see begin), the boulders fall 8 ticks after it starts and the crests rise 15, 22 and 29 ticks after.
+const waveTicks = { boulders: 8, crests: [15, 22, 29], over: 54 };
 // OBS (rev 243 recording, 2026-11-25): the boulders, splashes and every crest
 // of a Tidal Waves start on local row 21 when they run north and on row 43
 // when they run south, one row off the platform (y 22-42). A crest then moves
@@ -712,7 +721,7 @@ export class ZebakPhases {
       const soundAge = age + (settings.path >= 2 ? 1 : 0);
       const shore = crestShore(direction);
       if (soundAge === 6) this.graphics(context, [], "tail");
-      if (age === 7) {
+      if (age === waveTicks.boulders) {
         // Each boulder raises a fan of droplets when the first crest appears,
         // including boulders underneath the safe opening.
         const untilCrest = 7 * cyclesPerTick;
@@ -728,17 +737,18 @@ export class ZebakPhases {
         }));
         this.emit(context.tickEvents, {
           animations: [], projectiles: [], graphics: [...rocks, ...splashes],
-          shoreSoundDelayCycles: settings.path >= 2 ? 0 : cyclesPerTick,
+          // OBS (REC, ticks 155, 307, 427): the sweep is heard in the tick the boulders fall.
+          shoreSoundDelayCycles: 0,
         });
       }
       if ([14, 25, 38].includes(soundAge))
         this.emit(context.tickEvents, {animations: [], graphics: [], projectiles: [], tidalSurgeSound: true});
-      if ([14, 21, 28].includes(age)) {
-        const gap = 24 + Math.floor(this.random() * 10);
+      if (waveTicks.crests.includes(age)) {
+        const gap = gapStart.first + Math.floor(this.random() * gapStart.count);
         const front = {startTick: context.tick, direction, gap, gapWidth: settings.gap, actors: []};
         front.y = shore;
         front.tick = context.tick;
-        for (let x = shoreRockColumns[0]; x <= shoreRockColumns.at(-1); x++) {
+        for (let x = crestColumns[0]; x <= crestColumns[1]; x++) {
           if (x >= gap && x < gap + settings.gap) continue;
           const wave = this.spawn(context, "wave", 11738, [x, shore]);
           wave.actor.facing = direction > 0 ? 1024 : 0;
@@ -746,7 +756,7 @@ export class ZebakPhases {
         }
         this.waveFronts.push(front);
       }
-      if (age >= 53) this.clearSpecial(context);
+      if (age >= waveTicks.over) this.clearSpecial(context);
     }
     return hits;
   }

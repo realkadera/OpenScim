@@ -421,7 +421,11 @@ export function zebakDefinition({
       if (this.phases.active) {
         const phase = this.phases.active;
         const elapsed = context.tick - phase.start;
-        if (phase.kind === "roar" ? elapsed >= roarWindupTick(this.settings.period, phase.secondRoar) : elapsed < 16) return result;
+        // OBS (20261125-160410-Tombs-of-Amascut.jsonl.gz, spits at ticks 163/170/180, 315/322/332 and
+        // 435/442/452, the waves starting on 147, 299 and 419): during the waves he spits 16 and 23 ticks
+        // after they start, and then not before the 33rd. inferred: the same hold at every attack period.
+        const held = elapsed < 16 || (elapsed > 23 && elapsed < 33);
+        if (phase.kind === "roar" ? elapsed >= roarWindupTick(this.settings.period, phase.secondRoar) : held) return result;
       }
       if (this.phases.queue.length && this.phases.canBegin(context.tick)) {
         const kind = this.phases.queue.shift();
