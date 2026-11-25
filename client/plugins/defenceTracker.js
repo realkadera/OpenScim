@@ -3,8 +3,11 @@
 // RuneLite plugin Better Party Defence (github.com/Falsary/better-party-defence,
 // BSD 2-Clause), from its options, their defaults and what it shows; no code
 // of it is here. PLUGIN below is that description. Its party side (sharing
-// drains with a party) is left out, and so are its Magic Defence display, its
-// spell and special-weapon info boxes and its fonts and icons.
+// drains with a party) is left out, and so are its spell and special-weapon
+// info boxes and its fonts. Of its Magic Defence display there is the Magic
+// level, which is what an NPC defends a spell with and what the Accursed
+// sceptre's special drains with the Defence (`debuffs.magicDrain`), shown
+// beside the Defence once something has drained it.
 //
 // What is the application's own: the level is the engine's. The plugin in the
 // game has to work a drain out from hitsplats and a table of bosses; here the
@@ -77,6 +80,9 @@ export const defenceTrackerOptions = [
   { key: "lowColor", label: "Low colour", section: "Colours", type: "color", default: "FFC0AB46", info: "The colour of Defence at or under the low threshold" },
   { key: "cappedColor", label: "Fully drained colour", section: "Colours", type: "color", default: "FF579549", info: "The colour of Defence that cannot be drained further" },
   { key: "drainColor", label: "Drain colour", section: "Colours", type: "color", default: "FFAD1459", info: "The colour of the amount drained" },
+  { key: "magic", label: "Show Magic", section: "Magic Defence", type: "boolean", default: true, info: "Shows the Magic level, which an NPC defends spells with, once something has drained it" },
+  // PLUGIN: #225EA8, which is dark on the scene; this is a lighter blue.
+  { key: "magicColor", label: "Magic colour", section: "Magic Defence", type: "color", default: "FF5AA0FF", info: "The colour of the Magic level" },
 ];
 export const defenceTrackerStore = createPluginStore("defenceTracker", defenceTrackerOptions);
 
@@ -90,6 +96,14 @@ export function readDefence(npc) {
   if (npc?.kind !== "npc" || npc.role === "npc" || !Number.isFinite(base)) return null;
   const current = Math.max(0, base - (npc.debuffs?.defenceDrain ?? 0)); // as getActorCombatSnapshot (combatFormulas.js)
   return { base, current, floor: Math.min(base, Math.max(0, npc.defenceDrainFloor ?? 0)), drained: base - current };
+}
+
+/** The Magic level of an engine NPC, which it defends a spell with: { base, current, drained }, or null. */
+export function readMagic(npc) {
+  const base = npc?.formulaStats?.levels?.magic;
+  if (npc?.kind !== "npc" || npc.role === "npc" || !Number.isFinite(base)) return null;
+  const current = Math.max(0, base - (npc.debuffs?.magicDrain ?? 0)); // as getActorCombatSnapshot (combatFormulas.js)
+  return { base, current, drained: base - current };
 }
 
 const percentOf = (part, whole) => (whole > 0 ? Math.round((part * 100) / whole) : 0);
@@ -108,18 +122,26 @@ export function defenceColor({ base, current, floor }, settings) {
  * something was drained, how much ({ text, color }).
  */
 export function formatDefence(defence, settings) {
-  const { base, current, drained } = defence;
+  return formatLevel(defence, settings, defenceIcon, defenceColor(defence, settings));
+}
+
+/** The same of a Magic level (readMagic), in the Magic colour and with its skill's icon. */
+export function formatMagic(magic, settings) {
+  return formatLevel(magic, settings, magicIcon, toHexColor(settings.magicColor));
+}
+
+function formatLevel({ base, current, drained }, settings, icon, textColor) {
   const percent = percentOf(current, base) + "%";
   const value = { CURRENT: `${current}`, CURRENT_OF_BASE: `${current}/${base}`, PERCENT: percent, CURRENT_AND_PERCENT: `${current} (${percent})` }[settings.valueFormat];
   const drain = drained <= 0 || settings.drainFormat === "NONE" ? "" : settings.drainFormat === "PERCENT" ? ` (-${percentOf(drained, base)}%)` : ` (-${drained})`;
-  const textColor = defenceColor(defence, settings);
   // A segment with `icon` is drawn as that picture, in the line of the text (rendering.js).
-  const segments = [...(settings.showIcon ? [{ icon: defenceIcon, text: "" }] : []), { text: value, color: textColor }];
+  const segments = [...(settings.showIcon ? [{ icon, text: "" }] : []), { text: value, color: textColor }];
   if (drain) segments.push({ text: drain, color: toHexColor(settings.drainColor) });
   return { text: value + drain, textColor, segments };
 }
 
 const defenceIcon = "/assets/ui/skill-defence.png";
+const magicIcon = "/assets/ui/skill-magic.png";
 
 // The engine whose NPCs are read: the application's (application.js).
 let getEngine = () => null;
@@ -127,15 +149,18 @@ export function setDefenceTrackerEngine(source) {
   getEngine = source;
 }
 
-// The Defence the plugin shows for the NPC `id`, or null: one that was
-// drained, or with "Always show" a boss and the NPC the player attacks.
+// The Defence the plugin shows for the NPC `id`, or null: one whose Defence
+// or Magic was drained, or with "Always show" a boss and the NPC the player
+// attacks. `magic` is its Magic level where that was drained and is shown.
 function trackedDefence(id, settings) {
   const engine = getEngine();
   const npc = engine?.worldState?.actors.get(id);
   const defence = readDefence(npc);
   if (!defence) return null;
-  const shown = defence.drained > 0 || (settings.alwaysShow && (npc.role === "boss" || engine.worldState.getPlayer()?.attackTarget === id));
-  return shown ? { ...defence, name: npc.name } : null; // few actors carry a name; the tooltip does without
+  const magicLevel = settings.magic ? readMagic(npc) : null;
+  const magic = magicLevel?.drained > 0 ? magicLevel : null;
+  const shown = defence.drained > 0 || magic || (settings.alwaysShow && (npc.role === "boss" || engine.worldState.getPlayer()?.attackTarget === id));
+  return shown ? { ...defence, magic, name: npc.name } : null; // few actors carry a name; the tooltip does without
 }
 
 /** What the scene writes over the NPC `id`: { text, textColor, segments, position, yOffset }, or null. */
@@ -143,7 +168,14 @@ export function getDefenceOverhead(id) {
   const { enabled, settings } = defenceTrackerStore.getState();
   if (!enabled || !settings.overhead) return null;
   const defence = trackedDefence(id, settings);
-  return defence && { ...formatDefence(defence, settings), position: settings.position, yOffset: settings.yOffset };
+  if (!defence) return null;
+  const shown = formatDefence(defence, settings);
+  if (defence.magic) {
+    const magic = formatMagic(defence.magic, settings);
+    shown.text += "  " + magic.text;
+    shown.segments.push({ text: "\u00a0\u00a0" }, ...magic.segments);
+  }
+  return { ...shown, position: settings.position, yOffset: settings.yOffset };
 }
 
 /** The info boxes (Grid.js) of the published NPCs `npcs` ({ id, alive }): one for each that is tracked. */
@@ -163,6 +195,16 @@ export function getDefenceTrackerInfoboxes(npcs) {
       tooltipTitle: "Defence Tracker",
       tooltipDetail: (name ? name + ": " : "") + `${current}/${base} Defence` + (drained > 0 ? ` (-${drained})` : ""),
     });
+    const magic = defence.magic;
+    if (magic)
+      boxes.push({
+        id: "magic-tracker-" + id,
+        spriteUrl: magicIcon,
+        text: { CURRENT: `${magic.current}`, PERCENT: percentOf(magic.current, magic.base) + "%", DRAINED: `${magic.drained}` }[settings.infoBoxValue],
+        textColor: toHexColor(settings.magicColor),
+        tooltipTitle: "Defence Tracker",
+        tooltipDetail: (name ? name + ": " : "") + `${magic.current}/${magic.base} Magic (-${magic.drained})`,
+      });
   }
   return boxes;
 }
