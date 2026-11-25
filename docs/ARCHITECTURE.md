@@ -33,7 +33,7 @@ Names in `code font` are the names in the code today, short ones included.
 | `client/encounters/sol-heredit/` | 3,882 | Sol Heredit, in fifteen modules. Moved out of `rendering.js` and cleaned. |
 | `client/encounters/inferno/` | 6,448 | The Inferno, in twenty-four modules. Moved out of `rendering.js` and cleaned. |
 | `client/toa/zebak/*.js` | 1,700 | The Zebak encounter, written for this project against the same interface as the original three. `native.js` is the model for what an encounter module should look like. |
-| `client/audio/soundEffects.js` | | Sound-effect synthesizer. |
+| `client/audio/soundEffects.js` | | Sound-effect synthesizer. In the browser it runs in `soundEffectsWorker.js`, off the main thread. |
 | `tools/determinism/` | | Headless harness that runs scripted fights and digests the engine state every tick (`test/test-determinism.mjs`). |
 
 Imports between the chunks: the engine imports the data modules of
