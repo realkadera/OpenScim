@@ -1,6 +1,6 @@
 import {specialDrops} from "./special-layouts.js";
 import { thresholds, scaleToaDamage } from "./rules.js";
-import { cyclesPerTick, specialThrow, roarWindupTick } from "./timing.js";
+import { cyclesPerTick, specialThrow, specialThrowArc, roarWindupTick, roarTicks } from "./timing.js";
 
 const key = ([x, y]) => x + "," + y;
 const distance = (a, b) =>
@@ -213,17 +213,19 @@ export class ZebakPhases {
   of(kind) {
     return [...this.actors.values()].filter((o) => o.kind === kind);
   }
-  graphics(context, graphics, clipId, projectiles = []) {
+  graphics(context, graphics, clipId, projectiles = [], extras = {}) {
     this.emit(context.tickEvents, {
+      // OBS (REC, ticks 148, 300, 361, 420, 544): only his head plays the special's spit, the tail stays idle.
       animations: clipId
-        ? ["zebak", "zebak-tail"].map((actorId) => ({
+        ? (extras.headOnly ? ["zebak"] : ["zebak", "zebak-tail"]).map((actorId) => ({
             actorId,
             clipId,
-            delayCycles: 0,
+            delayCycles: extras.animationDelayCycles ?? 0,
           }))
         : [],
       graphics,
       projectiles,
+      ...(extras.throwDelayCycles === undefined ? {} : {throwDelayCycles: extras.throwDelayCycles}),
       ...(clipId === "roar" && this.active?.kind === "roar" ? {greatRoarStart: true} : {}),
     });
   }
@@ -297,14 +299,16 @@ export class ZebakPhases {
       this.active.kind === "waves" && tick - this.active.start >= 39
     ));
   }
-  begin(context, kind, settings) {
+  begin(context, kind, settings, afterBloodSpell = false) {
     if (!this.canBegin(context.tick)) return;
+    const throwDelay = afterBloodSpell ? specialThrow.delayedByBlood : 0;
     const iteration = this.count[kind]++;
     this.active = {
       kind,
       start: context.tick,
       direction: iteration % 2 ? -1 : 1,
       secondRoar: kind === "roar" && iteration > 0,
+      throwDelay,
     };
     const throws = specialDrops(kind, iteration, this.random, this.walkable());
     this.active.throws = throws;
@@ -318,13 +322,12 @@ export class ZebakPhases {
         spotAnimId,
         sourcePosition: mouth,
         target: tile(position),
-        startDelayCycles: specialThrow.release,
-        endDelayCycles: (kind === "acid" ? specialThrow.acidLandingTick : specialThrow.solidLandingTick) * cyclesPerTick,
-        slope: 24,
+        startDelayCycles: specialThrow.release + throwDelay * cyclesPerTick,
+        endDelayCycles: ((kind === "acid" ? specialThrow.acidLandingTick : specialThrow.solidLandingTick) + throwDelay) * cyclesPerTick,
         startOffset: 0,
-        startHeight: 160,
-        endHeight: 0,
+        ...specialThrowArc,
       })),
+      {headOnly: true, animationDelayCycles: specialThrow.animation, throwDelayCycles: throwDelay * cyclesPerTick},
     );
   }
   landThrows(context, settings, age) {
@@ -335,24 +338,27 @@ export class ZebakPhases {
         if (kind !== "acid") continue;
         this.depositAcid(position);
         if (splatters) this.scatter(position, settings.acidWidth, spread);
-        graphics.push(this.effect(1556, position));
       }
       this.active.acidSpread = [...spread.values()].map(({from, to}) => ({
         from, to, travelTicks: distance(from, to),
       }));
-      this.graphics(context, graphics, null, this.active.acidSpread.map(({from, to, travelTicks}) => ({
-        spotAnimId: 2194, sourcePosition: from.map(v => v + 0.5), target: tile(to),
-        startDelayCycles: 0, endDelayCycles: travelTicks * cyclesPerTick, startOffset: 0,
-        startHeight: 12, endHeight: 0, slope: 25,
-      })));
+      // OBS (REC, ticks 154, 305, 367, 426, 549): no graphic where a pool lands, a splat is heard for the
+      // pools that spread, and their spray flies along the ground on slope 20.
+      this.emit(context.tickEvents, {animations: [], graphics, acidLanded: true,
+        projectiles: this.active.acidSpread.map(({from, to, travelTicks}) => ({
+          spotAnimId: 2194, sourcePosition: from.map(v => v + 0.5), target: tile(to),
+          startDelayCycles: 0, endDelayCycles: travelTicks * cyclesPerTick, startOffset: 0,
+          startHeight: 0, endHeight: 0, slope: 20,
+        }))});
     }
     if (age === specialThrow.solidLandingTick) {
       const graphics = [];
       for (const {kind, position} of this.active.throws) {
-        if (kind === "rock") {
-          this.spawn(context, "rock", 11737, position, 150);
-          graphics.push(this.effect(2174, position));
-        } else if (kind === "jug") this.spawn(context, "jug", 11735, position);
+        // OBS (REC, same ticks): dust 2184 where a rock or a jug lands.
+        if (kind === "rock") this.spawn(context, "rock", 11737, position, 150);
+        else if (kind === "jug") this.spawn(context, "jug", 11735, position);
+        else continue;
+        graphics.push(this.effect(2184, position));
       }
       this.emit(context.tickEvents, {animations: [], projectiles: [], graphics, objectsLanded: true});
       this.active.throws = null;
@@ -666,9 +672,9 @@ export class ZebakPhases {
       // The first enraged spit already plays its own growl. The Great Roar
       // sequence would override the opening of its jaw.
     }
-    if (this.active?.throws) this.landThrows(context, settings, context.tick - this.active.start);
+    if (this.active?.throws) this.landThrows(context, settings, context.tick - this.active.start - (this.active.throwDelay ?? 0));
     if (this.active?.acidSpread?.length) {
-      const elapsed = context.tick - this.active.start - specialThrow.acidLandingTick;
+      const elapsed = context.tick - this.active.start - (this.active.throwDelay ?? 0) - specialThrow.acidLandingTick;
       this.active.acidSpread = this.active.acidSpread.filter(({to, travelTicks}) => {
         if (travelTicks > elapsed) return true;
         this.depositAcid(to);
@@ -704,17 +710,19 @@ export class ZebakPhases {
         const [rockX, rockY] = actor.position;
         return y === rockY && x > rockX && x <= rockX + 3;
       });
-      if ([2, 4, 6].includes(roarAge)) {
+      if (roarTicks.dust.includes(roarAge)) {
         const dust = [];
         for (const key of this.walkable() ?? []) {
           const position = key.split(",").map(Number);
           if (sheltered(position) || rocks.some(({actor}) => !distance(position, actor.position))) continue;
-          // Start at the boss-facing edge and sweep east across the platform.
-          dust.push({...this.effect(2184, position), delayCycles: Math.max(0, position[0] - 22) * 2});
+          const tiles = Math.abs(position[0] - roarTicks.dustOrigin[0]) + Math.abs(position[1] - roarTicks.dustOrigin[1]);
+          dust.push({...this.effect(2184, position), delayCycles: 1 + tiles});
         }
-        this.graphics(context, dust);
+        this.emit(context.tickEvents, {
+          animations: [], projectiles: [], graphics: dust, roarPulse: roarTicks.dust.indexOf(roarAge),
+        });
       }
-      if ([3, 5, 7].includes(roarAge)) {
+      if (roarTicks.damage.includes(roarAge)) {
         if (!sheltered(player.position)) hits.push(hazard("Great Roar", 50));
         for (const jug of this.of("jug")) this.breakJug(context, jug, "roar");
         const debris = [];
@@ -725,12 +733,9 @@ export class ZebakPhases {
           context.tickEvents.emit({type: "hitsplat_spawned", targetId: actor.id, amount: damage, hitsplatType: "damage"});
           if (actor.vitals.hp === 0) debris.push(this.effect(2191, actor.position));
         }
-        this.emit(context.tickEvents, {
-          animations: [], projectiles: [], roarPulse: (roarAge - 3) / 2,
-          graphics: debris,
-        });
+        if (debris.length) this.graphics(context, debris);
       }
-      if (roarAge >= 9) this.clearSpecial(context);
+      if (roarAge >= roarTicks.over) this.clearSpecial(context);
     } else {
       // OSRS footage shows a new row every 4.2s. The longer surge sound
       // repeats after 6.6s and 7.8s, independently of the visible crests.
