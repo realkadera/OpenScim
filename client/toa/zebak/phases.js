@@ -1,5 +1,5 @@
 import {specialDrops} from "./special-layouts.js";
-import { thresholds } from "./rules.js";
+import { thresholds, scaleToaDamage } from "./rules.js";
 import { cyclesPerTick, specialThrow, roarWindupTick } from "./timing.js";
 
 const key = ([x, y]) => x + "," + y;
@@ -115,6 +115,9 @@ export class ZebakPhases {
     this.waveFronts = [];
     this.water = null;
     this.wavePush = null;
+    this.thrown = null;
+    this.raid = 0;
+    this.tick = 0;
     this.droppedWalk = null;
     this.serial = 0;
     this.acidTicks = 0;
@@ -541,42 +544,53 @@ export class ZebakPhases {
     this.waveFronts = this.waveFronts.filter(front => front.tick === context.tick);
     return hits;
   }
-  // OBS (rev 243 recording, 2026-11-25, ticks 1916-1929): a crest hits only a
-  // player whose true tile it stands on when its turn comes, before it steps.
-  // Three times the player stood a row ahead of a crest, ran two tiles through
-  // it in the tick it stepped onto his row, and took nothing: the wave skip.
-  // Running or walking past its row is safe, ending a tick on its tile is not.
-  // OBS (18 recorded hits, as RSPSApp/tsps's Zebak notes give them): the hit
-  // throws the player 3 tiles the way the crest runs, or, where fewer than 3
-  // tiles of platform are left, off its edge into the water. WIKI: it deals 6-10.
-  // inferred (tsps, no capture of a second hit): every crest that finds him on
-  // its tile hits him again, so standing still in its path is hit after 3 ticks.
+  // OBS (REC, the six hits at ticks 176, 192, 193, 195, 449 and 450): a wave is three rows deep, the crest
+  // and the two rows behind it. When a crest's turn comes it hits a player who stands in those rows outside
+  // its gap, if the tile of his last step was in them too: on the crest's tile (ticks 175, 449), one row
+  // behind it (191, 192) or two (194, 448). At tick 455 he ran out of the gap two rows behind a crest, his
+  // last step still in the gap, and took nothing. A player a row ahead of the crest is not hit (tick 193).
+  // This recording has no wave skip: at tick 194 he ran two tiles back through a crest that stepped onto his
+  // row and was hit on 195. (Pull request 42 read three skips from another recording, which is not kept.)
+  // WIKI: it deals 6-10, before the raid level (OBS, REC: 17, 14, 17, 19, 19 at raid level 370, and a 12
+  // that killed him at 12 hitpoints). OBS (18 hits, RSPSApp/tsps's Zebak notes): it throws him 3 tiles.
+  inWave(front, [x, y]) {
+    const behind = (front.y - y) * front.direction;
+    return behind >= 0 && behind <= 2 && x >= crestColumns[0] && x <= crestColumns[1] &&
+      !(x >= front.gap && x < front.gap + front.gapWidth);
+  }
+  lastStepOf(player) {
+    if (this.thrown?.tick === this.tick - 1) return this.thrown.lastStep;
+    const path = player.movementPath ?? [];
+    return path.length > 1 ? path.at(-2) : path.length ? player.previousPosition : player.position;
+  }
   strikeWithCrest(context, front, player, hits) {
     if (!player?.alive || this.water || this.wavePush) return;
-    const [x, y] = player.position;
-    if (y !== front.y || (x >= front.gap && x < front.gap + front.gapWidth)) return;
-    const direction = front.direction;
-    let to = [x, y], intoWater = false;
-    for (let step = 1; step <= 3 && !intoWater; step++) {
-      to = [x, y + direction * step];
-      intoWater = !this.land(to);
-    }
-    hits.push(hazard("Tidal Wave", [6, 10]));
-    this.wavePush = {tick: context.tick, to, direction, intoWater};
-    this.waveShove = {tick: context.tick, from: [x, y], to: [...to], facing: player.facing};
+    if (!this.inWave(front, player.position) || !this.inWave(front, this.lastStepOf(player))) return;
+    hits.push(hazard("Tidal Wave", [6, 10].map(damage => scaleToaDamage(damage, this.raid))));
+    this.wavePush = {tick: context.tick, direction: front.direction};
+    this.emit(context.tickEvents, {animations: [], graphics: [], projectiles: [], waveHit: true});
   }
-  // The engine moves the player after the NPCs: a crest's push replaces his own
-  // step for that tick. In the water he wades instead, one tile a tick.
-  moveWithTide(player, destination, place) {
+  // The engine moves the player after the NPCs. OBS (REC, ticks 176, 192, 195, 449): in the tick of the
+  // hit he first takes the step he was making (two tiles west at 176, two east at 449) and is thrown 3
+  // rows from where it ends, or off the platform's edge. In the water he wades instead, one tile a tick.
+  moveWithTide(player, destination, place, step) {
     const push = this.wavePush;
     this.wavePush = null;
     if (push && player.alive) {
-      if (push.intoWater) this.water = {direction: push.direction, entered: push.tick};
-      // inferred (RSPSApp/tsps resets the movement queue on a throw): the walk he
-      // had clicked is dropped with it. The engine keeps the clicked tile until he
-      // clicks again (a new tile object) or takes a target; until then he stands.
+      const from = step?.position && this.land(step.position) ? [...step.position] : [...player.position];
+      let to = from, intoWater = false;
+      for (let rows = 1; rows <= 3 && !intoWater; rows++) {
+        to = [from[0], from[1] + push.direction * rows];
+        intoWater = !this.land(to);
+      }
+      if (intoWater) this.water = {direction: push.direction, entered: push.tick};
+      // OBS (REC, ticks 193 and 450): the walk he had clicked is dropped with the throw; he stood until he
+      // clicked again. The engine keeps the clicked tile until he clicks again (a new tile object) or takes
+      // a target; until then he stands.
       this.droppedWalk = destination ?? null;
-      place(push.to, player.facing);
+      this.waveShove = {tick: push.tick, from: [...player.position], to: [...to], facing: player.facing};
+      this.thrown = {tick: push.tick, lastStep: [to[0], to[1] - push.direction]};
+      place(to, player.facing);
       return true;
     }
     if (this.droppedWalk && destination === this.droppedWalk && !player.attackTarget) {
@@ -641,6 +655,8 @@ export class ZebakPhases {
   }
   step(context, settings, boss) {
     this.waveShove = null;
+    this.raid = settings.raid ?? 0;
+    this.tick = context.tick;
     if (this.splashes.length) this.splashes = this.splashes.filter(s => context.tick - s.tick < 3);
     const hits = [],
       player = context.world.actors.get("player");

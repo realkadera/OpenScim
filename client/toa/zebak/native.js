@@ -128,12 +128,14 @@ export const zebakPresentation = (BaseScene) => ({
     layerName: "zebak",
     rules: {
       inferno_visual: {
-        preloadIds: [5860, 5836, 5845, 5904, 5838, 5851, 5863, 5829, 5881, 5888, 5852, 102, 5908, 5909, 5867, 5882, 5880],
+        preloadIds: [5860, 5836, 5845, 5904, 5838, 5851, 5863, 5829, 5881, 5888, 5852, 102, 5908, 5909, 5867, 5882, 5880, 5868],
         resolve(event) {
           if (event.greatRoarStart) return {kind: "play", sound: [
             {id: 5845, delayCycles: 32, channel: "sfx"},
             {id: 5904, delayCycles: 69, channel: "sfx"},
           ]};
+          // OBS (20261125-160410-Tombs-of-Amascut.jsonl.gz, ticks 176, 192, 193, 195, 449, 450): heard with every wave hit.
+          if (event.waveHit) return {kind: "play", sound: {id: 5868, channel: "sfx"}};
           if (event.tidalSurgeSound) return {kind: "play", sound: {id: 5852, delayCycles: 20, channel: "sfx"}};
           if (event.projectiles?.some(cue => cue.spotAnimId === 2173))
             return {kind: "play", sound: {id: 5908, delayCycles: specialThrow.sound, channel: "sfx"}};
@@ -291,8 +293,8 @@ export function zebakDefinition({
     executeCommand(command, context) {
       return this.phases.command(command, context);
     }
-    moveDisplacedPlayer(player, target, place) {
-      return this.phases.moveWithTide(player, target, place);
+    moveDisplacedPlayer(player, target, place, step) {
+      return this.phases.moveWithTide(player, target, place, step);
     }
     approachRange(targetId, weaponRange) {
       if (this.phases.pendingJug?.id !== targetId) return undefined;
@@ -389,6 +391,11 @@ export function zebakDefinition({
             ? false
             : null,
         onPlayerDamageTaken: (hit) => {
+          // OBS (20261125-160410-Tombs-of-Amascut.jsonl.gz, six wave hits and three acid hits, ticks 167-195
+          // and 449-450): each also took prayer points, 2 for a 14, 3 for a 17 or 19, 4 for a 22.
+          // inferred: a fifth of the damage.
+          const prayerPointsDelta = hit.source === "Tidal Wave" || hit.source === "Zebak acid"
+            ? -Math.floor(hit.effectiveDamage / 5) : 0;
           if (hit.source === "Blood Barrage" && this.boss)
             this.boss.vitals.hp = Math.min(
               this.boss.vitals.maxHp,
@@ -402,6 +409,7 @@ export function zebakDefinition({
             )
               this.bleedStart = hit.tick;
           }
+          return prayerPointsDelta ? { prayerPointsDelta } : undefined;
         },
       };
     }
