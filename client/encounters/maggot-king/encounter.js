@@ -26,11 +26,10 @@
 // docs/maggot-king.md, which read the cache and the wiki. Numbers no source
 // gives are marked inferred.
 //
-// ponytail: not yet: sticky bile's delay to the next attack (the engine has
-// no way to delay one), the corpse and its loot, sounds of the encounter's
-// own (those of the sequences' frames play). The engine applies no elemental
-// weakness: the fire weakness is the encounter's own, as near to the wiki's
-// as a rule of the encounter can get (updateStats, playerDamage).
+// ponytail: not yet: sounds of the encounter's own (those of the sequences'
+// frames play). The engine applies no elemental weakness: the fire weakness is
+// the encounter's own, as near to the wiki's as a rule of the encounter can
+// get (updateStats, playerDamage).
 import { getMonsterFormulaStats, getMonsterHitpoints } from "../../engine/monsterStats.js";
 import { createSeededRandom } from "../../engine/random.js";
 import { applyBurnStack } from "../../engine/specialAttacks.js";

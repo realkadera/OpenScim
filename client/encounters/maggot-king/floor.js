@@ -68,8 +68,10 @@ export class Floor {
     const stat = drainedStats[Math.floor(random() * drainedStats.length)];
     const level = player.stats?.[stat];
     if (level) player.stats = { ...player.stats, [stat]: { ...level, current: Math.max(0, level.current - damage) } };
-    // OBS: the message. WIKI: the next attack also comes a tick later; the engine has no way to delay it yet.
+    // OBS: the message. WIKI: the next attack comes a tick later. OBS: stepped
+    // in with the weapon ready, the player attacked on the next tick (kill 690).
     message(context, "The sticky acid hampers your ability to attack!");
+    context.delayNextAttack(player.id, 1);
     return [{ baseDamage: damage, attackType: "typeless", source: "Sticky bile", playerPosition: [...player.position] }];
   }
   // What the scene draws (presentation.js).
