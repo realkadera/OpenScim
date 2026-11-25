@@ -112,11 +112,16 @@ function rightHtml(state, mechanics) {
 
 let panels = null;
 let drawn = "";
+// The panels' html, made again only for another snapshot or other toggles:
+// the snapshot (ColosseumEncounter.getSnapshot) is a new object whenever it
+// changes, and the scene is handed the same one frame after frame.
+let made = { state: null, mechanics: null, html: null };
 
 function removePanels() {
   panels?.forEach((panel) => panel.remove());
   panels = null;
   drawn = "";
+  made = { state: null, mechanics: null, html: null };
 }
 
 /**
@@ -131,7 +136,10 @@ export function syncOverlays(simulationState) {
     removePanels();
     return;
   }
-  const html = [leftHtml(state, mechanics), rightHtml(state, mechanics)];
+  if (made.state !== state || made.mechanics !== mechanics) {
+    made = { state, mechanics, html: [leftHtml(state, mechanics), rightHtml(state, mechanics)] };
+  }
+  const html = made.html;
   const scale = getGamePanelScale();
   const key = html.join("\u0000") + scale;
   if (key === drawn) {
