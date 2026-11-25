@@ -599,6 +599,9 @@ var weaponCategoryDefinitions = {
   },
 };
 var weaponCategoryByItemId = {
+  23849: "polearm", 23850: "polearm", 23851: "polearm", // TABLE: corrupted halberds, basic to perfected
+  23852: "powered_staff", 23853: "powered_staff", 23854: "powered_staff", // TABLE: corrupted staves
+  23855: "bow", 23856: "bow", 23857: "bow", // TABLE: corrupted bows
   27291: "partisan",
   29594: "staff",
   29589: "slash_sword",

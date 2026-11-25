@@ -25,10 +25,13 @@ function getPoweredStaffBaseMaxHit(weaponId, magicLevel) {
     case 28796: // Bone staff
       return Math.floor(magicLevel / 3) + 5;
     case 23898: // Crystal staff (basic)
+    case 23852: // Corrupted staff (basic); inferred same max hit as crystal counterpart
       return 23;
     case 23899: // Crystal staff (attuned)
+    case 23853: // Corrupted staff (attuned); inferred same max hit as crystal counterpart
       return 31;
     case 23900: // Crystal staff (perfected)
+    case 23854: // Corrupted staff (perfected); inferred same max hit as crystal counterpart
       return 39;
     case 31113: // Eye of Ayak
       return Math.max(1, Math.floor(magicLevel / 3) - 6);
