@@ -27,7 +27,7 @@ npm run dev          # http://127.0.0.1:5173/
 Encounters: `/` (menu), `/yama/`, `/inferno/`, `/sol-heredit/`, `/zebak/`, `/sandbox/` (a fight of your own: `docs/SANDBOX.md`).
 `/toa/` is the Tombs of Amascut nexus, also reached through the gateway in the lobby.
 The lobby's Desert Treasure II gate opens a chooser for its four bosses: Vardorvis (`/vardorvis/`), Duke Sucellus (`/duke-sucellus/`) and the Leviathan (`/leviathan/`, its post-quest fight) have fights, the Whisperer is not built yet ("Coming Soon").
-The waves of the Fortis Colosseum are at `/colosseum/`, the Doom of Mokhaiotl at `/doom-of-mokhaiotl/`.
+The waves of the Fortis Colosseum are at `/colosseum/`, the Doom of Mokhaiotl at `/doom-of-mokhaiotl/`, Araxxor at `/araxxor/`.
 
 `npm run build` writes a static site to `dist/`; `npm run preview` serves it.
 

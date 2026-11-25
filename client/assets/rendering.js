@@ -5617,7 +5617,17 @@ var wm = class e extends Sm {
     r.offset = x;
     i.offset = P;
     l.offset = _;
+    // After the mappings: a byte, with ten more when it is not 0, then whether
+    // a bias for every face follows (all 35846 version 3 models of the cache
+    // end exactly so).
     o.offset = M;
+    if (o.Od() !== 0) {
+      o.Vd();
+      o.Vd();
+      o.Vd();
+      o.readInt();
+    }
+    const hasFaceBias = o.Od() === 1;
     for (let e = 0; e < g; e++) {
       this.faceColors[e] = a.Vd();
       if (m === 1 && this.faceRenderTypes) {
@@ -5642,7 +5652,7 @@ var wm = class e extends Sm {
       ) {
         this.textureCoords[e] = l.Od() - 1;
       }
-      if (this.faceBias && this.faceTextures && this.faceTextures[e] !== -1) {
+      if (this.faceBias && hasFaceBias) {
         this.faceBias[e] = o.Od() - 1;
       }
     }
@@ -5702,13 +5712,6 @@ var wm = class e extends Sm {
         this.textureMappingM[e] = a.Vd();
         this.textureMappingN[e] = a.Vd();
       }
-    }
-    a.offset = this.faceBias ? o.offset : M;
-    if (a.Od() !== 0) {
-      a.Vd();
-      a.Vd();
-      a.Vd();
-      a.readInt();
     }
   }
   bh(e) {

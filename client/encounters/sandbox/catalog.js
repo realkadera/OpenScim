@@ -50,6 +50,7 @@ import { solHereditSandboxEntries } from "../sol-heredit/sandbox.js";
 import { vardorvisSandboxEntries } from "../vardorvis/sandbox.js";
 import { doomSandboxEntries } from "../doom-of-mokhaiotl/sandbox.js";
 import { yamaSandboxEntries } from "../yama/sandbox.js";
+import { araxxorSandboxEntries } from "../araxxor/sandbox.js";
 
 export const curatedNpcCatalog = [
   ...infernoSandboxEntries,
@@ -58,6 +59,7 @@ export const curatedNpcCatalog = [
   ...vardorvisSandboxEntries,
   ...doomSandboxEntries,
   ...yamaSandboxEntries,
+  ...araxxorSandboxEntries,
 ];
 
 // What the encounters draw that is not a monster to place, each with its
@@ -72,7 +74,12 @@ export const sandboxCatalogExclusions = {
   12191: "Duke Sucellus never leaves his seat and has no walk: he is fought in his own asylum",
   12214: "the Leviathan never leaves its pool and has no walk: it is fought in its own arena",
   12825: "the healing totem of a Colosseum modifier: it heals and never moves",
+  13668: "Araxxor is 7 x 7 and cannot reach the player in the sandbox's arenas; his eggs, specials and enrage are his lair's",
+  13671: "the Mirrorback Araxyte takes a share of what Araxxor is dealt and throws it back: alone it has nothing to share",
+  13673: "the Ruptura Araxyte never attacks: it walks up to the player and explodes",
   14709: "the Doom of Mokhaiotl burrowed: the Doom himself under the floor, between his shield and his surfacing",
+  15742: "the Maggot King fights from behind a row of bones, and most of his attacks are his floor's (bile, carrion, slams): he is fought in his own lair",
+  15743: "the Ur-maggot larvae have no attack of their own: they fly in from the King's screeches and leech a player under them",
 };
 
 export const sandboxNpcCatalog = curatedNpcCatalog;

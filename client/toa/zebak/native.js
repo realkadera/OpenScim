@@ -291,8 +291,8 @@ export function zebakDefinition({
     executeCommand(command, context) {
       return this.phases.command(command, context);
     }
-    moveDisplacedPlayer(player, target, place, path, damage) {
-      return this.phases.moveWithTide(player, target, place, path, damage);
+    moveDisplacedPlayer(player, target, place) {
+      return this.phases.moveWithTide(player, target, place);
     }
     approachRange(targetId, weaponRange) {
       if (this.phases.pendingJug?.id !== targetId) return undefined;

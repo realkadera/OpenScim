@@ -9,6 +9,11 @@ const offsetFromFootprint = (origin, size, target) =>
   target.map((value, axis) => value - Math.max(origin[axis], Math.min(value, origin[axis] + size - 1)));
 const tile = (position) => ({ kind: "tile", position });
 const shoreRockColumns = [18, 21, 24, 27, 30, 33, 36, 39];
+// OBS (rev 243 recording, 2026-11-25): the boulders, splashes and every crest
+// of a Tidal Waves start on local row 21 when they run north and on row 43
+// when they run south, one row off the platform (y 22-42). A crest then moves
+// a row a tick for 24 ticks, to row 45 or 19, and is gone on the 25th.
+const crestShore = direction => direction > 0 ? 21 : 43;
 const hazard = (source, baseDamage, extras = {}) => ({
   source,
   baseDamage,
@@ -100,6 +105,8 @@ export class ZebakPhases {
     this.splashes = [];
     this.waveFronts = [];
     this.water = null;
+    this.wavePush = null;
+    this.droppedWalk = null;
     this.serial = 0;
     this.acidTicks = 0;
     this.active = null;
@@ -499,14 +506,16 @@ export class ZebakPhases {
       if (--pool.crestsRemaining === 0) this.acid.delete(id);
     }
   }
-  advanceWaveFronts(context) {
+  advanceWaveFronts(context, player = null, hits = []) {
     for (const front of this.waveFronts) {
       const offset = context.tick - front.startTick;
       if (offset > 24) {
         for (const wave of front.actors) this.remove(context, wave);
         continue;
       }
-      front.y = front.direction > 0 ? 20 + offset : 44 - offset;
+      // A crest strikes before it steps, so the tick after it spawned is its first.
+      if (front.tick < context.tick) this.strikeWithCrest(context, front, player, hits);
+      front.y = crestShore(front.direction) + front.direction * offset;
       if (front.tick !== context.tick) this.washAcidRow(front);
       front.tick = context.tick;
       for (const wave of front.actors) this.move(wave, [wave.actor.position[0], front.y]);
@@ -521,29 +530,54 @@ export class ZebakPhases {
       }
     }
     this.waveFronts = this.waveFronts.filter(front => front.tick === context.tick);
+    return hits;
   }
-  moveWithTide(player, destination, place, path, damage) {
-    for (const front of this.waveFronts) {
-      if (this.water) break;
-      const {y, direction, gap, gapWidth, tick} = front;
-      const exposed = x => x >= 22 && x <= 38 && (x < gap || x >= gap + gapWidth);
-      const steps = path.stepTiles;
-      const start = player.position;
-      const end = steps.at(-1) ?? start;
-      const hitAtStart = start[1] === y && exposed(start[0]);
-      const hitOnPath = steps.some(([x, row]) => exposed(x) && row === y);
-      // Manual movement can reach a gap. Automatic attack pathing cannot drag
-      // the player sideways toward Zebak during a push.
-      if ((hitAtStart || hitOnPath) && (player.attackTarget || exposed(end[0]))) {
-        if (!front.playerHit) damage(hazard("Tidal Wave", [6, 10]));
-        front.playerHit = true;
-        const next = [player.attackTarget ? start[0] : end[0], y + direction];
-        if (!this.land(next)) this.water = {direction, entered: tick};
-        this.waveShove = {tick, from: [...start], to: [...next], facing: player.facing};
-        place(next, player.facing);
-        return true;
-      }
+  // OBS (rev 243 recording, 2026-11-25, ticks 1916-1929): a crest hits only a
+  // player whose true tile it stands on when its turn comes, before it steps.
+  // Three times the player stood a row ahead of a crest, ran two tiles through
+  // it in the tick it stepped onto his row, and took nothing: the wave skip.
+  // Running or walking past its row is safe, ending a tick on its tile is not.
+  // OBS (18 recorded hits, as RSPSApp/tsps's Zebak notes give them): the hit
+  // throws the player 3 tiles the way the crest runs, or, where fewer than 3
+  // tiles of platform are left, off its edge into the water. WIKI: it deals 6-10.
+  // inferred (tsps, no capture of a second hit): every crest that finds him on
+  // its tile hits him again, so standing still in its path is hit after 3 ticks.
+  strikeWithCrest(context, front, player, hits) {
+    if (!player?.alive || this.water || this.wavePush) return;
+    const [x, y] = player.position;
+    if (y !== front.y || (x >= front.gap && x < front.gap + front.gapWidth)) return;
+    const direction = front.direction;
+    let to = [x, y], intoWater = false;
+    for (let step = 1; step <= 3 && !intoWater; step++) {
+      to = [x, y + direction * step];
+      intoWater = !this.land(to);
     }
+    hits.push(hazard("Tidal Wave", [6, 10]));
+    this.wavePush = {tick: context.tick, to, direction, intoWater};
+    this.waveShove = {tick: context.tick, from: [x, y], to: [...to], facing: player.facing};
+  }
+  // The engine moves the player after the NPCs: a crest's push replaces his own
+  // step for that tick. In the water he wades instead, one tile a tick.
+  moveWithTide(player, destination, place) {
+    const push = this.wavePush;
+    this.wavePush = null;
+    if (push && player.alive) {
+      if (push.intoWater) this.water = {direction: push.direction, entered: push.tick};
+      // inferred (RSPSApp/tsps resets the movement queue on a throw): the walk he
+      // had clicked is dropped with it. The engine keeps the clicked tile until he
+      // clicks again (a new tile object) or takes a target; until then he stands.
+      this.droppedWalk = destination ?? null;
+      place(push.to, player.facing);
+      return true;
+    }
+    if (this.droppedWalk && destination === this.droppedWalk && !player.attackTarget) {
+      player.previousPosition = [...player.position];
+      player.movementPath = [];
+      player.isMoving = false;
+      player.isRunning = false;
+      return false;
+    }
+    this.droppedWalk = null;
     if (!this.water) return undefined;
     // The normal movement step is skipped in water. Reset last tick's carried
     // path so an idle player at the shore doesn't replay the shove each frame.
@@ -592,6 +626,8 @@ export class ZebakPhases {
     this.splashes.length = 0;
     this.water = null;
     this.waveShove = null;
+    this.wavePush = null;
+    this.droppedWalk = null;
     this.queue.length = 0;
   }
   step(context, settings, boss) {
@@ -631,7 +667,7 @@ export class ZebakPhases {
           prayerReduction: { type: "reduce", value: 0.6 },
         }),
       );
-    this.advanceWaveFronts(context);
+    this.advanceWaveFronts(context, player, hits);
     if (!this.active) return hits;
     const { kind, start, direction } = this.active,
       age = context.tick - start;
@@ -674,7 +710,7 @@ export class ZebakPhases {
       // OSRS footage shows a new row every 4.2s. The longer surge sound
       // repeats after 6.6s and 7.8s, independently of the visible crests.
       const soundAge = age + (settings.path >= 2 ? 1 : 0);
-      const shore = direction > 0 ? 20 : 44;
+      const shore = crestShore(direction);
       if (soundAge === 6) this.graphics(context, [], "tail");
       if (age === 7) {
         // Each boulder raises a fan of droplets when the first crest appears,
@@ -699,7 +735,7 @@ export class ZebakPhases {
         this.emit(context.tickEvents, {animations: [], graphics: [], projectiles: [], tidalSurgeSound: true});
       if ([14, 21, 28].includes(age)) {
         const gap = 24 + Math.floor(this.random() * 10);
-        const front = {startTick: context.tick, direction, gap, gapWidth: settings.gap, actors: [], playerHit: false};
+        const front = {startTick: context.tick, direction, gap, gapWidth: settings.gap, actors: []};
         front.y = shore;
         front.tick = context.tick;
         for (let x = shoreRockColumns[0]; x <= shoreRockColumns.at(-1); x++) {

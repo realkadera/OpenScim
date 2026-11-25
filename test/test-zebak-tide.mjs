@@ -10,7 +10,7 @@ for (const direction of [-1, 1]) {
   for (let pass = 1; pass <= 3; pass++) {
     const startTick = 7 * pass;
     phases.waveFronts = [{startTick, direction, gap: 28, gapWidth: 3, actors: []}];
-    const context = {tick: startTick + 12};
+    const context = {tick: startTick + 11}; // row 32: 11 rows from shore row 21 or 43
     phases.advanceWaveFronts(context);
     phases.advanceWaveFronts(context);
     const expected = [22, 23, 24].slice(pass).concat(28, 39);
@@ -20,32 +20,73 @@ for (const direction of [-1, 1]) {
   assert.equal(rolls.length, 0);
 }
 
+// A crest strikes the player's true tile before it steps (OBS, rev 243 recording,
+// 2026-11-25): running or walking through it is safe, ending a tick on its tile
+// is not, and a hit throws him 3 tiles the way it runs or off the platform.
 for (const direction of [-1, 1]) {
   const tiles = new Set();
-  for (let x = 24; x <= 35; x++)
-    for (let y = 24; y <= 40; y++) tiles.add([x,y].join(","));
-  const phases = new ZebakPhases(() => 0, () => tiles, () => {});
-  function cross(start, steps, attacking = false, row = 32) {
-    const player = {position:start, facing:0, attackTarget:attacking ? "zebak" : null};
-    phases.water = null;
-    phases.waveFronts = [{y:row, direction, gap:28, gapWidth:3, tick:4}];
-    let landed, hits = 0;
-    phases.moveWithTide(player, steps.at(-1), pos => landed = pos,
-      {stepTiles:steps}, () => hits++);
-    return {landed, hits};
+  for (let x = 22; x <= 38; x++)
+    for (let y = 22; y <= 42; y++) tiles.add([x,y].join(","));
+  const shore = direction > 0 ? 21 : 43;
+  /** Plays ticks with a crest standing on `row` (gap 28-30), the player starting on `start`.
+   *  `moves[i]` is where he walks in tick i+1 (null: stands); a push replaces his step. */
+  function play(start, row, moves) {
+    const phases = new ZebakPhases(() => 0, () => tiles, () => {});
+    const offset = (row - shore) * direction;
+    phases.waveFronts = [{startTick: -offset, direction, gap: 28, gapWidth: 3, actors: [], y: row, tick: 0}];
+    const player = {alive: true, position: [...start], facing: 0, attackTarget: null};
+    const log = [];
+    moves.forEach((move, index) => {
+      const context = {tick: index + 1};
+      const hits = phases.advanceWaveFronts(context, player, []).filter(hit => hit.source === "Tidal Wave");
+      const pushed = phases.moveWithTide(player, move, to => { player.position = [...to]; });
+      if (pushed === undefined && move) player.position = [...move];
+      log.push({hits: hits.length, at: [...player.position], crest: phases.waveFronts[0]?.y,
+        water: phases.water && {...phases.water}, shove: phases.waveShove && {...phases.waveShove}});
+      if (phases.waveShove?.tick !== context.tick) phases.waveShove = null;
+    });
+    return log;
   }
-  assert.deepEqual(cross([33,32+direction], [[33,32],[33,32-direction]]),
-    {landed:[33,32+direction], hits:1});
-  assert.deepEqual(cross([30,32+direction], [[30,32],[30,32-direction]]),
-    {landed:undefined,hits:0});
-  assert.deepEqual(cross([31,32], [[30,32]]), {landed:undefined,hits:0});
-  assert.deepEqual(cross([33,32], [[32,32],[31,32]],true),
-    {landed:[33,32+direction],hits:1});
-  const shore = direction > 0 ? 40 : 24;
-  assert.deepEqual(cross([33,shore],[],false,shore), {landed:[33,shore+direction],hits:1});
-  assert.equal(phases.water.direction,direction);
+  const hits = log => log.reduce((sum, entry) => sum + entry.hits, 0);
+  const d = direction;
+  // On the crest's tile when its turn comes: hit once, thrown 3 tiles, his own click dropped.
+  let log = play([33, 32], 32, [[33, 32 - 5 * d]]);
+  assert.equal(log[0].hits, 1);
+  assert.deepEqual(log[0].at, [33, 32 + 3 * d]);
+  assert.deepEqual(log[0].shove, {tick: 1, from: [33, 32], to: [33, 32 + 3 * d], facing: 0});
+  assert.equal(log[0].crest, 32 + d);
+  assert.equal(log[0].water, null);
+  // The click stays dropped while the engine keeps passing the same tile; a new click walks again.
+  const click = [33, 32 - 5 * d];
+  log = play([33, 32], 32, [click, click, [33, 32 + 2 * d]]);
+  assert.deepEqual(log.map(entry => entry.at), [[33, 32 + 3 * d], [33, 32 + 3 * d], [33, 32 + 2 * d]]);
+  // The wave skip (ticks 1916-1917 of the recording): a row ahead of the crest, he runs two tiles
+  // through it in the tick it steps onto his row, and is never on its tile when it strikes.
+  log = play([33, 32 + d], 32, [[33, 32 - d], null, null]);
+  assert.equal(hits(log), 0);
+  assert.deepEqual(log.map(entry => entry.crest), [32 + d, 32 + 2 * d, 32 + 3 * d]);
+  // Walking one tile into it works the same: he ends behind it.
+  assert.equal(hits(play([33, 32 + d], 32, [[33, 32], null])), 0);
+  // Standing still a row ahead: the crest steps onto him and strikes on its next turn.
+  log = play([33, 32 + d], 32, [null, null]);
+  assert.deepEqual(log.map(entry => entry.hits), [0, 1]);
+  assert.deepEqual(log[1].at, [33, 32 + 4 * d]);
+  // Standing still afterwards, the same crest catches him again three ticks later.
+  log = play([33, 32], 32, [null, null, null, null]);
+  assert.deepEqual(log.map(entry => entry.hits), [1, 0, 0, 1]);
+  assert.deepEqual(log[3].at, [33, 32 + 6 * d]);
+  // In the gap of the crest: nothing.
+  assert.equal(hits(play([29, 32], 32, [null, null, null])), 0);
+  // Fewer than 3 tiles of platform ahead: off the edge, into the water beyond it.
+  const edge = d > 0 ? 42 : 22;
+  log = play([33, edge - d], edge - d, [null, null]);
+  assert.equal(log[0].hits, 1);
+  assert.deepEqual(log[0].at, [33, edge + d]);
+  assert.deepEqual(log[0].water, {direction: d, entered: 1});
+  // In the water a crest no longer finds him.
+  assert.equal(log[1].hits, 0);
 }
-console.log("Both tide directions passed running into the crest, the open gap, lateral escape, attack pathing, and shoreline displacement.");
+console.log("Both tide directions: struck on the crest's tile before it steps, skipped by running or walking through it, re-struck when standing still, the gap, and thrown 3 tiles or into the water.");
 for (const direction of [-1, 1]) {
   const tiles = new Set();
   for (let x = 22; x <= 38; x++)
@@ -63,7 +104,18 @@ for (const direction of [-1, 1]) {
   const jug = phases.spawn(context, "jug", 11735, [22,shore]);
   let damage = 0;
   for (; context.tick <= 58; context.tick++) {
-    phases.step(context, settings, boss);
+    // Put the player on row 32 behind every crest that has just stepped onto it: its next turn
+    // strikes him there and throws him 3 tiles on.
+    if (phases.waveFronts.some(front => front.y === 32)) player.position = [22,32];
+    damage += phases.step(context, settings, boss).filter(hit => hit.source === "Tidal Wave").length;
+    if (phases.wavePush) {
+      assert.equal(phases.moveWithTide(player, null, next => {
+        assert.deepEqual(next,[22,32+3*direction]);
+        player.position = next;
+      }), true);
+      player.position = [30,32]; // waits in the gap (29-31 for every crest here) for the next one
+
+    }
     for (const object of phases.actors.values()) {
       if (object.destination) object.actor.position = phases.movementFor(object.actor)[0].path[0];
     }
@@ -76,16 +128,6 @@ for (const direction of [-1, 1]) {
       assert.equal(phases.of("wave").length, phases.waveFronts.length * 19);
       assert.deepEqual([older.actors[0].actor.position[0], older.actors.at(-1).actor.position[0]], [18,39]);
     }
-    // Intercept the same exposed row once per crest. Repeated callbacks for a
-    // front still shove the player, but only its first contact deals damage.
-    if (phases.waveFronts.some(front => front.y === 32)) {
-      player.position = [22,32];
-      const shove = () => phases.moveWithTide(player, null, next => {
-        assert.deepEqual(next,[22,32+direction]);
-      }, {stepTiles:[]}, () => damage++);
-      assert.equal(shove(), true);
-      assert.equal(shove(), true);
-    }
   }
   assert.equal(damage, 3);
   assert.deepEqual(cues.filter(c => c.event.tidalSurgeSound).map(c => c.tick),[14,25,38]);
@@ -97,7 +139,7 @@ for (const direction of [-1, 1]) {
   assert.equal(phases.waveFronts.length, 0);
   assert.equal(phases.active,null);
 }
-console.log("Three overlapping crests preserved independent NPC rows, gap, shove, damage, shoreline splashes and cleanup in both directions.");
+console.log("Three overlapping crests preserved independent NPC rows, gap, a strike and push from each, shoreline splashes and cleanup in both directions.");
 for (const path of [0, 3, 4]) {
   const cues = [];
   const tiles = new Set();

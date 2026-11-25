@@ -169,22 +169,24 @@ try {
         engine.encounter.attackTick = engine.worldState.tick + 100;
         phases.acid.clear();
         const historyStart = engine.damageHistory.length;
-        for (let i = 0; i < 14 && player.position[1] < 34; i++) engine.advanceTick([x,31]);
+        // Stands a row ahead of the crest: it steps onto his tile, strikes on its next turn and
+        // throws him 3 rows north.
+        for (let i = 0; i < 14 && player.position[1] < 35; i++) engine.advanceTick(player.position);
         return {hits:engine.damageHistory.slice(historyStart).filter(h => h.source === "Tidal Wave"),
           position:player.position, previous:player.previousPosition, path:player.movementPath};
       });
       assert.equal(wave.hits.length,1);
       assert.ok(wave.hits[0].hpAfter < wave.hits[0].hpBefore);
-      assert.equal(wave.position[1],34);
-      assert.equal(wave.previous[1],33);
+      assert.equal(wave.position[1],35);
+      assert.equal(wave.previous[1],32);
       assert.deepEqual(wave.path,[wave.position]);
       await page.waitForFunction(() => window.shoveFrame?.position[1] % 1 !== 0 && window.shoveFrame);
       const frame = await page.evaluate(() => window.shoveFrame);
       assert.equal(frame.facing, frame.shove.facing);
       assert.equal(frame.walking, false);
       assert.equal(frame.running, false);
-      assert.ok(Math.abs(frame.position[1] - frame.shove.from[1]) < 1);
-      console.log("Wave displaced the player mid-frame with locked facing, without walking, and reduced HP");
+      assert.ok(frame.position[1] > frame.shove.from[1] && frame.position[1] < frame.shove.to[1]);
+      console.log("Wave threw the player 3 tiles mid-frame with locked facing, without walking, and reduced HP");
       await page.evaluate(() => {
         const phases = engine.encounter.phases;
         for (let i = 0; i < 14 && phases.waveFronts.length < 3; i++) engine.advanceTick(engine.player().position);

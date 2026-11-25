@@ -912,6 +912,7 @@ var SimulationEngine = class {
       tickEvents: this.tickEvents,
       logEvent: (event) => this.logEvent(event),
       grantNextAttackSpeedup: (actorId, speedupTicks) => this.combatSystem.grantNextAttackSpeedup(actorId, speedupTicks, tick),
+      delayNextAttack: (actorId, delayTicks) => this.combatSystem.delayNextAttack(actorId, delayTicks, tick),
       spawnNpc: (npc) => this.spawnNpc(npc),
       despawnNpc: (npcId) => this.despawnNpc(npcId),
       queueNpcHit: (attack) => this.queueNpcHit(attack),
