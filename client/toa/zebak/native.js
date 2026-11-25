@@ -1,11 +1,10 @@
 import { configure, soloZebakHitpoints, zebakAutoMaxHit } from "./rules.js";
-import { cyclesPerTick, spitClips, spitTiming, roarWindupTick, roarSpecialRecovery, specialThrow } from "./timing.js";
+import { cyclesPerTick, spitClips, spitTiming, spitSoundCycles, roarWindupTick, roarSpecialRecovery, specialThrow } from "./timing.js";
 import {CloudMotion} from "./cloud-motion.js";
 
 import { ZebakPhases, phaseModels, acidScene } from "./phases.js";
 const mapSquare = { x: 61, y: 84 };
 const start = [29, 32];
-const spitBurstHeight = 560;
 const position = [14, 28];
 const onBiteRow = ([x, y], depth) =>
   x >= position[0] + 9 && x < position[0] + 9 + depth &&
@@ -166,14 +165,13 @@ export const zebakPresentation = (BaseScene) => ({
         resolve(event) {
           if (event.attack !== "zebak_magic" && event.attack !== "zebak_range") return {kind: "pass"};
           const magic = event.attack === "zebak_magic";
-          const impactTicks = event.impactTick - event.launchTick;
-          const redirectTicks = (impactTicks + 1) / 2;
+          const cycles = spitSoundCycles(event.impactTick - event.launchTick);
           return {
             kind: "play",
             sound: [
               {id: magic ? 5823 : 5819, channel: "sfx"},
-              {id: magic ? 5878 : 5896, delayCycles: redirectTicks * cyclesPerTick, channel: "sfx"},
-              {id: 5884, delayCycles: impactTicks * cyclesPerTick, channel: "sfx"},
+              {id: magic ? 5878 : 5896, delayCycles: cycles.redirect, channel: "sfx"},
+              {id: 5884, delayCycles: cycles.impact, channel: "sfx"},
             ],
           };
         },
@@ -508,44 +506,31 @@ export function zebakDefinition({
           }, timing.arrival);
         const sourcePosition = split.map(v => v + 0.5);
         const distanceToBurst = Math.hypot(sourcePosition[0] - origin[0], sourcePosition[1] - origin[1]);
-        // The floor under the burst is 0.9 tiles higher than under the jaw.
-        // The intact pot is still rising at midflight and levels out at the split.
+        const spitBurstHeight = timing.burstHeight;
+        // Where no slope is recorded: the floor under the burst is 0.9 tiles higher than under the jaw, and
+        // the intact pot is still rising at midflight and levels out at the split.
         const rise = (spitBurstHeight - mouth.height) / 128 + 0.9;
-        const slope = Math.round(128 / Math.PI * Math.atan2(2 * rise, distanceToBurst));
+        const slope = timing.slopes[0] ?? Math.round(128 / Math.PI * Math.atan2(2 * rise, distanceToBurst));
+        const enragedPot = enraged && timing.enragedProjectiles;
         projectiles.push({
-          ...flight(magic ? (enraged ? 2177 : 2176) : enraged ? 2179 : 2178,
+          ...flight(magic ? (enragedPot ? 2177 : 2176) : enragedPot ? 2179 : 2178,
             launchCycle, mouth.height, spitBurstHeight, slope),
           sourcePosition: origin,
           target: { kind: "tile", position: split },
           endDelayCycles: splitCycle,
         });
+        // OBS (20261125-160410-Tombs-of-Amascut.jsonl.gz, 31 magic and 45 ranged spits): one piece comes
+        // down on the player, 2181 of the magic pot and 2187 of the ranged; nothing else leaves the burst.
         projectiles.push({
-          ...flight(magic ? 2181 : 2182, splitCycle, spitBurstHeight, 64, 0),
+          ...flight(magic ? 2181 : 2187, splitCycle, spitBurstHeight, timing.endHeight, timing.slopes[1]),
           sourcePosition,
         });
         graphics.push({
           spotAnimId: magic ? 2186 : 2185,
           target: { kind: "tile", position: split },
-          height: spitBurstHeight,
+          height: timing.burstGraphicHeight,
           delayCycles: splitCycle,
         });
-        if (!magic) {
-          [
-            [-1, 0],
-            [1, 0],
-            [0, -1],
-            [0, 1],
-          ].forEach(([dx, dy], i) =>
-            projectiles.push({
-              ...flight(2187 + i, splitCycle, spitBurstHeight, 0, 0),
-              sourcePosition,
-              target: {
-                kind: "tile",
-                position: [split[0] + dx, split[1] + dy],
-              },
-            }),
-          );
-        }
       }
       showAttack(context, {
         actor,
