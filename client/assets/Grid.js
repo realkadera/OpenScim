@@ -2,6 +2,7 @@ import { toEsModule } from "./rolldown-runtime.js";
 import { parseDisplayMode } from "./deployment.js";
 import { attackRangesDefaults, readAttackRangesSettings, isAttackDragProtected } from "/plugins/attackRanges.js";
 import { projectileOverrideDefaults, readProjectileOverrideSettings } from "/plugins/projectileOverride.js";
+import { getDefenceTrackerInfoboxes } from "/plugins/defenceTracker.js";
 import {
   pako,
   requireJsxRuntime,
@@ -39177,6 +39178,10 @@ function eHe(ez, eA) {
   // tooltipDetail } (the Doom of Mokhaiotl's Larva Tracker counter).
   for (const encounterInfobox of ez.encounter?.state?.infoboxes ?? []) {
     eC.push(encounterInfobox);
+  }
+  // The plugin Defence Tracker (client/plugins/defenceTracker.js): the Defence of each NPC it tracks.
+  for (const defenceInfobox of getDefenceTrackerInfoboxes(ez.npcs)) {
+    eC.push(defenceInfobox);
   }
   const eE = eA?.showTickCounterInfobox ?? true;
   const eG = eA?.tickCounterMax ?? 4;

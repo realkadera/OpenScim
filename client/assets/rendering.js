@@ -43916,6 +43916,33 @@ var X_ = class e {
       }
     }
   }
+  // The plugin Defence Tracker (client/plugins/defenceTracker.js): the
+  // Defence of each NPC it tracks, written where its options say: over the
+  // health bar (clear of the bar and of TzHaar HP Tracker's number), right
+  // of it, at the height of the hitsplats, or at the feet.
+  npcDefenceTexts(a, t, n, r, i) {
+    for (const l of n) {
+      const d = l.alive ? getDefenceOverhead(l.id) : null;
+      if (!d) continue;
+      const { cx, cy } = this.ML(l, r, i);
+      const h = this.npcOverlayHeights.get(l.id);
+      const base = h?.baseHeight ?? -Nb(this.terrainHeights, cx, cy) / 128;
+      const onBar = d.position === "ABOVE_HP_BAR" || d.position === "RIGHT_OF_HP_BAR";
+      const p = t.tileToScreen({ x: cx, y: cy, level: base + (onBar ? (h?.healthBarHeight ?? 1.5) : d.position === "CENTRE_OF_NPC" ? (h?.hitsplatHeight ?? 1) : 0) });
+      if (!p) continue;
+      const right = d.position === "RIGHT_OF_HP_BAR";
+      a.overheadTexts ||= [];
+      a.overheadTexts.push({
+        screenX: p.x + (right ? (h?.healthBarWidth ?? e.OSRS_HEALTHBAR_WIDTH) / 2 + 4 + d.text.length * 3.5 : 0), // the text is centred; about 7 px a character
+        screenY: p.y - (d.position === "ABOVE_HP_BAR" ? e.OSRS_HEALTHBAR_HEIGHT + e.OSRS_OVERHEAD_TEXT_FONT_SIZE + 4 : 0) - d.yOffset,
+        text: d.text,
+        textColor: d.textColor,
+        segments: d.segments,
+        fontSize: e.OSRS_OVERHEAD_TEXT_FONT_SIZE,
+        key: "npc-defence-" + l.id,
+      });
+    }
+  }
   WL(a, t, n, s, r = 0, i = s - r) {
     for (const l of n) {
       const n = CW(l, s);
@@ -47584,6 +47611,7 @@ var SceneCompositor = class e {
       simulationState.currentTick,
     );
     this.uiOverlayRenderer.npcOverheadsAndBars(n, uiCamera, J.npcs, interpolatedTick ?? currentTick, this.npcInterpFraction, simulationState.currentTick);
+    this.uiOverlayRenderer.npcDefenceTexts(n, uiCamera, J.npcs, this.npcInterpFraction, simulationState.currentTick);
     if (options.showNpcAttackTimerMetronome) {
       this.uiOverlayRenderer.PL(
         n,
@@ -57423,6 +57451,7 @@ import {overrideProjectile} from "/plugins/projectileOverride.js";
 // The plugins Blindfold and Skybox (client/plugins/): what the scene leaves out, and the colour of the sky.
 import {getBlindfold} from "/plugins/blindfold.js";
 import {getSkyboxColor} from "/plugins/skybox.js";
+import {getDefenceOverhead} from "/plugins/defenceTracker.js";
 import {dt2FragmentShader} from "/dt2/shader.js";
 import { LobbyEncounter } from "../encounters/lobby/LobbyEncounter.js";
 import { divineSeveranceContract, forfeitBreathContract, sensoryCloudingContract, bloodiedBlowsContract, glyphicAttenuationContract, yamaContractVariants } from "../encounters/yama/contracts.js";

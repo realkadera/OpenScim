@@ -8,6 +8,7 @@ import { projectileOverrideOptions, projectileOverrideDefaults, updateProjectile
 // Plugins that keep their own settings (client/plugins/pluginStore.js): an entry each in the Plugins panel.
 import { blindfoldStore, listenForBlindfold } from "/plugins/blindfold.js";
 import { skyboxStore } from "/plugins/skybox.js";
+import { defenceTrackerStore, setDefenceTrackerEngine } from "/plugins/defenceTracker.js";
 if (typeof window !== "undefined") listenForBlindfold(window);
 import { thrallSpells, THRALL_END_SOUND_ID } from "/engine/thralls.js";
 const zebakSoundSearch = location.pathname === "/zebak/" ? new URLSearchParams(location.search).get("sound") : null;
@@ -22742,6 +22743,13 @@ var Yme = [
     ...blindfoldStore.options.map((option) =>
       _me("blindfold", "Blindfold", option.label, { description: option.info, keywords: [] }),
     ),
+    $me("defenceTracker", "Defence Tracker", {
+      description: "Shows the Defence level an NPC has left after the attacks that drain it, over its head and as an info box.",
+      keywords: ["defence", "defense", "party defence", "dwh", "dragon warhammer", "bgs", "bandos godsword", "elder maul", "spec", "drain"],
+    }),
+    ...defenceTrackerStore.options.map((option) =>
+      _me("defenceTracker", "Defence Tracker", option.label, { description: option.info, keywords: [] }),
+    ),
     $me("skybox", "Skybox", {
       description: "The colour of the sky, and of the floor where Blindfold hides the terrain.",
       keywords: ["skybox", "sky", "background", "floor color", "floor colour"],
@@ -27148,6 +27156,12 @@ var cfe = (0, React.memo)(
                           }),
                         ],
                       }),
+                    }),
+                    (0, jsxRuntime.jsx)(PluginStoreEntry, {
+                      label: "Defence Tracker",
+                      store: defenceTrackerStore,
+                      expanded: l6.defenceTracker,
+                      onToggleExpand: () => lx("defenceTracker"),
                     }),
                     (0, jsxRuntime.jsx)(efe, {
                       label: "DPS Overlay",
@@ -52834,6 +52848,11 @@ function eCe({ devHarness: devHarness } = {}) {
     simulationState.playerPosition,
     simulationState.npcs,
   ]);
+  // Defence Tracker (client/plugins/defenceTracker.js) reads the Defence of the engine's NPCs.
+  (0, React.useEffect)(() => {
+    setDefenceTrackerEngine(() => engineRef.current);
+    return () => setDefenceTrackerEngine(() => null);
+  }, []);
   (0, React.useEffect)(() => {
     updateProjectileOverride({ enabled: projectileOverrideEnabled, settings: projectileOverride });
   }, [projectileOverrideEnabled, projectileOverride]);
