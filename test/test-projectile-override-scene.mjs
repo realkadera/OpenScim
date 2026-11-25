@@ -56,9 +56,17 @@ try {
       return upsert(instance);
     };
     engine.setMechanicsConfig({ ...engine.mechanicsConfig, infiniteHealth: true });
-    engine.setBossHp(200); // a head with every axe cycle
+    // Enraged (200 hitpoints): a head with every axe cycle. He is kept there while the test waits, here and while
+    // the application's loop runs below: the player's hits could kill him before the head's projectile flies, and
+    // then none is drawn (he had died on tick 49, the head with him, in about one run in seven).
+    const enraged = () => engine.setBossHp(200);
     engine.injectAction({ type: "attackTarget", targetId: "vardorvis" });
-    for (let tick = 0; tick < 200 && ![...engine.worldState.actors.keys()].some((id) => id.startsWith("vardorvis-head")); tick++) engine.advanceTick(engine.player().position);
+    for (let tick = 0; tick < 200 && ![...engine.worldState.actors.keys()].some((id) => id.startsWith("vardorvis-head")); tick++) {
+      enraged();
+      engine.advanceTick(engine.player().position);
+    }
+    enraged();
+    setInterval(enraged, 100);
     window.__seen = seen;
     return [...engine.worldState.actors.keys()].some((id) => id.startsWith("vardorvis-head"));
   });
