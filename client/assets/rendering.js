@@ -17923,6 +17923,11 @@ var ea = class {
     ce(this, "frameCounter", 0);
     ce(this, "CACHE_EVICTION_INTERVAL", 60);
     ce(this, "CACHE_MAX_STALE_FRAMES", 120);
+    // A mesh is evicted only once unused for this long too: per-frame meshes of
+    // looping loc and spotanim animations come back once per cycle, and 120
+    // frames is half a second at 240 Hz, so they were rebuilt every cycle.
+    ce(this, "CACHE_MAX_STALE_MS", 10000);
+    ce(this, "cacheEvictionMarks", []);
     ce(this, "residentSources", new Map());
     ce(this, "pendingSources", new Map());
     ce(this, "residentSourceBytes", 0);
@@ -18610,7 +18615,19 @@ var ea = class {
     if (!this.gl || this.frameCounter % this.CACHE_EVICTION_INTERVAL !== 0) {
       return;
     }
-    const e = this.frameCounter - this.CACHE_MAX_STALE_FRAMES;
+    const now = performance.now();
+    const marks = this.cacheEvictionMarks;
+    marks.push([this.frameCounter, now]);
+    while (marks.length > 1 && now - marks[1][1] >= this.CACHE_MAX_STALE_MS) {
+      marks.shift();
+    }
+    if (now - marks[0][1] < this.CACHE_MAX_STALE_MS) {
+      return;
+    }
+    const e = Math.min(
+      this.frameCounter - this.CACHE_MAX_STALE_FRAMES,
+      marks[0][0],
+    );
     const a = [];
     for (const [t, n] of this.meshVaoCache) {
       if (n.lastUsedFrame < e) {
