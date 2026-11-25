@@ -18327,11 +18327,13 @@ function kIe({
       return hr(hs, hu, hv, hw, hx, hy, hz, hA);
     },
   };
-  const f2 = (0, pn.useRef)(
-    new HAe({}, dF.clock, {
+  // Made once: `useRef(new HAe(...))` built (and threw away) a recorder on every render.
+  const f2 = (0, pn.useRef)(null);
+  if (f2.current === null) {
+    f2.current = new HAe({}, dF.clock, {
       idleClock: "held",
-    }),
-  );
+    });
+  }
   const f3 = (0, pn.useRef)(false);
   const f4 = (0, pn.useRef)(0);
   (0, pn.useEffect)(() => bD(f2.current), []);
@@ -51422,17 +51424,24 @@ var yBe = Q$e(
     const hu = hd ? (hd.modes.prayerFilterViewOpen ?? false) : gC;
     const hv = hd ? (hd.modes.spellFilterViewOpen ?? false) : gE;
     const hw = hd ? (hd.modes.quickPrayerSetupOpen ?? false) : eI;
+    // Kept on the four levels, not on the state, which is new every tick:
+    // the quick prayers below were worked out again on every tick.
+    const hxState = !!simulationState;
+    const hxPrayer = simulationState?.stats.prayer.max;
+    const hxDefence = simulationState?.stats.defence.max;
+    const hxAttack = simulationState?.stats.attack.max;
+    const hxStrength = simulationState?.stats.strength.max;
     const hx = (0, pn.useMemo)(
       () =>
-        simulationState
+        hxState
           ? {
-              basePrayerLevel: simulationState.stats.prayer.max,
-              baseDefenceLevel: simulationState.stats.defence.max,
-              baseAttackLevel: simulationState.stats.attack.max,
-              baseStrengthLevel: simulationState.stats.strength.max,
+              basePrayerLevel: hxPrayer,
+              baseDefenceLevel: hxDefence,
+              baseAttackLevel: hxAttack,
+              baseStrengthLevel: hxStrength,
             }
           : undefined,
-      [simulationState],
+      [hxState, hxPrayer, hxDefence, hxAttack, hxStrength],
     );
     const hy = simulationState?.mechanicsConfig?.upgradedPrayers;
     const hz = simulationState?.mechanicsConfig?.zealPrayer;

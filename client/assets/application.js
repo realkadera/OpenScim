@@ -30025,7 +30025,8 @@ function $fe({ isOpen: isOpen, onClose: onClose, onLoad: onLoad }) {
   const h6 = (0, React.useRef)(null);
   yle(h6, isOpen);
   const h7 = bpe(h6, onClose);
-  const [h8, h9] = (0, React.useState)(Sfe());
+  // Lazy: the stored index was read and parsed on every render, closed or not.
+  const [h8, h9] = (0, React.useState)(Sfe);
   const [ha, hb] = (0, React.useState)([]);
   const [hc, hd] = (0, React.useState)("loading");
   const [hf, hg] = (0, React.useState)(0);
@@ -49756,13 +49757,18 @@ function eCe({ devHarness: devHarness } = {}) {
         return t0 <= t1;
       },
     };
-    const sY = (0, React.useRef)(
-      new by(Swe, ...O(), {
+    // Made once: `useRef(new ...)` built (and threw away) both on every render.
+    const sY = (0, React.useRef)(null);
+    if (sY.current === null) {
+      sY.current = new by(Swe, ...O(), {
         name: "core",
         rules: wwe,
-      }),
-    );
-    const sZ = (0, React.useRef)(new kwe(Swe));
+      });
+    }
+    const sZ = (0, React.useRef)(null);
+    if (sZ.current === null) {
+      sZ.current = new kwe(Swe);
+    }
     (0, React.useEffect)(() => {
       // Creating the audio context blocks for 40ms and more. Done here, behind
       // the loading screen, it starts suspended and the first click only has
