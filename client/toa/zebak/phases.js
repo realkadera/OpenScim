@@ -683,11 +683,15 @@ export class ZebakPhases {
     }
     this.stepJugs(context, settings, player);
     this.clouds(context, player);
+    // OBS (REC, ticks 167, 168 and 178, raid level 370): a tick on a pool hit 19, the next tick 22, and a
+    // later single tick 14, each as a poison hitsplat: no climb from 2. inferred from those three: 6-9
+    // before the raid level, which gives 14-22 there.
     if (this.acid.has(key(player.position))) {
       this.acidTicks++;
       hits.push(
-        hazard("Zebak acid", Math.min(24, this.acidTicks * 2), {
+        hazard("Zebak acid", [6, 9].map(damage => scaleToaDamage(damage, this.raid)), {
           applyPoison: 2,
+          hitsplatType: "poison",
         }),
       );
     } else this.acidTicks = 0;
