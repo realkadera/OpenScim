@@ -17722,6 +17722,11 @@ var iz = class {
     this.materials.clear();
   }
 };
+// A producer that writes an animated mesh command's arrays (NPC and player
+// poses) stamps it with a new number from this counter. While the stamp and
+// a slot's array are the ones last uploaded, the data has not changed and the
+// renderer skips comparing it against its shadow copy.
+var meshUploadVersion = 0;
 function lz(e, a) {
   const length10 = a.length;
   if (length10 > e.length) {
@@ -19808,11 +19813,20 @@ var ea = class {
   }
   IS(e, a, t, n) {
     this.bindVertexArray(e, a.vao);
+    const unchanged =
+      !n &&
+      t.uploadVersion !== undefined &&
+      t.uploadVersion === a.uploadVersion;
     for (const s of a.slots) {
       if (!n && (s.attribute === "indices" || s.attribute === "tileCoords")) {
         continue;
       }
       const r = t[s.attribute];
+      const same = unchanged && r === s.uploadedArray;
+      s.uploadedArray = r;
+      if (same) {
+        continue;
+      }
       if (r && (!s.contents || !lz(s.contents, r))) {
         e.bindBuffer(s.target, s.buffer);
         if (r.byteLength > s.capacityBytes) {
@@ -19834,6 +19848,7 @@ var ea = class {
         }
       }
     }
+    a.uploadVersion = t.uploadVersion;
     if (n) {
       a.vertexCount = t.positions.length / 3;
       a.indexCount = t.indices?.length;
@@ -42358,6 +42373,7 @@ var NpcInstanceManager = class {
   }
   iL(e, a) {
     for (const t of e) {
+      t.uploadVersion = ++meshUploadVersion;
       if (t.meshId.includes("-opaque")) {
         t.positions = a.opaquePositions;
         t.normals = a.opaqueNormals;
@@ -43258,6 +43274,7 @@ var NpcInstanceManager = class {
     l.perVertexFaceBias = y.faceBias;
     l.uvs = y.uvs;
     l.perVertexTextureIds = y.textureIds;
+    l.uploadVersion = ++meshUploadVersion;
     e.transparentSortDirty = false;
   }
 };
@@ -46210,6 +46227,7 @@ var SceneCompositor = class e {
   RD(e) {
     if (this.cachedPlayerMeshes.length !== 0) {
       for (const a of this.cachedPlayerMeshes) {
+        a.uploadVersion = ++meshUploadVersion;
         const t = a.meshId.endsWith("-opaque") ? e.opaque : e.transparent;
         if (t) {
           a.positions = t.positions;
