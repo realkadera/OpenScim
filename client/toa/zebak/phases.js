@@ -118,7 +118,6 @@ export class ZebakPhases {
     this.wavePush = null;
     this.thrown = null;
     this.raid = 0;
-    this.tick = 0;
     this.droppedWalk = null;
     this.serial = 0;
     this.acidTicks = 0;
@@ -579,14 +578,14 @@ export class ZebakPhases {
     return behind >= 0 && behind <= 2 && x >= crestColumns[0] && x <= crestColumns[1] &&
       !(x >= front.gap && x < front.gap + front.gapWidth);
   }
-  lastStepOf(player) {
-    if (this.thrown?.tick === this.tick - 1) return this.thrown.lastStep;
+  lastStepOf(player, tick) {
+    if (this.thrown?.tick === tick - 1) return this.thrown.lastStep;
     const path = player.movementPath ?? [];
     return path.length > 1 ? path.at(-2) : path.length ? player.previousPosition : player.position;
   }
   strikeWithCrest(context, front, player, hits) {
     if (!player?.alive || this.water || this.wavePush) return;
-    if (!this.inWave(front, player.position) || !this.inWave(front, this.lastStepOf(player))) return;
+    if (!this.inWave(front, player.position) || !this.inWave(front, this.lastStepOf(player, context.tick))) return;
     hits.push(hazard("Tidal Wave", [6, 10].map(damage => scaleToaDamage(damage, this.raid))));
     this.wavePush = {tick: context.tick, direction: front.direction};
     this.emit(context.tickEvents, {animations: [], graphics: [], projectiles: [], waveHit: true});
@@ -598,7 +597,9 @@ export class ZebakPhases {
     const push = this.wavePush;
     this.wavePush = null;
     if (push && player.alive) {
-      const from = step?.position && this.land(step.position) ? [...step.position] : [...player.position];
+      // A walk the last throw dropped is not taken up again (ticks 193 and 450: thrown from where he stood).
+      const walkDropped = this.droppedWalk && destination === this.droppedWalk && !player.attackTarget;
+      const from = !walkDropped && step?.position && this.land(step.position) ? [...step.position] : [...player.position];
       let to = from, intoWater = false;
       for (let rows = 1; rows <= 3 && !intoWater; rows++) {
         to = [from[0], from[1] + push.direction * rows];
@@ -677,7 +678,6 @@ export class ZebakPhases {
   step(context, settings, boss) {
     this.waveShove = null;
     this.raid = settings.raid ?? 0;
-    this.tick = context.tick;
     if (this.splashes.length) this.splashes = this.splashes.filter(s => context.tick - s.tick < 3);
     const hits = [],
       player = context.world.actors.get("player");
