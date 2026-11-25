@@ -509,11 +509,11 @@ timing open, record it from the game itself.
       Tracker. Open, as its `encounter.js` says: the shield's own hitpoint
       bar, the acid's venom, sounds.
 - [ ] Araxxor (https://oldschool.runescape.wiki/w/Araxxor/Strategies) can be
-      fought (`client/encounters/araxxor/`), from two recorded kills and
+      fought (`client/encounters/araxxor/`), from 20 recorded fights and
       RSPSApp's reading of rsprox recordings. Open, as its `encounter.js`
       says: what the Ruptura's blast does to the player, the cleave through
-      Protect from Melee, how often each egg order comes up, where the spray
-      lands, his enraged body.
+      Protect from Melee and beside his corner, his ranged attack, his corpse's
+      Harvest and Destroy, Vengeance.
 - [ ] Nex (https://oldschool.runescape.wiki/w/Nex/Strategies).
 - [ ] Tumeken's Warden, Tombs of Amascut
       (https://oldschool.runescape.wiki/w/Tumeken%27s_Warden), next to Zebak

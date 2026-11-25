@@ -1,7 +1,8 @@
 // Araxxor loads on his route and is drawn from the trimmed cache (his lair,
 // him, his eggs and their araxytes, the acid ball); his eggs block the way;
-// the acid of a special is drawn where it lies; he enrages and dies into the
-// victory screen, taking the acid with him. The mechanics themselves are
+// the acid of a special is drawn where it lies; he enrages, with the models of
+// his enraged body, and dies into the victory screen, taking the acid with him
+// and leaving his corpse. The mechanics themselves are
 // digested by the determinism harness (tools/determinism/scenarios/araxxor.mjs).
 import assert from "node:assert/strict";
 import { chromium } from "playwright-core";
@@ -34,8 +35,30 @@ try {
   await page.waitForFunction(() => window.engine && window.scene, null, { timeout: 60000 });
   await page.locator(".loading-screen").waitFor({ state: "hidden", timeout: 60000 });
   assert.equal(new URL(page.url()).pathname, "/araxxor/");
-  const types = [13668, 13670, 13671, 13672, 13673, 13674, 13675, 13676];
+  const enragedType = 1_013_668; // the scene's own (presentation.js)
+  const types = [13668, enragedType, 13669, 13670, 13671, 13672, 13673, 13674, 13675, 13676];
   await page.waitForFunction((ids) => ids.every((id) => scene.isNpcTypeLoaded(id)), types, { timeout: 60000 });
+
+  // They walk as the cache has it and stand in another sequence (his two were once the wrong way round: he walked on the spot).
+  const steps = await page.evaluate((ids) => ids.map((id) => {
+    const { animationSet, modelData } = scene.npcInstanceManager.typeRegistry.get(id);
+    return { id, idle: animationSet.idle.seqId, walk: animationSet.walk.seqId, cacheWalk: modelData.walkSeqId };
+  }), [13668, enragedType, 13671, 13673, 13675]);
+  for (const { id, idle, walk, cacheWalk } of steps) assert.ok(walk === cacheWalk && idle !== walk, `${id}: stands in ${idle}, walks in ${walk}, the cache's walk is ${cacheWalk}`);
+  // Standing still beside the player, in the application's own loop, he stands.
+  await page.waitForFunction(() => engine.currentTick >= 14, null, { timeout: 60000 });
+  const standing = await page.evaluate(() => new Promise((done) => {
+    const seen = new Set(), until = performance.now() + 2000;
+    const look = () => {
+      const boss = engine.worldState.getNpc("araxxor");
+      const { baseTrack } = scene.npcInstanceManager.instanceRegistry.get(scene.getNpcRenderInstanceId("araxxor")).animController;
+      if (boss.previousPosition.join() === boss.position.join()) seen.add(baseTrack.clip.seqId);
+      if (performance.now() < until) requestAnimationFrame(look);
+      else done([...seen]);
+    };
+    look();
+  }));
+  assert.deepEqual(standing, [11473]);
 
   // The player starts in the first of the setups (loadouts.js, the wiki's strategies page): the scythe.
   const setup = await page.evaluate(() => {
@@ -55,7 +78,6 @@ try {
   assert.deepEqual(eggs, { count: 9, onEgg: false });
 
   // The first special (the seventh attack), its acid drawn as the game's object where it lies.
-  // The player stays beside him: under him he does not attack until his random steps have taken him off.
   const acid = await page.evaluate(() => {
     for (let tick = 0; tick < 80 && engine.getEncounterSnapshot().state.pools.length === 0; tick++) engine.advanceTick(engine.player().position);
     const encounter = engine.getEncounterSnapshot();
@@ -76,12 +98,18 @@ try {
     return engine.getEncounterSnapshot().state.enraged;
   });
   assert.equal(enraged, true);
+  // He is drawn with his enraged body (a model the game has put in the place of one of his own).
+  await page.waitForFunction((type) => scene.npcInstanceManager.instanceRegistry.get(scene.getNpcRenderInstanceId("araxxor"))?.npcTypeId === type, enragedType, { timeout: 60000 });
+  const models = await page.evaluate((ids) => ids.map((id) => scene.npcInstanceManager.typeRegistry.get(id).modelData.modelIds), [13668, enragedType]);
+  assert.deepEqual(models, [[54289, 54290], [54288, 54290]]);
 
   // Killed; the application's own loop plays his death and ends the fight, with the acid gone.
   await page.evaluate(() => engine.setBossHp(0));
   await page.waitForFunction(() => engine.getEncounterOutcome().phase === "victory" && document.body.innerText.includes("ARAXXOR DEFEATED"), null, { timeout: 120000 });
   const cleared = await page.evaluate(() => engine.getEncounterSnapshot().state.pools.length);
   assert.equal(cleared, 0);
+  const drawn = await page.evaluate(() => [...scene.npcInstanceManager.instanceRegistry, ...[...scene.npcInstanceManager.dyingInstances].map(([id, { instance }]) => [id, instance])].map(([, { npcTypeId }]) => npcTypeId));
+  assert.deepEqual(drawn.filter((type) => [13668, enragedType, 13669].includes(type)), [13669]);
   assert.deepEqual(errors, []);
   console.log("Araxxor loaded on /araxxor/, was drawn with his eggs and acid, enraged and was won");
 } finally {
