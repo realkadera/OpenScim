@@ -85,7 +85,7 @@ export const scenarios = [
   {
     // Near at once (the boss at 990 hitpoints): the player stands two columns
     // off his middle, beside him and clear of the slams, and hits him with the
-    // fang; a hit as a slam starts is a punish. Protect from Melee all the way.
+    // fang; a hit as a slam lands is a punish. Protect from Melee all the way.
     name: "maggot-king/near-punish",
     kind: KIND,
     seed: 5,

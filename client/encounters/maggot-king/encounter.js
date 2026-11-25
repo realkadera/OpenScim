@@ -17,7 +17,7 @@
 // stay as carrion; from 85% of his hitpoints, larvae too (larvae.js).
 //
 // Fire spells burn him and lower his Magic defence; he is weak to fire far
-// away, hardly near. A melee hit as a slam starts is a punish: it costs the
+// away, hardly near. A melee hit as a slam lands is a punish: it costs the
 // weapon no time and does half as much again.
 //
 // Sources: OBS is four kills (kill counts 687 to 690) of one player's
@@ -27,9 +27,11 @@
 // gives are marked inferred.
 //
 // ponytail: not yet: sounds of the encounter's own (those of the sequences'
-// frames play). The engine applies no elemental weakness: the fire weakness is
-// the encounter's own, as near to the wiki's as a rule of the encounter can
-// get (updateStats, playerDamage).
+// frames play); a punish with a weapon that is ready, which costs it nothing
+// either (OBS), but here starts its cooldown (the engine asks an encounter
+// only while one runs). The engine applies no elemental weakness: the fire
+// weakness is the encounter's own, as near to the wiki's as a rule of the
+// encounter can get (updateStats, playerDamage).
 import { getMonsterFormulaStats, getMonsterHitpoints } from "../../engine/monsterStats.js";
 import { createSeededRandom } from "../../engine/random.js";
 import { applyBurnStack } from "../../engine/specialAttacks.js";
@@ -163,7 +165,7 @@ class MaggotKingEncounter {
     this.final = false;
     this.movement = "far"; // "far" | "near" | "hold" | "ascend"
     this.screechAt = null;
-    this.slam = null; // { tick, tiles, landsAt }
+    this.slam = null; // { tiles, landsAt }
     this.incoming = []; // what will land where: { kind: "bile" | "slam" | "pile" | "fragment", tiles, landsAt }
     this.punish = null;
     this.lastTargetId = null;
@@ -375,7 +377,7 @@ class MaggotKingEncounter {
     const tiles = [];
     for (let x = middle - 1; x <= middle + 1; x++) for (let y = floor.minY; y <= floor.maxY; y++) if (onFloor([x, y])) tiles.push([x, y]);
     const landsAt = context.tick + slamTicks;
-    this.slam = { tick: context.tick, tiles, landsAt };
+    this.slam = { tiles, landsAt };
     const biles = [...tiles];
     const chosen = [];
     while (chosen.length < slamBiles && biles.length) chosen.push(biles.splice(Math.floor(this.random() * biles.length), 1)[0]);
@@ -493,8 +495,10 @@ class MaggotKingEncounter {
       playerAlwaysAccurate: (context, attack) => this.alwaysAccurate(context, attack),
     };
   }
+  // OBS: a punish is on the tick a slam lands, 2 after it starts (a greataxe's
+  // costless hits fell on the impacts, all five kills). WIKI: "slams down".
   isSlamTick(tick) {
-    return this.slam !== null && this.slam.tick === tick;
+    return this.slam !== null && this.slam.landsAt === tick;
   }
   // A larva in the air shot with standard ranged (a bow: WIKI, "standard
   // ranged"; OBS: the player switched to a bow for them) dies at once and costs
