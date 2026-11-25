@@ -183,6 +183,16 @@ var CombatSystem = class {
         ").",
     );
   }
+  // For an encounter (the tick context's delayNextAttack): the actor's next
+  // attack comes that many ticks later than its cooldown ends, or than this
+  // tick when it has none.
+  delayNextAttack(actorId, delayTicks, tick) {
+    if (delayTicks <= 0) {
+      return;
+    }
+    const nextAttackTick = this.nextAttackTickByActor.get(actorId) ?? tick;
+    this.nextAttackTickByActor.set(actorId, Math.max(nextAttackTick, tick) + delayTicks);
+  }
   getAppliedAttackSpeedup(actorId) {
     return this.appliedAttackSpeedupByActor.get(actorId) ?? 0;
   }

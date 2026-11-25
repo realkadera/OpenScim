@@ -338,7 +338,8 @@ The encounter never holds the engine. It is handed context objects:
 - the tick context (`resolveHazards`, `processPostTick`, NPC hooks): `tick`,
   `playerPos`, `world`, `tickEvents`, `inputs`, `npcMovements`, `logEvent`,
   `spawnNpc`, `despawnNpc`, `queueNpcHit`, `grantNextAttackSpeedup`,
-  `setProtectionPrayer`, `disableProtectionPrayersUntil`, `teleportPlayer`,
+  `delayNextAttack`, `setProtectionPrayer`, `disableProtectionPrayersUntil`,
+  `teleportPlayer`,
   `getPlayerWeaponState`, `attackObject`;
 - the NPC definition context: `tick`, `world`, `tickEvents`, `random`,
   `decisions`, `spawnNpc`, `despawnNpc`, `queueNpcHit`, `logEvent`,
