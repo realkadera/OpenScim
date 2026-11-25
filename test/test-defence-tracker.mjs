@@ -97,23 +97,33 @@ assert.deepEqual(getDefenceTrackerInfoboxes([{ id: "boss", alive: false }]), [])
 boss.debuffs.defenceDrain = 0;
 assert.deepEqual(ids(), []);
 
-// Magic, which an NPC defends a spell with: shown beside the Defence once it is drained, and not before.
-const { readMagic, formatMagic } = await import("../client/plugins/defenceTracker.js");
+// The roll an NPC defends a spell with: shown beside the Defence once it is lowered, and not before.
+const { readMagicDefenceRoll, formatMagic } = await import("../client/plugins/defenceTracker.js");
 defenceTrackerStore.setSettings(defaults);
-boss.formulaStats.levels.magic = 250;
-assert.deepEqual(readMagic(boss), { base: 250, current: 250, drained: 0 });
+// Zebak as gearscape has him: Magic 100, magic defence +200 (WIKI: (9 + 100) x (200 + 64) = 28776).
+const zebak = npc("zebak", "boss", 70, { formulaStats: { levels: { defence: 70, magic: 100 }, defensive: { magic: 200 } }, debuffs: {} });
+actors.set("zebak", zebak);
+published.push({ id: "zebak", alive: true });
+assert.deepEqual(readMagicDefenceRoll(zebak), { base: 28776, current: 28776, drained: 0 });
 assert.deepEqual(ids(), []);
-boss.debuffs.magicDrain = 37; // the Accursed sceptre's 15% of 250 (WIKI: Condemn drains Defence and Magic by 15%)
-boss.debuffs.defenceDrain = 33; // and of 225
-assert.deepEqual(ids(), ["defence-tracker-boss", "magic-tracker-boss"]);
-assert.equal(getDefenceOverhead("boss").text, "192/225 (-33)  213/250 (-37)");
-assert.equal(formatMagic(readMagic(boss), defaults).textColor, "#5AA0FF");
-assert.equal(getDefenceTrackerInfoboxes(published)[1].tooltipDetail, "Yama: 213/250 Magic, its defence against spells (-37)");
-assert.deepEqual(formatMagic(readMagic(boss), defaults).segments.map((segment) => segment.icon ?? segment.text), ["/assets/ui/skill-defence.png", "/assets/ui/skill-magic.png", "213/250", " (-37)"]);
-// A drain of Magic alone has the NPC tracked.
-boss.debuffs.defenceDrain = 0;
-assert.equal(getDefenceOverhead("boss").text, "225/225  213/250 (-37)");
-// Switched off, Magic is not shown and does not make an NPC tracked.
+// The Accursed sceptre's special (WIKI: Condemn drains Defence and Magic by 15%): Magic 85, and the bonus as it was.
+zebak.debuffs.magicDrain = 15;
+zebak.debuffs.defenceDrain = 10;
+assert.deepEqual(readMagicDefenceRoll(zebak), { base: 28776, current: 24816, drained: 3960 }); // 94 x 264
+assert.deepEqual(ids(), ["defence-tracker-zebak", "magic-tracker-zebak"]);
+assert.equal(getDefenceOverhead("zebak").text, "60/70 (-10)  24816/28776 (-3960)");
+const roll = formatMagic(readMagicDefenceRoll(zebak), defaults);
+assert.equal(roll.textColor, "#5AA0FF");
+assert.deepEqual(roll.segments.map((segment) => segment.icon ?? segment.text), ["/assets/ui/skill-defence.png", "/assets/ui/skill-magic.png", "24816/28776", " (-3960)"]);
+assert.deepEqual([getDefenceTrackerInfoboxes(published)[1].text, getDefenceTrackerInfoboxes(published)[1].tooltipDetail], ["86%", "24816/28776 defence roll against spells (-3960)"]);
+// In the Tombs the roll is scaled by the raid level, as the engine's.
+zebak.formulaStats.toaRaidLevel = 300;
+assert.equal(readMagicDefenceRoll(zebak).base, Math.floor((28776 * 550) / 250));
+zebak.formulaStats.toaRaidLevel = undefined;
+// A roll lowered alone has the NPC tracked.
+zebak.debuffs.defenceDrain = 0;
+assert.equal(getDefenceOverhead("zebak").text, "70/70  24816/28776 (-3960)");
+// Switched off, it is not shown and does not make an NPC tracked.
 defenceTrackerStore.setSettings({ ...defaults, magic: false });
 assert.deepEqual(ids(), []);
 

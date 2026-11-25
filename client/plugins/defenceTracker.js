@@ -4,10 +4,12 @@
 // BSD 2-Clause), from its options, their defaults and what it shows; no code
 // of it is here. PLUGIN below is that description. Its party side (sharing
 // drains with a party) is left out, and so are its spell and special-weapon
-// info boxes and its fonts. Of its Magic Defence display there is the Magic
-// level, which is what an NPC defends a spell with and what the Accursed
-// sceptre's special drains with the Defence (`debuffs.magicDrain`), shown
-// beside the Defence once something has drained it.
+// info boxes and its fonts. Of its Magic Defence display there is the roll
+// an NPC defends a spell with, shown beside the Defence once something has
+// lowered it. It is made of the NPC's Magic level, which the Accursed
+// sceptre's special drains with the Defence (`debuffs.magicDrain`), and of
+// its magic defence bonus, which nothing here drains; the level alone was
+// taken for the NPC's magic attack, so the roll is what is shown.
 //
 // What is the application's own: the level is the engine's. The plugin in the
 // game has to work a drain out from hitsplats and a table of bosses; here the
@@ -18,6 +20,7 @@
 // (application.js, PluginStoreEntry), the info boxes are added in Grid.js and
 // the overhead text is drawn by rendering.js (npcDefenceTexts).
 import { createPluginStore, toHexColor } from "./pluginStore.js";
+import { scaleToaAccuracyRoll } from "../toa/zebak/rules.js";
 
 const choices = (...pairs) => pairs.map(([value, label]) => ({ value, label }));
 
@@ -80,7 +83,7 @@ export const defenceTrackerOptions = [
   { key: "lowColor", label: "Low colour", section: "Colours", type: "color", default: "FFC0AB46", info: "The colour of Defence at or under the low threshold" },
   { key: "cappedColor", label: "Fully drained colour", section: "Colours", type: "color", default: "FF579549", info: "The colour of Defence that cannot be drained further" },
   { key: "drainColor", label: "Drain colour", section: "Colours", type: "color", default: "FFAD1459", info: "The colour of the amount drained" },
-  { key: "magic", label: "Show magic defence", section: "Magic Defence", type: "boolean", default: true, info: "Shows the NPC's magic defence, which is its Magic level, once something has drained it" },
+  { key: "magic", label: "Show magic defence", section: "Magic Defence", type: "boolean", default: true, info: "Shows the roll the NPC defends your spells with, once something has lowered it" },
   // PLUGIN: #225EA8, which is dark on the scene; this is a lighter blue.
   { key: "magicColor", label: "Magic defence colour", section: "Magic Defence", type: "color", default: "FF5AA0FF", info: "The colour of the magic defence" },
 ];
@@ -98,11 +101,19 @@ export function readDefence(npc) {
   return { base, current, floor: Math.min(base, Math.max(0, npc.defenceDrainFloor ?? 0)), drained: base - current };
 }
 
-/** The Magic level of an engine NPC, which it defends a spell with: { base, current, drained }, or null. */
-export function readMagic(npc) {
-  const base = npc?.formulaStats?.levels?.magic;
-  if (npc?.kind !== "npc" || npc.role === "npc" || !Number.isFinite(base)) return null;
-  const current = Math.max(0, base - (npc.debuffs?.magicDrain ?? 0)); // as getActorCombatSnapshot (combatFormulas.js)
+/**
+ * The roll an engine NPC defends a spell with: { base, current, drained }, or
+ * null. As getNpcDefenceRoll (combatFormulas.js) rolls it, WIKI Damage per
+ * second/Magic: (9 + Magic level) x (magic defence bonus + 64), scaled by the
+ * raid level in the Tombs of Amascut. `base` is the roll with nothing drained.
+ */
+export function readMagicDefenceRoll(npc) {
+  const stats = npc?.formulaStats;
+  const level = stats?.levels?.magic;
+  if (npc?.kind !== "npc" || npc.role === "npc" || !Number.isFinite(level)) return null;
+  const roll = (magic) => scaleToaAccuracyRoll(Math.floor((magic + 9) * ((stats.defensive?.magic ?? 0) + 64)), stats.toaRaidLevel);
+  const base = roll(level);
+  const current = roll(Math.max(0, level - (npc.debuffs?.magicDrain ?? 0)));
   return { base, current, drained: base - current };
 }
 
@@ -126,9 +137,8 @@ export function formatDefence(defence, settings) {
 }
 
 /**
- * The same of a Magic level (readMagic), in the Magic colour. Its icons are
- * the shield and the Magic skill's together: the hat alone reads as the
- * NPC's Magic, not as what it defends a spell with.
+ * The same of a defence roll against spells (readMagicDefenceRoll), in its
+ * own colour. Its icons are the shield and the Magic skill's together.
  */
 export function formatMagic(magic, settings) {
   return formatLevel(magic, settings, [defenceIcon, magicIcon], toHexColor(settings.magicColor));
@@ -155,14 +165,14 @@ export function setDefenceTrackerEngine(source) {
 
 // The Defence the plugin shows for the NPC `id`, or null: one whose Defence
 // or Magic was drained, or with "Always show" a boss and the NPC the player
-// attacks. `magic` is its Magic level where that was drained and is shown.
+// attacks. `magic` is its defence roll against spells where that was lowered and is shown.
 function trackedDefence(id, settings) {
   const engine = getEngine();
   const npc = engine?.worldState?.actors.get(id);
   const defence = readDefence(npc);
   if (!defence) return null;
-  const magicLevel = settings.magic ? readMagic(npc) : null;
-  const magic = magicLevel?.drained > 0 ? magicLevel : null;
+  const magicRoll = settings.magic ? readMagicDefenceRoll(npc) : null;
+  const magic = magicRoll?.drained > 0 ? magicRoll : null;
   const shown = defence.drained > 0 || magic || (settings.alwaysShow && (npc.role === "boss" || engine.worldState.getPlayer()?.attackTarget === id));
   return shown ? { ...defence, magic, name: npc.name } : null; // few actors carry a name; the tooltip does without
 }
@@ -204,10 +214,10 @@ export function getDefenceTrackerInfoboxes(npcs) {
       boxes.push({
         id: "magic-tracker-" + id,
         spriteUrl: magicIcon,
-        text: { CURRENT: `${magic.current}`, PERCENT: percentOf(magic.current, magic.base) + "%", DRAINED: `${magic.drained}` }[settings.infoBoxValue],
+        text: percentOf(magic.current, magic.base) + "%", // the roll has five figures, more than a box holds
         textColor: toHexColor(settings.magicColor),
         tooltipTitle: "Defence Tracker",
-        tooltipDetail: (name ? name + ": " : "") + `${magic.current}/${magic.base} Magic, its defence against spells (-${magic.drained})`,
+        tooltipDetail: (name ? name + ": " : "") + `${magic.current}/${magic.base} defence roll against spells (-${magic.drained})`,
       });
   }
   return boxes;
