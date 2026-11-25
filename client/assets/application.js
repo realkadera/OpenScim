@@ -51423,7 +51423,8 @@ function eCe({ devHarness: devHarness } = {}) {
     attackStylePerCategory: attackStylePerCategory,
     autoAdvance: autoAdvance,
     pauseWhenUnfocused: pauseWhenUnfocused,
-    modalPaused: (oF || oG > 0) && "lobby" !== sceneState.kind,
+    // kY: the Plugins panel is open. It holds the fight as a dialog does.
+    modalPaused: (oF || oG > 0 || kY) && "lobby" !== sceneState.kind,
     graphicsHeld: kA,
     replayPracticeHeld: oJ,
     replayPracticeUnavailableReason:
