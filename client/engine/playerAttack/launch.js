@@ -405,6 +405,7 @@ function launchPlayerAttack(attack) {
     specDamageMultiplier: attack.specialAttackDamageMultiplier,
     getAttackSpeed: () => attack.finalSpeed,
     ...(attack.attackOnCooldown ? { attackOnCooldown: attack.attackOnCooldown } : {}),
+    ...(attack.keepsReady ? { keepsReady: true } : {}),
     resolveAttack: () => ({
       style: primaryHit.style,
       attackKind: primaryHit.attackKind,
@@ -841,6 +842,9 @@ function performPlayerAutoAttack(player, deps) {
   if (onCooldown && !attackOnCooldown) {
     return;
   }
+  // The same of a weapon that is ready: an encounter may let an attack start
+  // no cooldown. Without the rule, every attack starts one.
+  const keepsReady = !onCooldown && deps.encounterRules?.playerAttackKeepsReady?.(target, deps.world.tick) === true;
   const isSpecialAttackActive = player.isSpecialAttackActive;
   let specialAttackDef;
   let specialAttackAfterSpend = null;
@@ -1127,6 +1131,7 @@ function performPlayerAutoAttack(player, deps) {
     target: target,
     deps: deps,
     ...(attackOnCooldown ? { attackOnCooldown: attackOnCooldown } : {}),
+    ...(keepsReady ? { keepsReady: true } : {}),
     hits: primaryOutcome.hits,
     expectedHit: primaryOutcome.expectedHit,
     supplementalTargets: supplementalTargets,

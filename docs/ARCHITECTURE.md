@@ -323,6 +323,10 @@ context and `{ style, target }` (`style` is "melee", "range" or "magic"):
 `playerMinimumHit(maximumRolledDamage, context, attack)` returns the least
 the hit does, and `playerAlwaysAccurate(context, attack)` makes it sure to
 hit when it returns true (the Leviathan's weak spot and its pathfinder).
+Two more are asked with `(target, tick)` as a player is about to attack:
+`playerAttackOnCooldown`, while the weapon cools down, returns undefined (no
+attack) or `{ keepCooldown }`; `playerAttackKeepsReady`, with a weapon that is
+ready, makes the attack start no cooldown when it returns true.
 
 `getNpcDefinitions()` returns a set of per-NPC behaviours (class
 `NpcDefinitionRegistry`, built from definitions made with

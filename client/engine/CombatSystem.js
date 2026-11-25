@@ -689,6 +689,8 @@ var CombatSystem = class {
       if (attackOnCooldown.keepCooldown) {
         return true;
       }
+    } else if (combatContext.keepsReady) {
+      return true; // a ready weapon the encounter keeps ready (playerAttackKeepsReady)
     }
     const attackSpeed = this.getAttackSpeed(attacker, combatContext);
     const attackCycleTicks = Math.max(1, attackSpeed);
