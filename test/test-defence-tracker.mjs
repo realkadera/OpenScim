@@ -12,7 +12,7 @@ const npc = (id, role, defence, extra = {}) => ({ id, kind: "npc", role, alive: 
 assert.equal(defenceTrackerStore.getState().enabled, false);
 assert.deepEqual(
   [defaults.overhead, defaults.alwaysShow, defaults.position, defaults.valueFormat, defaults.drainFormat, defaults.infoBox, defaults.infoBoxValue, defaults.lowThreshold],
-  [true, false, "ABOVE_HP_BAR", "CURRENT", "AMOUNT", true, "CURRENT", 10],
+  [true, false, "ABOVE_HP_BAR", "CURRENT_OF_BASE", "AMOUNT", true, "CURRENT", 10],
 );
 
 // The level is the base less the drain, never under 0; the floor is the encounter's, 0 without one.
@@ -28,16 +28,16 @@ assert.equal(readDefence({ id: "player", kind: "player" }), null);
 // Written in each format; the drain follows in its own colour, and only when there is one.
 const drained = { base: 200, current: 142, floor: 0, drained: 58 };
 const format = (settings, defence = drained) => formatDefence(defence, { ...defaults, ...settings }).text;
-assert.equal(format({}), "142 -58");
-assert.equal(format({ valueFormat: "CURRENT_OF_BASE" }), "142/200 -58");
-assert.equal(format({ valueFormat: "PERCENT", drainFormat: "PERCENT" }), "71% -29%");
+assert.equal(format({}), "142/200 (-58)");
+assert.equal(format({ valueFormat: "CURRENT" }), "142 (-58)");
+assert.equal(format({ valueFormat: "PERCENT", drainFormat: "PERCENT" }), "71% (-29%)");
 assert.equal(format({ valueFormat: "CURRENT_AND_PERCENT", drainFormat: "NONE" }), "142 (71%)");
-assert.equal(format({}, { base: 200, current: 200, floor: 0, drained: 0 }), "200");
+assert.equal(format({}, { base: 200, current: 200, floor: 0, drained: 0 }), "200/200");
 assert.equal(format({ valueFormat: "PERCENT" }, { base: 0, current: 0, floor: 0, drained: 0 }), "0%");
 assert.deepEqual(formatDefence(drained, defaults).segments, [
   { icon: "/assets/ui/skill-defence.png", text: "" },
-  { text: "142", color: "#FFFFFF" },
-  { text: " -58", color: "#AD1459" },
+  { text: "142/200", color: "#FFFFFF" },
+  { text: " (-58)", color: "#AD1459" },
 ]);
 
 // Normal, low within the threshold of the floor, fully drained at it.
@@ -66,7 +66,7 @@ defenceTrackerStore.setEnabled(true);
 assert.deepEqual(ids(), []);
 defenceTrackerStore.setSettings({ ...defaults, alwaysShow: true });
 assert.deepEqual(ids(), ["defence-tracker-boss", "defence-tracker-target"]);
-assert.equal(getDefenceOverhead("boss").text, "225");
+assert.equal(getDefenceOverhead("boss").text, "225/225");
 assert.equal(getDefenceOverhead("other"), null);
 defenceTrackerStore.setSettings(defaults);
 
@@ -75,12 +75,12 @@ setNpcDefenceDrain(boss, 67); // as a Dragon warhammer's 30% of 225
 assert.deepEqual(getDefenceTrackerInfoboxes(published), [
   { id: "defence-tracker-boss", spriteUrl: "/assets/ui/skill-defence.png", text: "158", textColor: "#FFFFFF", tooltipTitle: "Defence Tracker", tooltipDetail: "Yama: 158/225 Defence (-67)" },
 ]);
-assert.deepEqual({ ...getDefenceOverhead("boss"), segments: undefined }, { text: "158 -67", textColor: "#FFFFFF", segments: undefined, position: "ABOVE_HP_BAR", yOffset: 0 });
+assert.deepEqual({ ...getDefenceOverhead("boss"), segments: undefined }, { text: "158/225 (-67)", textColor: "#FFFFFF", segments: undefined, position: "ABOVE_HP_BAR", yOffset: 0 });
 defenceTrackerStore.setSettings({ ...defaults, showIcon: false });
-assert.deepEqual(getDefenceOverhead("boss").segments.map((segment) => segment.text), ["158", " -67"]);
+assert.deepEqual(getDefenceOverhead("boss").segments.map((segment) => segment.text), ["158/225", " (-67)"]);
 defenceTrackerStore.setSettings(defaults);
 setNpcDefenceDrain(boss, 67 + 47 + 33);
-assert.equal(getDefenceOverhead("boss").text, "145 -80");
+assert.equal(getDefenceOverhead("boss").text, "145/225 (-80)");
 assert.equal(getDefenceOverhead("boss").textColor, "#579549");
 
 // The info box's other numbers; each display on its own switch; a dead NPC has no box.

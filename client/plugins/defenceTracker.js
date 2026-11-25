@@ -38,7 +38,8 @@ export const defenceTrackerOptions = [
     section: "Tracker Position",
     type: "select",
     choices: choices(["CURRENT", "142"], ["CURRENT_OF_BASE", "142/200"], ["PERCENT", "71%"], ["CURRENT_AND_PERCENT", "142 (71%)"]),
-    default: "CURRENT",
+    // The user's default: the level beside what it started at, so that it is not taken for the drain. The plugin's is the level alone.
+    default: "CURRENT_OF_BASE",
     info: "How the Defence level is written",
   },
   {
@@ -110,7 +111,7 @@ export function formatDefence(defence, settings) {
   const { base, current, drained } = defence;
   const percent = percentOf(current, base) + "%";
   const value = { CURRENT: `${current}`, CURRENT_OF_BASE: `${current}/${base}`, PERCENT: percent, CURRENT_AND_PERCENT: `${current} (${percent})` }[settings.valueFormat];
-  const drain = drained <= 0 || settings.drainFormat === "NONE" ? "" : settings.drainFormat === "PERCENT" ? ` -${percentOf(drained, base)}%` : ` -${drained}`;
+  const drain = drained <= 0 || settings.drainFormat === "NONE" ? "" : settings.drainFormat === "PERCENT" ? ` (-${percentOf(drained, base)}%)` : ` (-${drained})`;
   const textColor = defenceColor(defence, settings);
   // A segment with `icon` is drawn as that picture, in the line of the text (rendering.js).
   const segments = [...(settings.showIcon ? [{ icon: defenceIcon, text: "" }] : []), { text: value, color: textColor }];
