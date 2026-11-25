@@ -328,6 +328,12 @@ Two more are asked with `(target, tick)` as a player is about to attack:
 attack) or `{ keepCooldown }`; `playerAttackKeepsReady`, with a weapon that is
 ready, makes the attack start no cooldown when it returns true.
 
+`isPlayerAttackProtected(style, target, { tick, player, world })`, asked for
+each hit of a player's attack as it is launched, makes the hit do nothing
+when it returns true (a boss praying against the style); the DPS projection
+asks it too and shows zero. The tick context's `deactivateAllPrayers()` turns
+every prayer of the player off.
+
 `getNpcDefinitions()` returns a set of per-NPC behaviours (class
 `NpcDefinitionRegistry`, built from definitions made with
 `defineNpc({ id, ... })`). The engine calls `assertDefinitionMatches(npc)`
