@@ -117,7 +117,8 @@ context.tick++;
 phases.stepJugs(context, settings, player);
 assert.ok(events.at(-1).graphics.some(cue => cue.spotAnimId === 2192));
 assert.equal(events.at(-1).jugBreakCause, "weapon");
-assert.equal(effects.resolve(events.at(-1)).kind, "pass");
+// OBS (20261125-160410-Tombs-of-Amascut.jsonl.gz, ticks 377, 399, 433, 564, 577): 2496 as a jug goes, whatever broke it.
+assert.deepEqual(effects.resolve(events.at(-1)), {kind: "play", sound: {id: 2496, channel: "sfx"}});
 context.tick++;
 phases.stepJugs(context, settings, player);
 assert.equal(phases.actors.has(other.actor.id), false);
@@ -133,7 +134,7 @@ assert.equal(shelter.actor.vitals.hp, 150);
 context.tick++;
 phases.stepJugs(context, settings, player);
 assert.equal(events.at(-1).jugBreakCause, "collision");
-assert.equal(effects.resolve(events.at(-1)).kind, "pass");
+assert.deepEqual(effects.resolve(events.at(-1)), {kind: "play", sound: {id: 2496, channel: "sfx"}});
 
 phases.clearSpecial(context);
 phases.begin(context, "waves", settings);
@@ -177,7 +178,7 @@ for (const upset of [false, true]) {
   assert.deepEqual(new Set(phases.splashes.at(-1).tiles.map(p => p.join(","))), wet);
   const groundWater = events.at(-1).graphics.filter(g => g.spotAnimId === 95);
   assert.equal(events.at(-1).jugBreakCause, "roar");
-  assert.equal(effects.resolve(events.at(-1)).kind, "pass");
+  assert.deepEqual(effects.resolve(events.at(-1)), {kind: "play", sound: {id: 2496, channel: "sfx"}});
   assert.deepEqual(new Set(groundWater.map(g => g.target.position.join(","))), wet);
   for (const tile of wet) assert.ok(!phases.acid.has(tile));
   for (const tile of dry) assert.ok(phases.acid.has(tile));

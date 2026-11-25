@@ -127,7 +127,7 @@ export const zebakPresentation = (BaseScene) => ({
     layerName: "zebak",
     rules: {
       inferno_visual: {
-        preloadIds: [5860, 5836, 5845, 5904, 5838, 5851, 5863, 5829, 5881, 5888, 5852, 102, 5908, 5909, 5867, 5882, 5880, 5868, 5913, 5843, 1678],
+        preloadIds: [5860, 5836, 5845, 5904, 5838, 5851, 5863, 5829, 5881, 5888, 5852, 102, 5908, 5909, 5867, 5882, 5880, 5868, 5913, 5843, 1678, 2496],
         resolve(event) {
           if (event.greatRoarStart) return {kind: "play", sound: [
             {id: 5845, delayCycles: 32, channel: "sfx"},
@@ -154,6 +154,9 @@ export const zebakPresentation = (BaseScene) => ({
           }
           if (event.graphics?.length === 1 && event.graphics[0].spotAnimId === 2449)
             return {kind: "play", sound: {id: 5880, channel: "sfx"}};
+          // OBS (20261125-160410-Tombs-of-Amascut.jsonl.gz, ticks 377, 399, 433, 564, 577): 2496 on a jug's tile
+          // the tick after its hitsplat, as it goes: hit by the player, pushed into a rock or broken by the roar.
+          if (event.jugBreakCause) return {kind: "play", sound: {id: 2496, channel: "sfx"}};
           if (event.graphics?.some(cue => cue.spotAnimId === 377 && cue.target.actorId === "player"))
             return {kind: "play", sound: {id: 102, channel: "sfx"}};
           if (event.roarPulse !== undefined) {
