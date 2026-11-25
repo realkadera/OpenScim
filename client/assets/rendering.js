@@ -32223,6 +32223,10 @@ var zaryteEvokeVisuals = {
 };
 var PD = {
   ...RD,
+  // Seercull, Soulshot: the bow's own line of the weapon table above (cast
+  // 472, projectile 473, impact 474; CACHE: spot animations 472 to 474 are
+  // models 3473, 9948 and 9949). An ordinary shot draws its arrow instead.
+  6724: qL[6724],
   26374: zaryteEvokeVisuals,
   27186: zaryteEvokeVisuals,
   27665: LD,

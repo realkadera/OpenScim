@@ -525,7 +525,7 @@ var specialAttackDefinitionByWeaponId = {
   // equal to damage dealt", and "will only drain the opponent's Magic level
   // if it is not already reduced". The hit and its damage are the profile's
   // (playerAttack/profiles.js). Animation: the bows' own shot, as the other
-  // bows here; the special's own graphics are not drawn (not looked up).
+  // bows here; its graphics are the renderer's (rendering.js, PD).
   6724: {
     energyCost: 100,
     animationId: 426,
