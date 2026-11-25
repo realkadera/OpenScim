@@ -108,7 +108,8 @@ boss.debuffs.defenceDrain = 33; // and of 225
 assert.deepEqual(ids(), ["defence-tracker-boss", "magic-tracker-boss"]);
 assert.equal(getDefenceOverhead("boss").text, "192/225 (-33)  213/250 (-37)");
 assert.equal(formatMagic(readMagic(boss), defaults).textColor, "#5AA0FF");
-assert.equal(getDefenceTrackerInfoboxes(published)[1].tooltipDetail, "Yama: 213/250 Magic (-37)");
+assert.equal(getDefenceTrackerInfoboxes(published)[1].tooltipDetail, "Yama: 213/250 Magic, its defence against spells (-37)");
+assert.deepEqual(formatMagic(readMagic(boss), defaults).segments.map((segment) => segment.icon ?? segment.text), ["/assets/ui/skill-defence.png", "/assets/ui/skill-magic.png", "213/250", " (-37)"]);
 // A drain of Magic alone has the NPC tracked.
 boss.debuffs.defenceDrain = 0;
 assert.equal(getDefenceOverhead("boss").text, "225/225  213/250 (-37)");

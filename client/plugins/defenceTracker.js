@@ -80,9 +80,9 @@ export const defenceTrackerOptions = [
   { key: "lowColor", label: "Low colour", section: "Colours", type: "color", default: "FFC0AB46", info: "The colour of Defence at or under the low threshold" },
   { key: "cappedColor", label: "Fully drained colour", section: "Colours", type: "color", default: "FF579549", info: "The colour of Defence that cannot be drained further" },
   { key: "drainColor", label: "Drain colour", section: "Colours", type: "color", default: "FFAD1459", info: "The colour of the amount drained" },
-  { key: "magic", label: "Show Magic", section: "Magic Defence", type: "boolean", default: true, info: "Shows the Magic level, which an NPC defends spells with, once something has drained it" },
+  { key: "magic", label: "Show magic defence", section: "Magic Defence", type: "boolean", default: true, info: "Shows the NPC's magic defence, which is its Magic level, once something has drained it" },
   // PLUGIN: #225EA8, which is dark on the scene; this is a lighter blue.
-  { key: "magicColor", label: "Magic colour", section: "Magic Defence", type: "color", default: "FF5AA0FF", info: "The colour of the Magic level" },
+  { key: "magicColor", label: "Magic defence colour", section: "Magic Defence", type: "color", default: "FF5AA0FF", info: "The colour of the magic defence" },
 ];
 export const defenceTrackerStore = createPluginStore("defenceTracker", defenceTrackerOptions);
 
@@ -122,20 +122,24 @@ export function defenceColor({ base, current, floor }, settings) {
  * something was drained, how much ({ text, color }).
  */
 export function formatDefence(defence, settings) {
-  return formatLevel(defence, settings, defenceIcon, defenceColor(defence, settings));
+  return formatLevel(defence, settings, [defenceIcon], defenceColor(defence, settings));
 }
 
-/** The same of a Magic level (readMagic), in the Magic colour and with its skill's icon. */
+/**
+ * The same of a Magic level (readMagic), in the Magic colour. Its icons are
+ * the shield and the Magic skill's together: the hat alone reads as the
+ * NPC's Magic, not as what it defends a spell with.
+ */
 export function formatMagic(magic, settings) {
-  return formatLevel(magic, settings, magicIcon, toHexColor(settings.magicColor));
+  return formatLevel(magic, settings, [defenceIcon, magicIcon], toHexColor(settings.magicColor));
 }
 
-function formatLevel({ base, current, drained }, settings, icon, textColor) {
+function formatLevel({ base, current, drained }, settings, icons, textColor) {
   const percent = percentOf(current, base) + "%";
   const value = { CURRENT: `${current}`, CURRENT_OF_BASE: `${current}/${base}`, PERCENT: percent, CURRENT_AND_PERCENT: `${current} (${percent})` }[settings.valueFormat];
   const drain = drained <= 0 || settings.drainFormat === "NONE" ? "" : settings.drainFormat === "PERCENT" ? ` (-${percentOf(drained, base)}%)` : ` (-${drained})`;
   // A segment with `icon` is drawn as that picture, in the line of the text (rendering.js).
-  const segments = [...(settings.showIcon ? [{ icon, text: "" }] : []), { text: value, color: textColor }];
+  const segments = [...(settings.showIcon ? icons.map((icon) => ({ icon, text: "" })) : []), { text: value, color: textColor }];
   if (drain) segments.push({ text: drain, color: toHexColor(settings.drainColor) });
   return { text: value + drain, textColor, segments };
 }
@@ -203,7 +207,7 @@ export function getDefenceTrackerInfoboxes(npcs) {
         text: { CURRENT: `${magic.current}`, PERCENT: percentOf(magic.current, magic.base) + "%", DRAINED: `${magic.drained}` }[settings.infoBoxValue],
         textColor: toHexColor(settings.magicColor),
         tooltipTitle: "Defence Tracker",
-        tooltipDetail: (name ? name + ": " : "") + `${magic.current}/${magic.base} Magic (-${magic.drained})`,
+        tooltipDetail: (name ? name + ": " : "") + `${magic.current}/${magic.base} Magic, its defence against spells (-${magic.drained})`,
       });
   }
   return boxes;
