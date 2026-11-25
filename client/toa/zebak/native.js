@@ -1,3 +1,4 @@
+import { withWaveTiles } from "./highlights.js";
 import { configure, soloZebakHitpoints, zebakAutoMaxHit } from "./rules.js";
 import { cyclesPerTick, spitClips, spitTiming, spitSoundCycles, roarWindupTick, roarSpecialRecovery, specialThrow } from "./timing.js";
 import {CloudMotion} from "./cloud-motion.js";
@@ -45,6 +46,10 @@ const tail = {
   deathSeqId: 9635,
 };
 const renderConfig = {
+  // OBS (20261125-195433-zebak-wave.jsonl.gz, tick 158): the sequences of a player in the water, 773 standing
+  // and 772 for every way of moving (his "moves" of that tick: 773, 772, 772, 772, 772, 772, 772, -1).
+  playerStances: {swim: {idle: 773, walk: 772, run: 772, turnLeft: 772, turnRight: 772, walkBack: 772,
+    idleTurnLeft: 773, idleTurnRight: 773}},
   terrainMapSquare: mapSquare,
   locRender: { bounds: null, levels: [0, 1, 2] },
   primaryNpc: {
@@ -67,6 +72,11 @@ export const zebakPresentation = (BaseScene) => ({
   sceneBuilder(context) {
     class ZebakScene extends BaseScene {
       cloudPositions = new WeakMap();
+      // The waves' true tiles and drawn tiles are marked without being asked (highlights.js).
+      build(input, ...rest) {
+        const models = this.npcInstanceManager?.instanceRegistry;
+        return super.build(withWaveTiles(input, npc => models?.get(npc.id)?.lastRenderPosition), ...rest);
+      }
       getPlayingSequenceFrames() {
         const poses = super.getPlayingSequenceFrames();
         // The recorded roar and ground hits have the same mix level across the arena.
@@ -87,7 +97,11 @@ export const zebakPresentation = (BaseScene) => ({
         super.syncNpcInstances(npcs, hidden, state, paused);
         if (hidden || !state) return;
         for (const npc of npcs) {
-          if (npc.npcTypeId !== 11742 && npc.npcTypeId !== 11743) continue;
+          // OBS (20261125-160410-Tombs-of-Amascut.jsonl.gz, ticks 162-197 and 438-458): a Tidal Wave (11738) is
+          // drawn as the client walks any NPC, 4 units a cycle where a tile a tick needs 128 in 30: 0.94 of a
+          // tile a tick, so it is seen a row behind its true tile from its first step and two rows behind by
+          // the far shore. The waves take the clouds' walk for it.
+          if (npc.npcTypeId !== 11742 && npc.npcTypeId !== 11743 && npc.npcTypeId !== 11738 && npc.npcTypeId !== 11739) continue;
           const model = manager.instanceRegistry.get(npc.id);
           if (!model) continue;
           let motion = this.cloudPositions.get(model);
@@ -140,6 +154,9 @@ export const zebakPresentation = (BaseScene) => ({
             return {kind: "play", sound: {id: 5908, delayCycles: specialThrow.sound + (event.throwDelayCycles ?? 0), channel: "sfx"}};
           // OBS (20261125-160410-Tombs-of-Amascut.jsonl.gz, ticks 154, 305, 367, 426, 549): 5913 where the rocks and jugs
           // land, and the splat 5909 one cycle after the spreading pools do.
+          // OBS (20261125-160410-Tombs-of-Amascut.jsonl.gz, ticks 377, 399, 433, 564, 577): 2496 on a jug's tile
+          // the tick after its hitsplat, as it goes: hit by the player, pushed into a rock or broken by the roar.
+          if (event.jugBreakCause) return {kind: "play", sound: {id: 2496, channel: "sfx"}};
           if (event.objectsLanded) return {kind: "play", sound: {id: 5913, channel: "sfx"}};
           if (event.acidLanded) return {kind: "play", sound: {id: 5909, delayCycles: 1, channel: "sfx"}};
           if (event.graphics?.some(cue => cue.spotAnimId === 2195)) {
@@ -154,9 +171,6 @@ export const zebakPresentation = (BaseScene) => ({
           }
           if (event.graphics?.length === 1 && event.graphics[0].spotAnimId === 2449)
             return {kind: "play", sound: {id: 5880, channel: "sfx"}};
-          // OBS (20261125-160410-Tombs-of-Amascut.jsonl.gz, ticks 377, 399, 433, 564, 577): 2496 on a jug's tile
-          // the tick after its hitsplat, as it goes: hit by the player, pushed into a rock or broken by the roar.
-          if (event.jugBreakCause) return {kind: "play", sound: {id: 2496, channel: "sfx"}};
           if (event.graphics?.some(cue => cue.spotAnimId === 377 && cue.target.actorId === "player"))
             return {kind: "play", sound: {id: 102, channel: "sfx"}};
           if (event.roarPulse !== undefined) {
@@ -220,6 +234,7 @@ export function zebakDefinition({
       this.tailRemovalTick = null;
       this.attackTick = 4;
       this.phases = new ZebakPhases(this.random, walkable, animate);
+      this.phases.bloodTrail = () => Array.from(this.bloodTrail.values(), mark => mark.position);
       this.pendingBarrages = new Set();
       this.pendingBloodClouds = new Set();
       this.bloodSpellIndex = 0;

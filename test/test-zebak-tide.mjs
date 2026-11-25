@@ -98,7 +98,8 @@ for (const direction of [-1, 1]) {
     {click: [30, 32 + 3 * d], path: [[30, 32 + 3 * d]]}]);
   assert.deepEqual(log.map(entry => entry.at), [[31, 32 + 3 * d], [31, 32 + 3 * d], [30, 32 + 3 * d]]);
   assert.deepEqual(hits(log), [1, 0, 0]);
-  // Ticks 190-195, with no wave skip in them. Two rows ahead of a crest he runs two tiles back through it
+  // Ticks 190-195, where no run through the crest was a skip: the first from two rows ahead, the second in
+  // the tick after a throw. Two rows ahead of a crest he runs two tiles back through it
   // and ends a row behind it, his last step on its tile: hit on its next turn (192), his run on and the
   // throw leaving him a row on, behind the crest still (the last step of a throw is the row before it):
   // hit again (193) and thrown a row ahead of it, where its next turn spares him (194). He runs two tiles
@@ -130,6 +131,22 @@ for (const direction of [-1, 1]) {
   // Tick 455: the same run a column further west, its first tile still in the gap: nothing.
   log = play([29, 32 - d], 32, [{click: [36, 32 - d], path: [[30, 32 - d], [31, 32 - d]]}, null, null]);
   assert.deepEqual(hits(log), [0, 0, 0]);
+  // The wave skip (pull request 42's recording): a row ahead of the crest, he runs two tiles back through
+  // it in the tick it steps onto his row, and takes nothing; nor on the turn after, three rows behind it.
+  // As the guides have it: the true tile next to him, a tile on with the wave, then two tiles back.
+  const on = {click: [33, 32 + 2 * d], path: [[33, 32 + 2 * d]]};
+  log = play([33, 32 + d], 32, [on, {click: [33, 32], path: [[33, 32 + d], [33, 32]]}, null, null]);
+  assert.deepEqual(hits(log), [0, 0, 0, 0]);
+  assert.deepEqual(log[3].at, [33, 32]);
+  // inferred: without the tile on first, the same run back is hit.
+  log = play([33, 32 + d], 32, [{click: [33, 32 - d], path: [[33, 32], [33, 32 - d]]}, null]);
+  assert.deepEqual(hits(log), [0, 1]);
+  // Walking one tile back through it is no skip (20261125-195433-zebak-wave.jsonl.gz, ticks 154-156): hit.
+  log = play([33, 32 + d], 32, [{click: [33, 32], path: [[33, 32]]}, null]);
+  assert.deepEqual(hits(log), [0, 1]);
+  // In its gap's column there is nothing to skip, and running sideways along its row is no skip.
+  log = play([33, 32 + d], 32, [{click: [35, 32 + d], path: [[34, 32 + d], [35, 32 + d]]}, null]);
+  assert.deepEqual(hits(log), [0, 1]);
   // Standing still a row ahead: the crest steps onto him and strikes on its next turn.
   log = play([33, 32 + d], 32, stand(2));
   assert.deepEqual(hits(log), [0, 1]);
@@ -145,10 +162,23 @@ for (const direction of [-1, 1]) {
   const edge = d > 0 ? 42 : 22;
   log = play([33, edge - d], edge - d, stand(2));
   assert.equal(log[0].hits, 1);
-  assert.deepEqual(log[0].at, [33, edge + d]);
+  // 20261125-195433-zebak-wave.jsonl.gz, ticks 158 and 347: he lands on the row he swims on, 45 or 20.
+  const lane = d > 0 ? 45 : 20;
+  assert.deepEqual(log[0].at, [33, lane]);
   assert.deepEqual(log[0].water, {direction: d, entered: 1});
   // In the water a crest no longer finds him.
   assert.equal(log[1].hits, 0);
+  // He swims a tile a tick along that row to a new click (ticks 349-351); the old click stays dropped.
+  const steps = d > 0 ? [29, 30] : [30, 31];
+  log = play([33, edge - d], edge - d, [null, {click: [36, lane], path: []}, {click: [36, lane], path: []}]);
+  assert.deepEqual(log.map(entry => entry.at), [[33, lane], [34, lane], [35, lane]]);
+  // Climb-up on the Rock steps (ticks 165-167): he swims to their nearer column, waits a tick there and
+  // stands on the platform's last row in that column the tick after.
+  const up = {click: [steps[1], edge - d], path: []};
+  log = play([32, edge - d], edge - d, [null, up, up, up, up]);
+  assert.deepEqual(log.map(entry => entry.at),
+    [[32, lane], [31, lane], d > 0 ? [30, lane] : [31, lane], d > 0 ? [30, lane] : [31, edge], d > 0 ? [30, edge] : [31, edge]]);
+  assert.equal(log[4].water, null);
 }
 console.log("Both tide directions: the wave's three rows and its gap, the last step, the throw after his own step and off the platform, the dropped walk, the recorded hits of ticks 176-195 and 449-450 and the miss of 455.");
 for (const direction of [-1, 1]) {

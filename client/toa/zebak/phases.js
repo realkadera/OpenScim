@@ -18,6 +18,26 @@ const gapStart = { first: 23, count: 11 };
 // OBS (REC, spit animations at ticks 148, 300, 420): the spit is animated one tick after the special starts
 // (see begin), the boulders fall 8 ticks after it starts and the crests rise 15, 22 and 29 ticks after.
 const cloudDeath = { animation: 2, gone: 5, sequence: 8103 };
+// Bloody Waves (NPC 11739). WIKI (Bloody Wave): a wave that washes over a blood splatter by the edge of the
+// room in the first waves of the fight, or over the trail a bleeding player leaves, becomes a Bloody Wave.
+// OBS (REC ticks 166, 171, 172; 20261125-195433-zebak-wave.jsonl.gz ticks 131-133): in the first waves, from
+// the south, the wave of column 28 changes on row 23, that of column 30 on row 24 and that of column 31 on
+// row 25, and stays changed to the far shore. Each splatter changes one wave: where the first crest's gap
+// was over columns 28-30, the second crest's waves changed there instead, and no third. The waves from the
+// north, later in both fights, changed nowhere.
+// No recording has a Bloody Wave hit anyone, and the wiki gives it no effect of its own: it hits as a wave.
+const shoreBlood = [[28, 23], [30, 24], [31, 25]];
+// The water. OBS (20261125-195433-zebak-wave.jsonl.gz ticks 158-167 and 347-351;
+// 20261125-200016-zebak-wave3.jsonl.gz tick 125): a throw off the platform ends 3 rows from its last row,
+// on row 45 past the north edge (from row 42) and on row 20 past the south edge (from row 23), where he swims.
+// inferred: from any other row a throw off the platform ends on that same row.
+// There he swims a tile a tick along the row to the tile he clicks (ticks 349-351). The Rock steps (object
+// 45509) stand on columns 29-30 of row 43 and on columns 30-31 of row 21. He clicked "Climb-up" on them at
+// tick 165 from their column, did not change tile at 166 and stood on the platform's last row, 42, in his own
+// column at 167. inferred: from another column he first swims to the nearer column of the steps.
+const swim = direction => direction > 0
+  ? { lane: 45, columns: [29, 30], edge: 42 }
+  : { lane: 20, columns: [30, 31], edge: 22 };
 const waveTicks = { boulders: 8, crests: [15, 22, 29], over: 54 };
 // OBS (rev 243 recording, 2026-11-25): the boulders, splashes and every crest
 // of a Tidal Waves start on local row 21 when they run north and on row 43
@@ -39,6 +59,7 @@ export const phaseModels = [
   { npcTypeId: 11736, idleSeqId: -1, walkSeqId: 6 },
   { npcTypeId: 11737, idleSeqId: -1 },
   { npcTypeId: 11738, idleSeqId: 7877, walkSeqId: 7877, spawnSeqId: 7878 },
+  { npcTypeId: 11739, idleSeqId: 7877, walkSeqId: 7877 },
   { npcTypeId: 11742, idleSeqId: 8102, walkSeqId: 8101, deathSeqId: 8103 },
   { npcTypeId: 11743, idleSeqId: 8102, walkSeqId: 8101, deathSeqId: 8103 },
 ];
@@ -114,6 +135,8 @@ export class ZebakPhases {
     this.acid = new Map();
     this.splashes = [];
     this.waveFronts = [];
+    this.shoreBlood = new Set(shoreBlood.map(key));
+    this.bloodTrail = () => [];
     this.water = null;
     this.wavePush = null;
     this.thrown = null;
@@ -127,8 +150,14 @@ export class ZebakPhases {
   snapshot() {
     return {
       special: this.active?.kind ?? null,
+      // OBS (20261125-195433-zebak-wave.jsonl.gz, ticks 158-166 and 347-352): in the water he stands as 773
+      // and moves as 772.
+      playerStance: this.water ? "swim" : null,
       enraged: this.enraged,
-      waveShove: this.waveShove ?? null,
+      // OBS (20261125-195433-zebak-wave.jsonl.gz, ticks 149, 150, 156, 158): in the client cycle of the
+      // hitsplat he already stands where the throw ends (drawn at row 34.47 at tick 148, at 33.50 at 149): he
+      // is put there, not slid. The scene slides him from `from` to `to` through the tick, so both are the end.
+      waveShove: this.waveShove ? {...this.waveShove, from: [...this.waveShove.to]} : null,
       acid: Array.from(this.acid.values(), pool => pool.position),
       splashes: [...this.splashes],
       queued: [...this.queue],
@@ -551,6 +580,7 @@ export class ZebakPhases {
       if (front.tick !== context.tick) this.washAcidRow(front);
       front.tick = context.tick;
       for (const wave of front.actors) this.move(wave, [wave.actor.position[0], front.y]);
+      this.bloodyWaves(front);
       for (const jug of this.of("jug")) {
         const [x, y] = jug.actor.position;
         if (y !== front.y || (x >= front.gap && x < front.gap + front.gapWidth)) continue;
@@ -564,13 +594,21 @@ export class ZebakPhases {
     this.waveFronts = this.waveFronts.filter(front => front.tick === context.tick);
     return hits;
   }
+  // inferred: the trail of a bleeding player changes a wave as a splatter does, and is not used up by it.
+  bloodyWaves(front) {
+    const trail = new Set(Array.from(this.bloodTrail(), key));
+    for (const wave of front.actors) {
+      if (wave.actor.npcTypeId === 11739) continue;
+      const id = key([wave.actor.position[0], front.y]);
+      if (this.shoreBlood.delete(id) || trail.has(id)) wave.actor.npcTypeId = 11739;
+    }
+  }
   // OBS (REC, the six hits at ticks 176, 192, 193, 195, 449 and 450): a wave is three rows deep, the crest
   // and the two rows behind it. When a crest's turn comes it hits a player who stands in those rows outside
   // its gap, if the tile of his last step was in them too: on the crest's tile (ticks 175, 449), one row
   // behind it (191, 192) or two (194, 448). At tick 455 he ran out of the gap two rows behind a crest, his
   // last step still in the gap, and took nothing. A player a row ahead of the crest is not hit (tick 193).
-  // This recording has no wave skip: at tick 194 he ran two tiles back through a crest that stepped onto his
-  // row and was hit on 195. (Pull request 42 read three skips from another recording, which is not kept.)
+  // The wave skip of pull request 42 is kept beside this: see skipCrests.
   // WIKI: it deals 6-10, before the raid level (OBS, REC: 17, 14, 17, 19, 19 at raid level 370, and a 12
   // that killed him at 12 hitpoints). OBS (18 hits, RSPSApp/tsps's Zebak notes): it throws him 3 tiles.
   inWave(front, [x, y]) {
@@ -586,13 +624,39 @@ export class ZebakPhases {
   strikeWithCrest(context, front, player, hits) {
     if (!player?.alive || this.water || this.wavePush) return;
     if (!this.inWave(front, player.position) || !this.inWave(front, this.lastStepOf(player, context.tick))) return;
+    if (context.tick <= front.skippedUntil) return;
     hits.push(hazard("Tidal Wave", [6, 10].map(damage => scaleToaDamage(damage, this.raid))));
     this.wavePush = {tick: context.tick, direction: front.direction};
     this.emit(context.tickEvents, {animations: [], graphics: [], projectiles: [], waveHit: true});
   }
+  // The wave skip. OBS (pull request 42's recording, three times; players' guides: with the true tile next
+  // to him he steps a tile on and then runs two tiles back): a player a row ahead of a crest who runs two
+  // tiles back through it in the tick it steps onto his row takes nothing from it; it spares him on its
+  // next turn, two rows behind it, and on the turn after he is three behind.
+  // None of the recordings at hand has a skip. What they have beside it:
+  // OBS (REC ticks 190-192; 20261125-195433-zebak-wave.jsonl.gz ticks 147-149 and 344-346;
+  // 20261125-200016-zebak-wave3.jsonl.gz ticks 105-107 and 121-123): from two rows ahead the same run ends a
+  // row behind the crest and is hit.
+  // OBS (20261125-195433-zebak-wave.jsonl.gz, ticks 154-156): walking one tile back through it is hit.
+  // OBS (REC, ticks 193-195): thrown at 193 to a row ahead of the crest, he ran two tiles back through it at
+  // 194 as it stepped onto his row, and was hit at 195. inferred, to hold this beside the skip: the tick
+  // after a throw there is no skip. inferred, from the guides: the skip needs the tile stepped on, with the
+  // wave, in the tick before the run; a run back through the crest without it is hit.
+  skipCrests(player, step) {
+    const to = step?.position;
+    const stepped = this.lastStep?.tick === this.tick - 1 ? this.lastStep.rows : null;
+    this.lastStep = to ? {tick: this.tick, rows: to[1] - player.position[1]} : null;
+    if (!to || this.thrown?.tick === this.tick - 1) return;
+    for (const front of this.waveFronts) {
+      const [x, y] = player.position;
+      if (y !== front.y || x < crestColumns[0] || x > crestColumns[1]) continue;
+      if (x >= front.gap && x < front.gap + front.gapWidth) continue;
+      if (stepped === front.direction && (front.y - to[1]) * front.direction >= 2) front.skippedUntil = this.tick + 1;
+    }
+  }
   // The engine moves the player after the NPCs. OBS (REC, ticks 176, 192, 195, 449): in the tick of the
   // hit he first takes the step he was making (two tiles west at 176, two east at 449) and is thrown 3
-  // rows from where it ends, or off the platform's edge. In the water he wades instead, one tile a tick.
+  // rows from where it ends, or off the platform's edge into the water (see `swim`).
   moveWithTide(player, destination, place, step) {
     const push = this.wavePush;
     this.wavePush = null;
@@ -605,7 +669,10 @@ export class ZebakPhases {
         to = [from[0], from[1] + push.direction * rows];
         intoWater = !this.land(to);
       }
-      if (intoWater) this.water = {direction: push.direction, entered: push.tick};
+      if (intoWater) {
+        to = [from[0], swim(push.direction).lane];
+        this.water = {direction: push.direction, entered: push.tick};
+      }
       // OBS (REC, ticks 193 and 450): the walk he had clicked is dropped with the throw; he stood until he
       // clicked again. The engine keeps the clicked tile until he clicks again (a new tile object) or takes
       // a target; until then he stands.
@@ -623,38 +690,36 @@ export class ZebakPhases {
       return false;
     }
     this.droppedWalk = null;
-    if (!this.water) return undefined;
+    if (!this.water) {
+      this.skipCrests(player, step);
+      return undefined;
+    }
     // The normal movement step is skipped in water. Reset last tick's carried
     // path so an idle player at the shore doesn't replay the shove each frame.
     player.previousPosition = [...player.position];
     player.movementPath = [];
     player.isMoving = false;
     player.isRunning = false;
-    if (!destination || !distance(player.position, destination)) return false;
-    const dir = this.water.direction,
-      rampX = 30;
-    const edge = (x) => {
-      const ys = [...(this.walkable() ?? [])]
-        .map((k) => k.split(",").map(Number))
-        .filter((p) => p[0] === x)
-        .map((p) => p[1]);
-      return ys.length ? (dir > 0 ? Math.max(...ys) : Math.min(...ys)) : null;
-    };
-    const [x, y] = player.position;
-    const targetX = Math.max(22, Math.min(38, destination[0]));
-    const nextX = x + Math.sign(targetX - x),
-      edgeY = edge(nextX);
-    if (edgeY === null) return false;
-    let next;
-    if (x === rampX && targetX === rampX && (destination[1] - y) * dir <= 0) {
-      next = [rampX, edgeY];
-      if (distance(player.position, next) <= 1) this.water = null;
-    } else next = [nextX, edgeY + dir];
-    next = next.map(
-      (v, i) => player.position[i] + Math.sign(v - player.position[i]),
-    );
-    if (!distance(player.position, next)) return false;
-    place(next, player.facing);
+    const {lane, columns, edge} = swim(this.water.direction);
+    const [x] = player.position;
+    if (this.water.climbTick !== undefined) {
+      if (this.tick < this.water.climbTick) return false;
+      this.water = null;
+      place([x, edge], player.facing);
+      return true;
+    }
+    if (!destination) return false;
+    // A click on the Rock steps, or past them onto the platform in their columns, is to climb them.
+    const climbing = columns.includes(destination[0]) && destination[1] !== lane;
+    if (climbing && columns.includes(x)) {
+      this.water.climbTick = this.tick + 1;
+      return false;
+    }
+    const targetX = climbing
+      ? columns.reduce((best, column) => Math.abs(column - x) < Math.abs(best - x) ? column : best)
+      : Math.max(crestColumns[0], Math.min(crestColumns[1], destination[0]));
+    if (targetX === x) return false;
+    place([x + Math.sign(targetX - x), lane], player.facing);
     return true;
   }
   clearSpecial(context) {
@@ -678,6 +743,7 @@ export class ZebakPhases {
   step(context, settings, boss) {
     this.waveShove = null;
     this.raid = settings.raid ?? 0;
+    this.tick = context.tick;
     if (this.splashes.length) this.splashes = this.splashes.filter(s => context.tick - s.tick < 3);
     const hits = [],
       player = context.world.actors.get("player");
