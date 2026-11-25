@@ -43930,11 +43930,22 @@ var X_ = class e {
       const onBar = d.position === "ABOVE_HP_BAR" || d.position === "RIGHT_OF_HP_BAR";
       const p = t.tileToScreen({ x: cx, y: cy, level: base + (onBar ? (h?.healthBarHeight ?? 1.5) : d.position === "CENTRE_OF_NPC" ? (h?.hitsplatHeight ?? 1) : 0) });
       if (!p) continue;
-      const right = d.position === "RIGHT_OF_HP_BAR";
+      // The bar is drawn 5 px tall with its bottom edge at the anchor
+      // (measured in the page): the text sits 3 px over its top, or starts
+      // 4 px right of it on its middle line; at the centre and the feet it
+      // is centred on the point.
+      const bar = 5;
+      const [dx, dy, transform] =
+        d.position === "ABOVE_HP_BAR"
+          ? [0, -bar - 3, "translate(-50%, -100%)"]
+          : d.position === "RIGHT_OF_HP_BAR"
+            ? [(h?.healthBarWidth ?? e.OSRS_HEALTHBAR_WIDTH) / 2 + 4, -bar / 2, "translate(0, -50%)"]
+            : [0, 0, "translate(-50%, -50%)"];
       a.overheadTexts ||= [];
       a.overheadTexts.push({
-        screenX: p.x + (right ? (h?.healthBarWidth ?? e.OSRS_HEALTHBAR_WIDTH) / 2 + 4 + d.text.length * 3.5 : 0), // the text is centred; about 7 px a character
-        screenY: p.y - (d.position === "ABOVE_HP_BAR" ? e.OSRS_HEALTHBAR_HEIGHT + e.OSRS_OVERHEAD_TEXT_FONT_SIZE + 4 : 0) - d.yOffset,
+        screenX: p.x + dx,
+        screenY: p.y + dy - d.yOffset,
+        transform,
         text: d.text,
         textColor: d.textColor,
         segments: d.segments,
@@ -59769,13 +59780,21 @@ var rZ = class {
 function iZ(e, a) {
   const t = a.segments && a.segments.length > 0 ? a.segments : null;
   const n = t
-    ? `s:${t.map((e) => `${e.color ?? ""}\0${e.text}`).join("")}`
+    ? `s:${t.map((e) => `${e.color ?? ""}\0${e.icon ?? ""}\0${e.text}`).join("")}`
     : `t:${a.text}`;
   if (e.dataset.content !== n) {
     e.dataset.content = n;
     if (t) {
       e.textContent = "";
       for (const a of t) {
+        // A picture in the line of the text (Defence Tracker's skill icon), as tall as the text.
+        if (a.icon) {
+          const icon = document.createElement("img");
+          icon.src = a.icon;
+          icon.style.cssText = "height:1em;width:auto;vertical-align:top;margin-right:3px;image-rendering:pixelated";
+          e.appendChild(icon);
+          continue;
+        }
         const t = document.createElement("span");
         t.textContent = a.text;
         if (a.color) {
@@ -60120,6 +60139,7 @@ var dZ = ({
         s.style.top = `${n.screenY}px`;
         s.style.color = n.textColor;
         s.style.fontSize = `${n.fontSize}px`;
+        s.style.transform = n.transform ?? "translate(-50%, -100%)"; // Defence Tracker says how its text hangs from its point
         iZ(s, n);
       }
     } else if (t) {
@@ -62027,6 +62047,7 @@ var bZ = ({
         s.style.top = `${n.screenY}px`;
         s.style.color = n.textColor;
         s.style.fontSize = `${n.fontSize}px`;
+        s.style.transform = n.transform ?? "translate(-50%, -100%)"; // Defence Tracker says how its text hangs from its point
         iZ(s, n);
       }
     } else if (t) {

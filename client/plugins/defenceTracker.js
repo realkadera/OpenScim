@@ -50,6 +50,7 @@ export const defenceTrackerOptions = [
     default: "AMOUNT",
     info: "What is written after the level of how much was drained",
   },
+  { key: "showIcon", label: "Show icon", section: "Text & Icons", type: "boolean", default: true, info: "Draws the Defence skill icon before the level over the NPC" },
   { key: "infoBox", label: "Defence info box", section: "Info Boxes", type: "boolean", default: true, info: "Shows an info box with the Defence of each tracked NPC" },
   {
     key: "infoBoxValue",
@@ -102,7 +103,8 @@ export function defenceColor({ base, current, floor }, settings) {
 
 /**
  * The overhead text of a Defence: { text, textColor, segments }, the segments
- * ({ text, color }) being the level and, where something was drained, how much.
+ * being the skill's icon ({ icon }) where it is shown, the level and, where
+ * something was drained, how much ({ text, color }).
  */
 export function formatDefence(defence, settings) {
   const { base, current, drained } = defence;
@@ -110,10 +112,13 @@ export function formatDefence(defence, settings) {
   const value = { CURRENT: `${current}`, CURRENT_OF_BASE: `${current}/${base}`, PERCENT: percent, CURRENT_AND_PERCENT: `${current} (${percent})` }[settings.valueFormat];
   const drain = drained <= 0 || settings.drainFormat === "NONE" ? "" : settings.drainFormat === "PERCENT" ? ` -${percentOf(drained, base)}%` : ` -${drained}`;
   const textColor = defenceColor(defence, settings);
-  const segments = [{ text: value, color: textColor }];
+  // A segment with `icon` is drawn as that picture, in the line of the text (rendering.js).
+  const segments = [...(settings.showIcon ? [{ icon: defenceIcon, text: "" }] : []), { text: value, color: textColor }];
   if (drain) segments.push({ text: drain, color: toHexColor(settings.drainColor) });
   return { text: value + drain, textColor, segments };
 }
+
+const defenceIcon = "/assets/ui/skill-defence.png";
 
 // The engine whose NPCs are read: the application's (application.js).
 let getEngine = () => null;
@@ -151,7 +156,7 @@ export function getDefenceTrackerInfoboxes(npcs) {
     const { name, base, current, drained } = defence;
     boxes.push({
       id: "defence-tracker-" + id,
-      spriteUrl: "/assets/ui/skill-defence.png",
+      spriteUrl: defenceIcon,
       text: { CURRENT: `${current}`, PERCENT: percentOf(current, base) + "%", DRAINED: `${drained}` }[settings.infoBoxValue],
       textColor: defenceColor(defence, settings),
       tooltipTitle: "Defence Tracker",

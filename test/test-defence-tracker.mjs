@@ -35,6 +35,7 @@ assert.equal(format({ valueFormat: "CURRENT_AND_PERCENT", drainFormat: "NONE" })
 assert.equal(format({}, { base: 200, current: 200, floor: 0, drained: 0 }), "200");
 assert.equal(format({ valueFormat: "PERCENT" }, { base: 0, current: 0, floor: 0, drained: 0 }), "0%");
 assert.deepEqual(formatDefence(drained, defaults).segments, [
+  { icon: "/assets/ui/skill-defence.png", text: "" },
   { text: "142", color: "#FFFFFF" },
   { text: " -58", color: "#AD1459" },
 ]);
@@ -75,6 +76,9 @@ assert.deepEqual(getDefenceTrackerInfoboxes(published), [
   { id: "defence-tracker-boss", spriteUrl: "/assets/ui/skill-defence.png", text: "158", textColor: "#FFFFFF", tooltipTitle: "Defence Tracker", tooltipDetail: "Yama: 158/225 Defence (-67)" },
 ]);
 assert.deepEqual({ ...getDefenceOverhead("boss"), segments: undefined }, { text: "158 -67", textColor: "#FFFFFF", segments: undefined, position: "ABOVE_HP_BAR", yOffset: 0 });
+defenceTrackerStore.setSettings({ ...defaults, showIcon: false });
+assert.deepEqual(getDefenceOverhead("boss").segments.map((segment) => segment.text), ["158", " -67"]);
+defenceTrackerStore.setSettings(defaults);
 setNpcDefenceDrain(boss, 67 + 47 + 33);
 assert.equal(getDefenceOverhead("boss").text, "145 -80");
 assert.equal(getDefenceOverhead("boss").textColor, "#579549");
