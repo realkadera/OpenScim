@@ -369,7 +369,8 @@ var CombatSystem = class {
         damageBonusPercent: attack.damageBonusPercent,
         prayerCheckAt: attack.prayerCheckAt ?? "launch",
         // What the encounter's playerDamageOnNpc reads at impact; kept only when it has one.
-        ...(combatContext.playerDamageOnNpc ? { weaponId: attack.weaponId, spellId: attack.spellId } : {}),
+        ...(combatContext.playerDamageOnNpc ? { weaponId: attack.weaponId, spellId: attack.spellId,
+          ...(attack.protectedByNpcPrayer === undefined ? {} : { protectedByNpcPrayer: attack.protectedByNpcPrayer }) } : {}),
         judgedProtectionPrayer: this.getActivePrayer(target),
         applyPoison: attack.applyPoison,
         usingSpecialAttack: attack.usingSpecialAttack,
@@ -515,6 +516,7 @@ var CombatSystem = class {
                 prayerCheckAt: pendingHit.prayerCheckAt,
                 weaponId: pendingHit.weaponId,
                 spellId: pendingHit.spellId,
+                ...(pendingHit.protectedByNpcPrayer === undefined ? {} : { protectedByNpcPrayer: pendingHit.protectedByNpcPrayer }),
               },
               {
                 ...combatContext,
@@ -733,6 +735,7 @@ var CombatSystem = class {
         onKillEffect: resolvedAttack.onKillEffect,
         postHitEffects: resolvedAttack.postHitEffects,
         weaponId: resolvedAttack.weaponId,
+        ...(resolvedAttack.protectedByNpcPrayer === undefined ? {} : { protectedByNpcPrayer: resolvedAttack.protectedByNpcPrayer }),
         ammoId: resolvedAttack.ammoId,
         ammoSource: resolvedAttack.ammoSource,
         expectedHit: resolvedAttack.expectedHit,

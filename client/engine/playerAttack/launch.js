@@ -419,6 +419,7 @@ function launchPlayerAttack(attack) {
       procSpotAnimId: primaryLanded ? primaryHit.procSpotAnimId : undefined,
       equipmentHitEffects: equipmentHitEffects,
       weaponId: attack.player.equipment.weapon,
+      ...(primaryHit.protectedByNpcPrayer === undefined ? {} : { protectedByNpcPrayer: primaryHit.protectedByNpcPrayer }),
       ammoId: attack.resources.kind === "ammo" ? attack.resources.ammoId : undefined,
       ammoSource: attack.resources.source,
       expectedHit: attack.expectedHit,
@@ -505,6 +506,7 @@ function launchPlayerAttack(attack) {
                 : rollSpellSecondaryEffects(attack.spellId, random, attack.player.equipment),
               equipmentHitEffects: equipmentHitEffects,
               weaponId: attack.player.equipment.weapon,
+              ...(hit.protectedByNpcPrayer === undefined ? {} : { protectedByNpcPrayer: hit.protectedByNpcPrayer }),
               ammoId:
                 "ammo" === attack.resources.kind ? attack.resources.ammoId : undefined,
               ammoSource: attack.resources.source,
@@ -544,6 +546,7 @@ function launchPlayerAttack(attack) {
           postHitEffects: rollPostHitEffects(),
           equipmentHitEffects: equipmentHitEffects,
           ...(attack.deps.encounterRules?.playerDamageOnNpc ? { weaponId: attack.player.equipment.weapon, spellId: attack.spellId } : {}),
+          ...(primaryHit.protectedByNpcPrayer === undefined ? {} : { protectedByNpcPrayer: primaryHit.protectedByNpcPrayer }),
           sourceSelfDamageRatio:
             !forcedMiss && followUpHit.accurate ? followUpHit.procSelfDamageRatio : undefined,
           launchDamageMultipliers: {
@@ -597,8 +600,16 @@ function healPlayerFromDamageDealt(attack, launchHeal, damage) {
   attack.player.stats.hitpoints.current = attack.player.vitals.hp;
 }
 function isAttackRejectedByEncounter(attack, target, hit) {
-  return (
-    attack.deps.encounterRules?.validateAttack?.(hit.attackKind, target.id, {
+  const rules = attack.deps.encounterRules;
+  if (rules?.isPlayerAttackProtected) {
+    hit.protectedByNpcPrayer = rules.isPlayerAttackProtected(hit.style, target, {
+      tick: attack.deps.world.tick,
+      player: attack.player,
+      world: attack.deps.world,
+    }) === true;
+  }
+  return hit.protectedByNpcPrayer === true || (
+    rules?.validateAttack?.(hit.attackKind, target.id, {
       tick: attack.deps.world.tick,
       player: attack.player,
       world: attack.deps.world,
