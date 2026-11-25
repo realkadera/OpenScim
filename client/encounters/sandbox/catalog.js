@@ -73,6 +73,8 @@ export const sandboxCatalogExclusions = {
   12214: "the Leviathan never leaves its pool and has no walk: it is fought in its own arena",
   12825: "the healing totem of a Colosseum modifier: it heals and never moves",
   14709: "the Doom of Mokhaiotl burrowed: the Doom himself under the floor, between his shield and his surfacing",
+  15742: "the Maggot King fights from behind a row of bones, and most of his attacks are his floor's (bile, carrion, slams): he is fought in his own lair",
+  15743: "the Ur-maggot larvae have no attack of their own: they fly in from the King's screeches and leech a player under them",
 };
 
 export const sandboxNpcCatalog = curatedNpcCatalog;
