@@ -39,7 +39,14 @@ var variantArrowsByItemId = {
   },
 };
 var atlatlWeaponIds = new Set([29000, 29851]);
-var arrowWeaponIds = new Set([11235, 20997, 27610, 29591]);
+var arrowWeaponIds = new Set([6724, 11235, 20997, 27610, 29591]);
+// WIKI: the Seercull "fires arrows up to Amethyst", so not dragon arrows.
+var arrowsUpToAmethystWeaponIds = new Set([6724]);
+var DRAGON_ARROW_ID = 11212;
+function isDragonArrow(ammoId) {
+  const baseArrowId = variantArrowsByItemId[ammoId]?.baseArrowId ?? ammoId;
+  return baseArrowId === DRAGON_ARROW_ID || /^dragon /i.test(getEquipmentDefinition(baseArrowId)?.name ?? "");
+}
 var standardBoltWeaponIds = new Set([9185]);
 var dragonBoltWeaponIds = new Set([11785, 26374]);
 var arrowNamePattern =
@@ -82,7 +89,7 @@ function isAmmoCompatibleWithWeapon(weaponId, ammoId) {
   if (atlatlWeaponIds.has(baseWeaponId)) {
     return ammoKind === "atlatl_dart";
   } else if (arrowWeaponIds.has(baseWeaponId)) {
-    return ammoKind === "arrow";
+    return ammoKind === "arrow" && !(arrowsUpToAmethystWeaponIds.has(baseWeaponId) && isDragonArrow(ammoId));
   } else if (standardBoltWeaponIds.has(baseWeaponId)) {
     return ammoKind === "standard_bolt";
   } else {

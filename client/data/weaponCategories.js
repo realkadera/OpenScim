@@ -629,6 +629,7 @@ var weaponCategoryByItemId = {
   25741: "scythe",
   28543: "scythe",
   28545: "scythe",
+  6724: "bow", // Seercull
   11235: "bow",
   20997: "bow",
   23983: "bow",
