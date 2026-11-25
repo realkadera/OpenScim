@@ -44105,6 +44105,11 @@ var Q_ = class {
     this._L();
   }
   get FL() {
+    // Optional: a stance an encounter names (render config `playerStances`, state `playerStance`).
+    const stance = this.stanceName && this.animationSet.stances?.[this.stanceName];
+    if (stance) {
+      return stance;
+    }
     if (
       !this.primaryAnimCompleted &&
       this.primaryIsConsume &&
@@ -45962,6 +45967,18 @@ var SceneCompositor = class e {
             idleTurnLeft: this.xD(g, "standTurn"),
             idleTurnRight: this.xD(g, "standTurn"),
           };
+          // Optional: the other stances an encounter's render config names (`playerStances`: a name to the
+          // sequence of each slot). Its state's `playerStance` picks one each frame; no fight without the
+          // field is changed.
+          const stances = this.encounterRenderConfig?.playerStances;
+          if (stances) {
+            d.stances = {};
+            for (const [name, slots] of Object.entries(stances)) {
+              d.stances[name] = Object.fromEntries(
+                Object.entries(slots).map(([slot, seqId]) => [slot, this.BD(seqId)]),
+              );
+            }
+          }
           const c = new WF(
             a.mergedModel,
             e,
@@ -47287,6 +47304,9 @@ var SceneCompositor = class e {
     let $;
     let V;
     let K;
+    if (this.playerAnimController) {
+      this.playerAnimController.stanceName = simulationState.encounter?.state?.playerStance ?? null;
+    }
     const shove = simulationState.encounter?.state?.waveShove;
     if (shove && shove.tick === currentTick) {
       const fraction = Math.max(0, Math.min(1, (interpolatedTick ?? currentTick) - currentTick));
