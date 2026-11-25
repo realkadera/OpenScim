@@ -23,6 +23,7 @@ import {
   applySpecialAttackEffects,
 } from "../specialAttacks.js";
 import { NO_ATTACK_RESOURCES, resolveAttackResources } from "../attackResources.js";
+import { getAmmoRefusalMessage } from "../ammunition.js";
 import { isConflictionGauntletsAttack, isSameConflictionAttack } from "./projection.js";
 import { getChinchompaAreaConfig } from "./formula.js";
 import { planPlayerAttack, summarizePrimaryHitAccuracy, rollAttackPlanOutcome } from "./planPlayerAttack.js";
@@ -910,7 +911,12 @@ function performPlayerAutoAttack(player, deps) {
         activeSpell: activeSpell?.name ?? null,
       });
   if (resources.kind === "unavailable") {
-    if (manualCastSpell) {
+    // Ammunition the weapon cannot fire: the game says so and the attack is given up, as there.
+    const ammoRefusal = manualCastSpell ? null : getAmmoRefusalMessage(player.equipment.weapon, (deps.combatSupplies.equippedAmmo ?? deps.combatSupplies.quiverAmmo)?.id);
+    if (ammoRefusal) {
+      deps.tickEvents.emit({ type: "game_message", kind: "game", segments: [{ text: ammoRefusal }] });
+    }
+    if (manualCastSpell || ammoRefusal) {
       clearPlayerAttackTarget(player);
     }
     return;

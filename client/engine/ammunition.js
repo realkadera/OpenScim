@@ -96,4 +96,16 @@ function isAmmoCompatibleWithWeapon(weaponId, ammoId) {
     return dragonBoltWeaponIds.has(baseWeaponId) && (ammoKind === "standard_bolt" || ammoKind === "dragon_bolt");
   }
 }
-export { variantArrowsByItemId, isArrowOrBolt, weaponRequiresAmmo, isAmmoCompatibleWithWeapon };
+// What the game says of ammunition a weapon cannot fire, where that is known:
+// arrows above the bow's (the Seercull with dragon arrows). The text is the
+// game's as remembered, not recorded (inferred). Null for anything else, a
+// weapon with no ammunition included: those stay as silent as they were.
+function getAmmoRefusalMessage(weaponId, ammoId) {
+  if (weaponId === undefined || ammoId === undefined || ammoId === null) {
+    return null;
+  }
+  return arrowsUpToAmethystWeaponIds.has(getBaseItemId(weaponId)) && getAmmoKind(ammoId) === "arrow" && isDragonArrow(ammoId)
+    ? "Your bow isn't powerful enough for those arrows."
+    : null;
+}
+export { variantArrowsByItemId, isArrowOrBolt, weaponRequiresAmmo, isAmmoCompatibleWithWeapon, getAmmoRefusalMessage };

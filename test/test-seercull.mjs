@@ -13,7 +13,7 @@ globalThis.location ??= { pathname: "/" };
 const { selectPlayerAttackProfile } = await import("../client/engine/playerAttack/profiles.js");
 const { getSpecialAttackDefinition } = await import("../client/data/specialAttackDefinitions.js");
 const { getWeaponCategory } = await import("../client/data/weaponCategories.js");
-const { isAmmoCompatibleWithWeapon, weaponRequiresAmmo } = await import("../client/engine/ammunition.js");
+const { isAmmoCompatibleWithWeapon, weaponRequiresAmmo, getAmmoRefusalMessage } = await import("../client/engine/ammunition.js");
 
 const SEERCULL = 6724;
 const TWISTED_BOW = 20997;
@@ -27,6 +27,13 @@ assert.ok(isAmmoCompatibleWithWeapon(SEERCULL, arrows.amethyst));
 assert.ok(!isAmmoCompatibleWithWeapon(SEERCULL, arrows.dragon));
 assert.ok(!isAmmoCompatibleWithWeapon(SEERCULL, arrows.seekingDragon));
 assert.ok(isAmmoCompatibleWithWeapon(TWISTED_BOW, arrows.dragon)); // the other bows as before
+// Arrows above the bow's are refused in words; nothing else is.
+const tooStrong = "Your bow isn't powerful enough for those arrows.";
+assert.equal(getAmmoRefusalMessage(SEERCULL, arrows.dragon), tooStrong);
+assert.equal(getAmmoRefusalMessage(SEERCULL, arrows.seekingDragon), tooStrong);
+assert.equal(getAmmoRefusalMessage(SEERCULL, arrows.amethyst), null);
+assert.equal(getAmmoRefusalMessage(SEERCULL, undefined), null);
+assert.equal(getAmmoRefusalMessage(TWISTED_BOW, arrows.dragon), null);
 
 // The special: all the energy, and the damage off the Magic, only while that is undrained.
 assert.deepEqual(getSpecialAttackDefinition(SEERCULL), {
@@ -79,7 +86,7 @@ try {
   await page.goto("http://127.0.0.1:8791/zebak/");
   await page.waitForFunction(() => window.engine, null, { timeout: 60000 });
   await page.locator(".loading-screen").waitFor({ state: "hidden", timeout: 120000 });
-  const result = await page.evaluate((amethystArrow) => {
+  const result = await page.evaluate(([amethystArrow, dragonArrow]) => {
     const player = engine.player();
     const zebak = engine.worldState.getNpcs().find((npc) => npc.role === "boss");
     engine.setMechanicsConfig({ ...engine.mechanicsConfig, infiniteHealth: true, infiniteSpecialAttack: false });
@@ -89,9 +96,11 @@ try {
     engine.queueEquipAmmoFromInventory(1, amethystArrow);
     engine.advanceTick(player.position);
     const hits = [];
+    const messages = [];
     const emit = engine.tickEvents.emit.bind(engine.tickEvents);
     engine.tickEvents.emit = (event) => {
       if (event.type === "hitsplat_spawned" && event.targetId === zebak.id) hits.push(event.amount);
+      if (event.type === "game_message") messages.push(event.segments.map((segment) => segment.text).join(""));
       return emit(event);
     };
     // A special with full energy, then ticks until its arrow lands: the first hitsplat on Zebak is the Soulshot's.
@@ -107,8 +116,20 @@ try {
     let first;
     for (let attempt = 0; attempt < 20 && !(first?.hit > 0); attempt++) first = fire();
     const second = [fire(), fire(), fire()];
-    return { weapon: player.equipment.weapon, ranged: player.stats.ranged.current, range: engine.getPlayerAttackRange(), magic: zebak.formulaStats.levels.magic, first, second };
-  }, arrows.amethyst);
+    const range = engine.getPlayerAttackRange();
+    // Dragon arrows: no shot, the game's words once, and the attack given up. The arrows in flight land first.
+    engine.queueAttackTarget(null);
+    for (let tick = 0; tick < 6; tick++) engine.advanceTick(player.position);
+    player.inventory[2] = { id: dragonArrow, quantity: 100 };
+    engine.queueEquipAmmoFromInventory(2, dragonArrow);
+    engine.advanceTick(player.position);
+    const hitsBefore = hits.length;
+    messages.length = 0;
+    engine.queueAttackTarget(zebak.id);
+    for (let tick = 0; tick < 8; tick++) engine.advanceTick(player.position);
+    const refused = { ammo: player.combatSupplies.equippedAmmo?.id, shots: hits.length - hitsBefore, messages: [...messages], target: player.attackTarget };
+    return { weapon: player.equipment.weapon, ranged: player.stats.ranged.current, range, magic: zebak.formulaStats.levels.magic, first, second, refused };
+  }, [arrows.amethyst, arrows.dragon]);
 
   assert.equal(result.weapon, SEERCULL);
   assert.equal(result.range, 8); // WIKI: 8 tiles on Accurate and Rapid
@@ -125,6 +146,7 @@ try {
     assert.equal(later.energy, 0);
     assert.equal(later.magicDrain, result.first.magicDrain);
   }
+  assert.deepEqual(result.refused, { ammo: arrows.dragon, shots: 0, messages: [tooStrong], target: null });
   assert.deepEqual(errors, []);
   console.log("seercull: ok", JSON.stringify({ first: result.first, later: result.second.map((later) => later.hit) }));
 } finally {
