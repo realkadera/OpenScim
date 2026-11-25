@@ -20,11 +20,11 @@
 // away, hardly near. A melee hit as a slam lands is a punish: it costs the
 // weapon no time and does half as much again.
 //
-// Sources: OBS is four kills (kill counts 687 to 690) of one player's
-// Outside recordings, 23 screeches and 26 larvae among them; WIKI the
-// Maggot King and its Strategies page; CACHE and tsps RSPSApp/tsps
-// docs/maggot-king.md, which read the cache and the wiki. Numbers no source
-// gives are marked inferred.
+// Sources: OBS is four kills (kill counts 686 to 689) of one player's
+// Outside recordings, 23 screeches and 26 larvae among them, and a fifth (690)
+// where it says so; WIKI the Maggot King and its Strategies page; CACHE and
+// tsps RSPSApp/tsps docs/maggot-king.md, which read the cache and the wiki.
+// Numbers no source gives are marked inferred.
 //
 // ponytail: not yet: sounds of the encounter's own (those of the sequences'
 // frames play); a punish with a weapon that is ready, which costs it nothing
@@ -65,8 +65,8 @@ const rotation = [4, 7];
 // far (8 of 8), 11 when he comes near, goes back or stays near (14 of 14).
 const afterScreech = { stay: 13, move: 11 };
 // His hitpoints as a screech starts. OBS: a larva after one at 1274, none at
-// 1302 and up (WIKI: about 1250); near after one at 983, not at 1053 and up
-// (WIKI: about 980); for good after one at 291, not at 341 and up (WIKI 305).
+// 1302 and up (WIKI: about 1250); near after one at 983, not at 1042 and up
+// (kill 690; WIKI: about 980); for good after one at 291, not at 309 and up (kill 690; WIKI 305).
 const larvaHp = 1275;
 const meleeHp = 1000;
 const finalHp = 305;

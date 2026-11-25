@@ -15,7 +15,7 @@ const poisonSeverity = 40; // 8 a hit (ceil(40 / 5)), the engine's poison scale
 // inferred: how much immunity a step takes, in the poison counter's steps of
 // 30 ticks (tsps: 45 seconds).
 const immunityEroded = 2;
-// WIKI: minor damage, drained from Attack, Strength or Defence; OBS 4 once;
+// WIKI: minor damage, drained from Attack, Strength or Defence; OBS 3 and 4 (4, 3, 4, kill 690 too);
 // tsps 2 to 4.
 const stickyDamage = [2, 4];
 const drainedStats = ["attack", "strength", "defence"];
