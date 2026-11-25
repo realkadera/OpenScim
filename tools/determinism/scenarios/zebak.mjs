@@ -10,7 +10,8 @@
 // or 1 tiles by path level. A wave is its crest and the two rows behind it: it
 // strikes a player who stands in them outside the gap, if his last step was in
 // them too, and throws him 3 rows on after the step he was making. A player
-// thrown off the platform is in the water until he wades to the ramp at x 30.
+// thrown off the platform lands on the row he swims on (45 north, 20 south), swims a tile a tick and
+// climbs out by the Rock steps (columns 29-30 north, 30-31 south).
 //
 // Timing, at path 0: Zebak acts first on tick 4 and then every 7 ticks; a spit
 // hits 8 ticks after it starts. A special's spit is animated a tick after the
@@ -237,10 +238,10 @@ export const scenarios = [
   {
     // Tidal Waves from both shores, by the rules of a recording (rev 243): a wave is its crest and the two
     // rows behind it. Struck while attacking and thrown 3 tiles; struck again a row behind the crest he
-    // ran back through (no wave skip); struck as he walks and thrown from where his step ends; a step out
+    // ran back through (no skip: no step on before it); struck as he walks and thrown from where his step ends; a step out
     // of the gap two rows behind a crest that leaves him untouched; a crest that throws him off the
     // platform into the water; bitten by the crocodile with and without Protect from Melee, a spell cast
-    // from the water, a jug action refused there, the wade along the shore and out by the ramp. A roar
+    // from the water, a jug action refused there, the swim along the row and out by the Rock steps. A roar
     // that starts while crests still cross, a jug broken with an autocast spell, a second set of crests
     // whose first he runs into from behind and is thrown off the southern edge, and enrage while they are out.
     name: "zebak/waves-swept",
@@ -258,7 +259,7 @@ export const scenarios = [
 
       // First crest: steps onto row 32 on tick 30 with the player attacking on it, strikes him on
       // tick 31 and throws him to (29,35), which drops his target. On tick 32 he runs two tiles back
-      // through it as it steps onto his row, to (29,33): no wave skip, he is one row behind the crest
+      // through it as it steps onto his row, to (29,33): no skip after a throw, he is one row behind the crest
       // and it strikes him on tick 33, to (29,36). On tick 34 he walks east for the gap and the crest
       // steps onto his row: struck on tick 35, he takes his step to (32,36) first and is thrown from there
       // to (32,39), in the gap.
@@ -269,14 +270,14 @@ export const scenarios = [
       // the gap to (31,39): his last step was in the gap, so it does not strike him.
       if (tick === 46) walkTo(api, 31, 39);
       // Third crest: steps onto his row on tick 51, strikes him on tick 52 and throws him three rows on,
-      // off the platform's edge: into the water at (31,42).
+      // off the platform's edge: into the water at (31,45).
 
       // In the water a crocodile bites every fourth tick (56, 60, 64, 68), and the only way is along the shore.
       if (tick === 53) protect(api, "ProtectMelee");
-      if (tick === 57) walkTo(api, 32, 43); // wades east to the shore tile of that column, (32,42), and stops on it
+      if (tick === 57) walkTo(api, 32, 43); // swims a tile east, to (32,45)
       if (tick === 61) attack(api, ZEBAK); // casts from the water: always a miss
       if (tick === 62) (jugAction(api, "Hit", objects(api, "jug")[0].id), protect(api, "ProtectMelee")); // refused in the water; the prayer off again
-      if (tick === 66) walkTo(api, 30, 36); // west to the ramp's column, then up the ramp
+      if (tick === 66) walkTo(api, 30, 36); // west to the Rock steps' column, a tick's wait, then up onto (30,42)
 
       // The Great Roar started on tick 44 with two crests still crossing; the roar on tick 78, its damage on
       // ticks 82, 84 and 86.
@@ -288,9 +289,9 @@ export const scenarios = [
       if (tick === 92) walkTo(api, 30, 34);
       if (tick >= 105 && tick < 119) dodge(api); // lets the first crest pass in its gap
       if (tick === 120) walkTo(api, 36, 26); // runs into the two rows behind the first crest, by the southern edge:
-      // struck on tick 123 and thrown off the platform, into the water on row 23
+      // struck on tick 123 and thrown off the platform, into the water on row 20
       if (tick === 137) setBossHp(api, 140); // under 25%: enrage, the crests still out vanish
-      if (tick === 139) walkTo(api, 30, 30); // out by the southern ramp
+      if (tick === 139) walkTo(api, 30, 30); // out by the southern Rock steps
     },
   },
   {
