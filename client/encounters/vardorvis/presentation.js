@@ -1,9 +1,11 @@
 // What draws Vardorvis: the default scene, with what it has to load, and the
-// strangle's overlay (strangle.js) brought in step with the fight every frame.
+// strangle's overlay (strangle.js) brought in step with the fight every frame;
+// and the head's sounds that are in no animation (audio.js).
 import { buildScene } from "../shared/buildScene.js";
 import { bossStart, ids, seqs, spots, vardorvisKind, vardorvisMapSquare } from "./encounter.js";
 import { disposeStrangle, setStrangleTools, syncStrangle } from "./strangle.js";
 import { drawHulls, removeHulls, withHighlights } from "./highlights.js";
+import { vardorvisAudio } from "./audio.js";
 
 const renderConfig = {
   terrainMapSquare: vardorvisMapSquare,
@@ -49,6 +51,7 @@ export const vardorvisPresentation = (BaseScene, packHsl, { widgetModelView } = 
     setStrangleTools({ widgetModelView, playSound: (soundId) => context?.eventAudioPlayer?.engine?.play(soundId, { channel: "sfx" }, "vardorvis-strangle") });
     return buildScene(VardorvisScene, renderConfig, context);
   },
+  audio: vardorvisAudio,
   defaultCamera: { yaw: 180, pitch: -45, zoom: 320 },
   presentation: {
     title: "Vardorvis",

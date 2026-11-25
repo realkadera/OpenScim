@@ -4,6 +4,7 @@ import { soundEffectResponse, soundEffectUrl } from "/audio/soundEffects.js";
 import { colosseumLobbyLabel, getLobbyFights } from "/encounters/colosseum/lobby.js";
 import { loadSandboxCode } from "/encounters/sandbox/menuImport.js";
 import { attackRangesOptions, attackRangesDefaults, updateAttackRanges, listenForAttackRangesHotkey, describeHotkey } from "/plugins/attackRanges.js";
+import { projectileOverrideOptions, projectileOverrideDefaults, updateProjectileOverride } from "/plugins/projectileOverride.js";
 import { thrallSpells, THRALL_END_SOUND_ID } from "/engine/thralls.js";
 const zebakSoundSearch = location.pathname === "/zebak/" ? new URLSearchParams(location.search).get("sound") : null;
 import { toEsModule } from "./rolldown-runtime.js";
@@ -8859,6 +8860,11 @@ var Bde = [
   qde(
     "Prayer Flick Helper",
     "Draws the last three game ticks as bars, newest at the top. Each prayer you toggle is marked where it landed inside its tick: <b>above</b> the line for a prayer going on, <b>below</b> it for one going off. With input lag configured, a trail runs back to where you toggled it.",
+  ),
+  qde(
+    "Projectile Override",
+    "Draws a boss's projectiles as another boss's, as the RuneLite plugin does, for players who find some hard to tell apart by colour or shape. Choose a boss for each boss, or <b>Random</b>. Purely visual.",
+    "projectileOverride",
   ),
   qde(
     "Status Bars",
@@ -22862,6 +22868,16 @@ var Yme = [
         "prayer timing",
       ],
     }),
+    $me("projectileOverride", "Projectile Override", {
+      description: "Draws a boss's projectiles as another boss's projectiles.",
+      keywords: ["projectile", "colorblind", "colourblind", "accessibility", "recolor", "recolour", "swap projectiles"],
+    }),
+    ...projectileOverrideOptions.map((option) =>
+      _me("projectileOverride", "Projectile Override", option.label, {
+        description: option.info,
+        keywords: [],
+      }),
+    ),
     $me("statusBars", "Status Bars", {
       description:
         "Hitpoints and prayer bars either side of the inventory panel.",
@@ -25146,14 +25162,16 @@ function ife({ pluginKey: pluginKey, options: options, onChange: onChange }) {
     ],
   });
 }
-function AttackRangesSettings({ pluginKey: pluginKey, options: options, onChange: onChange }) {
+// The options of a plugin that lists them as data: Attack Ranges by default,
+// Projectile Override with its own list (its options have no section).
+function AttackRangesSettings({ pluginKey: pluginKey, options: options, onChange: onChange, optionList = attackRangesOptions, defaults = attackRangesDefaults, sections = ["Options", "Styles"] }) {
   const set = (key, value) => onChange({ ...options, [key]: value });
   const row = (option, label, control) =>
     (0, jsxRuntime.jsx)(
       f5,
       {
-        isModified: options[option.key] !== attackRangesDefaults[option.key],
-        onReset: () => set(option.key, attackRangesDefaults[option.key]),
+        isModified: options[option.key] !== defaults[option.key],
+        onReset: () => set(option.key, defaults[option.key]),
         searchId: gs(pluginKey, option.label),
         children: (0, jsxRuntime.jsxs)("div", {
           className: "plugin-setting-row",
@@ -25175,8 +25193,8 @@ function AttackRangesSettings({ pluginKey: pluginKey, options: options, onChange
       return (0, jsxRuntime.jsx)(
         f5,
         {
-          isModified: value !== attackRangesDefaults[option.key],
-          onReset: () => set(option.key, attackRangesDefaults[option.key]),
+          isModified: value !== defaults[option.key],
+          onReset: () => set(option.key, defaults[option.key]),
           searchId: gs(pluginKey, option.label),
           children: (0, jsxRuntime.jsx)("div", {
             title: option.info,
@@ -25293,20 +25311,21 @@ function AttackRangesSettings({ pluginKey: pluginKey, options: options, onChange
     );
   };
   return (0, jsxRuntime.jsx)(jsxRuntime.Fragment, {
-    children: ["Options", "Styles"].map((section) =>
+    children: sections.map((section) =>
       (0, jsxRuntime.jsxs)(
         "div",
         {
           className: "plugin-group",
           children: [
-            (0, jsxRuntime.jsx)("div", {
-              className: "plugin-group-label",
-              children: section,
-            }),
-            ...attackRangesOptions.filter((option) => option.section === section).map(control),
+            section &&
+              (0, jsxRuntime.jsx)("div", {
+                className: "plugin-group-label",
+                children: section,
+              }),
+            ...optionList.filter((option) => option.section === section).map(control),
           ],
         },
-        section,
+        section ?? "options",
       ),
     ),
   });
@@ -25527,6 +25546,10 @@ var cfe = (0, React.memo)(
     onAttackRangesToggle: onAttackRangesToggle,
     attackRanges: attackRanges,
     onAttackRangesChange: onAttackRangesChange,
+    projectileOverrideEnabled: projectileOverrideEnabled,
+    onProjectileOverrideToggle: onProjectileOverrideToggle,
+    projectileOverride: projectileOverride,
+    onProjectileOverrideChange: onProjectileOverrideChange,
     prayerEnabled: prayerEnabled,
     onPrayerToggle: onPrayerToggle,
     prayerFlickOrbEnabled: prayerFlickOrbEnabled,
@@ -27796,6 +27819,23 @@ var cfe = (0, React.memo)(
                       pluginKey: "prayerFlickHelper",
                       isOn: prayerFlickEnabled,
                       onToggle: onPrayerFlickToggle,
+                    }),
+                    (0, jsxRuntime.jsx)(efe, {
+                      label: "Projectile Override",
+                      pluginKey: "projectileOverride",
+                      isOn: projectileOverrideEnabled,
+                      onToggle: onProjectileOverrideToggle,
+                      hasSettings: true,
+                      expanded: l6.projectileOverride,
+                      onToggleExpand: () => lx("projectileOverride"),
+                      children: (0, jsxRuntime.jsx)(AttackRangesSettings, {
+                        pluginKey: "projectileOverride",
+                        options: projectileOverride,
+                        onChange: onProjectileOverrideChange,
+                        optionList: projectileOverrideOptions,
+                        defaults: projectileOverrideDefaults,
+                        sections: [null],
+                      }),
                     }),
                     (0, jsxRuntime.jsx)(efe, {
                       label: "Status Bars",
@@ -49543,6 +49583,8 @@ function eCe({ devHarness: devHarness } = {}) {
     interfaceStylesHdHealthBars: interfaceStylesHdHealthBars,
     attackRangesEnabled: attackRangesEnabled,
     attackRanges: attackRanges,
+    projectileOverrideEnabled: projectileOverrideEnabled,
+    projectileOverride: projectileOverride,
     prayerEnabled: prayerEnabled,
     prayerFlickOrbEnabled: prayerFlickOrbEnabled,
     prayerFlickAlwaysOn: prayerFlickAlwaysOn,
@@ -52737,6 +52779,9 @@ function eCe({ devHarness: devHarness } = {}) {
     simulationState.playerPosition,
     simulationState.npcs,
   ]);
+  (0, React.useEffect)(() => {
+    updateProjectileOverride({ enabled: projectileOverrideEnabled, settings: projectileOverride });
+  }, [projectileOverrideEnabled, projectileOverride]);
   const rM = h3.KyWIA(displayOverlays2, ow);
   const rN = null !== displayOverlays2;
   const rO = (0, React.useMemo)(() => {
@@ -54668,6 +54713,11 @@ function eCe({ devHarness: devHarness } = {}) {
                 hS("attackRangesEnabled", !attackRangesEnabled),
               attackRanges: attackRanges,
               onAttackRangesChange: (sP) => hS("attackRanges", sP),
+              projectileOverrideEnabled: projectileOverrideEnabled,
+              onProjectileOverrideToggle: () =>
+                hS("projectileOverrideEnabled", !projectileOverrideEnabled),
+              projectileOverride: projectileOverride,
+              onProjectileOverrideChange: (sP) => hS("projectileOverride", sP),
               prayerEnabled: prayerEnabled,
               onPrayerToggle: () => hS("prayerEnabled", !prayerEnabled),
               prayerFlickOrbEnabled: prayerFlickOrbEnabled,

@@ -54,9 +54,12 @@ const originalSiteConverter = (
 // effect itself asks for less. CACHE, 10352: one noise oscillator at volume 10
 // of 100 under an envelope that peaks at 7638 of 65535, which is 381 of 32768;
 // its filter (one zero pair, magnitude 0.53) raises that to 891 at most, and
-// 891 is 4 of 128.
+// 891 is 4 of 128. CACHE, 3052 (a bubble of 0.1 seconds): one sine oscillator at
+// volume 20 of 100 under an envelope that peaks at 35914 of 65535, which is 3590
+// of 32768; its volume is modulated by a noise that does not move on in that
+// time and halves it, and the filter leaves 1486 of that, which is 5 of 128.
 const AUDIBLE = 12;
-const faint = new Map([[10352, 4]]);
+const faint = new Map([[10352, 4], [3052, 5]]);
 
 test("every sound effect in the trimmed cache synthesizes to audible PCM", async () => {
   assert.equal(SAMPLE_RATE, 22050);
