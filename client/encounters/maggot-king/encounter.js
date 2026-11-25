@@ -27,11 +27,9 @@
 // Numbers no source gives are marked inferred.
 //
 // ponytail: not yet: sounds of the encounter's own (those of the sequences'
-// frames play); a punish with a weapon that is ready, which costs it nothing
-// either (OBS), but here starts its cooldown (the engine asks an encounter
-// only while one runs). The engine applies no elemental weakness: the fire
-// weakness is the encounter's own, as near to the wiki's as a rule of the
-// encounter can get (updateStats, playerDamage).
+// frames play). The engine applies no elemental weakness: the fire weakness is
+// the encounter's own, as near to the wiki's as a rule of the encounter can
+// get (updateStats, playerDamage).
 import { getMonsterFormulaStats, getMonsterHitpoints } from "../../engine/monsterStats.js";
 import { createSeededRandom } from "../../engine/random.js";
 import { applyBurnStack } from "../../engine/specialAttacks.js";
@@ -492,6 +490,7 @@ class MaggotKingEncounter {
     return {
       playerDamageOnNpc: (damage, { target, attack }) => this.playerDamage(damage, target, attack),
       playerAttackOnCooldown: (target, tick) => this.attackOnCooldown(target, tick),
+      playerAttackKeepsReady: (target, tick) => this.isPunish(target, tick),
       playerAlwaysAccurate: (context, attack) => this.alwaysAccurate(context, attack),
     };
   }
@@ -512,8 +511,13 @@ class MaggotKingEncounter {
     const player = this.world?.getPlayer();
     const style = playerFormulaStyle(player);
     if (target.id !== this.lastTargetId && this.shootsLarva(target, tick, style, player?.equipment?.weapon)) return { keepCooldown: true };
-    if (target.id === bossActorId && this.isSlamTick(tick) && style.startsWith("melee")) return { keepCooldown: true };
+    if (this.isPunish(target, tick)) return { keepCooldown: true };
     return undefined;
+  }
+  // OBS: it costs a weapon that is ready nothing either: 6 of 47 punishes with
+  // a 7-tick greataxe, which swung again 2 ticks later in 5 of them.
+  isPunish(target, tick) {
+    return target.id === bossActorId && this.isSlamTick(tick) && playerFormulaStyle(this.world?.getPlayer()).startsWith("melee");
   }
   // A standard ranged hit on a larva in the air never misses (WIKI: it dies of it).
   // inferred: a crush punish never misses either (WIKI: crush gets "a
