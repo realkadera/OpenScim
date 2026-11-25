@@ -127,7 +127,7 @@ export const zebakPresentation = (BaseScene) => ({
     layerName: "zebak",
     rules: {
       inferno_visual: {
-        preloadIds: [5860, 5836, 5845, 5904, 5838, 5851, 5863, 5829, 5881, 5888, 5852, 102, 5908, 5909, 5867, 5882, 5880, 5868, 5913],
+        preloadIds: [5860, 5836, 5845, 5904, 5838, 5851, 5863, 5829, 5881, 5888, 5852, 102, 5908, 5909, 5867, 5882, 5880, 5868, 5913, 5843, 1678],
         resolve(event) {
           if (event.greatRoarStart) return {kind: "play", sound: [
             {id: 5845, delayCycles: 32, channel: "sfx"},
@@ -144,9 +144,12 @@ export const zebakPresentation = (BaseScene) => ({
           if (event.acidLanded) return {kind: "play", sound: {id: 5909, delayCycles: 1, channel: "sfx"}};
           if (event.graphics?.some(cue => cue.spotAnimId === 2195)) {
             const delay = event.shoreSoundDelayCycles ?? 0;
+            // OBS (20261125-160410-Tombs-of-Amascut.jsonl.gz, ticks 155, 307, 427): with the boulders 1678 and
+            // the sweep 5882, and 200 cycles on the rocks' impact on the water, 5843.
             return {kind: "play", sound: [
+              {id: 1678, delayCycles: delay, channel: "sfx"},
               {id: 5882, delayCycles: delay, channel: "sfx"},
-              {id: 5880, delayCycles: delay + 200, channel: "sfx"},
+              {id: 5843, delayCycles: delay + 200, channel: "sfx"},
             ]};
           }
           if (event.graphics?.length === 1 && event.graphics[0].spotAnimId === 2449)
