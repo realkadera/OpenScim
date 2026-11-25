@@ -180,13 +180,16 @@ try {
       assert.equal(wave.position[1],35);
       assert.equal(wave.previous[1],32);
       assert.deepEqual(wave.path,[wave.position]);
-      await page.waitForFunction(() => window.shoveFrame?.position[1] % 1 !== 0 && window.shoveFrame);
+      await page.waitForFunction(() => window.shoveFrame);
       const frame = await page.evaluate(() => window.shoveFrame);
       assert.equal(frame.facing, frame.shove.facing);
       assert.equal(frame.walking, false);
       assert.equal(frame.running, false);
-      assert.ok(frame.position[1] > frame.shove.from[1] && frame.position[1] < frame.shove.to[1]);
-      console.log("Wave threw the player 3 tiles mid-frame with locked facing, without walking, and reduced HP");
+      // OBS (20261125-195433-zebak-wave.jsonl.gz, ticks 149, 150, 156, 158): he is put on the throw's last tile
+      // in the cycle of the hitsplat, not slid there: mid-tick he is drawn on it.
+      assert.deepEqual(frame.position, frame.shove.to);
+      assert.deepEqual(frame.shove.from, frame.shove.to);
+      console.log("Wave put the player 3 tiles on at once, drawn there mid-tick with locked facing, without walking, and reduced HP");
       await page.evaluate(() => {
         const phases = engine.encounter.phases;
         for (let i = 0; i < 14 && phases.waveFronts.length < 3; i++) engine.advanceTick(engine.player().position);
@@ -196,7 +199,7 @@ try {
         const models = scene.npcInstanceManager.instanceRegistry;
         return fronts.length === 3 && fronts.every((front, i) => i === 0 || Math.abs(front.y - fronts[i-1].y) === 7) &&
           fronts.every(front => front.actors.every(({actor}) => actor.position[1] === front.y &&
-            models.get(actor.id)?.npcTypeId === 11738));
+            [11738, 11739].includes(models.get(actor.id)?.npcTypeId)));
       }, undefined, {timeout:5000});
       await page.screenshot({path: "evidence/zebak-tidal-fronts.png"});
       console.log("Three tidal rows simultaneously rendered their own wave NPCs seven tiles apart");
