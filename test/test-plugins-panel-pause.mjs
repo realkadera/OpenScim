@@ -52,8 +52,34 @@ try {
   await page.waitForSelector(".plugins-overlay.open", { state: "detached" });
   await runs(heldAgain);
 
+  // The scene says why it stands still (client/plugins/pluginsPausedHint.js):
+  // no label with the panel closed, one with it open.
+  const label = page.locator(".plugins-paused-hint");
+  const pulsing = () => page.evaluate(() => [".plugins-paused-hint", ".plugins-overlay .panel-close-button"].map((selector) => document.querySelector(selector).classList.contains("plugins-paused-pulse")));
+  assert.equal(await label.count(), 0);
+  await page.click('[data-tutorial="plugins-button"]');
+  await page.waitForSelector(".plugins-overlay.open");
+  assert.equal(await label.textContent(), "Paused – close Plugins to resume");
+  // It is over the scene, clear of the panel.
+  const [labelBox, panelBox] = [await label.boundingBox(), await page.locator(".plugins-overlay").boundingBox()];
+  assert.ok(labelBox.x + labelBox.width < panelBox.x, "the label lies under the Plugins panel");
+  // A click on the scene pulses the label and the panel's close button; the other buttons turn the camera and do not.
+  assert.deepEqual(await pulsing(), [false, false]);
+  await page.mouse.click(420, 620, { button: "middle" });
+  assert.deepEqual(await pulsing(), [false, false]);
+  await page.mouse.click(420, 620);
+  assert.deepEqual(await pulsing(), [true, true]);
+  // The label is a button that closes the panel; it goes with it and the fight runs.
+  await page.waitForTimeout(TICK_MS);
+  const heldUnderLabel = await tick();
+  await label.click();
+  await page.waitForSelector(".plugins-overlay.open", { state: "detached" });
+  assert.equal(await label.count(), 0);
+  assert.equal(await page.locator(".plugins-paused-pulse").count(), 0);
+  await runs(heldUnderLabel);
+
   assert.deepEqual(errors, []);
-  console.log("Plugins panel: the fight holds while it is open and runs once it is closed");
+  console.log("Plugins panel: the fight holds while it is open, the scene says so, and it runs once the panel is closed");
 } finally {
   await browser.close();
 }
