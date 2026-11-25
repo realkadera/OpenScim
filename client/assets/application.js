@@ -19735,6 +19735,7 @@ function Bpe(h2) {
 var zpe = ({
   cacheState: cacheState,
   isFullyLoaded: isFullyLoaded,
+  isSceneReady: isSceneReady,
   onRetry: onRetry,
 }) => {
   const [h6, h7] = (0, React.useState)(true);
@@ -19905,12 +19906,16 @@ var zpe = ({
     if (isFullyLoaded) {
       hj.current = 100;
       hy();
+      // Fades out as soon as the renderer's onSceneReady has fired (terrain,
+      // player, NPCs and locs loaded), or 1800 ms after loading if it never
+      // does, as before. Unmounts after the 1.5 s fade in application.css.
+      const hC = isSceneReady ? 0 : 1800;
       const hA = setTimeout(() => {
         h9(true);
-      }, 1800);
+      }, hC);
       const hB = setTimeout(() => {
         h7(false);
-      }, 3300);
+      }, hC + 1500);
       return () => {
         clearTimeout(hA);
         clearTimeout(hB);
@@ -19918,7 +19923,7 @@ var zpe = ({
     }
     h9(false);
     h7(true);
-  }, [isFullyLoaded, hy]);
+  }, [isFullyLoaded, isSceneReady, hy]);
   if (h6) {
     return (0, jsxRuntime.jsx)("div", {
       className: "loading-screen " + (h8 ? "hidden" : ""),
@@ -51409,6 +51414,7 @@ function eCe({ devHarness: devHarness } = {}) {
     prayerPresentation: prayerPresentation,
     quickPrayersActive: quickPrayersActive,
     setEngine: setEngine,
+    isSceneReady: isSceneReady,
     setIsSceneReady: setIsSceneReady,
     setSimulationState: setSimulationState,
     setTargetTile: setTargetTile,
@@ -53674,6 +53680,7 @@ function eCe({ devHarness: devHarness } = {}) {
         (0, jsxRuntime.jsx)(zpe, {
           cacheState: cacheDownloadState,
           isFullyLoaded: isFullyLoaded,
+          isSceneReady: isSceneReady,
           onRetry: handleCacheRetry,
         }),
         (0, jsxRuntime.jsx)(tme, {
