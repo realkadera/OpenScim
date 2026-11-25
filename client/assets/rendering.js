@@ -32167,6 +32167,9 @@ var BD = {
   25892: xD(1933, 1932),
   25896: xD(1935, 1934),
 };
+// Presentations may supply visuals for encounter weapons without putting their
+// item IDs in this shared renderer. Empty for existing encounters.
+var encounterWeaponVisuals = new Map();
 function WD(e, a) {
   return {
     attackAnimation: e,
@@ -32232,6 +32235,8 @@ function FD(e, a, t = false) {
   }
   const n = getBaseItemId(e);
   const s = n !== e ? n : getCanonicalEquipmentId(e);
+  const encounterVisual = encounterWeaponVisuals.get(e) ?? encounterWeaponVisuals.get(s);
+  if (encounterVisual && !t) return encounterVisual;
   if (t) {
     const a = PD[e] ?? PD[s];
     if (a) {
@@ -57852,6 +57857,10 @@ var KV = [
     },
   },
 ];
+for (const entry of KV) {
+  for (const [itemId, visual] of Object.entries(entry.weaponVisuals ?? {}))
+    encounterWeaponVisuals.set(Number(itemId), visual);
+}
 var qV = new Map(
   KV.flatMap((e) => {
     const a = registeredEncounterDefinitions.find((a) => a.kind === e.kind);
