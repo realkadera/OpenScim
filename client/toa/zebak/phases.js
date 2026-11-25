@@ -17,6 +17,7 @@ const crestColumns = [19, 39];
 const gapStart = { first: 23, count: 11 };
 // OBS (REC, spit animations at ticks 148, 300, 420): the spit is animated one tick after the special starts
 // (see begin), the boulders fall 8 ticks after it starts and the crests rise 15, 22 and 29 ticks after.
+const cloudDeath = { animation: 2, gone: 5, sequence: 8103 };
 const waveTicks = { boulders: 8, crests: [15, 22, 29], over: 54 };
 // OBS (rev 243 recording, 2026-11-25): the boulders, splashes and every crest
 // of a Tidal Waves start on local row 21 when they run north and on row 43
@@ -38,8 +39,8 @@ export const phaseModels = [
   { npcTypeId: 11736, idleSeqId: -1, walkSeqId: 6 },
   { npcTypeId: 11737, idleSeqId: -1 },
   { npcTypeId: 11738, idleSeqId: 7877, walkSeqId: 7877, spawnSeqId: 7878 },
-  { npcTypeId: 11742, idleSeqId: 8102, walkSeqId: 8101 },
-  { npcTypeId: 11743, idleSeqId: 8102, walkSeqId: 8101 },
+  { npcTypeId: 11742, idleSeqId: 8102, walkSeqId: 8101, deathSeqId: 8103 },
+  { npcTypeId: 11743, idleSeqId: 8102, walkSeqId: 8101, deathSeqId: 8103 },
 ];
 // All seven variants are cache locs. Keep the same mesh until the pool is cleared.
 const acidVariants = [45570, 45571, 45574, 45575, 45570, 45574, 45572, 45573, 45576, 45571, 45575, 45570];
@@ -445,17 +446,51 @@ export class ZebakPhases {
       }
     }
   }
-  clouds(context, player) {
+  // OBS (REC, the twelve clouds of ticks 150, 363, 525 and 672, Blood Thinners on):
+  // - a cloud appears on a tile of columns 28-30, rows 24-26 or 38-40, two may share one, and first moves
+  //   3 ticks later, a tile a tick, onto the player's own tile;
+  // - from its 4th tick it loses 2 hitpoints every tick, moving or not, so 30 last 15 ticks;
+  // - the tick after it reaches his tile it hits him (2, 4 or 7 at raid level 370: 1-3 before the raid
+  //   level, 9 hits), heals itself half of that with a heal hitsplat, and loses nothing the tick after;
+  //   it stays on that tile for 2 more ticks and then follows him again (ticks 538-544);
+  // - Zebak's hitpoints never rose with a cloud's hit. inferred: only Arterial Spray heals him by it;
+  // - at 0 it stops, plays 8103 two ticks later and is gone three ticks after that (ticks 168-173).
+  clouds(context, player, hits = [], settings = {}, boss = null) {
     for (const c of this.of("cloud")) {
-      const [x, y] = c.actor.position;
-      const size = c.actor.size;
+      const {actor} = c;
+      if (c.diedTick !== undefined) {
+        if (context.tick === c.diedTick + cloudDeath.animation) actor.combat.animations.idle = cloudDeath.sequence;
+        if (context.tick >= c.diedTick + cloudDeath.gone) this.remove(context, c);
+        continue;
+      }
+      const age = context.tick - actor.spawnTick;
+      const {vitals, size} = actor;
+      if (c.contactDue === context.tick) {
+        const damage = scaleToaDamage(1 + Math.floor(this.random() * 3), this.raid);
+        hits.push(hazard("Blood cloud", damage));
+        const heal = Math.floor(damage / 2);
+        if (heal > 0) {
+          vitals.hp = Math.min(vitals.maxHp, vitals.hp + heal);
+          context.tickEvents.emit({type: "hitsplat_spawned", targetId: actor.id, amount: heal, hitsplatType: "heal"});
+        }
+        if (settings.spray && boss) boss.vitals.hp = Math.min(boss.vitals.maxHp, boss.vitals.hp + 4);
+        c.decayResumes = context.tick + 2;
+      }
+      if (age >= 4 && !(context.tick < c.decayResumes && c.contactDue !== context.tick)) {
+        const loss = Math.min(vitals.hp, 2);
+        vitals.hp -= loss;
+        context.tickEvents.emit({type: "hitsplat_spawned", targetId: actor.id, amount: loss, hitsplatType: "damage"});
+        if (vitals.hp === 0) {
+          c.diedTick = context.tick;
+          c.destination = null;
+          continue;
+        }
+      }
+      if (age < 3 || context.tick <= c.restsUntil) continue;
+      const [x, y] = actor.position;
       const offset = offsetFromFootprint([x, y], size, player.position);
-      c.contactOrigin = [x, y];
-      // The true tile starts moving three ticks after the cloud becomes visible.
-      if (context.tick - c.actor.spawnTick < 3 || c.pendingTravelDamage >= c.actor.vitals.hp) continue;
-      const touching = offset.every(v => Math.abs(v) <= 1);
-      const dx = c.aggro ? (touching ? 0 : Math.sign(offset[0])) : Math.floor(this.random() * 3) - 1;
-      const dy = c.aggro ? (touching ? 0 : Math.sign(offset[1])) : Math.floor(this.random() * 3) - 1;
+      const dx = c.aggro ? Math.sign(offset[0]) : Math.floor(this.random() * 3) - 1;
+      const dy = c.aggro ? Math.sign(offset[1]) : Math.floor(this.random() * 3) - 1;
       const step = [[x + dx, y + dy], [x + dx, y], [x, y + dy]]
         .find(position => distance(position, [x, y]) && this.land(position));
       if (step && !this.of("rock").some(r =>
@@ -463,47 +498,27 @@ export class ZebakPhases {
         this.move(c, step);
     }
   }
-  resolveCloudContact(context, settings) {
+  // After everything has moved: a cloud that now covers the player's tile hits him next tick and rests.
+  resolveCloudContact(context) {
     const player = context.world.actors.get("player");
     const boss = context.world.actors.get("zebak");
-    const hits = [];
-    if (!player?.alive || !boss?.alive) return hits;
+    if (!player?.alive || !boss?.alive) return [];
     for (const c of this.of("cloud")) {
-      if (!c.contactOrigin) continue;
-      const {position, size, vitals} = c.actor;
-      const steps = distance(c.contactOrigin, position);
-      c.contactOrigin = null;
-      const completedTravelDamage = c.pendingTravelDamage ?? 0;
-      c.pendingTravelDamage = 2 * steps;
-      if (completedTravelDamage > 0) {
-        // Show the 2 when the cloud arrives, one tick after its true tile advances.
-        const loss = Math.min(vitals.hp, completedTravelDamage);
-        vitals.hp -= loss;
-        context.tickEvents.emit({type: "hitsplat_spawned", targetId: c.actor.id, amount: loss, hitsplatType: "damage"});
-        if (vitals.hp === 0) {
-          this.remove(context, c);
-          continue;
-        }
-      }
-      if (c.pendingTravelDamage < vitals.hp && c.aggro &&
-        offsetFromFootprint(position, size, player.position).every(v => Math.abs(v) <= 1)) {
-        hits.push(hazard("Blood cloud", 2));
-        vitals.hp = Math.min(vitals.maxHp, vitals.hp + 2);
-        boss.vitals.hp = Math.min(
-          boss.vitals.maxHp,
-          boss.vitals.hp + (settings.spray ? 4 : 2),
-        );
-      }
+      if (c.diedTick !== undefined || !c.aggro || context.tick <= c.restsUntil) continue;
+      if (context.tick - c.actor.spawnTick < 3) continue;
+      if (!offsetFromFootprint(c.actor.position, c.actor.size, player.position).every(v => v === 0)) continue;
+      c.contactDue = context.tick + 1;
+      c.restsUntil = context.tick + 2;
     }
-    return hits;
+    return [];
   }
   summonClouds(context, settings, player) {
     const south = this.random() < 0.5;
-    // Uninterrupted travel in the game recording: the normal cloud takes
-    // twelve 2s and a final 1. Thinned clouds take fifteen 2s each.
+    // Uninterrupted in the game recording: the normal cloud takes twelve 2s and a final 1.
+    // Thinned clouds take fifteen 2s each.
     const maxHp = settings.clouds ? 30 : 25;
     for (let i = 0; i < settings.cloudCount; i++) {
-      const p = [29 + i, south ? 24 : 40],
+      const p = [28 + Math.floor(this.random() * 3), (south ? 24 : 38) + Math.floor(this.random() * 3)],
         cloud = this.spawn(context, "cloud", settings.clouds ? 11743 : 11742, p, maxHp);
       cloud.aggro = distance(p, player.position) <= 15;
     }
@@ -682,7 +697,7 @@ export class ZebakPhases {
       });
     }
     this.stepJugs(context, settings, player);
-    this.clouds(context, player);
+    this.clouds(context, player, hits, settings, boss);
     // OBS (REC, ticks 167, 168 and 178, raid level 370): a tick on a pool hit 19, the next tick 22, and a
     // later single tick 14, each as a poison hitsplat: no climb from 2. inferred from those three: 6-9
     // before the raid level, which gives 14-22 there.
