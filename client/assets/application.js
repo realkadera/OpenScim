@@ -31251,7 +31251,9 @@ function dye(h2) {
 function uye(h2) {
   return dye(h2.canonicalPath ?? h2.path);
 }
-function hye({ path: path }) {
+// memo: a pure function of `path` (the encounter list is fixed at load);
+// it rebuilt the whole route list with every tick.
+var hye = (0, React.memo)(function hye({ path: path }) {
   const h4 = lye(path);
   const h5 = sye().filter((h6) => !h6.noindex);
   return (0, jsxRuntime.jsxs)("section", {
@@ -31284,7 +31286,7 @@ function hye({ path: path }) {
       }),
     ],
   });
-}
+});
 function pye({ doc: h2, className: h3 = "" }) {
   return (0, jsxRuntime.jsx)("a", {
     className: ("legal-links__link " + h3).trim(),
