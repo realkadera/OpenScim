@@ -45,24 +45,27 @@ try {
   });
   assert.deepEqual(setup, { weapon: 26374, shield: 21000, items: 28, ammo: 21944, scythe: 22325 });
 
-  // To the first screech's carrion: his spits leave bile, the screech's piles
-  // break into carrion, each drawn as the loc the game uses on its tile.
-  const floor = await page.evaluate(() => {
-    engine.setMechanicsConfig({ ...engine.mechanicsConfig, infiniteHealth: true });
-    for (let tick = 0; tick < 80 && engine.getEncounterSnapshot().state.carrion.length === 0; tick++) engine.advanceTick(engine.player().position);
-    const encounter = engine.getEncounterSnapshot();
-    const drawn = scene.sceneObjectController.update({ state: { encounter }, interpolatedTick: engine.worldState.tick });
-    const { poisonBile, stickyBile, carrion } = encounter.state;
-    const lying = [...poisonBile, ...stickyBile, ...carrion];
-    return {
-      carrion: carrion.length > 0,
-      bile: poisonBile.length + stickyBile.length > 0,
-      drawn: drawn.length === lying.length,
-      locs: [...new Set(drawn.map((object) => object.data.locId))].sort(),
-      tiles: drawn.every((object, n) => object.data.localX === lying[n][0] && object.data.localY === lying[n][1]),
-    };
-  });
-  assert.deepEqual(floor, { carrion: true, bile: true, drawn: true, locs: [33423, 33425], tiles: true });
+  // To his first spit's bile, then to the first screech's carrion (which may
+  // cover every bile): each drawn as the loc the game uses on its tile.
+  await page.evaluate(() => engine.setMechanicsConfig({ ...engine.mechanicsConfig, infiniteHealth: true }));
+  const until = (what) =>
+    page.evaluate((what) => {
+      for (let tick = 0; tick < 80 && engine.getEncounterSnapshot().state[what].length === 0; tick++) engine.advanceTick(engine.player().position);
+      const encounter = engine.getEncounterSnapshot();
+      const drawn = scene.sceneObjectController.update({ state: { encounter }, interpolatedTick: engine.worldState.tick });
+      const { poisonBile, stickyBile, carrion } = encounter.state;
+      const lying = [...poisonBile, ...stickyBile, ...carrion];
+      return {
+        lies: encounter.state[what].length > 0,
+        drawn: drawn.length === lying.length,
+        locs: [...new Set(drawn.map((object) => object.data.locId))].sort(),
+        tiles: drawn.every((object, n) => object.data.localX === lying[n][0] && object.data.localY === lying[n][1]),
+      };
+    }, what);
+  assert.deepEqual(await until("poisonBile"), { lies: true, drawn: true, locs: [33423], tiles: true });
+  const { locs, ...carrion } = await until("carrion");
+  assert.deepEqual(carrion, { lies: true, drawn: true, tiles: true });
+  assert.ok(locs.includes(33425) && locs.every((id) => id === 33423 || id === 33425), locs.join());
 
   // Below a fifth his next screech launches four larvae, two a side; they come down over the bones.
   const larvae = await page.evaluate(() => {
