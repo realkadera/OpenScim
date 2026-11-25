@@ -310,6 +310,10 @@ function applySpecialAttackEffects(attacker, target, damage, specialEffects, tic
         }
         break;
       case "drain_magic": {
+        // `onlyIfUndrained`: nothing while the Magic is already under its level (Seercull's Soulshot).
+        if (specialEffect.onlyIfUndrained && (target.debuffs.magicDrain ?? 0) > 0) {
+          break;
+        }
         const extraMagicDrain = specialEffect.base + Math.floor((damage * specialEffect.percentOfDamage) / 100);
         target.debuffs.magicDrain = (target.debuffs.magicDrain ?? 0) + extraMagicDrain;
         break;

@@ -38,6 +38,10 @@ function planPlayerAttack(attackInput, consumeGuaranteedMaximum, forceGuaranteed
     soulreaperStacks: getSoulreaperStackCount(attackInput.player.soulreaper),
     combatStyle: getSelectedCombatStyle(attackInput.player),
     targetDistance: attackInput.targetDistance,
+    // The Ranged strength of the ammunition alone, for a hit that takes no other (Seercull's Soulshot).
+    ...(attackInput.resources?.kind === "ammo"
+      ? { ammoRangedStrength: attackInput.lookupItemStats?.(attackInput.resources.ammoId)?.rangedStrength }
+      : {}),
   });
   if (null === profile) {
     return null;

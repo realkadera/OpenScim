@@ -691,6 +691,9 @@ function selectBaseProfile(canonicalInput) {
     if (zaryteCrossbowIdSet.has(canonicalInput.weaponId)) {
       return buildZaryteEvokeProfile(canonicalInput);
     }
+    if (canonicalInput.weaponId === SEERCULL_ID) {
+      return buildSeercullSoulshotProfile(canonicalInput);
+    }
     const specialAttackProfile = specialAttackProfileByWeaponId.get(canonicalInput.weaponId);
     if (undefined !== specialAttackProfile) {
       return specialAttackProfile;
@@ -973,6 +976,9 @@ function appendProfileMultiplierStage(profile, stageRatio) {
   }
 }
 function prependMaxHitStage(maxHitSpec, stageRatio) {
+  if (maxHitSpec.kind === "fixed") {
+    return maxHitSpec;
+  }
   if (maxHitSpec.kind === "base") {
     return {
       kind: "staged",
@@ -986,6 +992,9 @@ function prependMaxHitStage(maxHitSpec, stageRatio) {
   }
 }
 function appendMaxHitStage(maxHitSpec, stageRatio) {
+  if (maxHitSpec.kind === "fixed") {
+    return maxHitSpec;
+  }
   if ("base" === maxHitSpec.kind) {
     return {
       kind: "staged",
@@ -1140,6 +1149,33 @@ function getEnchantedBoltProc(profileInput, guaranteed = false) {
 }
 // Zaryte crossbow's Evoke: doubled accuracy, and the bolt's effect certain on
 // an accurate hit (WIKI: Zaryte crossbow, Special attacks).
+// Seercull's Soulshot. WIKI: "guaranteed to hit", and its damage "only
+// boosted strictly through ammunition and visible range level": Maximum Hit =
+// floor(0.5 + (Visible Ranged Level + 10) * (Ammo Ranged Strength + 64) / 640),
+// "a stance bonus of 10 ... regardless of attack style used". Prayers, Void,
+// the Slayer helmet and every other Ranged strength have no part in it, so
+// the maximum is the profile's own and no stage is put on it.
+var SEERCULL_ID = 6724;
+function getSeercullSoulshotMaxHit(visibleRangedLevel, ammoRangedStrength) {
+  return Math.floor((320 + (visibleRangedLevel + 10) * (ammoRangedStrength + 64)) / 640);
+}
+function buildSeercullSoulshotProfile(profileInput) {
+  return {
+    kind: "singleHit",
+    maxHit: {
+      kind: "fixed",
+      maxHit: getSeercullSoulshotMaxHit(profileInput.playerRangedLevel ?? 1, profileInput.ammoRangedStrength ?? 0),
+    },
+    hit: {
+      accuracy: {
+        kind: "guaranteed",
+      },
+      damage: {
+        kind: "uniformToMaxHit",
+      },
+    },
+  };
+}
 function buildZaryteEvokeProfile(profileInput) {
   const formulaStages = computeFormulaStages(toFormulaStageInput(profileInput));
   return {

@@ -520,6 +520,24 @@ var specialAttackDefinitionByWeaponId = {
   861: {
     animationId: 426,
   },
+  // Seercull, Soulshot. WIKI: "consumes 100% of the player's special attack
+  // energy", "is guaranteed to hit" and "lowers the opponent's Magic level
+  // equal to damage dealt", and "will only drain the opponent's Magic level
+  // if it is not already reduced". The hit and its damage are the profile's
+  // (playerAttack/profiles.js). Animation: the bows' own shot, as the other
+  // bows here; the special's own graphics are not drawn (not looked up).
+  6724: {
+    energyCost: 100,
+    animationId: 426,
+    postHitEffects: [
+      {
+        effect: "drain_magic",
+        base: 0,
+        percentOfDamage: 100,
+        onlyIfUndrained: true,
+      },
+    ],
+  },
   12788: {
     animationId: 426,
   },

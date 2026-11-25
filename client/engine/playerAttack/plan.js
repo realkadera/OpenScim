@@ -393,6 +393,9 @@ function resolveProfileMaxHit(baseMaxHit, maxHitSpec) {
       return baseMaxHit;
     case "staged":
       return applyRatioStages(baseMaxHit, maxHitSpec.stages);
+    // A maximum of the profile's own, which the formula's has no part in (Seercull's Soulshot).
+    case "fixed":
+      return maxHitSpec.maxHit;
     default:
       return maxHitSpec;
   }
