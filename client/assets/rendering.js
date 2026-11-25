@@ -15201,6 +15201,8 @@ var gy = class e {
     ce(this, "sorterPitchSin", 0);
     ce(this, "sorterPitchCos", 1);
     ce(this, "visibleParts", new Map());
+    // Keyed by a part's positions: see cachedVisibility.
+    ce(this, "visibilityRecords", new WeakMap());
     ce(this, "renderFrame", 0);
     ce(this, "batchFamilies", []);
     ce(this, "batchParts", new Map());
@@ -16182,6 +16184,15 @@ var gy = class e {
       this.Ak(e.meshId, t, l, o, r, i);
       return true;
     }
+    const cachedVisible = e.animated
+      ? undefined
+      : this.cachedVisibility(positions3, transparentSort3, t, l, o, a.position);
+    if (cachedVisible !== undefined) {
+      if (cachedVisible) {
+        this.Ak(e.meshId, t, l, o, r, i);
+      }
+      return cachedVisible;
+    }
     const h = this.yk(a.position[0], a.position[1], a.position[2]);
     this.lk(this.sortModelMatrix, a);
     const f = this.zk(transparentSort3, positions3, this.sortModelMatrix);
@@ -16410,10 +16421,67 @@ var gy = class e {
         }
         return Ib(x);
       })(transparentSort3.triToModelFace, f, h).length > 0;
+    if (!e.animated) {
+      this.storeVisibility(positions3, transparentSort3, t, l, o, a.position, u);
+    }
     if (u && !e.animated) {
       this.Ak(e.meshId, t, l, o, r, i);
     }
     return u;
+  }
+  // The answer of ck for a part that is not animated, kept across frames: it
+  // depends only on the part's geometry, its transform and the camera, so it
+  // is reused while all of them are exactly as they were.
+  cachedVisibility(e, a, t, n, s, r) {
+    const records = this.visibilityRecords.get(e);
+    if (!records) {
+      return undefined;
+    }
+    for (const i of records) {
+      if (
+        i.transparentSort === a &&
+        i.yaw === t &&
+        i.pitch === n &&
+        i.scale === s &&
+        i.x === r[0] &&
+        i.y === r[1] &&
+        i.z === r[2] &&
+        i.cameraX === this.sorterCameraX &&
+        i.cameraY === this.sorterCameraY &&
+        i.cameraZ === this.sorterCameraZ &&
+        i.yawSin === this.sorterYawSin &&
+        i.yawCos === this.sorterYawCos &&
+        i.pitchSin === this.sorterPitchSin &&
+        i.pitchCos === this.sorterPitchCos
+      ) {
+        return i.visible;
+      }
+    }
+    return undefined;
+  }
+  storeVisibility(e, a, t, n, s, r, l) {
+    let records = this.visibilityRecords.get(e);
+    if (!records) {
+      records = [];
+      this.visibilityRecords.set(e, records);
+    }
+    const i = records.length < 4 ? {} : records.shift();
+    i.transparentSort = a;
+    i.yaw = t;
+    i.pitch = n;
+    i.scale = s;
+    i.x = r[0];
+    i.y = r[1];
+    i.z = r[2];
+    i.cameraX = this.sorterCameraX;
+    i.cameraY = this.sorterCameraY;
+    i.cameraZ = this.sorterCameraZ;
+    i.yawSin = this.sorterYawSin;
+    i.yawCos = this.sorterYawCos;
+    i.pitchSin = this.sorterPitchSin;
+    i.pitchCos = this.sorterPitchCos;
+    i.visible = l;
+    records.push(i);
   }
   wk(e, a, t, n, s, r) {
     const i = this.visibleParts.get(e);
