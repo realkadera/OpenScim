@@ -97,4 +97,24 @@ assert.deepEqual(getDefenceTrackerInfoboxes([{ id: "boss", alive: false }]), [])
 boss.debuffs.defenceDrain = 0;
 assert.deepEqual(ids(), []);
 
+// Magic, which an NPC defends a spell with: shown beside the Defence once it is drained, and not before.
+const { readMagic, formatMagic } = await import("../client/plugins/defenceTracker.js");
+defenceTrackerStore.setSettings(defaults);
+boss.formulaStats.levels.magic = 250;
+assert.deepEqual(readMagic(boss), { base: 250, current: 250, drained: 0 });
+assert.deepEqual(ids(), []);
+boss.debuffs.magicDrain = 37; // the Accursed sceptre's 15% of 250 (WIKI: Condemn drains Defence and Magic by 15%)
+boss.debuffs.defenceDrain = 33; // and of 225
+assert.deepEqual(ids(), ["defence-tracker-boss", "magic-tracker-boss"]);
+assert.equal(getDefenceOverhead("boss").text, "192/225 (-33)  213/250 (-37)");
+assert.equal(formatMagic(readMagic(boss), defaults).textColor, "#5AA0FF");
+assert.equal(getDefenceTrackerInfoboxes(published)[1].tooltipDetail, "Yama: 213/250 Magic, its defence against spells (-37)");
+assert.deepEqual(formatMagic(readMagic(boss), defaults).segments.map((segment) => segment.icon ?? segment.text), ["/assets/ui/skill-magic.png", "213/250", " (-37)"]);
+// A drain of Magic alone has the NPC tracked.
+boss.debuffs.defenceDrain = 0;
+assert.equal(getDefenceOverhead("boss").text, "225/225  213/250 (-37)");
+// Switched off, Magic is not shown and does not make an NPC tracked.
+defenceTrackerStore.setSettings({ ...defaults, magic: false });
+assert.deepEqual(ids(), []);
+
 console.log("defence tracker ok");
