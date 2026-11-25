@@ -2,11 +2,19 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { runScenario, loadEnvironment } from "../tools/determinism/harness.mjs";
 
-await loadEnvironment(); // the client uses web-root imports resolved by the harness loader
+const { rendering } = await loadEnvironment(); // the client uses web-root imports resolved by the harness loader
 const { corruptedHunllefPresentation } = await import("../client/encounters/corrupted-hunllef/presentation.js");
 
 const practice = (seed, ticks, extra = {}) => ({ name: "hunllef-attack-test", kind: "corrupted_hunllef",
   seed, ticks, mechanics: { infiniteHealth: true, ...extra }, script() {} });
+
+test("corrupted staff and bow retain their crystal projectiles", () => {
+  for (let offset = 0; offset < 3; offset++) {
+    assert.equal(rendering.FD(23852 + offset)?.projectileId, 1723);
+    assert.equal(rendering.FD(23855 + offset)?.projectileId, 249);
+    assert.equal(rendering.FD(23855 + offset)?.hitSpotanim, 250);
+  }
+});
 
 test("scene resolves its render config with audible Hunllef cues", () => {
   const calls = [];

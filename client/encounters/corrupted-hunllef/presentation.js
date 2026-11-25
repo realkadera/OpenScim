@@ -21,6 +21,19 @@ export function withFinalPhaseSafeMarkers(input) {
 }
 
 const identity = new Float32Array([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
+// CACHE: corrupted staff graphics; inferred cast trajectory from the local
+// Gauntlet controller. The bow uses CACHE crystal arrow 249 and hit graphic
+// 250, with ordinary ranged timing (its impact use remains provisional).
+const staffVisual = { attackAnimation: 1167, castSpotanim: 1722, castSpotanimHeight: 92,
+  projectileId: 1723, projectileStartHeight: 43, projectileEndHeight: 31,
+  projectileSlope: 15, projectileStartDelay: 23, hitSpotanim: 1724,
+  hitSpotanimHeight: 60, sourceName: "Corrupted staff" };
+const bowVisual = { attackAnimation: 426, castSpotanim: -1, castSpotanimHeight: 96,
+  projectileId: 249, projectileStartHeight: 163, projectileEndHeight: 146,
+  projectileSlope: 15, projectileStartDelay: 41, hitSpotanim: 250, hitSpotanimHeight: 144 };
+const weaponVisuals = Object.fromEntries([0, 1, 2].flatMap(offset => [
+  [23852 + offset, staffVisual], [23855 + offset, bowVisual], // TABLE: corrupted weapon IDs by tier
+]));
 const floorScene = (eventAudioPlayer) => ({
   playedEvents: new Set(),
   consumeEvents(events) {
@@ -60,7 +73,7 @@ const renderConfig = {
   spotAnimIds: [1722, 1723, 1724, 249, 250, 1712, 1708, 1714, 1710, 1716, 1718], // CACHE: weapons and Hunllef projectiles
 };
 export const corruptedHunllefPresentation = BaseScene => ({
-  kind, renderConfig,
+  kind, renderConfig, weaponVisuals,
   sceneBuilder(context) {
     class HunllefScene extends BaseScene {
       build(input, ...rest) { return super.build(withFinalPhaseSafeMarkers(input), ...rest); }
