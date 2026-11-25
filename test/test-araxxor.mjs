@@ -108,8 +108,12 @@ try {
   await page.waitForFunction(() => engine.getEncounterOutcome().phase === "victory" && document.body.innerText.includes("ARAXXOR DEFEATED"), null, { timeout: 120000 });
   const cleared = await page.evaluate(() => engine.getEncounterSnapshot().state.pools.length);
   assert.equal(cleared, 0);
-  const drawn = await page.evaluate(() => [...scene.npcInstanceManager.instanceRegistry, ...[...scene.npcInstanceManager.dyingInstances].map(([id, { instance }]) => [id, instance])].map(([, { npcTypeId }]) => npcTypeId));
-  assert.deepEqual(drawn.filter((type) => [13668, enragedType, 13669].includes(type)), [13669]);
+  // The victory screen can come a frame before the scene has put his dead body
+  // in the place of the enraged one: wait for the scene, then look.
+  const bodies = (types) => [...scene.npcInstanceManager.instanceRegistry, ...[...scene.npcInstanceManager.dyingInstances].map(([id, { instance }]) => [id, instance])].map(([, { npcTypeId }]) => npcTypeId).filter((type) => types.includes(type));
+  const bodyTypes = [13668, enragedType, 13669];
+  await page.waitForFunction(`(${bodies})(${JSON.stringify(bodyTypes)}).join() === "13669"`, null, { timeout: 60000 });
+  assert.deepEqual(await page.evaluate(`(${bodies})(${JSON.stringify(bodyTypes)})`), [13669]);
   assert.deepEqual(errors, []);
   console.log("Araxxor loaded on /araxxor/, was drawn with his eggs and acid, enraged and was won");
 } finally {
