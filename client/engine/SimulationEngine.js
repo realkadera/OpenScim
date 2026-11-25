@@ -944,6 +944,7 @@ var SimulationEngine = class {
       },
       npcMovements: npcMovements,
       setProtectionPrayer: setProtectionPrayer,
+      deactivateAllPrayers: () => this.deactivateAllPrayers(tick),
       disableProtectionPrayersUntil: (untilTick) =>
         this.disableProtectionPrayersUntil(untilTick),
       teleportPlayer: (position, facing) => this.teleportPlayer(position, facing),
@@ -2997,7 +2998,7 @@ var SimulationEngine = class {
     })
       ? "steady_state"
       : "single_roll";
-    return computeTheoreticalDps({
+    const projection = computeTheoreticalDps({
       player: player,
       target: target,
       formulaStyle: formulaStyle,
@@ -3030,6 +3031,13 @@ var SimulationEngine = class {
         target.size,
       ),
     });
+    if (projection && encounterRules?.isPlayerAttackProtected?.(formulaStyleToAttackStyle(formulaStyle), target,
+      { tick: this.worldState.tick, player, world: this.worldState }) === true) {
+      return { ...projection, dps: 0, maxHit: 0, expectedAppliedDamagePerAttack: 0,
+        maximumAppliedDamagePerAttack: 0,
+        hits: projection.hits.map(hit => ({ ...hit, expectedAppliedDamage: 0, maximumAppliedDamage: 0 })) };
+    }
+    return projection;
   }
   setAttackTarget(targetId) {
     setPlayerAttackTarget(this.player(), this.worldState, {
@@ -3069,6 +3077,14 @@ var SimulationEngine = class {
       from: activePrayer,
       to: protectionPrayer,
     });
+  }
+  deactivateAllPrayers(tick) {
+    const player = this.player();
+    this.deactivateProtectionPrayer(tick);
+    player.offensivePrayer = null;
+    player.independentPrayers = [];
+    player.quickPrayersActive = false;
+    this.syncActivePrayerList();
   }
   getAttackTarget() {
     return this.player().attackTarget;
