@@ -1,0 +1,1058 @@
+{
+  "ele": {
+    "name": "BrowserSupportScreen",
+    "evidence": "upstream scimgg@f1cab1f src/components/BrowserSupportScreen.tsx#BrowserSupportScreen; shared strings, properties and numbers weigh 5.43: 73% of upstream's, 61% of ours"
+  },
+  "dle": {
+    "name": "ModelPreview",
+    "evidence": "upstream scimgg@f1cab1f src/components/ModelPreview.tsx#ModelPreview; shared strings, properties and numbers weigh 18.95: 100% of upstream's, 82% of ours"
+  },
+  "ule": {
+    "name": "SOUND_NAMES",
+    "evidence": "upstream scimgg@f1cab1f src/audio/soundNames.ts#SOUND_NAMES; shared strings, properties and numbers weigh 218.1: 100% of upstream's, 100% of ours"
+  },
+  "ple": {
+    "name": "SeqRow",
+    "evidence": "upstream scimgg@f1cab1f src/components/CacheExplorer.tsx#SeqRow; shared strings, properties and numbers weigh 11.07: 100% of upstream's, 98% of ours"
+  },
+  "mle": {
+    "name": "NpcAnimationBrowser",
+    "evidence": "upstream scimgg@f1cab1f src/components/CacheExplorer.tsx#NpcAnimationBrowser; shared strings, properties and numbers weigh 34.86: 100% of upstream's, 97% of ours"
+  },
+  "gle": {
+    "name": "CacheExplorer",
+    "evidence": "upstream scimgg@f1cab1f src/components/CacheExplorer.tsx#CacheExplorer; shared strings, properties and numbers weigh 104.45: 100% of upstream's, 92% of ours"
+  },
+  "yle": {
+    "name": "useCenteredModalSnap",
+    "evidence": "upstream scimgg@f1cab1f src/components/ui/useCenteredModalSnap.ts#useCenteredModalSnap; shared strings, properties and numbers weigh 5.35: 100% of upstream's, 100% of ours"
+  },
+  "ble": {
+    "name": "CreditsModal",
+    "evidence": "upstream scimgg@f1cab1f src/components/Credits/CreditsModal.tsx#CreditsModal; shared strings, properties and numbers weigh 13.43: 100% of upstream's, 89% of ours"
+  },
+  "vle": {
+    "name": "FAIL_MESSAGES",
+    "evidence": "upstream scimgg@f1cab1f src/components/DeathModal.tsx#FAIL_MESSAGES; shared strings, properties and numbers weigh 10.5: 100% of upstream's, 100% of ours"
+  },
+  "wle": {
+    "name": "SOURCE_NAMES",
+    "evidence": "upstream scimgg@f1cab1f src/components/DeathModal.tsx#SOURCE_NAMES; shared strings, properties and numbers weigh 10.26: 100% of upstream's, 100% of ours"
+  },
+  "Cle": {
+    "name": "PRAYER_SHORT",
+    "evidence": "upstream scimgg@f1cab1f src/components/DeathModal.tsx#PRAYER_SHORT; shared strings, properties and numbers weigh 2.3: 100% of upstream's, 100% of ours"
+  },
+  "Nle": {
+    "name": "DeathModal",
+    "evidence": "upstream scimgg@f1cab1f src/components/DeathModal.tsx#DeathModal; shared strings, properties and numbers weigh 33.26: 100% of upstream's, 93% of ours"
+  },
+  "Tle": {
+    "name": "ITEM_WIELD_REQUIREMENTS",
+    "evidence": "upstream scimgg@f1cab1f src/data/itemRequirements.ts#ITEM_WIELD_REQUIREMENTS; shared strings, properties and numbers weigh 31.11: 100% of upstream's, 97% of ours"
+  },
+  "$le": {
+    "name": "INFERNO_PRESETS",
+    "evidence": "upstream scimgg@f1cab1f src/data/playerPresets.ts#INFERNO_PRESETS; shared strings, properties and numbers weigh 53.05: 100% of upstream's, 100% of ours"
+  },
+  "_le": {
+    "name": "EQUIPMENT_PRESETS",
+    "evidence": "upstream scimgg@f1cab1f src/data/playerPresets.ts#EQUIPMENT_PRESETS; shared strings, properties and numbers weigh 57.8: 100% of upstream's, 83% of ours"
+  },
+  "lce": {
+    "name": "SOUND_AUDIT",
+    "evidence": "upstream scimgg@f1cab1f src/data/equipmentVerification.ts#SOUND_AUDIT; shared strings, properties and numbers weigh 1: 100% of upstream's, 100% of ours"
+  },
+  "uce": {
+    "name": "CRYSTAL_BOW_OBSERVATION",
+    "evidence": "upstream scimgg@f1cab1f src/data/equipmentVerification.ts#CRYSTAL_BOW_OBSERVATION; shared strings, properties and numbers weigh 1: 100% of upstream's, 100% of ours"
+  },
+  "kce": {
+    "name": "crystalBow",
+    "evidence": "upstream scimgg@f1cab1f src/data/equipmentVerification.ts#crystalBow; shared strings, properties and numbers weigh 1.08: 100% of upstream's, 100% of ours"
+  },
+  "Tce": {
+    "name": "VERIFIED_WEAPONS",
+    "evidence": "upstream scimgg@f1cab1f src/data/equipmentVerification.ts#VERIFIED_WEAPONS; shared strings, properties and numbers weigh 52.3: 97% of upstream's, 96% of ours"
+  },
+  "Pce": {
+    "name": "CHINCHOMPA_SOUNDS_UNMODELLED",
+    "evidence": "upstream scimgg@f1cab1f src/data/equipmentVerification.ts#CHINCHOMPA_SOUNDS_UNMODELLED; shared strings, properties and numbers weigh 1: 100% of upstream's, 100% of ours"
+  },
+  "Ice": {
+    "name": "CHINCHOMPA_GRAPHICS_UNVERIFIED",
+    "evidence": "upstream scimgg@f1cab1f src/data/equipmentVerification.ts#CHINCHOMPA_GRAPHICS_UNVERIFIED; shared strings, properties and numbers weigh 1: 100% of upstream's, 100% of ours"
+  },
+  "Ace": {
+    "name": "WEAPON_VERIFICATION_LIMITATIONS",
+    "evidence": "upstream scimgg@f1cab1f src/data/equipmentVerification.ts#WEAPON_VERIFICATION_LIMITATIONS; shared strings, properties and numbers weigh 8.6: 100% of upstream's, 95% of ours"
+  },
+  "Rce": {
+    "name": "SPECIAL_NOT_IMPLEMENTED",
+    "evidence": "upstream scimgg@f1cab1f src/data/equipmentVerification.ts#SPECIAL_NOT_IMPLEMENTED; shared strings, properties and numbers weigh 1: 100% of upstream's, 100% of ours"
+  },
+  "Lce": {
+    "name": "SPECIAL_GRAPHICS_MISSING",
+    "evidence": "upstream scimgg@f1cab1f src/data/equipmentVerification.ts#SPECIAL_GRAPHICS_MISSING; shared strings, properties and numbers weigh 1: 100% of upstream's, 100% of ours"
+  },
+  "Ece": {
+    "name": "DRAGON_BONUS_NOT_IMPLEMENTED",
+    "evidence": "upstream scimgg@f1cab1f src/data/equipmentVerification.ts#DRAGON_BONUS_NOT_IMPLEMENTED; shared strings, properties and numbers weigh 1: 100% of upstream's, 100% of ours"
+  },
+  "Dce": {
+    "name": "ARROW_GRAPHICS_UNVERIFIED",
+    "evidence": "upstream scimgg@f1cab1f src/data/equipmentVerification.ts#ARROW_GRAPHICS_UNVERIFIED; shared strings, properties and numbers weigh 1: 100% of upstream's, 100% of ours"
+  },
+  "Oce": {
+    "name": "WEAPON_VERIFICATION_GAPS",
+    "evidence": "upstream scimgg@f1cab1f src/data/equipmentVerification.ts#WEAPON_VERIFICATION_GAPS; shared strings, properties and numbers weigh 6.13: 86% of upstream's, 75% of ours"
+  },
+  "Hce": {
+    "name": "weaponCapabilityGaps",
+    "evidence": "upstream scimgg@f1cab1f src/data/equipmentSupport.ts#weaponCapabilityGaps; shared strings, properties and numbers weigh 3: 100% of upstream's, 100% of ours"
+  },
+  "qce": {
+    "name": "describeWeaponVerificationGaps",
+    "evidence": "upstream scimgg@f1cab1f src/data/equipmentSupport.ts#describeWeaponVerificationGaps; shared strings, properties and numbers weigh 1: 100% of upstream's, 100% of ours"
+  },
+  "tde": {
+    "name": "normalizeCustomEquipmentPresetMap",
+    "evidence": "upstream scimgg@f1cab1f src/data/customEquipmentPresets.ts#normalizeCustomEquipmentPresetMap; shared strings, properties and numbers weigh 1.32: 100% of upstream's, 100% of ours"
+  },
+  "ade": {
+    "name": "toRuneCatalogItem",
+    "evidence": "upstream scimgg@f1cab1f src/data/runePouch.ts#toRuneCatalogItem; shared strings, properties and numbers weigh 1.27: 100% of upstream's, 91% of ours"
+  },
+  "sde": {
+    "name": "RUNE_GROUPS",
+    "evidence": "upstream scimgg@f1cab1f src/data/runePouch.ts#RUNE_GROUPS; shared strings, properties and numbers weigh 6.54: 100% of upstream's, 100% of ours"
+  },
+  "ude": {
+    "name": "CONSUMABLE_ITEM_NAMES",
+    "evidence": "upstream scimgg@f1cab1f src/data/inventoryItemCatalog.ts#CONSUMABLE_ITEM_NAMES; shared strings, properties and numbers weigh 129.07: 100% of upstream's, 100% of ours"
+  },
+  "mde": {
+    "name": "buildCatalog",
+    "evidence": "upstream scimgg@f1cab1f src/data/inventoryItemCatalog.ts#buildCatalog; shared strings, properties and numbers weigh 3.56: 100% of upstream's, 100% of ours"
+  },
+  "xde": {
+    "name": "importInventorySetup",
+    "evidence": "upstream scimgg@f1cab1f src/data/inventorySetupIO.ts#importInventorySetup; shared strings, properties and numbers weigh 4.74: 100% of upstream's, 98% of ours"
+  },
+  "Ode": {
+    "name": "pluginRow",
+    "evidence": "upstream scimgg@f1cab1f src/tutorial/content/plugins.ts#pluginRow; shared strings, properties and numbers weigh 2.11: 100% of upstream's, 100% of ours"
+  },
+  "Fde": {
+    "name": "pluginsPanelOpen",
+    "evidence": "upstream scimgg@f1cab1f src/tutorial/content/plugins.ts#pluginsPanelOpen; shared strings, properties and numbers weigh 1: 100% of upstream's, 100% of ours"
+  },
+  "$de": {
+    "name": "pluginsButton",
+    "evidence": "upstream scimgg@f1cab1f src/tutorial/content/plugins.ts#pluginsButton; shared strings, properties and numbers weigh 2: 100% of upstream's, 89% of ours"
+  },
+  "_de": {
+    "name": "pluginsPanelSteps",
+    "evidence": "upstream scimgg@f1cab1f src/tutorial/content/plugins.ts#pluginsPanelSteps; shared strings, properties and numbers weigh 7.12: 100% of upstream's, 100% of ours"
+  },
+  "Bde": {
+    "name": "STEPS",
+    "evidence": "upstream scimgg@f1cab1f src/tutorial/content/plugins.ts#STEPS; shared strings, properties and numbers weigh 57.74: 89% of upstream's, 100% of ours"
+  },
+  "Wde": {
+    "name": "pluginsTutorial",
+    "evidence": "upstream scimgg@f1cab1f src/tutorial/content/plugins.ts#pluginsTutorial; shared strings, properties and numbers weigh 1.96: 100% of upstream's, 100% of ours"
+  },
+  "Kde": {
+    "name": "REPLAY_CONTROLS",
+    "evidence": "upstream scimgg@f1cab1f src/tutorial/content/onboarding-advanced.ts#REPLAY_CONTROLS; shared strings, properties and numbers weigh 1: 100% of upstream's, 100% of ours"
+  },
+  "Vde": {
+    "name": "CLOSE_GLYPH",
+    "evidence": "upstream scimgg@f1cab1f src/tutorial/content/onboarding-main.ts#CLOSE_GLYPH; shared strings, properties and numbers weigh 1: 100% of upstream's, 100% of ours"
+  },
+  "Yde": {
+    "name": "SETTINGS_SCOPE",
+    "evidence": "upstream scimgg@f1cab1f src/tutorial/content/onboarding-main.ts#SETTINGS_SCOPE; shared strings, properties and numbers weigh 1: 100% of upstream's, 100% of ours"
+  },
+  "rue": {
+    "name": "yamaFireballsTutorial",
+    "evidence": "upstream scimgg@f1cab1f src/tutorial/content/yama-fireballs.ts#yamaFireballsTutorial; shared strings, properties and numbers weigh 11.72: 66% of upstream's, 99% of ours"
+  },
+  "pue": {
+    "name": "yamaPerfectDodgeTutorial",
+    "evidence": "upstream scimgg@f1cab1f src/tutorial/content/yama-perfect-dodge.ts#yamaPerfectDodgeTutorial; shared strings, properties and numbers weigh 14.61: 65% of upstream's, 99% of ours"
+  },
+  "gue": {
+    "name": "yamaRotationTutorial",
+    "evidence": "upstream scimgg@f1cab1f src/tutorial/content/yama-rotation.ts#yamaRotationTutorial; shared strings, properties and numbers weigh 14.97: 75% of upstream's, 99% of ours"
+  },
+  "bue": {
+    "name": "yamaVoidFlaresTutorial",
+    "evidence": "upstream scimgg@f1cab1f src/tutorial/content/yama-voidflares.ts#yamaVoidFlaresTutorial; shared strings, properties and numbers weigh 19.46: 91% of upstream's, 98% of ours"
+  },
+  "Tue": {
+    "name": "TRAINING_COURSES",
+    "evidence": "upstream scimgg@f1cab1f src/tutorial/content/courses.ts#TRAINING_COURSES; shared strings, properties and numbers weigh 20.12: 100% of upstream's, 100% of ours"
+  },
+  "Hue": {
+    "name": "TILE_MARKER_STORAGE_KEY",
+    "evidence": "upstream scimgg@f1cab1f src/hooks/tileMarkerState.ts#TILE_MARKER_STORAGE_KEY; shared strings, properties and numbers weigh 1: 100% of upstream's, 100% of ours"
+  },
+  "Kue": {
+    "name": "copyToClipboard",
+    "evidence": "upstream scimgg@f1cab1f src/util/clipboard.ts#copyToClipboard; shared strings, properties and numbers weigh 3.33: 100% of upstream's, 100% of ours"
+  },
+  "Jue": {
+    "name": "readFromClipboard",
+    "evidence": "upstream scimgg@f1cab1f src/util/tilePackIO.ts#readFromClipboard; shared strings, properties and numbers weigh 1.25: 100% of upstream's, 100% of ours"
+  },
+  "nhe": {
+    "name": "VERIFIED_ITEM_FACTS",
+    "evidence": "upstream scimgg@f1cab1f src/components/LoadoutUnverifiedBadge.tsx#VERIFIED_ITEM_FACTS; shared strings, properties and numbers weigh 1.13: 100% of upstream's, 100% of ours"
+  },
+  "she": {
+    "name": "UnverifiedSlot",
+    "evidence": "upstream scimgg@f1cab1f src/components/LoadoutUnverifiedBadge.tsx#UnverifiedSlot; shared strings, properties and numbers weigh 7.12: 100% of upstream's, 93% of ours"
+  },
+  "che": {
+    "name": "LoadoutUnverifiedBadge",
+    "evidence": "upstream scimgg@f1cab1f src/components/LoadoutUnverifiedBadge.tsx#LoadoutUnverifiedBadge; shared strings, properties and numbers weigh 1.1: 100% of upstream's, 100% of ours"
+  },
+  "dhe": {
+    "name": "EQUIPMENT_SLOT_CELLS",
+    "evidence": "upstream scimgg@f1cab1f src/components/EquipmentSettings.tsx#EQUIPMENT_SLOT_CELLS; shared strings, properties and numbers weigh 7.45: 100% of upstream's, 100% of ours"
+  },
+  "mhe": {
+    "name": "EquipmentSettings",
+    "evidence": "upstream scimgg@f1cab1f src/components/EquipmentSettings.tsx#EquipmentSettings; shared strings, properties and numbers weigh 16.1: 100% of upstream's, 89% of ours"
+  },
+  "ghe": {
+    "name": "SLOT_INDEX_ATTRIBUTE",
+    "evidence": "upstream scimgg@f1cab1f src/components/inventorySlotDrag.ts#SLOT_INDEX_ATTRIBUTE; shared strings, properties and numbers weigh 1: 100% of upstream's, 100% of ours"
+  },
+  "yhe": {
+    "name": "RequirementChipList",
+    "evidence": "upstream scimgg@f1cab1f src/components/LoadoutPicker.tsx#RequirementChipList; shared strings, properties and numbers weigh 5.01: 100% of upstream's, 100% of ours"
+  },
+  "vhe": {
+    "name": "LoadoutTileIcons",
+    "evidence": "upstream scimgg@f1cab1f src/components/LoadoutPicker.tsx#LoadoutTileIcons; shared strings, properties and numbers weigh 2.5: 100% of upstream's, 83% of ours"
+  },
+  "whe": {
+    "name": "LoadoutStatusIcon",
+    "evidence": "upstream scimgg@f1cab1f src/components/LoadoutPicker.tsx#LoadoutStatusIcon; shared strings, properties and numbers weigh 5.09: 100% of upstream's, 91% of ours"
+  },
+  "khe": {
+    "name": "LoadoutPicker",
+    "evidence": "upstream scimgg@f1cab1f src/components/LoadoutPicker.tsx#LoadoutPicker; shared strings, properties and numbers weigh 80.2: 100% of upstream's, 95% of ours"
+  },
+  "She": {
+    "name": "DIRECTION_BY_KEY",
+    "evidence": "upstream scimgg@f1cab1f src/components/loadoutGridNavigation.ts#DIRECTION_BY_KEY; shared strings, properties and numbers weigh 4.33: 100% of upstream's, 100% of ours"
+  },
+  "Che": {
+    "name": "useGridRovingFocus",
+    "evidence": "upstream scimgg@f1cab1f src/components/loadoutGridNavigation.ts#useGridRovingFocus; shared strings, properties and numbers weigh 4.38: 100% of upstream's, 73% of ours"
+  },
+  "Ahe": {
+    "name": "PlayerSettings",
+    "evidence": "upstream scimgg@f1cab1f src/components/PlayerSettings.tsx#PlayerSettings; shared strings, properties and numbers weigh 22.62: 100% of upstream's, 65% of ours"
+  },
+  "Rhe": {
+    "name": "RUNE_SLOT_KEYS",
+    "evidence": "upstream scimgg@f1cab1f src/components/RunePouchRow.tsx#RUNE_SLOT_KEYS; shared strings, properties and numbers weigh 4: 100% of upstream's, 100% of ours"
+  },
+  "Ehe": {
+    "name": "CLEAR_CHOICE_LABEL",
+    "evidence": "upstream scimgg@f1cab1f src/components/RunePouchRow.tsx#CLEAR_CHOICE_LABEL; shared strings, properties and numbers weigh 1: 100% of upstream's, 100% of ours"
+  },
+  "Fhe": {
+    "name": "runeFace",
+    "evidence": "upstream scimgg@f1cab1f src/components/RunePouchRow.tsx#runeFace; shared strings, properties and numbers weigh 1.17: 100% of upstream's, 100% of ours"
+  },
+  "$he": {
+    "name": "RunePouchRow",
+    "evidence": "upstream scimgg@f1cab1f src/components/RunePouchRow.tsx#RunePouchRow; shared strings, properties and numbers weigh 34.13: 100% of upstream's, 89% of ours"
+  },
+  "Hhe": {
+    "name": "INVENTORY_FILTERS",
+    "evidence": "upstream scimgg@f1cab1f src/components/SlotPickerPopover.tsx#INVENTORY_FILTERS; shared strings, properties and numbers weigh 5.5: 100% of upstream's, 100% of ours"
+  },
+  "Bhe": {
+    "name": "ResultSprites",
+    "evidence": "upstream scimgg@f1cab1f src/components/SlotPickerPopover.tsx#ResultSprites; shared strings, properties and numbers weigh 2.79: 100% of upstream's, 65% of ours"
+  },
+  "zhe": {
+    "name": "SHOW_UNVERIFIED_KEY",
+    "evidence": "upstream scimgg@f1cab1f src/components/SlotPickerPopover.tsx#SHOW_UNVERIFIED_KEY; shared strings, properties and numbers weigh 1: 100% of upstream's, 100% of ours"
+  },
+  "Whe": {
+    "name": "SlotPickerPopover",
+    "evidence": "upstream scimgg@f1cab1f src/components/SlotPickerPopover.tsx#SlotPickerPopover; shared strings, properties and numbers weigh 66.02: 100% of upstream's, 93% of ours"
+  },
+  "Yhe": {
+    "name": "LoadoutIoButton",
+    "evidence": "upstream scimgg@f1cab1f src/components/EncounterLoadoutSection.tsx#LoadoutIoButton; shared strings, properties and numbers weigh 10.72: 100% of upstream's, 94% of ours"
+  },
+  "Xhe": {
+    "name": "IO_FAILED_LABEL",
+    "evidence": "upstream scimgg@f1cab1f src/components/EncounterLoadoutSection.tsx#IO_FAILED_LABEL; shared strings, properties and numbers weigh 1: 100% of upstream's, 100% of ours"
+  },
+  "Qhe": {
+    "name": "slotKey",
+    "evidence": "upstream scimgg@f1cab1f src/components/EncounterLoadoutSection.tsx#slotKey; shared strings, properties and numbers weigh 2.28: 100% of upstream's, 100% of ours"
+  },
+  "ape": {
+    "name": "SETUP_SPELLBOOK_LABELS",
+    "evidence": "upstream scimgg@f1cab1f src/components/EncounterLoadoutSection.tsx#SETUP_SPELLBOOK_LABELS; shared strings, properties and numbers weigh 1.17: 100% of upstream's, 100% of ours"
+  },
+  "ipe": {
+    "name": "SpellbookSelector",
+    "evidence": "upstream scimgg@f1cab1f src/components/EncounterLoadoutSection.tsx#SpellbookSelector; shared strings, properties and numbers weigh 7.16: 100% of upstream's, 100% of ours"
+  },
+  "ope": {
+    "name": "EncounterLoadoutSection",
+    "evidence": "upstream scimgg@f1cab1f src/components/EncounterLoadoutSection.tsx#EncounterLoadoutSection; shared strings, properties and numbers weigh 140.44: 100% of upstream's, 88% of ours"
+  },
+  "rpe": {
+    "name": "EncounterSetupNotes",
+    "evidence": "upstream scimgg@f1cab1f src/components/EncounterSetupNotes.tsx#EncounterSetupNotes; shared strings, properties and numbers weigh 3.43: 100% of upstream's, 94% of ours"
+  },
+  "spe": {
+    "name": "WikiLink",
+    "evidence": "upstream scimgg@f1cab1f src/components/WikiLink.tsx#WikiLink; shared strings, properties and numbers weigh 7.93: 80% of upstream's, 92% of ours"
+  },
+  "cpe": {
+    "name": "EncounterSetupSelection",
+    "evidence": "upstream scimgg@f1cab1f src/components/EncounterSetupSelection.tsx#EncounterSetupSelection; shared strings, properties and numbers weigh 29.91: 94% of upstream's, 90% of ours"
+  },
+  "upe": {
+    "name": "TIERS",
+    "evidence": "upstream scimgg@f1cab1f src/components/ModifierSelector.tsx#TIERS; shared strings, properties and numbers weigh 1.34: 100% of upstream's, 100% of ours"
+  },
+  "hpe": {
+    "name": "ModifierGrid",
+    "evidence": "upstream scimgg@f1cab1f src/components/ModifierSelector.tsx#ModifierGrid; shared strings, properties and numbers weigh 15.69: 100% of upstream's, 96% of ours"
+  },
+  "ppe": {
+    "name": "StartingHitpointsField",
+    "evidence": "upstream scimgg@f1cab1f src/components/StartingHitpointsField.tsx#StartingHitpointsField; shared strings, properties and numbers weigh 4.61: 100% of upstream's, 65% of ours"
+  },
+  "gpe": {
+    "name": "EncounterPanel",
+    "evidence": "upstream scimgg@f1cab1f src/components/EncounterPanel.tsx#EncounterPanel; shared strings, properties and numbers weigh 72.9: 99% of upstream's, 96% of ours"
+  },
+  "wpe": {
+    "name": "RewardGlyph",
+    "evidence": "upstream scimgg@f1cab1f src/components/EncounterPicker.tsx#RewardGlyph; shared strings, properties and numbers weigh 3: 100% of upstream's, 86% of ours"
+  },
+  "Cpe": {
+    "name": "CountdownBeats",
+    "evidence": "upstream scimgg@f1cab1f src/components/CountdownBeats.tsx#CountdownBeats; shared strings, properties and numbers weigh 5.96: 100% of upstream's, 92% of ours"
+  },
+  "Npe": {
+    "name": "FightStartCountdown",
+    "evidence": "upstream scimgg@f1cab1f src/components/FightStartCountdown.tsx#FightStartCountdown; shared strings, properties and numbers weigh 14.3: 100% of upstream's, 81% of ours"
+  },
+  "Tpe": {
+    "name": "EncounterTitleCard",
+    "evidence": "upstream scimgg@f1cab1f src/components/EncounterTitleCard.tsx#EncounterTitleCard; shared strings, properties and numbers weigh 25.1: 100% of upstream's, 91% of ours"
+  },
+  "Ipe": {
+    "name": "SOFTWARE_STEPS",
+    "evidence": "upstream scimgg@f1cab1f src/components/HardwareAccelWarning.tsx#SOFTWARE_STEPS; shared strings, properties and numbers weigh 2: 100% of upstream's, 100% of ours"
+  },
+  "Lpe": {
+    "name": "HardwareAccelWarning",
+    "evidence": "upstream scimgg@f1cab1f src/components/HardwareAccelWarning.tsx#HardwareAccelWarning; shared strings, properties and numbers weigh 12.02: 100% of upstream's, 82% of ours"
+  },
+  "Fpe": {
+    "name": "RevealLink",
+    "evidence": "upstream scimgg@f1cab1f src/components/ui/RevealLinks.tsx#RevealLink; shared strings, properties and numbers weigh 4.5: 100% of upstream's, 82% of ours"
+  },
+  "$pe": {
+    "name": "SettingLinkRow",
+    "evidence": "upstream scimgg@f1cab1f src/components/ui/RevealLinks.tsx#SettingLinkRow; shared strings, properties and numbers weigh 7.25: 100% of upstream's, 86% of ours"
+  },
+  "Hpe": {
+    "name": "TIPS",
+    "evidence": "upstream scimgg@f1cab1f src/data/tips.ts#TIPS; shared strings, properties and numbers weigh 23.87: 92% of upstream's, 100% of ours"
+  },
+  "qpe": {
+    "name": "STAGE_LABELS",
+    "evidence": "upstream scimgg@f1cab1f src/components/LoadingScreen.tsx#STAGE_LABELS; shared strings, properties and numbers weigh 10.5: 100% of upstream's, 100% of ours"
+  },
+  "zpe": {
+    "name": "LoadingScreen",
+    "evidence": "upstream scimgg@f1cab1f src/components/LoadingScreen.tsx#LoadingScreen; shared strings, properties and numbers weigh 30.82: 96% of upstream's, 76% of ours"
+  },
+  "Kpe": {
+    "name": "STONE_TONES",
+    "evidence": "upstream scimgg@f1cab1f src/components/MobileEntry.tsx#STONE_TONES; shared strings, properties and numbers weigh 6.33: 100% of upstream's, 100% of ours"
+  },
+  "Vpe": {
+    "name": "landscapeReserves",
+    "evidence": "upstream scimgg@f1cab1f src/components/MobileEntry.tsx#landscapeReserves; shared strings, properties and numbers weigh 4.2: 100% of upstream's, 100% of ours"
+  },
+  "Ype": {
+    "name": "ShareGlyph",
+    "evidence": "upstream scimgg@f1cab1f src/components/MobileEntry.tsx#ShareGlyph; shared strings, properties and numbers weigh 3.25: 100% of upstream's, 87% of ours"
+  },
+  "Jpe": {
+    "name": "RotateGlyph",
+    "evidence": "upstream scimgg@f1cab1f src/components/MobileEntry.tsx#RotateGlyph; shared strings, properties and numbers weigh 7.08: 100% of upstream's, 93% of ours"
+  },
+  "Zpe": {
+    "name": "IosNote",
+    "evidence": "upstream scimgg@f1cab1f src/components/MobileEntry.tsx#IosNote; shared strings, properties and numbers weigh 2: 100% of upstream's, 100% of ours"
+  },
+  "Xpe": {
+    "name": "Sheet",
+    "evidence": "upstream scimgg@f1cab1f src/components/MobileEntry.tsx#Sheet; shared strings, properties and numbers weigh 6.56: 100% of upstream's, 65% of ours"
+  },
+  "Qpe": {
+    "name": "WelcomeSheet",
+    "evidence": "upstream scimgg@f1cab1f src/components/MobileEntry.tsx#WelcomeSheet; shared strings, properties and numbers weigh 18.9: 91% of upstream's, 88% of ours"
+  },
+  "eme": {
+    "name": "RotateSheet",
+    "evidence": "upstream scimgg@f1cab1f src/components/MobileEntry.tsx#RotateSheet; shared strings, properties and numbers weigh 12.45: 87% of upstream's, 89% of ours"
+  },
+  "tme": {
+    "name": "MobileEntry",
+    "evidence": "upstream scimgg@f1cab1f src/components/MobileEntry.tsx#MobileEntry; shared strings, properties and numbers weigh 4.45: 100% of upstream's, 100% of ours"
+  },
+  "ime": {
+    "name": "MobileFullscreenStone",
+    "evidence": "upstream scimgg@f1cab1f src/components/MobileFullscreenStone.tsx#MobileFullscreenStone; shared strings, properties and numbers weigh 9.53: 88% of upstream's, 81% of ours"
+  },
+  "ome": {
+    "name": "MobileRestartStone",
+    "evidence": "upstream scimgg@f1cab1f src/components/MobileRestartStone.tsx#MobileRestartStone; shared strings, properties and numbers weigh 8.04: 92% of upstream's, 68% of ours"
+  },
+  "rme": {
+    "name": "ROWS",
+    "evidence": "upstream scimgg@f1cab1f src/components/ModifierKeysOverlay.tsx#ROWS; shared strings, properties and numbers weigh 1.86: 100% of upstream's, 100% of ours"
+  },
+  "lme": {
+    "name": "MOUSE_BUTTON_PATH",
+    "evidence": "upstream scimgg@f1cab1f src/components/ModifierKeysOverlay.tsx#MOUSE_BUTTON_PATH; shared strings, properties and numbers weigh 3: 100% of upstream's, 100% of ours"
+  },
+  "cme": {
+    "name": "MouseGlyph",
+    "evidence": "upstream scimgg@f1cab1f src/components/ModifierKeysOverlay.tsx#MouseGlyph; shared strings, properties and numbers weigh 6.84: 100% of upstream's, 93% of ours"
+  },
+  "dme": {
+    "name": "ModifierKeysOverlay",
+    "evidence": "upstream scimgg@f1cab1f src/components/ModifierKeysOverlay.tsx#ModifierKeysOverlay; shared strings, properties and numbers weigh 8.58: 97% of upstream's, 100% of ours"
+  },
+  "hme": {
+    "name": "ModifiersModal",
+    "evidence": "upstream scimgg@f1cab1f src/components/ModifiersModal.tsx#ModifiersModal; shared strings, properties and numbers weigh 13.39: 100% of upstream's, 83% of ours"
+  },
+  "pme": {
+    "name": "ENCOUNTER_PLUGINS",
+    "evidence": "upstream scimgg@f1cab1f src/data/encounterPlugins.ts#ENCOUNTER_PLUGINS; shared strings, properties and numbers weigh 4.07: 100% of upstream's, 100% of ours"
+  },
+  "mme": {
+    "name": "ENCOUNTER_PLUGIN_SECTION_NAMES",
+    "evidence": "upstream scimgg@f1cab1f src/data/encounterPlugins.ts#ENCOUNTER_PLUGIN_SECTION_NAMES; shared strings, properties and numbers weigh 1.44: 100% of upstream's, 100% of ours"
+  },
+  "Mme": {
+    "name": "fixedScaleLabel",
+    "evidence": "upstream scimgg@f1cab1f src/components/FixedLayoutScaleField.tsx#fixedScaleLabel; shared strings, properties and numbers weigh 1: 100% of upstream's, 100% of ours"
+  },
+  "Ime": {
+    "name": "FixedLayoutScaleField",
+    "evidence": "upstream scimgg@f1cab1f src/components/FixedLayoutScaleField.tsx#FixedLayoutScaleField; shared strings, properties and numbers weigh 12.49: 100% of upstream's, 82% of ours"
+  },
+  "Ame": {
+    "name": "isZoomKey",
+    "evidence": "upstream scimgg@f1cab1f src/hooks/useAppHotkeys.tsx#isZoomKey; shared strings, properties and numbers weigh 6.2: 100% of upstream's, 100% of ours"
+  },
+  "$me": {
+    "name": "plugin",
+    "evidence": "upstream scimgg@f1cab1f src/settingsSearch/entries.ts#plugin; shared strings, properties and numbers weigh 1.17: 100% of upstream's, 100% of ours"
+  },
+  "Hme": {
+    "name": "TO_LAYOUT",
+    "evidence": "upstream scimgg@f1cab1f src/settingsSearch/entries.ts#TO_LAYOUT; shared strings, properties and numbers weigh 1.3: 100% of upstream's, 100% of ours"
+  },
+  "qme": {
+    "name": "TO_DEVICE_MODE",
+    "evidence": "upstream scimgg@f1cab1f src/settingsSearch/entries.ts#TO_DEVICE_MODE; shared strings, properties and numbers weigh 1.43: 100% of upstream's, 100% of ours"
+  },
+  "Bme": {
+    "name": "NEEDS_RESIZABLE",
+    "evidence": "upstream scimgg@f1cab1f src/settingsSearch/entries.ts#NEEDS_RESIZABLE; shared strings, properties and numbers weigh 1: 100% of upstream's, 100% of ours"
+  },
+  "zme": {
+    "name": "NEEDS_FIXED",
+    "evidence": "upstream scimgg@f1cab1f src/settingsSearch/entries.ts#NEEDS_FIXED; shared strings, properties and numbers weigh 1: 100% of upstream's, 100% of ours"
+  },
+  "Wme": {
+    "name": "NEEDS_MOBILE",
+    "evidence": "upstream scimgg@f1cab1f src/settingsSearch/entries.ts#NEEDS_MOBILE; shared strings, properties and numbers weigh 1: 100% of upstream's, 100% of ours"
+  },
+  "Gme": {
+    "name": "NEEDS_TOUCH",
+    "evidence": "upstream scimgg@f1cab1f src/settingsSearch/entries.ts#NEEDS_TOUCH; shared strings, properties and numbers weigh 1: 100% of upstream's, 100% of ours"
+  },
+  "Kme": {
+    "name": "DESKTOP_ONLY",
+    "evidence": "upstream scimgg@f1cab1f src/settingsSearch/entries.ts#DESKTOP_ONLY; shared strings, properties and numbers weigh 1: 100% of upstream's, 100% of ours"
+  },
+  "Ume": {
+    "name": "IN_INFERNO_OR_COLOSSEUM",
+    "evidence": "upstream scimgg@f1cab1f src/settingsSearch/entries.ts#IN_INFERNO_OR_COLOSSEUM; shared strings, properties and numbers weigh 2.17: 100% of upstream's, 100% of ours"
+  },
+  "Vme": {
+    "name": "pillarAdditionsEntries",
+    "evidence": "upstream scimgg@f1cab1f src/settingsSearch/entries.ts#pillarAdditionsEntries; shared strings, properties and numbers weigh 27.97: 100% of upstream's, 100% of ours"
+  },
+  "tge": {
+    "name": "STOPWORDS",
+    "evidence": "upstream scimgg@f1cab1f src/settingsSearch/match.ts#STOPWORDS; shared strings, properties and numbers weigh 26.1: 100% of upstream's, 100% of ours"
+  },
+  "nge": {
+    "name": "SYNONYM_GROUPS",
+    "evidence": "upstream scimgg@f1cab1f src/settingsSearch/match.ts#SYNONYM_GROUPS; shared strings, properties and numbers weigh 37.17: 100% of upstream's, 100% of ours"
+  },
+  "oge": {
+    "name": "undouble",
+    "evidence": "upstream scimgg@f1cab1f src/settingsSearch/match.ts#undouble; shared strings, properties and numbers weigh 1: 100% of upstream's, 100% of ours"
+  },
+  "rge": {
+    "name": "stem",
+    "evidence": "upstream scimgg@f1cab1f src/settingsSearch/match.ts#stem; shared strings, properties and numbers weigh 4.14: 100% of upstream's, 100% of ours"
+  },
+  "uge": {
+    "name": "prepareEntry",
+    "evidence": "upstream scimgg@f1cab1f src/settingsSearch/match.ts#prepareEntry; shared strings, properties and numbers weigh 3.97: 100% of upstream's, 100% of ours"
+  },
+  "fge": {
+    "name": "compareToken",
+    "evidence": "upstream scimgg@f1cab1f src/settingsSearch/match.ts#compareToken; shared strings, properties and numbers weigh 3.88: 80% of upstream's, 97% of ours"
+  },
+  "bge": {
+    "name": "scoreEntry",
+    "evidence": "upstream scimgg@f1cab1f src/settingsSearch/match.ts#scoreEntry; shared strings, properties and numbers weigh 5.54: 100% of upstream's, 100% of ours"
+  },
+  "Cge": {
+    "name": "suggest",
+    "evidence": "upstream scimgg@f1cab1f src/settingsSearch/match.ts#suggest; shared strings, properties and numbers weigh 3.28: 100% of upstream's, 100% of ours"
+  },
+  "xge": {
+    "name": "blockedNow",
+    "evidence": "upstream scimgg@f1cab1f src/components/searchResults.tsx#blockedNow; shared strings, properties and numbers weigh 1.89: 100% of upstream's, 92% of ours"
+  },
+  "Pge": {
+    "name": "HighlightedTitle",
+    "evidence": "upstream scimgg@f1cab1f src/components/searchResults.tsx#HighlightedTitle; shared strings, properties and numbers weigh 3.53: 100% of upstream's, 100% of ours"
+  },
+  "Age": {
+    "name": "ChevronGlyph",
+    "evidence": "upstream scimgg@f1cab1f src/components/searchResults.tsx#ChevronGlyph; shared strings, properties and numbers weigh 3: 100% of upstream's, 86% of ours"
+  },
+  "$ge": {
+    "name": "useSidebarSearch",
+    "evidence": "upstream scimgg@f1cab1f src/components/SidebarSearch.tsx#useSidebarSearch; shared strings, properties and numbers weigh 5.82: 100% of upstream's, 74% of ours"
+  },
+  "_ge": {
+    "name": "SidebarSearchToggle",
+    "evidence": "upstream scimgg@f1cab1f src/components/SidebarSearch.tsx#SidebarSearchToggle; shared strings, properties and numbers weigh 4.27: 100% of upstream's, 66% of ours"
+  },
+  "Hge": {
+    "name": "SidebarSearchField",
+    "evidence": "upstream scimgg@f1cab1f src/components/SidebarSearch.tsx#SidebarSearchField; shared strings, properties and numbers weigh 9.62: 100% of upstream's, 81% of ours"
+  },
+  "qge": {
+    "name": "SidebarSearchBar",
+    "evidence": "upstream scimgg@f1cab1f src/components/SidebarSearch.tsx#SidebarSearchBar; shared strings, properties and numbers weigh 5.53: 100% of upstream's, 92% of ours"
+  },
+  "Bge": {
+    "name": "ResultText",
+    "evidence": "upstream scimgg@f1cab1f src/components/SidebarSearch.tsx#ResultText; shared strings, properties and numbers weigh 1.7: 100% of upstream's, 100% of ours"
+  },
+  "zge": {
+    "name": "ResultRow",
+    "evidence": "upstream scimgg@f1cab1f src/components/SidebarSearch.tsx#ResultRow; shared strings, properties and numbers weigh 2.14: 100% of upstream's, 100% of ours"
+  },
+  "Wge": {
+    "name": "UnavailableRow",
+    "evidence": "upstream scimgg@f1cab1f src/components/SidebarSearch.tsx#UnavailableRow; shared strings, properties and numbers weigh 3.31: 100% of upstream's, 87% of ours"
+  },
+  "Gge": {
+    "name": "SidebarSearchResults",
+    "evidence": "upstream scimgg@f1cab1f src/components/SidebarSearch.tsx#SidebarSearchResults; shared strings, properties and numbers weigh 14.11: 100% of upstream's, 97% of ours"
+  },
+  "Kge": {
+    "name": "useSearchIds",
+    "evidence": "upstream scimgg@f1cab1f src/components/SidebarSearch.tsx#useSearchIds; shared strings, properties and numbers weigh 2.37: 100% of upstream's, 100% of ours"
+  },
+  "Uge": {
+    "name": "TickColorChip",
+    "evidence": "upstream scimgg@f1cab1f src/components/TickColorChips.tsx#TickColorChip; shared strings, properties and numbers weigh 7.63: 100% of upstream's, 97% of ours"
+  },
+  "Vge": {
+    "name": "TickColorAll",
+    "evidence": "upstream scimgg@f1cab1f src/components/TickColorChips.tsx#TickColorAll; shared strings, properties and numbers weigh 7.3: 100% of upstream's, 97% of ours"
+  },
+  "Yge": {
+    "name": "TickColorChips",
+    "evidence": "upstream scimgg@f1cab1f src/components/TickColorChips.tsx#TickColorChips; shared strings, properties and numbers weigh 3.63: 100% of upstream's, 100% of ours"
+  },
+  "Zge": {
+    "name": "OsrsToggle",
+    "evidence": "upstream scimgg@f1cab1f src/components/ui/OsrsToggle.tsx#OsrsToggle; shared strings, properties and numbers weigh 4.14: 100% of upstream's, 95% of ours"
+  },
+  "efe": {
+    "name": "PluginRow",
+    "evidence": "upstream scimgg@f1cab1f src/components/PluginsPanel.tsx#PluginRow; shared strings, properties and numbers weigh 16.74: 100% of upstream's, 96% of ours"
+  },
+  "nfe": {
+    "name": "OverheadNumberPlacementRows",
+    "evidence": "upstream scimgg@f1cab1f src/components/PluginsPanel.tsx#OverheadNumberPlacementRows; shared strings, properties and numbers weigh 11.57: 100% of upstream's, 95% of ours"
+  },
+  "afe": {
+    "name": "AutoOverlaySizeSetting",
+    "evidence": "upstream scimgg@f1cab1f src/components/PluginsPanel.tsx#AutoOverlaySizeSetting; shared strings, properties and numbers weigh 2.17: 100% of upstream's, 100% of ours"
+  },
+  "ife": {
+    "name": "PillarAdditionsSettings",
+    "evidence": "upstream scimgg@f1cab1f src/components/PluginsPanel.tsx#PillarAdditionsSettings; shared strings, properties and numbers weigh 7.47: 100% of upstream's, 97% of ours"
+  },
+  "ofe": {
+    "name": "CompactOrbsLayoutGlyph",
+    "evidence": "upstream scimgg@f1cab1f src/components/PluginsPanel.tsx#CompactOrbsLayoutGlyph; shared strings, properties and numbers weigh 4.79: 100% of upstream's, 91% of ours"
+  },
+  "cfe": {
+    "name": "PluginsPanelContent",
+    "evidence": "upstream scimgg@f1cab1f src/components/PluginsPanel.tsx#PluginsPanelContent; shared strings, properties and numbers weigh 289.76: 100% of upstream's, 99% of ours"
+  },
+  "hfe": {
+    "name": "QUICK_SEARCH_PLACEHOLDER",
+    "evidence": "upstream scimgg@f1cab1f src/components/QuickSearch.tsx#QUICK_SEARCH_PLACEHOLDER; shared strings, properties and numbers weigh 1: 100% of upstream's, 100% of ours"
+  },
+  "pfe": {
+    "name": "quickSearchType",
+    "evidence": "upstream scimgg@f1cab1f src/components/QuickSearch.tsx#quickSearchType; shared strings, properties and numbers weigh 3.58: 100% of upstream's, 100% of ours"
+  },
+  "gfe": {
+    "name": "ARROW_PATH",
+    "evidence": "upstream scimgg@f1cab1f src/components/QuickSearch.tsx#ARROW_PATH; shared strings, properties and numbers weigh 3: 100% of upstream's, 100% of ours"
+  },
+  "ffe": {
+    "name": "ArrowKey",
+    "evidence": "upstream scimgg@f1cab1f src/components/QuickSearch.tsx#ArrowKey; shared strings, properties and numbers weigh 2.61: 100% of upstream's, 84% of ours"
+  },
+  "yfe": {
+    "name": "MORE",
+    "evidence": "upstream scimgg@f1cab1f src/components/QuickSearch.tsx#MORE; shared strings, properties and numbers weigh 1: 100% of upstream's, 100% of ours"
+  },
+  "vfe": {
+    "name": "QuickSearchDialog",
+    "evidence": "upstream scimgg@f1cab1f src/components/QuickSearch.tsx#QuickSearchDialog; shared strings, properties and numbers weigh 45.26: 100% of upstream's, 84% of ours"
+  },
+  "wfe": {
+    "name": "RendererErrorBoundary",
+    "evidence": "upstream scimgg@f1cab1f src/components/RendererErrorBoundary.tsx#RendererErrorBoundary; shared strings, properties and numbers weigh 26.3: 100% of upstream's, 100% of ours"
+  },
+  "fye": {
+    "name": "CollapsibleSection",
+    "evidence": "upstream scimgg@f1cab1f src/components/CollapsibleSection.tsx#CollapsibleSection; shared strings, properties and numbers weigh 7.44: 100% of upstream's, 79% of ours"
+  },
+  "yye": {
+    "name": "FPS_CAP_OPTIONS",
+    "evidence": "upstream scimgg@f1cab1f src/components/Controls.tsx#FPS_CAP_OPTIONS; shared strings, properties and numbers weigh 6.1: 100% of upstream's, 96% of ours"
+  },
+  "bye": {
+    "name": "SimulationControls",
+    "evidence": "upstream scimgg@f1cab1f src/components/Controls.tsx#SimulationControls; shared strings, properties and numbers weigh 25.26: 100% of upstream's, 99% of ours"
+  },
+  "vye": {
+    "name": "DisplayControls",
+    "evidence": "upstream scimgg@f1cab1f src/components/Controls.tsx#DisplayControls; shared strings, properties and numbers weigh 34.84: 100% of upstream's, 99% of ours"
+  },
+  "wye": {
+    "name": "InterfaceControls",
+    "evidence": "upstream scimgg@f1cab1f src/components/Controls.tsx#InterfaceControls; shared strings, properties and numbers weigh 33.68: 100% of upstream's, 77% of ours"
+  },
+  "kye": {
+    "name": "DeviceModeControl",
+    "evidence": "upstream scimgg@f1cab1f src/components/Controls.tsx#DeviceModeControl; shared strings, properties and numbers weigh 5.7: 100% of upstream's, 89% of ours"
+  },
+  "Sye": {
+    "name": "DEVICE_MODE_HELP",
+    "evidence": "upstream scimgg@f1cab1f src/components/Controls.tsx#DEVICE_MODE_HELP; shared strings, properties and numbers weigh 1: 100% of upstream's, 100% of ours"
+  },
+  "Cye": {
+    "name": "DEVICE_MODE_OPTIONS",
+    "evidence": "upstream scimgg@f1cab1f src/components/Controls.tsx#DEVICE_MODE_OPTIONS; shared strings, properties and numbers weigh 1.3: 100% of upstream's, 100% of ours"
+  },
+  "Nye": {
+    "name": "DeviceModeGlyph",
+    "evidence": "upstream scimgg@f1cab1f src/components/Controls.tsx#DeviceModeGlyph; shared strings, properties and numbers weigh 9.86: 100% of upstream's, 95% of ours"
+  },
+  "xye": {
+    "name": "ViewportPopoutControl",
+    "evidence": "upstream scimgg@f1cab1f src/components/Controls.tsx#ViewportPopoutControl; shared strings, properties and numbers weigh 11.13: 100% of upstream's, 96% of ours"
+  },
+  "Tye": {
+    "name": "ShortcutHintsControl",
+    "evidence": "upstream scimgg@f1cab1f src/components/Controls.tsx#ShortcutHintsControl; shared strings, properties and numbers weigh 1.2: 100% of upstream's, 100% of ours"
+  },
+  "Mye": {
+    "name": "INFOBOX_PIN_LABELS",
+    "evidence": "upstream scimgg@f1cab1f src/components/InfoboxAppearanceSettings.tsx#INFOBOX_PIN_LABELS; shared strings, properties and numbers weigh 2.7: 100% of upstream's, 100% of ours"
+  },
+  "Iye": {
+    "name": "InfoboxAppearanceSettings",
+    "evidence": "upstream scimgg@f1cab1f src/components/InfoboxAppearanceSettings.tsx#InfoboxAppearanceSettings; shared strings, properties and numbers weigh 20.2: 100% of upstream's, 99% of ours"
+  },
+  "Aye": {
+    "name": "PinTargetGlyph",
+    "evidence": "upstream scimgg@f1cab1f src/components/InfoboxAppearanceSettings.tsx#PinTargetGlyph; shared strings, properties and numbers weigh 10.42: 100% of upstream's, 95% of ours"
+  },
+  "Fye": {
+    "name": "EditLayoutEntry",
+    "evidence": "upstream scimgg@f1cab1f src/components/SettingsSidebar.tsx#EditLayoutEntry; shared strings, properties and numbers weigh 3.22: 100% of upstream's, 87% of ours"
+  },
+  "$ye": {
+    "name": "MobilePreferencesBadge",
+    "evidence": "upstream scimgg@f1cab1f src/components/SettingsSidebar.tsx#MobilePreferencesBadge; shared strings, properties and numbers weigh 3: 100% of upstream's, 67% of ours"
+  },
+  "_ye": {
+    "name": "SettingsSidebarContent",
+    "evidence": "upstream scimgg@f1cab1f src/components/SettingsSidebar.tsx#SettingsSidebarContent; shared strings, properties and numbers weigh 35.94: 65% of upstream's, 89% of ours"
+  },
+  "jye": {
+    "name": "SoundDebugOverlay",
+    "evidence": "upstream scimgg@f1cab1f src/components/SoundDebugOverlay.tsx#SoundDebugOverlay; shared strings, properties and numbers weigh 9.86: 91% of upstream's, 75% of ours"
+  },
+  "Vye": {
+    "name": "Sparkline",
+    "evidence": "upstream scimgg@f1cab1f src/components/TickTimingOverlay.tsx#Sparkline; shared strings, properties and numbers weigh 3.34: 100% of upstream's, 94% of ours"
+  },
+  "Jye": {
+    "name": "StatsRow",
+    "evidence": "upstream scimgg@f1cab1f src/components/TickTimingOverlay.tsx#StatsRow; shared strings, properties and numbers weigh 2.83: 100% of upstream's, 100% of ours"
+  },
+  "Zye": {
+    "name": "TickTimingOverlay",
+    "evidence": "upstream scimgg@f1cab1f src/components/TickTimingOverlay.tsx#TickTimingOverlay; shared strings, properties and numbers weigh 14.23: 100% of upstream's, 85% of ours"
+  },
+  "ube": {
+    "name": "resolveTutorial",
+    "evidence": "upstream scimgg@f1cab1f src/components/TutorialPickerModal.tsx#resolveTutorial; shared strings, properties and numbers weigh 3.03: 100% of upstream's, 100% of ours"
+  },
+  "hbe": {
+    "name": "difficultyLabel",
+    "evidence": "upstream scimgg@f1cab1f src/components/TutorialPickerModal.tsx#difficultyLabel; shared strings, properties and numbers weigh 2.9: 100% of upstream's, 100% of ours"
+  },
+  "fbe": {
+    "name": "TutorialPickerModal",
+    "evidence": "upstream scimgg@f1cab1f src/components/TutorialPickerModal.tsx#TutorialPickerModal; shared strings, properties and numbers weigh 12.61: 100% of upstream's, 76% of ours"
+  },
+  "ybe": {
+    "name": "CourseRail",
+    "evidence": "upstream scimgg@f1cab1f src/components/TutorialPickerModal.tsx#CourseRail; shared strings, properties and numbers weigh 5.93: 100% of upstream's, 97% of ours"
+  },
+  "bbe": {
+    "name": "CourseRailItem",
+    "evidence": "upstream scimgg@f1cab1f src/components/TutorialPickerModal.tsx#CourseRailItem; shared strings, properties and numbers weigh 3.74: 100% of upstream's, 79% of ours"
+  },
+  "vbe": {
+    "name": "Curriculum",
+    "evidence": "upstream scimgg@f1cab1f src/components/TutorialPickerModal.tsx#Curriculum; shared strings, properties and numbers weigh 9.9: 95% of upstream's, 94% of ours"
+  },
+  "wbe": {
+    "name": "CurriculumSection",
+    "evidence": "upstream scimgg@f1cab1f src/components/TutorialPickerModal.tsx#CurriculumSection; shared strings, properties and numbers weigh 3.24: 87% of upstream's, 95% of ours"
+  },
+  "kbe": {
+    "name": "CurriculumLesson",
+    "evidence": "upstream scimgg@f1cab1f src/components/TutorialPickerModal.tsx#CurriculumLesson; shared strings, properties and numbers weigh 7.15: 100% of upstream's, 81% of ours"
+  },
+  "Sbe": {
+    "name": "EmptyCurriculum",
+    "evidence": "upstream scimgg@f1cab1f src/components/TutorialPickerModal.tsx#EmptyCurriculum; shared strings, properties and numbers weigh 2.5: 100% of upstream's, 100% of ours"
+  },
+  "Cbe": {
+    "name": "TutorialDetail",
+    "evidence": "upstream scimgg@f1cab1f src/components/TutorialPickerModal.tsx#TutorialDetail; shared strings, properties and numbers weigh 54.53: 100% of upstream's, 94% of ours"
+  },
+  "Nbe": {
+    "name": "EmptyDetail",
+    "evidence": "upstream scimgg@f1cab1f src/components/TutorialPickerModal.tsx#EmptyDetail; shared strings, properties and numbers weigh 4: 100% of upstream's, 100% of ours"
+  },
+  "xbe": {
+    "name": "ACCENT_CLASS",
+    "evidence": "upstream scimgg@f1cab1f src/components/VictoryModal.tsx#ACCENT_CLASS; shared strings, properties and numbers weigh 3.09: 100% of upstream's, 100% of ours"
+  },
+  "Tbe": {
+    "name": "VictoryModal",
+    "evidence": "upstream scimgg@f1cab1f src/components/VictoryModal.tsx#VictoryModal; shared strings, properties and numbers weigh 25.99: 100% of upstream's, 87% of ours"
+  },
+  "Mbe": {
+    "name": "ViewportSizeWarning",
+    "evidence": "upstream scimgg@f1cab1f src/components/ViewportSizeWarning.tsx#ViewportSizeWarning; shared strings, properties and numbers weigh 3.5: 100% of upstream's, 100% of ours"
+  },
+  "Obe": {
+    "name": "SingleToast",
+    "evidence": "upstream scimgg@f1cab1f src/components/ZoomHintToast.tsx#SingleToast; shared strings, properties and numbers weigh 14.17: 100% of upstream's, 79% of ours"
+  },
+  "$be": {
+    "name": "ZoomHintToast",
+    "evidence": "upstream scimgg@f1cab1f src/components/ZoomHintToast.tsx#ZoomHintToast; shared strings, properties and numbers weigh 3.26: 82% of upstream's, 100% of ours"
+  },
+  "jbe": {
+    "name": "YAMA_NO_FLY",
+    "evidence": "upstream scimgg@f1cab1f src/data/tilePackPresets.ts#YAMA_NO_FLY; shared strings, properties and numbers weigh 5.44: 85% of upstream's, 100% of ours"
+  },
+  "Ube": {
+    "name": "YAMA_DONOFLY",
+    "evidence": "upstream scimgg@f1cab1f src/data/tilePackPresets.ts#YAMA_DONOFLY; shared strings, properties and numbers weigh 4.31: 88% of upstream's, 100% of ours"
+  },
+  "Jbe": {
+    "name": "ZUK_INFERNO",
+    "evidence": "upstream scimgg@f1cab1f src/data/tilePackPresets.ts#ZUK_INFERNO; shared strings, properties and numbers weigh 5.04: 75% of upstream's, 83% of ours"
+  },
+  "eve": {
+    "name": "CHECK_GEAR",
+    "evidence": "upstream scimgg@f1cab1f src/encounters/inferno/setupLink.ts#CHECK_GEAR; shared strings, properties and numbers weigh 1: 100% of upstream's, 100% of ours"
+  },
+  "ove": {
+    "name": "planInfernoSetupLink",
+    "evidence": "upstream scimgg@f1cab1f src/encounters/inferno/setupLink.ts#planInfernoSetupLink; shared strings, properties and numbers weigh 8.87: 100% of upstream's, 83% of ours"
+  },
+  "rve": {
+    "name": "PITCH_HZ",
+    "evidence": "upstream scimgg@f1cab1f src/audio/metronomeSound.ts#PITCH_HZ; shared strings, properties and numbers weigh 1.75: 100% of upstream's, 100% of ours"
+  },
+  "cve": {
+    "name": "decodedBytes",
+    "evidence": "upstream scimgg@f1cab1f src/audio/AudioEngine.ts#decodedBytes; shared strings, properties and numbers weigh 1: 100% of upstream's, 100% of ours"
+  },
+  "Mve": {
+    "name": "ANCIENT_SPELL_SOUNDS",
+    "evidence": "upstream scimgg@f1cab1f src/audio/coreAudioRules.ts#ANCIENT_SPELL_SOUNDS; shared strings, properties and numbers weigh 10.75: 100% of upstream's, 100% of ours"
+  },
+  "$ve": {
+    "name": "SCYTHE_OF_VITUR_WEAPONS",
+    "evidence": "upstream scimgg@f1cab1f src/audio/coreAudioRules.ts#SCYTHE_OF_VITUR_WEAPONS; shared strings, properties and numbers weigh 3.12: 100% of upstream's, 100% of ours"
+  },
+  "_ve": {
+    "name": "GODSWORD_WEAPONS",
+    "evidence": "upstream scimgg@f1cab1f src/audio/coreAudioRules.ts#GODSWORD_WEAPONS; shared strings, properties and numbers weigh 2.06: 100% of upstream's, 100% of ours"
+  },
+  "pwe": {
+    "name": "STYLE_ATTACK_SOUNDS",
+    "evidence": "upstream scimgg@f1cab1f src/audio/coreAudioRules.ts#STYLE_ATTACK_SOUNDS; shared strings, properties and numbers weigh 7.14: 100% of upstream's, 100% of ours"
+  },
+  "mwe": {
+    "name": "ATTACK_KIND_SOUNDS",
+    "evidence": "upstream scimgg@f1cab1f src/audio/coreAudioRules.ts#ATTACK_KIND_SOUNDS; shared strings, properties and numbers weigh 5.62: 100% of upstream's, 82% of ours"
+  },
+  "gwe": {
+    "name": "EQUIP_SOUND_BY_KIND",
+    "evidence": "upstream scimgg@f1cab1f src/audio/coreAudioRules.ts#EQUIP_SOUND_BY_KIND; shared strings, properties and numbers weigh 2.25: 100% of upstream's, 63% of ours"
+  },
+  "fwe": {
+    "name": "WEAPON_EQUIP_SOUNDS",
+    "evidence": "upstream scimgg@f1cab1f src/audio/coreAudioRules.ts#WEAPON_EQUIP_SOUNDS; shared strings, properties and numbers weigh 1.16: 100% of upstream's, 100% of ours"
+  },
+  "wwe": {
+    "name": "coreAudioRules",
+    "evidence": "upstream scimgg@f1cab1f src/audio/coreAudioRules.ts#coreAudioRules; shared strings, properties and numbers weigh 18.02: 100% of upstream's, 61% of ours"
+  },
+  "kwe": {
+    "name": "FrameSoundTracker",
+    "evidence": "upstream scimgg@f1cab1f src/audio/FrameSoundTracker.ts#FrameSoundTracker; shared strings, properties and numbers weigh 13.82: 86% of upstream's, 100% of ours"
+  },
+  "Iwe": {
+    "name": "collectLocalAssetPaths",
+    "evidence": "upstream scimgg@f1cab1f src/services/AssetPreloader.ts#collectLocalAssetPaths; shared strings, properties and numbers weigh 3.99: 100% of upstream's, 97% of ours"
+  },
+  "qwe": {
+    "name": "useEncounterManager",
+    "evidence": "upstream scimgg@f1cab1f src/hooks/useEncounterManager.ts#useEncounterManager; shared strings, properties and numbers weigh 39.18: 97% of upstream's, 91% of ours"
+  },
+  "Bwe": {
+    "name": "useAppHotkeys",
+    "evidence": "upstream scimgg@f1cab1f src/hooks/useAppHotkeys.tsx#useAppHotkeys; shared strings, properties and numbers weigh 20.08: 100% of upstream's, 80% of ours"
+  },
+  "jwe": {
+    "name": "LINE_MARKER_STORAGE_KEY",
+    "evidence": "upstream scimgg@f1cab1f src/hooks/lineMarkerState.ts#LINE_MARKER_STORAGE_KEY; shared strings, properties and numbers weigh 1: 100% of upstream's, 100% of ours"
+  },
+  "oke": {
+    "name": "UNSAFE_KEYS",
+    "evidence": "upstream scimgg@f1cab1f src/hooks/presetState.ts#UNSAFE_KEYS; shared strings, properties and numbers weigh 2.33: 100% of upstream's, 100% of ours"
+  },
+  "lke": {
+    "name": "useLineMarkerActions",
+    "evidence": "upstream scimgg@f1cab1f src/hooks/useLineMarkerActions.ts#useLineMarkerActions; shared strings, properties and numbers weigh 15.56: 100% of upstream's, 86% of ours"
+  },
+  "pke": {
+    "name": "PORTRAIT_QUERY",
+    "evidence": "upstream scimgg@f1cab1f src/hooks/useMobileEntry.ts#PORTRAIT_QUERY; shared strings, properties and numbers weigh 1: 100% of upstream's, 100% of ours"
+  },
+  "gke": {
+    "name": "PORTRAIT_DISMISSED_KEY",
+    "evidence": "upstream scimgg@f1cab1f src/hooks/useMobileEntry.ts#PORTRAIT_DISMISSED_KEY; shared strings, properties and numbers weigh 1: 100% of upstream's, 100% of ours"
+  },
+  "Tke": {
+    "name": "preservedQueryString",
+    "evidence": "upstream scimgg@f1cab1f src/hooks/useRouting.ts#preservedQueryString; shared strings, properties and numbers weigh 1.25: 100% of upstream's, 100% of ours"
+  },
+  "Ake": {
+    "name": "useRouting",
+    "evidence": "upstream scimgg@f1cab1f src/hooks/useRouting.ts#useRouting; shared strings, properties and numbers weigh 2.7: 100% of upstream's, 62% of ours"
+  },
+  "Eke": {
+    "name": "useTileMarkerClipboard",
+    "evidence": "upstream scimgg@f1cab1f src/hooks/useTileMarkerClipboard.ts#useTileMarkerClipboard; shared strings, properties and numbers weigh 10.28: 100% of upstream's, 80% of ours"
+  },
+  "Uke": {
+    "name": "resolveCursorElement",
+    "evidence": "upstream scimgg@f1cab1f src/tutorial/components/cursorTargets.ts#resolveCursorElement; shared strings, properties and numbers weigh 1.5: 100% of upstream's, 100% of ours"
+  },
+  "Yke": {
+    "name": "cueAbsoluteMs",
+    "evidence": "upstream scimgg@f1cab1f src/tutorial/components/cursorTimeline.ts#cueAbsoluteMs; shared strings, properties and numbers weigh 1.17: 100% of upstream's, 100% of ours"
+  },
+  "Zke": {
+    "name": "restingVisual",
+    "evidence": "upstream scimgg@f1cab1f src/tutorial/components/DemoCursorLayer.tsx#restingVisual; shared strings, properties and numbers weigh 1.17: 100% of upstream's, 100% of ours"
+  },
+  "Xke": {
+    "name": "DemoCursorLayer",
+    "evidence": "upstream scimgg@f1cab1f src/tutorial/components/DemoCursorLayer.tsx#DemoCursorLayer; shared strings, properties and numbers weigh 19.56: 100% of upstream's, 72% of ours"
+  },
+  "eSe": {
+    "name": "renderNode",
+    "evidence": "upstream scimgg@f1cab1f src/tutorial/components/TutorialMarkup.tsx#renderNode; shared strings, properties and numbers weigh 9.03: 100% of upstream's, 100% of ours"
+  },
+  "tSe": {
+    "name": "TutorialMarkup",
+    "evidence": "upstream scimgg@f1cab1f src/tutorial/components/TutorialMarkup.tsx#TutorialMarkup; shared strings, properties and numbers weigh 3.2: 100% of upstream's, 100% of ours"
+  },
+  "iSe": {
+    "name": "OverlayShell",
+    "evidence": "upstream scimgg@f1cab1f src/tutorial/components/TutorialOverlay.tsx#OverlayShell; shared strings, properties and numbers weigh 18.3: 100% of upstream's, 80% of ours"
+  },
+  "rSe": {
+    "name": "shouldShowRestartDemo",
+    "evidence": "upstream scimgg@f1cab1f src/tutorial/components/TutorialOverlay.tsx#shouldShowRestartDemo; shared strings, properties and numbers weigh 1.24: 100% of upstream's, 100% of ours"
+  },
+  "dSe": {
+    "name": "TutorialStepIntro",
+    "evidence": "upstream scimgg@f1cab1f src/tutorial/components/TutorialOverlay.tsx#TutorialStepIntro; shared strings, properties and numbers weigh 11.67: 100% of upstream's, 80% of ours"
+  },
+  "hSe": {
+    "name": "PerimeterMeter",
+    "evidence": "upstream scimgg@f1cab1f src/tutorial/components/TutorialOverlay.tsx#PerimeterMeter; shared strings, properties and numbers weigh 7.78: 100% of upstream's, 68% of ours"
+  },
+  "pSe": {
+    "name": "CUE_TONE_COLOR",
+    "evidence": "upstream scimgg@f1cab1f src/tutorial/components/TutorialOverlay.tsx#CUE_TONE_COLOR; shared strings, properties and numbers weigh 2.23: 100% of upstream's, 100% of ours"
+  },
+  "mSe": {
+    "name": "RuleArrowIcon",
+    "evidence": "upstream scimgg@f1cab1f src/tutorial/components/TutorialOverlay.tsx#RuleArrowIcon; shared strings, properties and numbers weigh 3: 100% of upstream's, 86% of ours"
+  },
+  "gSe": {
+    "name": "TutorialBeam",
+    "evidence": "upstream scimgg@f1cab1f src/tutorial/components/TutorialOverlay.tsx#TutorialBeam; shared strings, properties and numbers weigh 57.94: 100% of upstream's, 85% of ours"
+  },
+  "fSe": {
+    "name": "BeamMenu",
+    "evidence": "upstream scimgg@f1cab1f src/tutorial/components/TutorialOverlay.tsx#BeamMenu; shared strings, properties and numbers weigh 10.59: 100% of upstream's, 100% of ours"
+  },
+  "ySe": {
+    "name": "TutorialCodex",
+    "evidence": "upstream scimgg@f1cab1f src/tutorial/components/TutorialOverlay.tsx#TutorialCodex; shared strings, properties and numbers weigh 30.59: 100% of upstream's, 91% of ours"
+  },
+  "bSe": {
+    "name": "StepsList",
+    "evidence": "upstream scimgg@f1cab1f src/tutorial/components/TutorialOverlay.tsx#StepsList; shared strings, properties and numbers weigh 11.11: 100% of upstream's, 78% of ours"
+  },
+  "vSe": {
+    "name": "TutorialPauseOverlay",
+    "evidence": "upstream scimgg@f1cab1f src/tutorial/components/TutorialOverlay.tsx#TutorialPauseOverlay; shared strings, properties and numbers weigh 13.23: 100% of upstream's, 93% of ours"
+  },
+  "wSe": {
+    "name": "TutorialCompletionModal",
+    "evidence": "upstream scimgg@f1cab1f src/tutorial/components/TutorialOverlay.tsx#TutorialCompletionModal; shared strings, properties and numbers weigh 45.36: 100% of upstream's, 96% of ours"
+  },
+  "SSe": {
+    "name": "stepLabel",
+    "evidence": "upstream scimgg@f1cab1f src/tutorial/components/TutorialOverlay.tsx#stepLabel; shared strings, properties and numbers weigh 1.53: 100% of upstream's, 100% of ours"
+  },
+  "xSe": {
+    "name": "InfoBody",
+    "evidence": "upstream scimgg@f1cab1f src/tutorial/components/TutorialOverlay.tsx#InfoBody; shared strings, properties and numbers weigh 3.39: 100% of upstream's, 100% of ours"
+  },
+  "TSe": {
+    "name": "VideoBody",
+    "evidence": "upstream scimgg@f1cab1f src/tutorial/components/TutorialOverlay.tsx#VideoBody; shared strings, properties and numbers weigh 2.39: 100% of upstream's, 100% of ours"
+  },
+  "MSe": {
+    "name": "TutorialVideoPlayer",
+    "evidence": "upstream scimgg@f1cab1f src/tutorial/components/TutorialOverlay.tsx#TutorialVideoPlayer; shared strings, properties and numbers weigh 11.22: 100% of upstream's, 88% of ours"
+  },
+  "FSe": {
+    "name": "mountStepNav",
+    "evidence": "upstream scimgg@f1cab1f src/tutorial/runtime/stepNavPanel.ts#mountStepNav; shared strings, properties and numbers weigh 21.38: 84% of upstream's, 63% of ours"
+  },
+  "$Se": {
+    "name": "DRIVER_CONFIG",
+    "evidence": "upstream scimgg@f1cab1f src/tutorial/runtime/SpotlightRunner.ts#DRIVER_CONFIG; shared strings, properties and numbers weigh 18.95: 100% of upstream's, 100% of ours"
+  },
+  "_Se": {
+    "name": "TOUR_SUSPENDED_CLASS",
+    "evidence": "upstream scimgg@f1cab1f src/tutorial/runtime/SpotlightRunner.ts#TOUR_SUSPENDED_CLASS; shared strings, properties and numbers weigh 1: 100% of upstream's, 100% of ours"
+  },
+  "BSe": {
+    "name": "buildActionHooks",
+    "evidence": "upstream scimgg@f1cab1f src/tutorial/runtime/SpotlightRunner.ts#buildActionHooks; shared strings, properties and numbers weigh 17.24: 100% of upstream's, 89% of ours"
+  },
+  "zSe": {
+    "name": "SpotlightRunner",
+    "evidence": "upstream scimgg@f1cab1f src/tutorial/runtime/SpotlightRunner.ts#SpotlightRunner; shared strings, properties and numbers weigh 47.29: 90% of upstream's, 96% of ours"
+  },
+  "WSe": {
+    "name": "resolveTutorialEncounterCommand",
+    "evidence": "upstream scimgg@f1cab1f src/tutorial/encounterCommands.ts#resolveTutorialEncounterCommand; shared strings, properties and numbers weigh 2.83: 100% of upstream's, 100% of ours"
+  },
+  "VSe": {
+    "name": "TutorialDirector",
+    "evidence": "upstream scimgg@f1cab1f src/tutorial/runtime/TutorialDirector.ts#TutorialDirector; shared strings, properties and numbers weigh 72.18: 70% of upstream's, 99% of ours"
+  },
+  "YSe": {
+    "name": "useTutorialDirector",
+    "evidence": "upstream scimgg@f1cab1f src/tutorial/runtime/useTutorialDirector.ts#useTutorialDirector; shared strings, properties and numbers weigh 25.22: 98% of upstream's, 91% of ours"
+  },
+  "eCe": {
+    "name": "AppShell",
+    "evidence": "upstream scimgg@f1cab1f src/App.tsx#AppShell; shared strings, properties and numbers weigh 484.81: 94% of upstream's, 90% of ours"
+  },
+  "xke": {
+    "name": "getPathSegments",
+    "evidence": "upstream scimgg@f1cab1f src/hooks/useRouting.ts#getPathSegments; read by hand: the same body (pathname without its slashes, split, filter(Boolean))"
+  },
+  "Mke": {
+    "name": "NO_ROUTE_QUERY",
+    "evidence": "upstream scimgg@f1cab1f src/hooks/useRouting.ts#NO_ROUTE_QUERY; read by hand: { params: [], query: \"\" }, the default of useRouting's last parameter"
+  },
+  "Pke": {
+    "name": "replaceRouteQuery",
+    "evidence": "upstream scimgg@f1cab1f src/hooks/useRouting.ts#replaceRouteQuery; read by hand: the same body (drops the route's own parameters from the search, puts its query first)"
+  },
+  "_be": {
+    "name": "GamePanelTabStore",
+    "evidence": "upstream scimgg@f1cab1f src/core/gamePanelTabStore.ts#GamePanelTabStore; read by hand: tab, listeners, getSnapshot, set; made as `new GamePanelTabStore('inventory')` in AppShell as upstream's App.tsx does"
+  }
+}

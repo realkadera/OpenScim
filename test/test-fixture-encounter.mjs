@@ -34,7 +34,7 @@ try {
   for (const [path, marker, probe] of [
     ["**/engine/SimulationEngine.js*", "this.encounter = options.encounter;", "if (options.encounter.kind === 'training_ground') window.engine = this;"],
     ["**/encounters/shared/buildScene.js*", "const scene = new Scene();", "window.scene = scene;"],
-    ["**/assets/application.js*", "var eve = \"Check your gear, then press Start.\";", "window.tilePresetsOf = Qbe; window.whatsNew = Ibe;"],
+    ["**/assets/application.js*", "var CHECK_GEAR = \"Check your gear, then press Start.\";", "window.tilePresetsOf = Qbe; window.whatsNew = Ibe;"],
   ]) {
     await page.route(path, async (route) => {
       const response = await route.fetch();
