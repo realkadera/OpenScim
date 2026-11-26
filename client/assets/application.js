@@ -32216,7 +32216,7 @@ function AuthProvider({ children: children }) {
     });
     h5(null);
   }, []);
-  const hb = (0, React.useCallback)(async (hc) => {
+  const hb = (0, React.useCallback)(async () => {
     const hd = await fetch("/api/auth/account", {
       method: "DELETE",
       headers: {
@@ -32224,7 +32224,7 @@ function AuthProvider({ children: children }) {
       },
       credentials: "same-origin",
       body: JSON.stringify({
-        password: hc,
+        confirm: "delete",
       }),
     });
     const hf = await hd.json();
@@ -32300,7 +32300,7 @@ function Dye({ panelVisible: h2 = true }) {
             hb("");
             hd(true);
             try {
-              const hl = await deleteAccount(h8);
+              const hl = await deleteAccount();
               if (hg.current !== hk) {
                 return;
               }
@@ -32335,14 +32335,14 @@ function Dye({ panelVisible: h2 = true }) {
                 (0, jsxRuntime.jsx)("label", {
                   className: "login-delete__label",
                   htmlFor: hh,
-                  children: "Confirm your password",
+                  children: "Type DELETE to confirm",
                 }),
                 (0, jsxRuntime.jsx)("input", {
                   id: hh,
                   ref: hf,
-                  type: "password",
+                  type: "text",
                   className: "login-input",
-                  autoComplete: "current-password",
+                  autoComplete: "off",
                   value: h8,
                   disabled: hc,
                   onChange: (hj) => h9(hj.target.value),
@@ -32367,7 +32367,7 @@ function Dye({ panelVisible: h2 = true }) {
                 (0, jsxRuntime.jsx)(OsrsButton, {
                   variant: "danger",
                   type: "submit",
-                  disabled: hc || "" === h8,
+                  disabled: hc || "DELETE" !== h8,
                   children: hc ? "Deleting…" : "Delete Permanently",
                 }),
               ],
