@@ -4,8 +4,12 @@
 // file at <ref> and no longer occurs in the working tree copy, unless it moved
 // to another client file and every test that uses it names that file.
 //
-// Usage: node tools/check-test-markers.mjs [ref]     (ref defaults to HEAD)
+// Usage: node tools/check-test-markers.mjs [ref]
 //        node tools/check-test-markers.mjs --self-test
+//
+// ref defaults to where the branch left origin/main (git merge-base), so the
+// check covers the branch's commits and the working tree. With HEAD as the
+// default, a run after committing compared HEAD with itself and checked nothing.
 //
 // ponytail: only finds markers that were lost. A marker a commit rewrites on
 // purpose is checked by its own test (assert.ok(body.includes(marker))).
@@ -37,8 +41,15 @@ if (process.argv[2] === "--self-test") {
   process.exit(0);
 }
 
-const ref = process.argv[2] ?? "HEAD";
 const git = (...args) => execFileSync("git", args, { encoding: "utf8", maxBuffer: 1 << 28 });
+const forkPoint = () => {
+  try {
+    return git("merge-base", "HEAD", "origin/main").trim();
+  } catch {
+    return "HEAD"; // no origin/main (a fresh clone of a fork): the working tree only
+  }
+};
+const ref = process.argv[2] ?? forkPoint();
 const changed = git("diff", "--name-only", ref, "--", "client").split("\n").filter((path) => path.endsWith(".js"));
 const tests = readdirSync("test").filter((name) => name.endsWith(".mjs"));
 const markers = new Map();
