@@ -2,6 +2,7 @@ import { cpSync, existsSync, statSync } from "node:fs";
 import { defineConfig } from "vite";
 import { readCacheGroups } from "./tools/assets/cache-groups.mjs";
 import { trimmedCacheStatus } from "./tools/assets/trimmed-cache.mjs";
+import { prerenderRoutes } from "./tools/seo/prerender.mjs";
 
 // The client asks for game media, the cache and the bzip2 decoder by URL at
 // runtime, so the bundler never sees them. Copy them into the build as they are.
@@ -67,6 +68,6 @@ export default defineConfig(({ mode }) => {
     server: { host: "127.0.0.1" },
     preview: { host: "127.0.0.1" },
     build: { outDir: "../dist", emptyOutDir: true },
-    plugins: [trimmedCacheIsCurrent, missingMediaIs404, copyRuntimeFiles],
+    plugins: [trimmedCacheIsCurrent, missingMediaIs404, copyRuntimeFiles, prerenderRoutes()],
   };
 });
