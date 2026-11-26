@@ -1,5 +1,6 @@
 import { buildScene } from "../shared/buildScene.js";
-import { kind, mapSquare, bossId, bossStart, npcTypeId, protectionForms, arena } from "./encounter.js";
+import { kind, mapSquare, bossId, bossStart, npcTypeId, protectionForms, arena,
+  prayerTileMarkersKey, prayerTileMarkerColorKeys, tornadoTileMarkerColorKey } from "./encounter.js";
 
 // WIKI: the final phase has eight floor-safe tiles, two centered three tiles
 // in from each wall. The coordinates follow this encounter's 12x12 arena.
@@ -11,12 +12,36 @@ export const finalPhaseSafeTiles = [
 ];
 
 export function withFinalPhaseSafeMarkers(input) {
-  if (input.simulationState?.encounter?.state?.phase !== 2) return input;
+  const encounterState = input.simulationState?.encounter?.state;
+  const mechanicsConfig = input.simulationState?.mechanicsConfig ?? {};
+  const tornadoColor = mechanicsConfig[tornadoTileMarkerColorKey] ?? "#ffffff";
+  const tornadoMarkers = (encounterState?.tornadoes ?? []).map(({ position }) => ({
+    x: position[0], y: position[1], color: tornadoColor, opacity: 0.8, label: "Tornado",
+  }));
+  const protectionColorKey = prayerTileMarkerColorKeys[encounterState?.protection];
+  const protectionColor = protectionColorKey && (mechanicsConfig[protectionColorKey] ??
+    ({ range: "#00ff00", magic: "#0000ff", melee: "#ff0000" })[encounterState.protection]);
+  const [bossX, bossY] = input.simulationState?.npcs?.find(({ id }) => id === bossId)?.position ?? bossStart;
+  const protectionLineMarkers = mechanicsConfig[prayerTileMarkersKey] && protectionColor
+    ? [
+      ...Array.from({ length: 5 }, (_, offset) => ({ x: bossX + offset, y: bossY, orientation: "horizontal" })),
+      ...Array.from({ length: 5 }, (_, offset) => ({ x: bossX + offset, y: bossY + 5, orientation: "horizontal" })),
+      ...Array.from({ length: 5 }, (_, offset) => ({ x: bossX, y: bossY + offset, orientation: "vertical" })),
+      ...Array.from({ length: 5 }, (_, offset) => ({ x: bossX + 5, y: bossY + offset, orientation: "vertical" })),
+    ].map(marker => ({ ...marker, color: protectionColor, opacity: 1 }))
+    : [];
+  if (encounterState?.phase !== 2 && tornadoMarkers.length === 0 && protectionLineMarkers.length === 0) return input;
   const options = input.options ?? {};
-  return { ...input, options: { ...options, showTileMarkers: true },
+  return { ...input, options: { ...options, showTileMarkers: true,
+      ...(protectionLineMarkers.length > 0 ? { showLineMarkers: true } : {}) },
     tileMarkers: [
       ...(options.showTileMarkers ? (input.tileMarkers ?? []) : []),
-      ...finalPhaseSafeTiles.map(([x, y]) => ({ x, y, color: "#39d8b8", opacity: 0.65, label: "Safe" })),
+      ...tornadoMarkers,
+      ...(encounterState?.phase === 2 ? finalPhaseSafeTiles.map(([x, y]) => ({ x, y, color: "#39d8b8", opacity: 0.65, label: "Safe" })) : []),
+    ],
+    lineMarkers: [
+      ...(options.showLineMarkers ? (input.lineMarkers ?? []) : []),
+      ...protectionLineMarkers,
     ] };
 }
 

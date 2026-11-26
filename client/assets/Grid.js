@@ -12657,6 +12657,8 @@ var Uie = ({
     {
       key: fe,
       label: label,
+      type: type,
+      groupLabel: groupLabel,
       choices: allChoices,
       wrap: wrap,
       dependsOn: dependsOn,
@@ -12680,6 +12682,36 @@ var Uie = ({
       dependsOn !== undefined &&
       f2.some((fw) => fw.key === dependsOn) &&
       true !== config[dependsOn];
+    if (type === "color" && fv) return null;
+    if (type === "color") {
+      const color = typeof fq === "string" && /^#[0-9a-f]{6}$/i.test(fq) ? fq : (fr || "#ffffff");
+      const colorSetting = (0, wn.jsx)(Coe, {
+        searchId: null,
+        isModified: fs,
+        hideReset: null == defaultConfig,
+        onReset: () => onConfigChange({ ...config, [fe]: fr }),
+        className: fv ? "setting-row--dependent" : undefined,
+        children: (0, wn.jsxs)("label", {
+          className: "mechanics-color-setting",
+          children: [
+            (0, wn.jsx)("span", { children: label }),
+            (0, wn.jsx)("input", {
+              type: "color",
+              value: color,
+              disabled: fv,
+              "aria-label": label,
+              onChange: (event) => onConfigChange({ ...config, [fe]: event.target.value }),
+            }),
+          ],
+        }),
+      }, fe);
+      return groupLabel
+        ? (0, wn.jsxs)(pn.Fragment, { children: [
+            (0, wn.jsx)("div", { className: "mechanics-color-group-title", children: groupLabel }),
+            colorSetting,
+          ] }, fe)
+        : colorSetting;
+    }
     if (choices && choices.length > 0) {
       return (0, wn.jsx)(
         k$e,
@@ -12781,6 +12813,9 @@ var Uie = ({
       mechanics: mechanics,
       assists: assists,
     } = toe(unsectioned);
+    const visibleSections = sections.filter((section) => section.toggles.some((toggle) =>
+      !(toggle.type === "color" && toggle.dependsOn && config[toggle.dependsOn] !== true),
+    ));
     const fj = (fr, fs) => {
       const ft = [];
       for (const fv of fr) {
@@ -12835,12 +12870,15 @@ var Uie = ({
         content: fj(mechanics),
       });
     }
-    for (const fr of sections) {
+    for (const fr of visibleSections) {
+      const visibleToggles = fr.toggles.filter((toggle) =>
+        !(toggle.type === "color" && toggle.dependsOn && config[toggle.dependsOn] !== true),
+      );
       const fs = w$e([
-        ...fr.toggles.filter((fv) => !fv.choices?.length),
-        ...fr.toggles.filter((fv) => fv.choices?.length),
+        ...visibleToggles.filter((fv) => !fv.choices?.length),
+        ...visibleToggles.filter((fv) => fv.choices?.length),
       ]);
-      const ft = aae(fr.toggles, eZ);
+      const ft = aae(visibleToggles, eZ);
       fp.push({
         id: "section:" + fr.title,
         title: fr.title,
@@ -12869,9 +12907,9 @@ var Uie = ({
         surface: "practice",
         run: setupRun,
       }) ??
-      (sections.length > 0
+      (visibleSections.length > 0
         ? [
-            ...sections.map((fv) => fv.title),
+            ...visibleSections.map((fv) => fv.title),
             ...(mechanics.length > 0 ? ["mechanics"] : []),
           ].join(", ")
         : "Mechanics") + " & aids";
