@@ -66,5 +66,9 @@ jobs:
           BASE: ${{ github.event_name == 'pull_request' && 'HEAD^1' || github.event.before }}
         run: node tools/check-test-markers.mjs "$BASE"
 
+      # The pages search engines are given and the sitemap: texts only.
+      - name: Pages for search engines
+        run: node test/test-seo-prerender.mjs
+
       - name: Build
         run: npm run build
