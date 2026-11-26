@@ -140,6 +140,8 @@ export const colosseumPresentation = (BaseScene) => ({
     setupContext: "Waves",
     blurb: "Fight the waves of the Fortis Colosseum: the Fremennik warband at your sides, the monsters of the wave, and the reinforcements after 40 seconds. Minimus offers a modifier before every wave.",
     wikiUrl: "https://oldschool.runescape.wiki/w/Fortis_Colosseum/Strategies",
+    // The manticore stands for the waves in the encounter picker.
+    portrait: { npcTypeId: colosseumMonsters.manticore.npcTypeId, framing: { yaw: -30, pitch: -12, focusHeight: 0.6, span: 0.8 } },
   },
 });
 // How presentations.js finds it.

@@ -83,6 +83,9 @@ export const corruptedHunllefPresentation = BaseScene => ({
     return buildScene(HunllefScene, resolvedConfig, { ...context, encounterRenderConfig: resolvedConfig });
   },
   defaultCamera: { yaw: 180, pitch: -55, zoom: 260 },
-  presentation: { title: "Corrupted Hunllef", tagline: "The Corrupted Gauntlet", wikiUrl: "https://oldschool.runescape.wiki/w/Corrupted_Hunllef" },
+  presentation: {
+    title: "Corrupted Hunllef", tagline: "The Corrupted Gauntlet", wikiUrl: "https://oldschool.runescape.wiki/w/Corrupted_Hunllef",
+    portrait: { npcTypeId, framing: { yaw: -30, pitch: -12, focusHeight: 0.6, span: 0.75 } },
+  },
 });
 export { corruptedHunllefPresentation as presentation };

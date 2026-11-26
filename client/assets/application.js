@@ -3,6 +3,7 @@ import { nexusKind, doorAt } from "/toa/nexus.js";
 import { soundEffectResponse, soundEffectUrl } from "/audio/soundEffects.js";
 import { colosseumLobbyLabel, getLobbyFights } from "/encounters/colosseum/lobby.js";
 import { sandboxEntryKind } from "/encounters/sandbox/menuImport.js";
+import { EncounterPicker } from "/ui/encounterPicker.js";
 import { attackRangesOptions, attackRangesDefaults, updateAttackRanges, listenForAttackRangesHotkey, describeHotkey } from "/plugins/attackRanges.js";
 import { projectileOverrideOptions, projectileOverrideDefaults, updateProjectileOverride } from "/plugins/projectileOverride.js";
 // Plugins that keep their own settings (client/plugins/pluginStore.js): an entry each in the Plugins panel.
@@ -16643,10 +16644,10 @@ var ppe = ({ value: value, max: h3, onChange: onChange }) => {
 var mpe = () =>
   (0, jsxRuntime.jsx)("a", {
     className: "bug-reports-link",
-    href: "https://discord.gg/openscim",
+    href: "https://github.com/realkadera/OpenScim/issues",
     target: "_blank",
     rel: "noopener noreferrer",
-    children: "#bug-reports",
+    children: "the issues tab on GitHub",
   });
 var gpe = ({
   mobile: h2 = false,
@@ -16959,7 +16960,7 @@ var gpe = ({
                       className: "encounter-beta-note",
                       children: [
                         (0, jsxRuntime.jsx)("span", {
-                          children: "Report issues in Discord:",
+                          children: "Report issues to",
                         }),
                         " ",
                         (0, jsxRuntime.jsx)(mpe, {}),
@@ -17331,768 +17332,48 @@ function kpe(h2) {
   }
   return h3;
 }
+// The encounter picker is a module (client/ui/encounterPicker.js). This keeps
+// what lives in the bundle: the stack of windows Escape closes, the click
+// outside the card, and the lookups the module is handed as props.
 function Spe({
   isOpen: isOpen,
   onClose: onClose,
   onEnter: onEnter,
   onConfigure: onConfigure,
   onTutorialMode: onTutorialMode,
-  currentEncounterKind: h7 = null,
-  initialSelection: h8 = null,
+  currentEncounterKind: currentEncounterKind = null,
+  initialSelection: initialSelection = null,
   encounterRegistry: encounterRegistry,
+  npcModelLoader: npcModelLoader,
+  animationSystem: animationSystem,
 }) {
-  const ha = {
-    ByQNy: function (hK, hL) {
-      return hK(hL);
-    },
-    OAvZu: function (hK, hL) {
-      return hK(hL);
-    },
-    wzmWG: function (hK, hL) {
-      return hK(hL);
-    },
-    hQenR: function (hK, hL) {
-      return hK(hL);
-    },
-    KdHTH: function (hK, hL, hN) {
-      return hK(hL, hN);
-    },
-    Vqetj: function (hK, hL, hN) {
-      return hK(hL, hN);
-    },
-    JXVUh: function (hK, hL) {
-      return hK(hL);
-    },
-    efUdA: function (hK, hL, hN) {
-      return hK(hL, hN);
-    },
-    iUfqu: function (hK, hL) {
-      return hK > hL;
-    },
-    vnARV: "nearest",
-    vMZnl: function (hK, hL) {
-      return hK === hL;
-    },
-    CWhkb: function (hK) {
-      return hK();
-    },
-    gOkCA: "span",
-    UgEsj: function (hK, hL) {
-      return hK ?? hL;
-    },
-    NqmpV: "contain",
-    tqxci: "anonymous",
-    dPpFp: "picker-boss-pic picker-boss-pic--empty",
-    ZaICf: "button",
-    ArdrB: function (hK, hL) {
-      return hK(hL);
-    },
-    hzEcQ: function (hK, hL) {
-      return hK !== hL;
-    },
-    zosnV: "ArrowDown",
-    EcGTi: function (hK, hL) {
-      return hK(hL);
-    },
-    LnxnT: function (hK, hL) {
-      return hK(hL);
-    },
-    jSHkf: function (hK, hL) {
-      return hK?.(hL);
-    },
-    ezjmS: function (hK, hL) {
-      return hK === hL;
-    },
-    wNCHp: "div",
-    Ojtjk: " selected",
-    RdduU: " soon",
-    RVCQL: "picker-contract-icon",
-    bmmcL: "picker-contract-body",
-    NcmsZ: "picker-badge",
-    anqPQ: "Soon",
-    yvvyh: "Configure",
-    gPsYg: "ghost",
-    TzbQc: "Enter",
-    dzAUY: "Standard Fight",
-    NsWXY: "picker-overlay",
-    ttqZj: "picker-backdrop",
-    rtaBV: "picker centered-modal-snap",
-    MDIzH: "true",
-    VmylM: "picker-rail",
-    pNGww: "0 0 16 16",
-    sssnJ: "currentColor",
-    aRWrb: "1.5",
-    ssNzn: "M11 11l3 3",
-    ytmQo: "round",
-    Mxqjk: "input",
-    YzWaI: "text",
-    SBRfH: "label",
-    SBCdH: "picker-mobile-select",
-    ZaEBR: function (hK, hL) {
-      return hK === hL;
-    },
-    hVQzC: "option",
-    znFOT: "picker-rail-scroll",
-    psIpg: "section",
-    UdTik: "picker-hero",
-    WeXqf: function (hK, hL) {
-      return hK + hL;
-    },
-    sjCnc: "picker-hero-text",
-    jpFna: "picker-hero-tag",
-    ewPUL: "Please report any issues you notice in Discord's ",
-    XZIpG: "picker-hero-actions",
-    HrMGb: "picker-btn picker-btn--train",
-    enFXg: "Start Tutorial",
-    nlgyY: "picker-empty",
-    JXJqT: "These encounters are coming soon.",
-    YkTvW: "No encounters found.",
-    ltrJL: "picker-navigation-foot",
-    pradk: "picker-lobby-link",
-  };
-  const [hb, hc] = (0, React.useState)("");
-  const [hd, hf] = (0, React.useState)(null);
-  const [hg, hh] = (0, React.useState)(0);
-  const hi = (0, React.useRef)(null);
-  const hj = (0, React.useRef)(null);
-  const hk = (0, React.useRef)(null);
-  const hl = (0, React.useRef)(null);
-  const hm = (0, React.useRef)(null);
-  yle(hm, isOpen);
-  const ho = bpe(hm, onClose);
+  const cardRef = (0, React.useRef)(null);
+  yle(cardRef, isOpen);
+  const outsideClick = bpe(cardRef, onClose);
   dC(es.ENCOUNTER_PICKER, isOpen, onClose);
-  const hp = (0, React.useMemo)(() => {
-    const hK = [];
-    const hL = encounterRegistry
-      .getRegisteredKinds()
-      .map((hN) => encounterRegistry.getDescriptor(hN))
-      .filter((hN) => !!hN)
-      // The nexus is a room to walk through, not a fight to set up.
-      .filter((hN) => hN.kind !== vpe && hN.kind !== nexusKind);
-    for (const hN of hL) {
-      const hO = an(hN.kind)?.presentation ?? {};
-      const hP = hN.variants ?? [];
-      hK.push({
-        kind: hN.kind,
-        title: hO.title ?? hN.displayName,
-        description: hN.description,
-        subtitle:
-          hP.length > 0
-            ? hP.length + " contracts"
-            : (hO.tagline ?? hN.description),
-        searchText:
-          (hO.title ?? hN.displayName) +
-          " " +
-          hN.description +
-          " " +
-          (hO.tagline ?? ""),
-        available: true,
-        isWorkInProgress: hN.isWorkInProgress ?? false,
-        tutorialKind: Eue(hN.kind) ? hN.kind : null,
-        variants: hP,
-        presentation: hO,
-      });
-    }
-    for (const hQ of fpe) {
-      if (hK.some((hS) => hS.kind === hQ)) {
-        continue;
-      }
-      const hR = an(hQ)?.presentation ?? {};
-      hK.push({
-        kind: hQ,
-        title: hR.title ?? hQ,
-        description: hR.blurb ?? "",
-        subtitle: hR.tagline ?? hR.blurb ?? "",
-        searchText:
-          (hR.title ?? hQ) + " " + (hR.blurb ?? "") + " " + (hR.tagline ?? ""),
-        available: false,
-        isWorkInProgress: false,
-        tutorialKind: null,
-        variants: [],
-        presentation: hR,
-      });
-    }
-    return hK;
-  }, [encounterRegistry]);
-  const hr = (0, React.useMemo)(
-    () => hp.find((hK) => hK.available)?.kind ?? null,
-    [hp],
-  );
-  const hs = (0, React.useRef)(h7);
-  hs.current = h7;
-  const ht = (0, React.useRef)(h8);
-  ht.current = h8;
-  (0, React.useEffect)(() => {
-    if (isOpen) {
-      hc("");
-      const hK = (hS) => {
-        if (!hS) {
-          return null;
-        }
-        const hT = hp.find((hU) => hU.kind === hS && hU.available);
-        if (hT) {
-          return {
-            card: hT,
-          };
-        } else {
-          return null;
-        }
-      };
-      const hL = (hS, hT) => {
-        hf(hS.kind);
-        const hU = Math.max(
-          0,
-          hS.variants.findIndex((hV) => hV.id === hT),
-        );
-        hh(hU);
-        hl.current = hU > 0 ? hU : null;
-      };
-      const current19 = ht.current;
-      const current20 = hs.current;
-      const hP = hK(
-        current20 ? (encounterRegistry.getDescriptorOfKindOrVariant(current20)?.kind ?? current20) : null,
-      );
-      const hQ = current19 ? hK(current19.kind) : null;
-      if (current19 && hQ) {
-        hL(hQ.card, current19.variantId ?? hQ.rowId);
-      } else if (hP) {
-        hL(hP.card, hP.rowId);
-      } else {
-        hf(hr);
-        hh(0);
-      }
-      const hR = setTimeout(() => hi.current?.focus(), 50);
-      return () => clearTimeout(hR);
-    }
-  }, [isOpen, hr, hp, encounterRegistry]);
-  const hu = hb.trim().toLowerCase();
-  const hv = (hK) => {
-    if (!hu) {
-      return {
-        nameMatch: true,
-        variants: hK.variants,
-      };
-    }
-    const hL = hK.searchText.toLowerCase().includes(hu);
-    if (hL) {
-      return {
-        nameMatch: hL,
-        variants: hK.variants,
-      };
-    } else {
-      return {
-        nameMatch: hL,
-        variants: hK.variants.filter((hN) =>
-          (hN.name + " " + hN.subtitle).toLowerCase().includes(hu),
-        ),
-      };
-    }
-  };
-  const hw = hp.filter((hK) => {
-    if (!hu) {
-      return true;
-    }
-    const hL = hv(hK);
-    return hL.nameMatch || hL.variants.length > 0;
-  });
-  const hx = hw.filter((hK) => hK.available);
-  const hy = hw.filter((hK) => !hK.available);
-  const hz = hx.find((hK) => hK.kind === hd) ?? hx[0] ?? null;
-  (0, React.useEffect)(() => {
-    if (isOpen) {
-      hj.current?.scrollIntoView?.({
-        block: "nearest",
-      });
-    }
-  }, [isOpen, hz?.kind]);
-  (0, React.useEffect)(() => {
-    if (isOpen && hl.current === hg) {
-      hl.current = null;
-      hk.current?.scrollIntoView?.({
-        block: "nearest",
-      });
-    }
-  }, [isOpen, hg]);
-  const hA = hz ? hv(hz).variants : [];
-  const hB =
-    hz && hz.variants.length === 0
-      ? [
-          {
-            id: hz.kind,
-            encounterKind: hz.kind,
-            name: "Standard Fight",
-            subtitle: hz.description,
-            available: hz.available,
-          },
-        ]
-      : hA;
   if (!isOpen) {
     return null;
   }
-  const hC = (hK) => {
-    onEnter(hK);
-    onClose();
-  };
-  const hD = (hK) => {
-    onConfigure(hK.encounterKind, hK.name, hK.subtitle);
-    onClose();
-  };
-  const hE = encounterRegistry.isRegistered(vpe);
-  const hF = (hK) => {
-    const { thumb: thumb, thumbFit: thumbFit } = hK.presentation;
-    if (thumb) {
-      return (0, jsxRuntime.jsx)("span", {
-        className:
-          "picker-boss-pic picker-boss-pic--" + ha.UgEsj(thumbFit, "contain"),
-        children: (0, jsxRuntime.jsx)("img", {
-          crossOrigin: "anonymous",
-          src: thumb,
-          alt: "",
-        }),
-      });
-    } else {
-      return (0, jsxRuntime.jsx)("span", {
-        className: "picker-boss-pic picker-boss-pic--empty",
-        children: hK.title.charAt(0),
-      });
-    }
-  };
-  const hG = hz?.presentation;
-  const hH = hz?.available ? hz.tutorialKind : null;
-  const hI = !!onTutorialMode && null !== hH;
-  return (0, jsxRuntime.jsxs)("div", {
-    className: "picker-overlay",
-    ...dn.overlay,
-    ...ho,
-    children: [
-      (0, jsxRuntime.jsx)("div", {
-        className: "picker-backdrop",
-      }),
-      (0, jsxRuntime.jsxs)("div", {
-        className: "picker centered-modal-snap",
-        ...dn.card,
-        ref: hm,
-        role: "dialog",
-        "aria-modal": "true",
-        "aria-label": "Encounters",
-        onMouseDown: (hK) => {
-          if (hK.target.closest("button")) {
-            hK.preventDefault();
-          }
-        },
-        children: [
-          (0, jsxRuntime.jsx)(fV, {
-            className: "picker-close",
-            ...dn.close,
-            onClick: onClose,
-            "aria-label": "Close",
-          }),
-          (0, jsxRuntime.jsxs)("aside", {
-            className: "picker-rail",
-            children: [
-              (0, jsxRuntime.jsxs)("div", {
-                className: "picker-rail-head",
-                children: [ 
-                  (0, jsxRuntime.jsx)("h2", {
-                    children: "Encounters",
-                  }),
-                  (0, jsxRuntime.jsxs)("div", {
-                    className: "picker-search",
-                    children: [
-                      (0, jsxRuntime.jsxs)("svg", {
-                        viewBox: "0 0 16 16",
-                        fill: "none",
-                        "aria-hidden": "true",
-                        children: [
-                          (0, jsxRuntime.jsx)("circle", {
-                            cx: "7",
-                            cy: "7",
-                            r: "5",
-                            stroke: "currentColor",
-                            strokeWidth: "1.5",
-                          }),
-                          (0, jsxRuntime.jsx)("path", {
-                            d: "M11 11l3 3",
-                            stroke: "currentColor",
-                            strokeWidth: "1.5",
-                            strokeLinecap: "round",
-                          }),
-                        ],
-                      }),
-                      (0, jsxRuntime.jsx)("input", {
-                        ref: hi,
-                        type: "text",
-                        "aria-label": "Search encounters",
-                        placeholder: "Search encounters...",
-                        value: hb,
-                        onChange: (hK) => {
-                          hc(hK.target.value);
-                          hh(0);
-                        },
-                        onKeyDown: (hK) => {
-                          if (0 !== hB.length) {
-                            if ("ArrowDown" === hK.key) {
-                              hK.preventDefault();
-                              hh((hL) => (hL + 1) % hB.length);
-                            } else if ("ArrowUp" === hK.key) {
-                              hK.preventDefault();
-                              hh((hL) => (hL - 1 + hB.length) % hB.length);
-                            } else if (hK.key === "Enter") {
-                              hK.preventDefault();
-                              const hL = hB[hg];
-                              if (hL?.available) {
-                                hD(hL);
-                              }
-                            }
-                          }
-                        },
-                      }),
-                    ],
-                  }),
-                ],
-              }),
-              (0, jsxRuntime.jsxs)("label", {
-                className: "picker-mobile-select",
-                children: [
-                  (0, jsxRuntime.jsx)("span", {
-                    children: "Encounter",
-                  }),
-                  (0, jsxRuntime.jsxs)("select", {
-                    value: hz?.kind ?? "",
-                    onChange: (hK) => {
-                      hf(hK.target.value);
-                      hh(0);
-                    },
-                    children: [
-                      0 === hx.length &&
-                        (0, jsxRuntime.jsx)("option", {
-                          value: "",
-                          children: "No encounters found",
-                        }),
-                      hx.map((hK) =>
-                        (0, jsxRuntime.jsxs)(
-                          "option",
-                          {
-                            value: hK.kind,
-                            children: [
-                              hK.title,
-                              hK.isWorkInProgress ? " (Beta)" : "",
-                            ],
-                          },
-                          hK.kind,
-                        ),
-                      ),
-                      hy.map((hK) =>
-                        (0, jsxRuntime.jsxs)(
-                          "option",
-                          {
-                            disabled: true,
-                            children: [hK.title, " (Coming soon)"],
-                          },
-                          hK.kind,
-                        ),
-                      ),
-                    ],
-                  }),
-                ],
-              }),
-              (0, jsxRuntime.jsxs)("div", {
-                className: "picker-rail-scroll",
-                children: [
-                  hx.length > 0 &&
-                    (0, jsxRuntime.jsx)("div", {
-                      className: "picker-rail-section",
-                      children: "Bosses",
-                    }),
-                  hx.map((hK) =>
-                    (0, jsxRuntime.jsxs)(
-                      "button",
-                      {
-                        type: "button",
-                        tabIndex: -1,
-                        "aria-pressed": hK.kind === hz?.kind,
-                        ref: hK.kind === hz?.kind ? hj : null,
-                        className:
-                          "picker-boss" +
-                          (hK.kind === hz?.kind ? " active" : ""),
-                        onClick: () => {
-                          hf(hK.kind);
-                          hh(0);
-                        },
-                        children: [
-                          hF(hK),
-                          (0, jsxRuntime.jsxs)("span", {
-                            className: "picker-boss-meta",
-                            children: [
-                              (0, jsxRuntime.jsxs)("span", {
-                                className: "picker-boss-heading",
-                                children: [
-                                  (0, jsxRuntime.jsx)("span", {
-                                    className: "picker-boss-name",
-                                    children: hK.title,
-                                  }),
-                                  hK.isWorkInProgress &&
-                                    (0, jsxRuntime.jsx)(go, {
-                                      compact: true,
-                                    }),
-                                ],
-                              }),
-                              (0, jsxRuntime.jsx)("span", {
-                                className: "picker-boss-sub",
-                                children: hK.subtitle,
-                              }),
-                            ],
-                          }),
-                        ],
-                      },
-                      hK.kind,
-                    ),
-                  ),
-                  hy.length > 0 &&
-                    (0, jsxRuntime.jsx)("div", {
-                      className: "picker-rail-section",
-                      children: "Coming soon",
-                    }),
-                  hy.map((hK) =>
-                    (0, jsxRuntime.jsxs)(
-                      "div",
-                      {
-                        className: "picker-boss soon",
-                        "aria-disabled": "true",
-                        children: [
-                          hF(hK),
-                          (0, jsxRuntime.jsxs)("span", {
-                            className: "picker-boss-meta",
-                            children: [
-                              (0, jsxRuntime.jsx)("span", {
-                                className: "picker-boss-name",
-                                children: hK.title,
-                              }),
-                              (0, jsxRuntime.jsx)("span", {
-                                className: "picker-boss-sub",
-                                children: hK.subtitle,
-                              }),
-                            ],
-                          }),
-                        ],
-                      },
-                      hK.kind,
-                    ),
-                  ),
-                ],
-              }),
-            ],
-          }),
-          (0, jsxRuntime.jsx)("section", {
-            className: "picker-detail",
-            children:
-              hz && hG
-                ? (0, jsxRuntime.jsxs)("div", {
-                    className: "picker-detail-scroll",
-                    children: [
-                      (0, jsxRuntime.jsxs)("div", {
-                        className: "picker-hero",
-                        children: [
-                          hG.heroArt &&
-                            (0, jsxRuntime.jsx)("div", {
-                              className:
-                                "picker-hero-art" +
-                                (hG.heroArtFull
-                                  ? " picker-hero-art--full"
-                                  : ""),
-                              children: (0, jsxRuntime.jsx)("img", {
-                                crossOrigin: "anonymous",
-                                src: hG.heroArt,
-                                alt: hz.title,
-                              }),
-                            }),
-                          (0, jsxRuntime.jsxs)("div", {
-                            className: "picker-hero-text",
-                            children: [
-                              (0, jsxRuntime.jsxs)("div", {
-                                className: "picker-hero-title",
-                                children: [
-                                  (0, jsxRuntime.jsx)("h1", {
-                                    children: hz.title,
-                                  }),
-                                  hz.isWorkInProgress &&
-                                    (0, jsxRuntime.jsx)(go, {}),
-                                ],
-                              }),
-                              hG.tagline &&
-                                (0, jsxRuntime.jsx)("span", {
-                                  className: "picker-hero-tag",
-                                  children: hG.tagline,
-                                }),
-                              (hG.blurb || hz.isWorkInProgress) &&
-                                (0, jsxRuntime.jsxs)("p", {
-                                  children: [
-                                    hG.blurb,
-                                    hz.isWorkInProgress &&
-                                      (0, jsxRuntime.jsxs)(
-                                        jsxRuntime.Fragment,
-                                        {
-                                          children: [
-                                            " ",
-                                            "Please report any issues you notice in Discord's ",
-                                            (0, jsxRuntime.jsx)(mpe, {}),
-                                            " channel.",
-                                          ],
-                                        },
-                                      ),
-                                  ],
-                                }),
-                              hI &&
-                                (0, jsxRuntime.jsx)("div", {
-                                  className: "picker-hero-actions",
-                                  children: (0, jsxRuntime.jsx)("button", {
-                                    type: "button",
-                                    className: "picker-btn picker-btn--train",
-                                    onClick: () => {
-                                      if (hH) {
-                                        ha.jSHkf(onTutorialMode, hH);
-                                      }
-                                      onClose();
-                                    },
-                                    children: "Start Tutorial",
-                                  }),
-                                }),
-                            ],
-                          }),
-                        ],
-                      }),
-                      (0, jsxRuntime.jsx)("div", {
-                        className: "picker-contracts",
-                        children:
-                          hB.length > 0
-                            ? kpe(hB).map((hK) =>
-                                (0, jsxRuntime.jsxs)(
-                                  "div",
-                                  {
-                                    className: "picker-contract-group",
-                                    children: [
-                                      hK.group &&
-                                        (0, jsxRuntime.jsxs)("div", {
-                                          className: "picker-cg-label",
-                                          children: [hK.group, " contracts"],
-                                        }),
-                                      hK.items.map((hL) => {
-                                        const hN = hB.indexOf(hL) === hg;
-                                        const hO = ype[hL.id];
-                                        return (0, jsxRuntime.jsxs)(
-                                          "div",
-                                          {
-                                            ref: hN ? hk : null,
-                                            className:
-                                              "picker-contract" +
-                                              (hN ? " selected" : "") +
-                                              (hL.available ? "" : " soon"),
-                                            children: [
-                                              (0, jsxRuntime.jsx)("span", {
-                                                className:
-                                                  "picker-contract-icon",
-                                                children: hO
-                                                  ? (0, jsxRuntime.jsx)(gt, {
-                                                      src: hO,
-                                                      alt: "",
-                                                      width: 32,
-                                                      height: 32,
-                                                    })
-                                                  : (0, jsxRuntime.jsx)(
-                                                      wpe,
-                                                      {},
-                                                    ),
-                                              }),
-                                              (0, jsxRuntime.jsxs)("span", {
-                                                className:
-                                                  "picker-contract-body",
-                                                children: [
-                                                  (0, jsxRuntime.jsxs)("span", {
-                                                    className:
-                                                      "picker-contract-heading",
-                                                    children: [
-                                                      (0, jsxRuntime.jsx)(
-                                                        "span",
-                                                        {
-                                                          className:
-                                                            "picker-contract-name",
-                                                          children: hL.name,
-                                                        },
-                                                      ),
-                                                      hL.isWorkInProgress &&
-                                                        (0, jsxRuntime.jsx)(
-                                                          go,
-                                                          {},
-                                                        ),
-                                                    ],
-                                                  }),
-                                                  (0, jsxRuntime.jsx)("span", {
-                                                    className:
-                                                      "picker-contract-effect",
-                                                    children: hL.subtitle,
-                                                  }),
-                                                ],
-                                              }),
-                                              !hL.available &&
-                                                (0, jsxRuntime.jsx)("span", {
-                                                  className: "picker-badge",
-                                                  children: "Soon",
-                                                }),
-                                              hL.available &&
-                                                (0, jsxRuntime.jsxs)("div", {
-                                                  className:
-                                                    "picker-contract-actions",
-                                                  children: [
-                                                    (0, jsxRuntime.jsx)(OsrsButton, {
-                                                      onClick: () => hD(hL),
-                                                      children: "Configure",
-                                                    }),
-                                                    (0, jsxRuntime.jsx)(OsrsButton, {
-                                                      variant: "ghost",
-                                                      onClick: () =>
-                                                        hC(hL.encounterKind),
-                                                      children: "Enter",
-                                                    }),
-                                                  ],
-                                                }),
-                                            ],
-                                          },
-                                          hL.id,
-                                        );
-                                      }),
-                                    ],
-                                  },
-                                  hK.group ?? "ungrouped",
-                                ),
-                              )
-                            : (0, jsxRuntime.jsx)("div", {
-                                className: "picker-empty",
-                                children: "No contracts found.",
-                              }),
-                      }),
-                    ],
-                  })
-                : (0, jsxRuntime.jsx)("div", {
-                    className: "picker-empty",
-                    children:
-                      hy.length > 0
-                        ? "These encounters are coming soon."
-                        : "No encounters found.",
-                  }),
-          }),
-          hE &&
-            (0, jsxRuntime.jsx)("div", {
-              className: "picker-navigation-foot",
-              children: (0, jsxRuntime.jsx)(OsrsButton, {
-                className: "picker-lobby-link",
-                fullWidth: true,
-                onClick: () => hC(vpe),
-                children: "Return to Lobby",
-              }),
-            }),
-        ],
-      }),
-    ],
+  return (0, jsxRuntime.jsx)(EncounterPicker, {
+    overlayProps: { ...dn.overlay, ...outsideClick },
+    cardProps: dn.card,
+    cardRef: cardRef,
+    onClose: onClose,
+    onEnter: onEnter,
+    onConfigure: onConfigure,
+    onTutorialMode: onTutorialMode,
+    currentEncounterKind: currentEncounterKind,
+    initialSelection: initialSelection,
+    encounterRegistry: encounterRegistry,
+    getPresentation: (kind) => an(kind)?.presentation,
+    hasTutorial: Eue,
+    variantIcons: ype,
+    // What draws a boss from the game cache (client/ui/portraits.js).
+    portraitTools: npcModelLoader && animationSystem ? { createView: cz, npcModelLoader: npcModelLoader, animationSystem: animationSystem } : null,
+    issuesLink: (0, jsxRuntime.jsx)(mpe, {}),
+    lobbyKind: vpe,
+    // The nexus is a room to walk through, not a fight to set up.
+    hiddenKinds: [nexusKind],
   });
 }
 function Cpe({ from: from, activeIndex: activeIndex, className: className }) {
@@ -52343,6 +51624,7 @@ function eCe({ devHarness: devHarness } = {}) {
     dispatchInput: sS,
     onEnterEncounter: onEnterEncounter,
     onSelectLobbyEncounter: onSelectLobbyEncounter,
+    onBrowseEncounters: onBrowseEncounters,
     onReturnToLobby: onReturnToLobby,
     replay: sW,
     getReplayUiState: getReplayUiState,
@@ -52472,7 +51754,7 @@ function eCe({ devHarness: devHarness } = {}) {
           if (ty) {
             // A gateway with several fights behind it asks which one.
             if (ty.open) {
-              ty.open(onSelectLobbyEncounter);
+              ty.open(onSelectLobbyEncounter, onBrowseEncounters);
               return;
             }
             const tz = Object.values(aZ).find(
@@ -52572,6 +51854,11 @@ function eCe({ devHarness: devHarness } = {}) {
     dispatchInput: dispatchInput,
     onEnterEncounter: (sP) => enterEncounter(sP),
     onReturnToLobby: handleReturnToLobby,
+    // The lobby's encounter book (lobby/book.js) opens the encounter picker.
+    onBrowseEncounters: () => {
+      hC(null);
+      hA(true);
+    },
     onSelectLobbyEncounter: (sP) => {
       handleConfigureEncounter(
         sP.encounterKind,
@@ -53883,6 +53170,8 @@ function eCe({ devHarness: devHarness } = {}) {
           currentEncounterKind: mm,
           initialSelection: hB,
           encounterRegistry: cE,
+          npcModelLoader: loaders.npcModelLoader,
+          animationSystem: animationSystem,
         }),
         hN &&
           (() => {
