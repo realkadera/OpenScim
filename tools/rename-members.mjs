@@ -33,6 +33,19 @@
 // (`var Scene = class e { ... }` is Scene, whatever the bundler called it
 // inside), a class of another file as Name@file.
 //
+// Two more refusals, each from a rename that broke the client:
+// - Letters that a module also exports, or that a built-in, Node or an npm
+//   dependency has as a member: `rendering.FD` (an export) and `fs.rm` in
+//   tests look exactly like an access to the class's `FD` and `rm`.
+// - Letters that another class up or down the same inheritance chain
+//   defines, unless that class is in the family (alsoIn). A base calling
+//   `this.oH()` reaches its subclasses' oH; renaming one override alone cuts
+//   it off without an error. A chain that leaves the sources (`extends` an
+//   expression or an import that is not a class here) counts as related.
+//
+// --skip-refused renames what it can and lists each refused entry, instead
+// of refusing the whole names file.
+//
 // --census prints, for each class of the chunk, its members of up to three
 // characters (or all): accesses per file, and what stands in the way.
 import { execFileSync } from "node:child_process";
@@ -46,12 +59,22 @@ const push = (map, key, value) => (map.get(key) ?? map.set(key, []).get(key)).pu
 
 /** Everything in one file that defines, reads or mentions a member name. */
 function scan(file, code) {
-  const found = { file, code, classMembers: new Map(), objectKeys: new Map(), accesses: new Map(), thisAccesses: new Map(), strings: [] };
-  const className = (path) => {
-    const owner = path.findParent((parent) => parent.isClass());
-    return owner.parent.type === "VariableDeclarator" ? owner.parent.id.name : owner.node.id?.name ?? "(anonymous class)";
-  };
+  const found = { file, code, classMembers: new Map(), objectKeys: new Map(), accesses: new Map(), thisAccesses: new Map(), strings: [], classes: new Map(), exports: new Set() };
+  const nameOfClass = (classPath) => (classPath.parent.type === "VariableDeclarator" ? classPath.parent.id.name : classPath.node.id?.name ?? "(anonymous class)");
+  const className = (path) => nameOfClass(path.findParent((parent) => parent.isClass()));
   traverse(parse(code, { sourceType: "module" }), {
+    // What each class extends: a name, null for nothing, "?" for an expression.
+    Class(path) {
+      const superClass = path.node.superClass;
+      found.classes.set(nameOfClass(path), superClass === null ? null : superClass.type === "Identifier" ? superClass.name : "?");
+    },
+    // Names a module exports: code elsewhere reads them as module.name.
+    ExportNamedDeclaration(path) {
+      for (const specifier of path.node.specifiers) found.exports.add(specifier.exported.type === "Identifier" ? specifier.exported.name : specifier.exported.value);
+      const declaration = path.node.declaration;
+      if (declaration?.id) found.exports.add(declaration.id.name);
+      for (const declarator of declaration?.declarations ?? []) if (declarator.id.type === "Identifier") found.exports.add(declarator.id.name);
+    },
     "ClassMethod|ClassProperty|ClassAccessorProperty"(path) {
       const name = keyName(path.node);
       if (name !== undefined) push(found.classMembers, name, { owner: className(path), start: path.node.key.start, end: path.node.key.end, quoted: path.node.key.type !== "Identifier" });
@@ -87,26 +110,64 @@ const inCode = (name) => new RegExp(`(?<=\\.)${escape(name)}(?![\\w$])`, "g");
 
 /**
  * sources: { path: code }. names: { ClassName: { old: newName | [newName, evidence] } }.
- * Returns { sources (changed files only), renamed, accesses, notes }. Throws on any conflict.
+ * options.foreignNames: member names of objects outside these sources
+ * (built-ins, libraries), which an access `x.name` may belong to instead.
+ * options.skipRefused: rename what can be renamed and return the refusals,
+ * instead of throwing on the first set of them.
+ * Returns { sources (changed files only), renamed, accesses, notes, refused }.
  */
-export function renameMembers(sources, chunk, names) {
+export function renameMembers(sources, chunk, names, { foreignNames = new Set(), skipRefused = false } = {}) {
   const scans = Object.entries(sources).map(([file, code]) => scan(file, code));
-  const problems = [], notes = [], edits = new Map(scans.map((s) => [s.file, []]));
+  const problems = [], refused = [], notes = [], edits = new Map(scans.map((s) => [s.file, []]));
   const rewrittenStrings = new Map(); // string record -> its new source text
   const definedIn = (name) => scans.flatMap((s) => (s.classMembers.get(name) ?? []).map((member) => ({ ...member, file: s.file })));
+  // Exported names are read as module.name, which no scan can tell from a member access.
+  const exportedBy = new Map();
+  for (const s of scans) for (const name of s.exports) exportedBy.set(name, [...(exportedBy.get(name) ?? []), s.file]);
+  // Inheritance: "Class@file" -> its ancestors; "?" where the chain leaves these sources
+  // through an expression or an import that is not a class here (it may be any of them).
+  const classFiles = new Map();
+  for (const s of scans) for (const name of s.classes.keys()) classFiles.set(name, [...(classFiles.get(name) ?? []), s.file]);
+  const ancestors = (key) => {
+    const chain = [];
+    for (let [name, file] = key.split("@"); ; ) {
+      const superName = scans.find((s) => s.file === file)?.classes.get(name);
+      if (superName === null || superName === undefined) return chain;
+      if (superName === "?") return [...chain, "?"];
+      const home = (classFiles.get(superName) ?? []).includes(file) ? file : classFiles.get(superName)?.length === 1 ? classFiles.get(superName)[0] : null;
+      if (!home) return superName in globalThis ? chain : [...chain, "?"];
+      const next = `${superName}@${home}`;
+      if (chain.includes(next)) return chain;
+      chain.push(next);
+      [name, file] = [superName, home];
+    }
+  };
+  const related = (a, b) => {
+    const [up, down] = [ancestors(a), ancestors(b)];
+    return up.includes(b) || down.includes(a) || up.includes("?") || down.includes("?");
+  };
   let renamed = 0, accesses = 0;
   const taken = new Map(); // class -> new names given out
   for (const [owner, entries] of Object.entries(names)) {
     for (const [oldName, value] of Object.entries(entries)) {
       const [newName, , scope] = Array.isArray(value) ? value : [value];
       const where = `${owner}.${oldName}`;
+      const entryProblems = [];
       const definitions = definedIn(oldName);
       // The classes that hold this member: the owner, and those the entry says define the same one.
       const family = new Set([`${owner}@${chunk}`, ...(scope?.alsoIn ?? []).map((name) => (name.includes("@") ? name : `${name}@${chunk}`))]);
       const inFamily = (className, file) => family.has(`${className}@${file}`);
       const own = definitions.filter((member) => inFamily(member.owner, member.file));
       const foreign = definitions.filter((member) => !own.includes(member));
-      for (const name of family) if (name !== `${owner}@${chunk}` && !own.some((member) => `${member.owner}@${member.file}` === name)) problems.push(`${where}: ${name} (alsoIn) defines no such member`);
+      for (const name of family) if (name !== `${owner}@${chunk}` && !own.some((member) => `${member.owner}@${member.file}` === name)) entryProblems.push(`${where}: ${name} (alsoIn) defines no such member`);
+      // A class up or down the same inheritance chain that defines the name
+      // overrides it, or is overridden: a call this.name() in the base reaches
+      // the subclass. Renamed apart, the override is silently cut off.
+      const kin = [...new Set(foreign.map((member) => `${member.owner}@${member.file}`))].filter((key) => [...family].some((name) => related(name, key)));
+      if (kin.length) entryProblems.push(`${where}: ${kin.join(", ")} ${kin.length > 1 ? "are" : "is"} in its inheritance chain and ${kin.length > 1 ? "define" : "defines"} it too: rename them as one family (alsoIn)`);
+      // An access x.name may be to a module's export or a library object's member.
+      if (exportedBy.has(oldName)) entryProblems.push(`${where}: also exported by ${exportedBy.get(oldName).join(", ")}, read as module.${oldName}`);
+      if (foreignNames.has(oldName)) entryProblems.push(`${where}: also a member of a built-in or library object`);
       const objectKeys = scans.flatMap((s) => (s.objectKeys.get(oldName) ?? []).map((line) => `${s.file}:${line}`));
       // Which accesses are this member's. Shared with another class, the name
       // is only decidable where every access is `this.name` inside a class
@@ -121,41 +182,42 @@ export function renameMembers(sources, chunk, names) {
         mine = (s, access) => (lines[s.file] ? !access || lines[s.file].includes(access.line) : scope.onlyIn.includes(s.file));
         for (const [file, list] of Object.entries(lines)) {
           const present = (scans.find((s) => s.file === file)?.accesses.get(oldName) ?? []).map((access) => access.line);
-          for (const line of list) if (!present.includes(line)) problems.push(`${where}: no .${oldName} on line ${line} of ${file}`);
+          for (const line of list) if (!present.includes(line)) entryProblems.push(`${where}: no .${oldName} on line ${line} of ${file}`);
         }
         notes.push(`${where}: by decision, the accesses in ${[...scope.onlyIn, ...Object.entries(lines).map(([file, list]) => `${file} lines ${list.join(" ")}`)].join(", ")} are ${owner}'s; ${foreign.map((member) => `${member.owner} in ${member.file}`).join(", ")} keeps its own`);
       } else if (foreign.length) {
         undecided = !scans.every((s) => (s.accesses.get(oldName) ?? []).every((access) => definitions.some((member) => member.file === s.file && member.owner === access.thisOwner)));
         mine = (s, access) => inFamily(access.thisOwner, s.file);
       }
-      if (!/^[A-Za-z_$][\w$]*$/.test(newName)) problems.push(`${where}: "${newName}" is not an identifier`);
-      else if (!own.some((member) => member.file === chunk && member.owner === owner)) problems.push(`${where}: ${owner} in ${chunk} defines no such member`);
-      else if (undecided) problems.push(`${where}: also a member of ${[...new Set(foreign.map((member) => `${member.owner} (${member.file})`))].join(", ")}, and not every access is this.${oldName} inside one of them`);
-      else if (objectKeys.length) problems.push(`${where}: also an object key at ${objectKeys.slice(0, 4).join(", ")}`);
-      else if (exactly(scans, oldName).length) problems.push(`${where}: the string "${oldName}" occurs at ${exactly(scans, oldName).slice(0, 4).join(", ")}`);
-      else if (definedIn(newName).some((member) => inFamily(member.owner, member.file)) || [...family].some((name) => taken.get(name)?.has(newName))) problems.push(`${where}: ${owner}${family.size > 1 ? " or a class of its family" : ""} already has a member "${newName}"`);
-      else if (scans.some((s) => (s.thisAccesses.get(newName) ?? []).some((className) => inFamily(className, s.file)))) problems.push(`${where}: ${owner}${family.size > 1 ? " or a class of its family" : ""} already uses this.${newName}`);
-      else {
-        for (const name of family) (taken.get(name) ?? taken.set(name, new Set()).get(name)).add(newName);
-        renamed++;
-        const elsewhere = scans.map((s) => [s.file, (s.accesses.get(newName)?.length ?? 0) + (s.classMembers.get(newName)?.length ?? 0) + (s.objectKeys.get(newName)?.length ?? 0)]).filter(([, count]) => count);
-        if (elsewhere.length) notes.push(`${where} -> ${newName}: the new name is already used ${elsewhere.map(([file, count]) => `${count}x in ${file.split("/").pop()}`).join(", ")}`);
-        for (const member of own) edits.get(member.file).push([member.start, member.end, member.quoted ? JSON.stringify(newName) : newName]);
-        for (const s of scans) {
-          for (const access of s.accesses.get(oldName) ?? []) {
-            if (!mine(s, access)) continue;
-            edits.get(s.file).push([access.start, access.end, newName]);
-            accesses++;
-          }
-          for (const string of s.strings) {
-            if (!inCode(oldName).test(string.text) || (scope?.onlyIn && !mine(s))) continue;
-            if (!/^(test|tools)\//.test(s.file) || (foreign.length && !scope?.onlyIn)) problems.push(`${where}: ".${oldName}" inside a string at ${s.file}:${string.line}`);
-            else {
-              notes.push(`${where} -> ${newName}: rewritten inside a string at ${s.file}:${string.line}`);
-              rewrittenStrings.set(string, (rewrittenStrings.get(string) ?? s.code.slice(string.start, string.end)).replace(inCode(oldName), newName));
-            }
-          }
+      if (!/^[A-Za-z_$][\w$]*$/.test(newName)) entryProblems.push(`${where}: "${newName}" is not an identifier`);
+      else if (!own.some((member) => member.file === chunk && member.owner === owner)) entryProblems.push(`${where}: ${owner} in ${chunk} defines no such member`);
+      else if (undecided) entryProblems.push(`${where}: also a member of ${[...new Set(foreign.map((member) => `${member.owner} (${member.file})`))].join(", ")}, and not every access is this.${oldName} inside one of them`);
+      else if (objectKeys.length) entryProblems.push(`${where}: also an object key at ${objectKeys.slice(0, 4).join(", ")}`);
+      else if (exactly(scans, oldName).length) entryProblems.push(`${where}: the string "${oldName}" occurs at ${exactly(scans, oldName).slice(0, 4).join(", ")}`);
+      else if (definedIn(newName).some((member) => inFamily(member.owner, member.file)) || [...family].some((name) => taken.get(name)?.has(newName))) entryProblems.push(`${where}: ${owner}${family.size > 1 ? " or a class of its family" : ""} already has a member "${newName}"`);
+      else if (scans.some((s) => (s.thisAccesses.get(newName) ?? []).some((className) => inFamily(className, s.file)))) entryProblems.push(`${where}: ${owner}${family.size > 1 ? " or a class of its family" : ""} already uses this.${newName}`);
+      // Code inside strings (test probes) is rewritten only in test and tool files.
+      const strings = scans.flatMap((s) => s.strings.filter((string) => inCode(oldName).test(string.text) && !(scope?.onlyIn && !mine(s))).map((string) => [s, string]));
+      for (const [s, string] of strings) if (!/^(test|tools)\//.test(s.file) || (foreign.length && !scope?.onlyIn)) entryProblems.push(`${where}: ".${oldName}" inside a string at ${s.file}:${string.line}`);
+      if (entryProblems.length) {
+        (skipRefused ? refused : problems).push(...entryProblems);
+        continue;
+      }
+      for (const name of family) (taken.get(name) ?? taken.set(name, new Set()).get(name)).add(newName);
+      renamed++;
+      const elsewhere = scans.map((s) => [s.file, (s.accesses.get(newName)?.length ?? 0) + (s.classMembers.get(newName)?.length ?? 0) + (s.objectKeys.get(newName)?.length ?? 0)]).filter(([, count]) => count);
+      if (elsewhere.length) notes.push(`${where} -> ${newName}: the new name is already used ${elsewhere.map(([file, count]) => `${count}x in ${file.split("/").pop()}`).join(", ")}`);
+      for (const member of own) edits.get(member.file).push([member.start, member.end, member.quoted ? JSON.stringify(newName) : newName]);
+      for (const s of scans) {
+        for (const access of s.accesses.get(oldName) ?? []) {
+          if (!mine(s, access)) continue;
+          edits.get(s.file).push([access.start, access.end, newName]);
+          accesses++;
         }
+      }
+      for (const [s, string] of strings) {
+        notes.push(`${where} -> ${newName}: rewritten inside a string at ${s.file}:${string.line}`);
+        rewrittenStrings.set(string, (rewrittenStrings.get(string) ?? s.code.slice(string.start, string.end)).replace(inCode(oldName), newName));
       }
     }
   }
@@ -170,7 +232,7 @@ export function renameMembers(sources, chunk, names) {
     parse(code, { sourceType: "module" }); // must still parse
     out[s.file] = code;
   }
-  return { sources: out, renamed, accesses, notes };
+  return { sources: out, renamed, accesses, notes, refused };
 }
 
 /** Text for --census. */
@@ -258,10 +320,55 @@ function selfTest() {
     try { renameMembers(handedDown, "client/s.js", bad); } catch { threw = true; }
     if (!threw) throw new Error("expected a refusal for " + JSON.stringify(bad));
   }
+  // Refused: an override renamed apart from its base. The base calls
+  // this.hook(), which reaches Sub's; every access is `this.hook` inside a
+  // class that defines it, which alone would have allowed it.
+  const chain = { "client/h.js": "var Base = class { hook() {} run() { return this.hook(); } };\nvar Sub = class extends Base { hook() { return 1; } };\nvar Apart = class { hook() {} go() { return this.hook(); } };\nexport { Base, Sub };" };
+  for (const bad of [{ Sub: { hook: "x" } }, { Base: { hook: "x" } }]) {
+    threw = false;
+    try { renameMembers(chain, "client/h.js", bad); } catch (error) { threw = /inheritance chain/.test(error.message); }
+    if (!threw) throw new Error("expected an inheritance refusal for " + JSON.stringify(bad));
+  }
+  const whole = renameMembers(chain, "client/h.js", { Base: { hook: ["renderEffects", "", { alsoIn: ["Sub"] }] } }).sources["client/h.js"];
+  if (whole !== chain["client/h.js"].replace("{ hook() {} run() { return this.hook()", "{ renderEffects() {} run() { return this.renderEffects()").replace("extends Base { hook()", "extends Base { renderEffects()")) throw new Error("inheritance family:\n" + whole);
+  // Refused: letters that are also a module's export (read as module.FD) or a
+  // library object's member (fs.rm): the access cannot be told from the class's.
+  const exported = { "client/k.js": "var K = class { FD() {} rm() {} go() { return this.FD() + this.rm(); } };\nexport { K };", "client/m.js": "export function FD() {}", "test/u.mjs": "const m = await import('../client/m.js'); m.FD(); await fs.rm('dir');" };
+  for (const [bad, options] of [[{ K: { FD: "x" } }, {}], [{ K: { rm: "x" } }, { foreignNames: new Set(["rm"]) }]]) {
+    threw = false;
+    try { renameMembers(exported, "client/k.js", bad, options); } catch (error) { threw = /exported by|built-in or library/.test(error.message); }
+    if (!threw) throw new Error("expected a refusal for " + JSON.stringify(bad));
+  }
+  // --skip-refused: what can be renamed is, the rest is listed.
+  const partial = renameMembers(chain, "client/h.js", { Sub: { hook: "x" }, Base: { run: "start" } }, { skipRefused: true });
+  if (partial.renamed !== 1 || partial.refused.length !== 1 || !partial.sources["client/h.js"].includes("start() { return this.hook()")) throw new Error("skip refused:\n" + JSON.stringify(partial, null, 1));
   const listed = census(sources, "client/a.js");
   for (const part of ["## Engine (3 members)", "  nd  b.js 2, t.mjs 1  !! in strings: t.mjs:1", "  zz  a.js 1  !! in strings: b.js:3", "  OP  a.js 2  !! also in Other@a.js", "## World (3 members)"])
     if (!listed.includes(part)) throw new Error("census lacks " + JSON.stringify(part) + ":\n" + listed);
   console.log("rename-members self-test passed");
+}
+
+/**
+ * Member names of objects the client reaches that are not in its sources:
+ * built-ins, Node's modules (in tests and tools), the npm dependencies, and
+ * short DOM, SVG and canvas names. An access `x.name` may be to one of these.
+ */
+async function knownForeignMembers() {
+  const names = new Set();
+  const add = (value) => {
+    for (let object = value; object && object !== Object.prototype && object !== Function.prototype; object = Object.getPrototypeOf(object)) for (const key of Object.getOwnPropertyNames(object)) names.add(key);
+  };
+  const addModule = (module) => {
+    add(module);
+    for (const value of Object.values(module ?? {})) if (value && (typeof value === "object" || typeof value === "function")) { add(value); add(value.prototype); }
+  };
+  for (const value of [Math, JSON, Object, Array, Map, Set, WeakMap, Promise, String, Number, Reflect, Atomics, Intl, console, Function, Date, RegExp, ArrayBuffer, DataView, Uint8Array, Float32Array, Error]) { add(value); add(value.prototype); }
+  const { dependencies = {}, devDependencies = {} } = JSON.parse(readFileSync("package.json", "utf8"));
+  for (const name of ["node:fs", "node:fs/promises", "node:path", "node:os", "node:child_process", "node:assert", "node:test", "node:url", "node:crypto", "node:zlib", ...Object.keys(dependencies), ...Object.keys(devDependencies)]) {
+    try { addModule(await import(name)); } catch {} // a package that needs a browser to load contributes nothing
+  }
+  for (const name of "id dir alt src rel max min low cx cy rx ry dx dy in k1 k2 x y z w r g b a on of at to ok rm cp gl fn".split(" ")) names.add(name);
+  return names;
 }
 
 const args = process.argv.slice(2);
@@ -284,17 +391,20 @@ else if (chunk && (mapFile || args.includes("--census"))) {
     }
   } else {
     const read = JSON.parse(readFileSync(mapFile, "utf8"));
+    const foreignNames = await knownForeignMembers();
+    const skipRefused = args.includes("--skip-refused");
     for (const [target, names] of isDirectory ? Object.entries(read).map(([file, entries]) => [`${given}/${file}`, entries]) : [[given, read]]) {
       if (!files.includes(target)) throw new Error(target + " is not a tracked source file");
-      const { sources: out, renamed, accesses, notes } = renameMembers(readSources(), target, names);
+      const { sources: out, renamed, accesses, notes, refused } = renameMembers(readSources(), target, names, { foreignNames, skipRefused });
       if (!args.includes("--dry")) for (const [file, code] of Object.entries(out)) writeFileSync(file, code);
       for (const note of notes) console.log("note: " + note);
+      for (const reason of refused) console.log("refused: " + reason);
       const evidence = Object.values(names).flatMap((entries) => Object.values(entries)).map((value) => (Array.isArray(value) ? value[1] ?? "inferred" : "inferred"));
       const inferred = evidence.filter((note) => note.startsWith("inferred")).length;
       console.log(`${isDirectory ? target.split("/").pop() + ": " : ""}${renamed} members renamed (${evidence.length - inferred} with evidence, ${inferred} inferred), ${accesses} accesses in ${Object.keys(out).length} files: ${Object.keys(out).map((file) => file.split("/").pop()).join(", ")}`);
     }
   }
 } else {
-  console.error("usage: node tools/rename-members.mjs <chunk.js | directory> (--census [--all] | <names.json> [--dry]) | --self-test");
+  console.error("usage: node tools/rename-members.mjs <chunk.js | directory> (--census [--all] | <names.json> [--dry] [--skip-refused]) | --self-test");
   process.exit(1);
 }
