@@ -57,8 +57,8 @@ try {
   await p.mouse.click(640, 425);
   const collision = await p.evaluate(async () => {
     let c = new (await import("/assets/player.js")).CacheManager();
-    await c.Ad();
-    const a = await c.ld({ mapX: 61, mapY: 84, seedX: 29, seedY: 32 });
+    await c.ensureCache();
+    const a = await c.buildArenaConfig({ mapX: 61, mapY: 84, seedX: 29, seedY: 32 });
     return [
       a.walkableTiles.size,
       ...[

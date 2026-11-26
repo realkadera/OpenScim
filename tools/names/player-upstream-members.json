@@ -1,0 +1,174 @@
+{
+  "CacheDatabase": {
+    "eC": [
+      "requestPersistentStorage",
+      "upstream scimgg src/cache/CacheStorage.ts#CacheStorage.requestPersistentStorage (pos+arity; bodies share 8)"
+    ],
+    "tC": [
+      "storeCacheFile",
+      "upstream scimgg src/cache/CacheStorage.ts#CacheStorage.storeCacheFile (pos+arity; bodies share 16)"
+    ],
+    "aC": [
+      "getCacheFilesParallel",
+      "upstream scimgg src/cache/CacheStorage.ts#CacheStorage.getCacheFilesParallel (pos; bodies share 14)"
+    ],
+    "Sm": [
+      "hasCacheFile",
+      "upstream scimgg src/cache/CacheStorage.ts#CacheStorage.hasCacheFile (pos+arity; bodies share 11)"
+    ],
+    "oC": [
+      "deleteCacheMeta",
+      "upstream scimgg src/cache/CacheStorage.ts#CacheStorage.deleteCacheMeta (pos+arity; bodies share 11)"
+    ]
+  },
+  "CacheManager": {
+    "Ad": [
+      "ensureCache",
+      "upstream scimgg src/cache/CacheManager.ts#CacheManager.ensureCache (pos+arity; bodies share 33)"
+    ],
+    "mC": [
+      "readStoredMeta",
+      "upstream scimgg src/cache/CacheManager.ts#CacheManager.readStoredMeta (pos+arity; bodies share 5)"
+    ],
+    "EC": [
+      "storeFiles",
+      "upstream scimgg src/cache/CacheManager.ts#CacheManager.storeFiles (pos+arity; bodies share 12)"
+    ],
+    "LC": [
+      "storeMeta",
+      "upstream scimgg src/cache/CacheManager.ts#CacheManager.storeMeta (pos+arity; bodies share 12)"
+    ],
+    "bC": [
+      "extractZip",
+      "upstream scimgg src/cache/CacheManager.ts#CacheManager.extractZip (pos+arity; bodies share 12)"
+    ],
+    "DC": [
+      "isCacheFile",
+      "upstream scimgg src/cache/CacheManager.ts#CacheManager.isCacheFile (pos+arity; bodies share 4)"
+    ],
+    "MC": [
+      "initializeCacheSystem",
+      "upstream scimgg src/cache/CacheManager.ts#CacheManager.initializeCacheSystem (pos+arity; bodies share 87)"
+    ],
+    "ud": [
+      "loadMapLocs",
+      "upstream scimgg src/cache/CacheManager.ts#CacheManager.loadMapLocs (pos+arity; bodies share 15)"
+    ],
+    "vC": [
+      "loadXteaKeys",
+      "upstream scimgg src/cache/CacheManager.ts#CacheManager.loadXteaKeys (pos+arity; bodies share 36)"
+    ],
+    "XC": [
+      "fetchAndCacheXteaKeys",
+      "upstream scimgg src/cache/CacheManager.ts#CacheManager.fetchAndCacheXteaKeys (pos+arity; bodies share 18)"
+    ],
+    "OC": [
+      "parseXteaKeysArray",
+      "upstream scimgg src/cache/CacheManager.ts#CacheManager.parseXteaKeysArray (pos+arity; bodies share 7)"
+    ],
+    "xC": [
+      "getXteaKey",
+      "upstream scimgg src/cache/CacheManager.ts#CacheManager.getXteaKey (pos+arity; bodies share 3)"
+    ],
+    "$C": [
+      "readStoredFiles",
+      "upstream scimgg src/cache/CacheManager.ts#CacheManager.readStoredFiles (pos+arity; bodies share 20)"
+    ],
+    "rM": [
+      "loadAdditionalMapSquare",
+      "upstream scimgg src/cache/CacheManager.ts#CacheManager.loadAdditionalMapSquare (pos+arity; bodies share 9)"
+    ],
+    "RC": [
+      "getAdditionalMapSquareData",
+      "upstream scimgg src/cache/CacheManager.ts#CacheManager.getAdditionalMapSquareData (pos+arity; bodies share 2)"
+    ],
+    "KC": [
+      "getEnumTypeLoader",
+      "upstream scimgg src/cache/CacheManager.ts#CacheManager.getEnumTypeLoader (pos+arity; bodies share 1)"
+    ],
+    "BC": [
+      "getStructTypeLoader",
+      "upstream scimgg src/cache/CacheManager.ts#CacheManager.getStructTypeLoader (pos+arity; bodies share 1)"
+    ],
+    "SC": [
+      "loadLocationsWithTypes",
+      "upstream scimgg src/cache/CacheManager.ts#CacheManager.loadLocationsWithTypes (pos+arity; bodies share 15)"
+    ],
+    "FC": [
+      "loadNpcSpawnsWithTypes",
+      "upstream scimgg src/cache/CacheManager.ts#CacheManager.loadNpcSpawnsWithTypes (pos+arity; bodies share 15)"
+    ],
+    "YC": [
+      "getLocCollisionLoader",
+      "upstream scimgg src/cache/CacheManager.ts#CacheManager.getLocCollisionLoader (pos+arity; bodies share 6)"
+    ],
+    "ld": [
+      "buildArenaConfig",
+      "upstream scimgg src/cache/CacheManager.ts#CacheManager.buildArenaConfig (pos+arity; bodies share 28)"
+    ],
+    "TC": [
+      "analyzeArenaBounds",
+      "upstream scimgg src/cache/CacheManager.ts#CacheManager.analyzeArenaBounds (pos+arity; bodies share 13)"
+    ],
+    "UC": [
+      "setParsed",
+      "upstream scimgg src/cache/CacheManager.ts#CacheManager.setParsed (pos+arity; bodies share 7)"
+    ],
+    "jC": [
+      "notifyListeners",
+      "upstream scimgg src/cache/CacheManager.ts#CacheManager.notifyListeners (pos+arity; bodies share 3)"
+    ],
+    "CC": [
+      "waitForState",
+      "upstream scimgg src/cache/CacheManager.ts#CacheManager.waitForState (pos+arity; bodies share 5)"
+    ],
+    "pd": [
+      "getUnderlayLoader",
+      "upstream scimgg@f1cab1f src/cache/CacheManager.ts#CacheManager.getUnderlayLoader; the whole body is `return this.underlayLoader` in both, and no other upstream method of the class is (the positional map pairs it one method off)"
+    ],
+    "gd": [
+      "getOverlayLoader",
+      "upstream scimgg@f1cab1f src/cache/CacheManager.ts#CacheManager.getOverlayLoader; the whole body is `return this.overlayLoader` in both, and no other upstream method of the class is (the positional map pairs it one method off)"
+    ],
+    "kd": [
+      "getTextureLoader",
+      "upstream scimgg@f1cab1f src/cache/CacheManager.ts#CacheManager.getTextureLoader; the whole body is `return this.textureLoader` in both, and no other upstream method of the class is (the positional map pairs it one method off)"
+    ],
+    "IC": [
+      "getMinimapNpcDotUrl",
+      "upstream scimgg@f1cab1f src/cache/CacheManager.ts#CacheManager.getMinimapNpcDotUrl; the whole body is `return this.minimapNpcDotUrl` in both, and no other upstream method of the class is (the positional map pairs it one method off)"
+    ],
+    "PC": [
+      "getLocTypeLoader",
+      "upstream scimgg@f1cab1f src/cache/CacheManager.ts#CacheManager.getLocTypeLoader; the whole body is `return this.locTypeLoader` in both, and no other upstream method of the class is (the positional map pairs it one method off)"
+    ],
+    "NC": [
+      "getNpcTypeLoader",
+      "upstream scimgg@f1cab1f src/cache/CacheManager.ts#CacheManager.getNpcTypeLoader; the whole body is `return this.npcTypeLoader` in both, and no other upstream method of the class is (the positional map pairs it one method off)"
+    ],
+    "_C": [
+      "getSpotAnimTypeLoader",
+      "upstream scimgg@f1cab1f src/cache/CacheManager.ts#CacheManager.getSpotAnimTypeLoader; the whole body is `return this.spotAnimTypeLoader` in both, and no other upstream method of the class is (the positional map pairs it one method off)"
+    ],
+    "wd": [
+      "getLocModelLoader",
+      "upstream scimgg@f1cab1f src/cache/CacheManager.ts#CacheManager.getLocModelLoader; the whole body is `return this.locModelLoader` in both, and no other upstream method of the class is (the positional map pairs it one method off)"
+    ],
+    "yd": [
+      "getNpcModelLoader",
+      "upstream scimgg@f1cab1f src/cache/CacheManager.ts#CacheManager.getNpcModelLoader; the whole body is `return this.npcModelLoader` in both, and no other upstream method of the class is (the positional map pairs it one method off)"
+    ],
+    "xd": [
+      "getPlayerModelLoader",
+      "upstream scimgg@f1cab1f src/cache/CacheManager.ts#CacheManager.getPlayerModelLoader; the whole body is `return this.playerModelLoader` in both, and no other upstream method of the class is (the positional map pairs it one method off)"
+    ],
+    "bd": [
+      "getSpotAnimModelLoader",
+      "upstream scimgg@f1cab1f src/cache/CacheManager.ts#CacheManager.getSpotAnimModelLoader; the whole body is `return this.spotAnimModelLoader` in both, and no other upstream method of the class is (the positional map pairs it one method off)"
+    ],
+    "vd": [
+      "getAnimationSystem",
+      "upstream scimgg@f1cab1f src/cache/CacheManager.ts#CacheManager.getAnimationSystem; the whole body is `return this.animationSystem` in both, and no other upstream method of the class is (the positional map pairs it one method off)"
+    ]
+  }
+}

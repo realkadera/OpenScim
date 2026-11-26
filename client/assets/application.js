@@ -39297,7 +39297,7 @@ function useEncounterManager({
     const { x: iq, y: ir } = i0;
     let is = false;
     cacheManagerRef.current
-      .ud(iq, ir, i1)
+      .loadMapLocs(iq, ir, i1)
       .then((it) => {
         if (!is) {
           hD({
@@ -39334,7 +39334,7 @@ function useEncounterManager({
     const it = ir.collision?.seed ?? ir.playerStart;
     const iu = ir.collision?.dynamicLocs?.map(toLocPlacement);
     cacheManagerRef.current
-      .ld({
+      .buildArenaConfig({
         mapX: ir.mapSquare.x,
         mapY: ir.mapSquare.y,
         seedX: it[0],
@@ -48561,18 +48561,18 @@ function AppShell({ devHarness: devHarness } = {}) {
         }
         const current50 = cacheManagerRef.current;
         t1(current50.hd());
-        t4(current50.pd());
-        t7(current50.gd());
-        t9(current50.kd());
-        tg(current50.IC());
-        tj(current50.wd());
-        tm(current50.yd());
+        t4(current50.getUnderlayLoader());
+        t7(current50.getOverlayLoader());
+        t9(current50.getTextureLoader());
+        tg(current50.getMinimapNpcDotUrl());
+        tj(current50.getLocModelLoader());
+        tm(current50.getNpcModelLoader());
         tu(current50.getModelLoader());
-        tw(current50.xd());
-        tR.GiPOh(ty, current50.vd());
-        tA(current50._C());
-        tC(current50.bd());
-        tE(current50.NC());
+        tw(current50.getPlayerModelLoader());
+        tR.GiPOh(ty, current50.getAnimationSystem());
+        tA(current50.getSpotAnimTypeLoader());
+        tC(current50.getSpotAnimModelLoader());
+        tE(current50.getNpcTypeLoader());
         const current51 = bindingsRef.current;
         if (!current51) {
           return;
@@ -48587,8 +48587,8 @@ function AppShell({ devHarness: devHarness } = {}) {
         const objTypeLoader2 = current50.getObjTypeLoader();
         engineRef.current.setObjTypeLoader(objTypeLoader2);
         tH(objTypeLoader2);
-        tK(current50.KC());
-        tR.hTgUn(tN, current50.BC());
+        tK(current50.getEnumTypeLoader());
+        tR.hTgUn(tN, current50.getStructTypeLoader());
         engineRef.current.setInventory(playerInventoryRef.current);
         engineRef.current.setEquipment(playerEquipmentRef.current);
         engineRef.current.setCombatSupplies(playerCombatSuppliesRef.current);
@@ -48613,7 +48613,7 @@ function AppShell({ devHarness: devHarness } = {}) {
           }
         });
       });
-      cacheManagerRef.current.Ad().catch((tU) => {
+      cacheManagerRef.current.ensureCache().catch((tU) => {
         cy("useCacheBootstrap", "Failed to load cache:", tU);
       });
       return () => {

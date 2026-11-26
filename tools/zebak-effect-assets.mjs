@@ -10,7 +10,7 @@ try {
   await p.goto("http://127.0.0.1:5173/zebak/");
   const { missing, sounds } = await p.evaluate(async () => {
     const c = new (await import("/assets/player.js")).CacheManager();
-    await c.Ad();
+    await c.ensureCache();
     const models = new Set(Array.from({length: 7}, (_, i) => c.locTypeLoader.load(45570 + i).models.flat()).flat());
     const sequences = new Set(Array.from({ length: 18 }, (_, i) => 9618 + i));
     for (const id of [

@@ -65,7 +65,7 @@ export function loadEnvironment() {
     const warn = console.warn;
     console.warn = () => {}; // one sprite needs a canvas; the loader warns and carries on
     try {
-      await cacheManager.MC(await cacheManager.bC(zip.buffer.slice(zip.byteOffset, zip.byteOffset + zip.byteLength)));
+      await cacheManager.initializeCacheSystem(await cacheManager.extractZip(zip.buffer.slice(zip.byteOffset, zip.byteOffset + zip.byteLength)));
     } finally {
       console.warn = warn;
     }
@@ -81,7 +81,7 @@ export function loadEnvironment() {
       if (arenaDescriptors.has(descriptor.kind) && arenaDescriptors.get(descriptor.kind) !== descriptor) arenas.delete(descriptor.kind);
       if (arenas.has(descriptor.kind) || (descriptor.collision?.mode ?? "auto") === "custom") return;
       const seed = descriptor.collision?.seed ?? descriptor.playerStart;
-      const arena = await cacheManager.ld({
+      const arena = await cacheManager.buildArenaConfig({
         mapX: descriptor.mapSquare.x,
         mapY: descriptor.mapSquare.y,
         seedX: seed[0],

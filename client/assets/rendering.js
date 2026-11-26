@@ -2770,7 +2770,7 @@ var dg = class e {
     if (!r) {
       throw new Error("main_file_cache data file not found in storage");
     }
-    const i = await a.Sm(ig, n);
+    const i = await a.hasCacheFile(ig, n);
     s.set(i ? ig : "main_file_cache.dat", r);
     const l = await a.vm(og, n);
     if (l) {
@@ -54410,7 +54410,7 @@ var LobbySceneBuilder = class {
     return this.compositor.build(e, a, t);
   }
   async loadTerrain(e, a, t, n, s, r, i) {
-    const l = await this.cacheManager.rM(25, 73);
+    const l = await this.cacheManager.loadAdditionalMapSquare(25, 73);
     this.compositor.setForcedTerrain(l.terrain);
     const o = l.locations ?? undefined;
     const d = o?.map((e) => e.location);
@@ -54433,7 +54433,7 @@ var LobbySceneBuilder = class {
     // The gateways' objects are the only ones the lobby shows. Without them
     // the lobby still works, so a failure here is logged and not thrown.
     try {
-      const loader = this.cacheManager.wd();
+      const loader = this.cacheManager.getLocModelLoader();
       loader.setTextureLayerResolver(re.resolve);
       this.compositor.gatewayObjects = await loadGatewayObjects(LocRenderer, loader, this.compositor.terrainHeights);
     } catch (e) {

@@ -40,7 +40,7 @@ try {
   await page.waitForFunction(() => scene.npcInstanceManager.instanceRegistry.get("primary-npc")?.npcTypeId === 11732);
   const result = await page.evaluate(async () => {
     const cache = new (await import("/assets/player.js")).CacheManager();
-    await cache.Ad();
+    await cache.ensureCache();
     const sequences = [9634,9635].map(id => {
       const seq = cache.animationSystem.loadSeqType(id);
       return {id, duration:seq.skeletalEnd-seq.skeletalStart,sounds:[...(seq.frameSounds ?? [])].map(([frame,sounds])=> [frame,sounds.map(s=>s.id)])};

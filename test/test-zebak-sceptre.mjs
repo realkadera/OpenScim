@@ -71,7 +71,7 @@ try {
   const assets = await page.evaluate(async () => {
     const { CacheManager: Cache } = await import("/assets/player.js");
     const cache = new Cache();
-    await cache.Ad();
+    await cache.ensureCache();
 
     const graphics = [2128, 2337, 2338, 2339].map((id) => {
       const def = cache.spotAnimTypeLoader.load(id);

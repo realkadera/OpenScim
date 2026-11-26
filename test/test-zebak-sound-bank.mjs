@@ -14,7 +14,7 @@ try {
     const {zebakSoundNames} = await import("/toa/zebak/sounds.js");
     const {soundEffectResponse} = await import("/audio/soundEffects.js");
     const cache = new (await import("/assets/player.js")).CacheManager();
-    await cache.Ad();
+    await cache.ensureCache();
     const context = new OfflineAudioContext(1, 1, 22050);
     const ids = Object.keys(zebakSoundNames).map(Number);
     for (const id of ids) {

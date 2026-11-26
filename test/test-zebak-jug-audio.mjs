@@ -38,7 +38,7 @@ try {
   const assets = await page.evaluate(async () => {
     const {soundEffectResponse} = await import("/audio/soundEffects.js");
     const cache = window.testCache = new (await import("/assets/player.js")).CacheManager();
-    await cache.Ad();
+    await cache.ensureCache();
     return Promise.all([2695,2700].map(async id => {
       const response = await soundEffectResponse(cache, id);
       if (!response.ok) throw Error("Missing weapon sound " + id);
