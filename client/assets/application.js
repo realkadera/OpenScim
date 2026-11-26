@@ -32145,8 +32145,8 @@ aX();
 var Rye = (0, React.createContext)({
   user: null,
   loading: true,
-  login: async () => ({}),
-  register: async () => ({}),
+  providers: [],
+  signIn: async () => ({}),
   logout: async () => {},
   deleteAccount: async () => ({}),
 });
@@ -32165,47 +32165,47 @@ function AuthProvider({ children: children }) {
       .catch(() => {})
       .finally(() => h7(false));
   }, []);
-  const h8 = (0, React.useCallback)(async (hc, hd) => {
-    const hf = await fetch("/api/auth/login", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+  // OAuth sign-in (docs/backend 01 §2.3 E1). The buttons show only when a
+  // server answers /api/auth/providers with JSON; a static site shows none.
+  const [providers, setProviders] = (0, React.useState)([]);
+  (0, React.useEffect)(() => {
+    fetch("/api/auth/providers", {
       credentials: "same-origin",
-      body: JSON.stringify({
-        username: hc,
-        password: hd,
-      }),
-    });
-    const hg = await hf.json();
-    if (hf.ok) {
-      h5(hg.user);
-      return {};
-    } else {
-      return {
-        error: hg.error ?? "Login failed",
-      };
-    }
+    })
+      .then((hc) =>
+        hc.ok && /json/.test(hc.headers.get("Content-Type") ?? "")
+          ? hc.json()
+          : null,
+      )
+      .then((hc) =>
+        setProviders(
+          Array.isArray(hc?.providers)
+            ? hc.providers.filter((hd) => hd === "discord" || hd === "github")
+            : [],
+        ),
+      )
+      .catch(() => {});
   }, []);
-  const h9 = (0, React.useCallback)(async (hc, hd) => {
-    const hf = await fetch("/api/auth/register", {
+  const h8 = (0, React.useCallback)(async (hc) => {
+    const hd = await fetch("/api/auth/" + hc + "/start", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        "X-OpenScim-Client": "1",
       },
       credentials: "same-origin",
       body: JSON.stringify({
-        username: hc,
-        password: hd,
+        intent: "login",
+        return_to: location.pathname + location.search,
       }),
     });
-    const hg = await hf.json();
-    if (hf.ok) {
-      h5(hg.user);
+    const hf = await hd.json();
+    if (hd.ok && typeof hf.authorize_url === "string") {
+      location.assign(hf.authorize_url);
       return {};
     } else {
       return {
-        error: hg.error ?? "Registration failed",
+        error: hf.error ?? "Sign-in failed",
       };
     }
   }, []);
@@ -32241,8 +32241,8 @@ function AuthProvider({ children: children }) {
     value: {
       user: h4,
       loading: h6,
-      login: h8,
-      register: h9,
+      providers: providers,
+      signIn: h8,
       logout: ha,
       deleteAccount: hb,
     },
@@ -32381,14 +32381,11 @@ function Oye({ panelVisible: h2 = true }) {
   const {
     user: user,
     loading: loading,
-    login: login,
-    register: register,
+    providers: providers,
+    signIn: signIn,
     logout: logout,
   } = Lye();
-  const [h9, ha] = (0, React.useState)("");
-  const [hb, hc] = (0, React.useState)("");
   const [hd, hf] = (0, React.useState)("");
-  const [hg, hh] = (0, React.useState)(false);
   if (loading) {
     return null;
   }
@@ -32422,72 +32419,42 @@ function Oye({ panelVisible: h2 = true }) {
         }),
       ],
     });
+  } else if (providers.length === 0) {
+    return null;
   } else {
-    return (0, jsxRuntime.jsxs)("form", {
-      onSubmit: async (hi) => {
-        hi.preventDefault();
-        hf("");
-        try {
-          const hj = await (hg ? register : login)(h9, hb);
-          if (hj.error) {
-            hf(hj.error);
-          } else {
-            ha("");
-            hc("");
-          }
-        } catch (hk) {
-          if (!(hk instanceof Error)) {
-            throw hk;
-          }
-          hf(
-            hg
-              ? "Registration failed. Please try again."
-              : "Login failed. Please try again.",
-          );
-        }
-      },
+    return (0, jsxRuntime.jsxs)("div", {
       className: "login-section",
       children: [
-        (0, jsxRuntime.jsx)("input", {
-          type: "text",
-          placeholder: "Username",
-          value: h9,
-          onChange: (hi) => ha(hi.target.value),
-          className: "login-input",
-          autoComplete: "username",
-        }),
-        (0, jsxRuntime.jsx)("input", {
-          type: "password",
-          placeholder: "Password",
-          value: hb,
-          onChange: (hi) => hc(hi.target.value),
-          className: "login-input",
-          autoComplete: hg ? "new-password" : "current-password",
-        }),
-        hg &&
-          (0, jsxRuntime.jsx)("div", {
-            className: "login-disclaimer",
-            children: "Use a throwaway password, not your RS one.",
-          }),
+        ...providers.map((hi) =>
+          (0, jsxRuntime.jsx)(
+            OsrsButton,
+            {
+              fullWidth: true,
+              onClick: async () => {
+                hf("");
+                try {
+                  const hj = await signIn(hi);
+                  if (hj.error) {
+                    hf(hj.error);
+                  }
+                } catch (hk) {
+                  if (!(hk instanceof Error)) {
+                    throw hk;
+                  }
+                  hf("Sign-in failed. Please try again.");
+                }
+              },
+              children:
+                hi === "discord" ? "Sign in with Discord" : "Sign in with GitHub",
+            },
+            hi,
+          ),
+        ),
         hd &&
           (0, jsxRuntime.jsx)("span", {
             className: "login-error",
             children: hd,
           }),
-        (0, jsxRuntime.jsx)(OsrsButton, {
-          fullWidth: true,
-          type: "submit",
-          children: hg ? "Register" : "Log In",
-        }),
-        (0, jsxRuntime.jsx)("button", {
-          type: "button",
-          className: "login-text-link login-mode-toggle",
-          onClick: () => {
-            hh(!hg);
-            hf("");
-          },
-          children: hg ? "Have an account? Log In" : "Create Account",
-        }),
       ],
     });
   }
