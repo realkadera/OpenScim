@@ -30,96 +30,96 @@ import {
 } from "./vendor.js";
 import {
   PK as A,
-  isSupportedCombatSpell as B,
-  clampInfernoWave as C,
+  isSupportedCombatSpell,
+  clampInfernoWave,
   ou as D,
   pF as E,
-  isPrayerUnlockedByMechanics as F,
+  isPrayerUnlockedByMechanics,
   oS as G,
   $K as H,
-  getCombatLevel as I,
+  getCombatLevel,
   Xz as J,
-  solMessageColors as K,
+  solMessageColors,
   wq as L,
-  isSafeReplayPosition as M,
+  isSafeReplayPosition,
   qw as N,
   fC as O,
   BS as P,
   cq as Q,
-  getInventoryActions as R,
-  Prayer as S,
+  getInventoryActions,
+  Prayer,
   Gw as T,
   pC as U,
   isAppleTouchDevice,
   te as W,
   mq as X,
-  getItemName as Y,
-  logger as Z,
+  getItemName,
+  logger,
   TR as a0,
   Pw as a1,
   AC as a2,
   KK as a3,
   Vh as a4,
   gw as a5,
-  infernoStartWaveKey as a7,
+  infernoStartWaveKey,
   XK as a8,
   jB as a9,
   Ck as aa,
   QK as ab,
   dW as ac,
   Gk as ad,
-  LobbyEncounter as af,
+  LobbyEncounter,
   tq as ag,
   $h as ah,
-  PlayerVisualTracker as ai,
+  PlayerVisualTracker,
   Nw as aj,
   nC as ak,
   DK as al,
-  defaultSpellbook as am,
+  defaultSpellbook,
   OB as an,
-  getInfernoWaveSlotNpcs as ao,
+  getInfernoWaveSlotNpcs,
   xf as ap,
   MK as ar,
   ae as as,
-  parseInfernoSpawnLayout as at,
+  parseInfernoSpawnLayout,
   aq as au,
   VB as av,
   JI as aw,
   rq as ax,
-  getDistanceToFootprint as ay,
-  getWeaponProjectileTiming as az,
-  infernoPillarDestroyedKeys as aB,
-  hasCountdownMovement as aC,
+  getDistanceToFootprint,
+  getWeaponProjectileTiming,
+  infernoPillarDestroyedKeys,
+  hasCountdownMovement,
   sq as aD,
   Oh as aE,
   _w as aF,
-  infernoSpawnLayoutKey as aG,
+  infernoSpawnLayoutKey,
   cS as aH,
-  getArenaBounds as aJ,
+  getArenaBounds,
   Vw as aK,
   hC as aL,
   YK as aM,
   Uh as aN,
   Uw as aO,
-  infernoStartTileKey as aP,
+  infernoStartTileKey,
   _K as aQ,
-  isNpcTargetableAtTick as aR,
+  isNpcTargetableAtTick,
   EB as aS,
-  infernoMonsterDisplayNames as aT,
+  infernoMonsterDisplayNames,
   lu as aU,
   nq as aV,
-  packHsl as aW,
+  packHsl,
   ce as aX,
   ew as aZ,
-  getInfernoSetup as b0,
+  getInfernoSetup,
   zq as b1,
-  ReplaySafetyError as b2,
+  ReplaySafetyError,
   Qw as b3,
-  getInfernoActorTemplate as b4,
+  getInfernoActorTemplate,
   IS as b5,
   hq as b6,
-  prayerSlotByPrayer as b7,
-  isSafeReplaySize as b8,
+  prayerSlotByPrayer,
+  isSafeReplaySize,
   Yw as b9,
   kC as ba,
   LS as bb,
@@ -130,43 +130,43 @@ import {
   Yz as bg,
   Uk as bh,
   JK as bi,
-  createDefaultStats as bj,
+  createDefaultStats,
   UB as bk,
   EI as bl,
   IK as bm,
   bz as bn,
   uI as bo,
   Ff as bp,
-  lobbyNpcs as bq,
+  lobbyNpcs,
   BK as br,
-  spellbookLabels as bs,
+  spellbookLabels,
   CB as bt,
-  validateInfernoSpawnLayout as bu,
+  validateInfernoSpawnLayout,
   If as bv,
   RK as bw,
-  getCombatSpellsOfSpellbook as bx,
+  getCombatSpellsOfSpellbook,
   _B as by,
   fI as bA,
   kk as bB,
   Tq as bC,
   qp as bD,
   n as bE,
-  snapshotWorkLimit as bF,
+  snapshotWorkLimit,
   IA as bG,
   OS as bI,
   fK as bJ,
   de as bK,
-  infernoDefaultStartTile as bL,
+  infernoDefaultStartTile,
   yu as bM,
-  infernoPillars as bN,
+  infernoPillars,
   BA as bO,
   WK as bP,
-  getWeaponCategoryOrUnarmed as bQ,
-  snapshotFootprintLimit as bR,
+  getWeaponCategoryOrUnarmed,
+  snapshotFootprintLimit,
   sA as bS,
   FS as bT,
   dZ as bU,
-  zukPlayerStart as bV,
+  zukPlayerStart,
   uu as bW,
   E_ as bX,
   jK as bY,
@@ -174,11 +174,11 @@ import {
   ru as c1,
   KS as c2,
   wK as c3,
-  isInfernoSnapshot as c4,
+  isInfernoSnapshot,
   Sk as c5,
   hI as c6,
   cF as c7,
-  getSpellIconName as c8,
+  getSpellIconName,
   NK as c9,
   vu as ca,
   TA as cb,
@@ -187,22 +187,22 @@ import {
   LK as cf,
   Cq as cg,
   Vp as ch,
-  getProjectileFlightCycles as ci,
-  projectileWorkLimit as cj,
+  getProjectileFlightCycles,
+  projectileWorkLimit,
   pA as ck,
   GS as cl,
   pK as cm,
   $p as cn,
-  projectileGeometryLimit as co,
+  projectileGeometryLimit,
   zA as cp,
   RS as cr,
   vK as cs,
   CZ as ct,
-  infernoPlayerStart as cu,
+  infernoPlayerStart,
   hk as cv,
-  validateInfernoStartTile as cw,
+  validateInfernoStartTile,
   eF as cx,
-  getMonsterName as cy,
+  getMonsterName,
   xK as cz,
   lq as cB,
   Ow as cC,
@@ -212,21 +212,21 @@ import {
   gq as cH,
   Fw as cJ,
   rC as cK,
-  getEncounterControls as cL,
+  getEncounterControls,
   FD as cM,
   iu as cN,
   UK as cO,
-  projectileTimings as cP,
+  projectileTimings,
   NP as cQ,
   LA as cR,
   VS as cT,
   uK as cU,
   xH as cV,
   Xp as cW,
-  formatTileString as cX,
+  formatTileString,
   FK as cY,
   bZ as d0,
-  infernoSpawnTiles as d1,
+  infernoSpawnTiles,
   nk as d3,
   cA as d4,
   kB as d5,
@@ -240,77 +240,77 @@ import {
   AK as dd,
   TK as df,
   Az as dg,
-  formatInfernoSpawnLayout as dh,
+  formatInfernoSpawnLayout,
   Ok as di,
   xZ as dj,
-  infernoEncounterKind as dk,
+  infernoEncounterKind,
   tk as dl,
-  canChooseInfernoStartTile as dm,
+  canChooseInfernoStartTile,
   oF as dp,
   HK as dq,
   cZ as ds,
-  infernoArenaBounds as dt,
+  infernoArenaBounds,
   Yp as du,
   yA as dv,
   pB as dw,
   GK as dx,
   PH as dy,
   fk as dz,
-  parseTileString as dA,
+  parseTileString,
   iF as dB,
   EK as dC,
   pu as dD,
-  getCarriedWeight as dE,
+  getCarriedWeight,
   qS as dF,
   SK as dG,
   Lq as dH,
   Jh as dI,
-  snapshotGroundItemLimit as dJ,
+  snapshotGroundItemLimit,
   nA as dK,
   US as dL,
   kK as dM,
   vq as dN,
-  isSafeReplayCycle as dO,
+  isSafeReplayCycle,
   wC as dP,
   WS as dQ,
   XV as dR,
   Sq as dS,
-  getActiveSpell as dT,
-  totalSnapshotFootprintLimit as dU,
+  getActiveSpell,
+  totalSnapshotFootprintLimit,
   Xw as dV,
   CS as dX,
   Dq as dY,
-  getWeaponCategoryDefinition as e0,
-  snapshotNpcLimit as e1,
+  getWeaponCategoryDefinition,
+  snapshotNpcLimit,
   aA as e2,
   _S as e3,
-  encounterRegistry as e4,
+  encounterRegistry,
   VK as e5,
   Qz as e6,
-  getInfernoSpawnCommandType as e7,
+  getInfernoSpawnCommandType,
 } from "./rendering.js";
 import { applyPackTheme, OsrsButton } from "./packThemes.js";
 import {
-  isItemStackable as ea,
-  createEmptyCombatSupplies as ec,
-  areCombatSuppliesEqual as ed,
-  createEmptyInventory as ee,
-  applyPrayerActions as ef,
-  consolidateRetiredEncounterKinds as eg,
-  hasRuneAvailable as eh,
-  DEATH_CHARGE_SPELL as ei,
-  getSpellRuneTypes as ej,
-  parseEngineBootstrap as ek,
-  hasMagicLevelForSpell as el,
-  RUNE_ITEM_IDS as em,
-  rebuildEngineAtReplayFrame as eo,
-  getSoulreaperStacksForWeapon as ep,
-  MARK_OF_DARKNESS_SPELL as er,
-  SimulationEngine as es,
-  canCastSpell as et,
-  consumableDefinitionByItemId as eu,
-  resolveBaseEncounterKind as ev,
-  isEncounterKind as ex,
+  isItemStackable,
+  createEmptyCombatSupplies,
+  areCombatSuppliesEqual,
+  createEmptyInventory,
+  applyPrayerActions,
+  consolidateRetiredEncounterKinds,
+  hasRuneAvailable,
+  DEATH_CHARGE_SPELL,
+  getSpellRuneTypes,
+  parseEngineBootstrap,
+  hasMagicLevelForSpell,
+  RUNE_ITEM_IDS,
+  rebuildEngineAtReplayFrame,
+  getSoulreaperStacksForWeapon,
+  MARK_OF_DARKNESS_SPELL,
+  SimulationEngine,
+  canCastSpell,
+  consumableDefinitionByItemId,
+  resolveBaseEncounterKind,
+  isEncounterKind,
 } from "./simulationEngineFactory.js";
 import { isStandaloneOrFullscreen } from "./fullscreen.js";
 import {
@@ -1971,7 +1971,7 @@ function Xse(ez, eA) {
   return (
     Jae(ez.equipment, eA.equipment) &&
     Cie(ez.inventory, eA.inventory) &&
-    ed(ez.supplies, eA.supplies)
+    areCombatSuppliesEqual(ez.supplies, eA.supplies)
   );
 }
 var b_e = [
@@ -5415,8 +5415,8 @@ var SLOT_NAMES = [
 var Xxe = INFERNO_ARENA_MAP_IMAGE.bounds;
 var Gxe = Xxe.maxX - Xxe.minX + 1;
 var Kxe = Xxe.maxY - Xxe.minY + 1;
-var Qxe = dt.maxX - dt.minX + 1;
-var Zxe = dt.maxY - dt.minY + 1;
+var Qxe = infernoArenaBounds.maxX - infernoArenaBounds.minX + 1;
+var Zxe = infernoArenaBounds.maxY - infernoArenaBounds.minY + 1;
 var Jxe = [
   ...Array.from(
     {
@@ -5432,7 +5432,7 @@ var Jxe = [
   ),
 ].join("");
 function eMe(ez) {
-  const eB = aT[ez].one;
+  const eB = infernoMonsterDisplayNames[ez].one;
   return eB.charAt(0).toUpperCase() + eB.slice(1);
 }
 function SpawnLayoutMap({
@@ -5695,7 +5695,7 @@ function SpawnLayoutMap({
     onSlotsChange(f8);
     eO(null);
   };
-  const f4 = 1 === wave ? cu : 69 === wave ? bV : playerTile;
+  const f4 = 1 === wave ? infernoPlayerStart : 69 === wave ? zukPlayerStart : playerTile;
   return (0, wn.jsxs)(wn.Fragment, {
     children: [
       (0, wn.jsx)("fieldset", {
@@ -5868,7 +5868,7 @@ function SpawnLayoutMap({
               if (fd?.dataset.spawnSlot === undefined) {
                 if (fd?.dataset.pillar) {
                   onPillarChange(fd.dataset.pillar);
-                } else if (fa && dm(wave)) {
+                } else if (fa && canChooseInfernoStartTile(wave)) {
                   onStartChange([
                     Xxe.minX +
                       Math.floor(
@@ -5948,7 +5948,7 @@ function SpawnLayoutMap({
                 }),
                 (0, wn.jsx)("svg", {
                   className: "spawn-map__grid",
-                  style: eX([dt.minX, dt.minY], Qxe, Zxe),
+                  style: eX([infernoArenaBounds.minX, infernoArenaBounds.minY], Qxe, Zxe),
                   viewBox: "0 0 " + Qxe + " " + Zxe,
                   preserveAspectRatio: "none",
                   shapeRendering: "crispEdges",
@@ -5959,10 +5959,10 @@ function SpawnLayoutMap({
                   }),
                 }),
                 kinds.length > 0 &&
-                  d1.map((f7, f8) => {
+                  infernoSpawnTiles.map((f7, f8) => {
                     const f9 = slots[f8];
                     const fa = f9
-                      ? b4(
+                      ? getInfernoActorTemplate(
                           "mager" === f9 || f9 === "ranger"
                             ? {
                                 kind: f9,
@@ -6008,7 +6008,7 @@ function SpawnLayoutMap({
                     );
                   }),
                 wave <= 66 &&
-                  bN.map((f7) => {
+                  infernoPillars.map((f7) => {
                     const f8 = destroyedPillars[f7.key];
                     return (0, wn.jsx)(
                       "button",
@@ -6043,11 +6043,11 @@ function SpawnLayoutMap({
                     f4[0] +
                     ", " +
                     f4[1] +
-                    (dm(wave) ? ". Tap floor to move." : " (fixed)"),
+                    (canChooseInfernoStartTile(wave) ? ". Tap floor to move." : " (fixed)"),
                   children: (0, wn.jsx)("span", {
                     className:
                       "spawn-map__player-label" +
-                      (f4[1] >= dt.maxY - 1 ? " is-below" : ""),
+                      (f4[1] >= infernoArenaBounds.maxY - 1 ? " is-below" : ""),
                     children: "You",
                   }),
                 }),
@@ -6172,7 +6172,7 @@ function iMe(ez) {
   eb.add(ez);
   return () => eb.delete(ez);
 }
-var aMe = d1.map(() => null);
+var aMe = infernoSpawnTiles.map(() => null);
 function InfernoSpawnSetup({
   config: config,
   onChange: onChange,
@@ -6257,7 +6257,7 @@ function InfernoSpawnSetup({
     destroyedPillars: destroyedPillars,
     spawnLayout: spawnLayout,
     startTile: startTile,
-  } = b0(config);
+  } = getInfernoSetup(config);
   const eN = 69 !== startWave;
   const [eO, eQ] = (0, pn.useState)(false);
   const eR = (0, pn.useId)();
@@ -6276,23 +6276,23 @@ function InfernoSpawnSetup({
     const fc = window.setTimeout(() => eW("idle"), 2000);
     return () => window.clearTimeout(fc);
   }, [eV]);
-  const eX = ao(startWave);
+  const eX = getInfernoWaveSlotNpcs(startWave);
   const eY = spawnLayout?.wave === startWave ? spawnLayout : null;
   const eZ = eX.length ? (eY?.slots ?? aMe) : aMe;
   const length4 = eZ.filter(Boolean).length;
   const f2 = length4 > 0 && length4 < eX.length;
   const f3 = (fc) => {
-    const fd = bu(startWave, fc);
-    const fe = fd.ok ? dh(fd.layout) : eY ? "" : config[aG];
+    const fd = validateInfernoSpawnLayout(startWave, fc);
+    const fe = fd.ok ? formatInfernoSpawnLayout(fd.layout) : eY ? "" : config[infernoSpawnLayoutKey];
     if (!("tool" !== surface) || fe !== config.infernoSpawnLayout) {
       onChange({
         ...config,
-        [aG]: fe,
+        [infernoSpawnLayoutKey]: fe,
       });
     }
   };
   const f4 =
-    dm(startWave) && (startTile[0] !== bL[0] || startTile[1] !== bL[1]);
+    canChooseInfernoStartTile(startWave) && (startTile[0] !== infernoDefaultStartTile[0] || startTile[1] !== infernoDefaultStartTile[1]);
   const f5 =
     0 === eX.length
       ? startWave < 67
@@ -6352,7 +6352,7 @@ function InfernoSpawnSetup({
         },
       };
       (async () => {
-        const fd = fc.docOI(b0, config);
+        const fd = fc.docOI(getInfernoSetup, config);
         try {
           const fe = bl(
             window.location.origin,
@@ -6415,21 +6415,21 @@ function InfernoSpawnSetup({
         onSlotsChange: f3,
         onStartChange: (fc) => {
           if (
-            cw(fc, {
+            validateInfernoStartTile(fc, {
               startWave: startWave,
               destroyedPillars: destroyedPillars,
             }).ok
           ) {
             onChange({
               ...config,
-              [aP]: cX(fc),
+              [infernoStartTileKey]: formatTileString(fc),
             });
           }
         },
         onPillarChange: (fc) =>
           onChange({
             ...config,
-            [aB[fc]]: !destroyedPillars[fc],
+            [infernoPillarDestroyedKeys[fc]]: !destroyedPillars[fc],
           }),
         caption: (0, wn.jsx)("p", {
           className: "inferno-arena__caption",
@@ -6450,7 +6450,7 @@ function InfernoSpawnSetup({
                         startWave <= 66
                           ? "Tap a pillar to knock it down. "
                           : "",
-                        dm(startWave)
+                        canChooseInfernoStartTile(startWave)
                           ? "Tap floor to move You."
                           : "Your start is fixed.",
                       ],
@@ -6482,7 +6482,7 @@ function InfernoSpawnSetup({
               onClick: () =>
                 onChange({
                   ...config,
-                  [aP]: "",
+                  [infernoStartTileKey]: "",
                 }),
               children: "Reset start",
             }),
@@ -6618,7 +6618,7 @@ var InfernoLinkNotice = () => {
     return null;
   }
 };
-var cMe = [a7, aB.west, aB.south, aB.northEast];
+var cMe = [infernoStartWaveKey, infernoPillarDestroyedKeys.west, infernoPillarDestroyedKeys.south, infernoPillarDestroyedKeys.northEast];
 var START_WAVE_INFO = {
   rail: "The wave the run starts on. Clearing a wave carries straight into the next one, through TzKal-Zuk on wave 69.",
   practice:
@@ -6637,7 +6637,7 @@ var InfernoSetup = ({
   exportGear: exportGear,
   actionFooter: actionFooter,
 }) => {
-  const eH = b0(config);
+  const eH = getInfernoSetup(config);
   const { startWave: startWave } = eH;
   const eK = (0, pn.useId)();
   const eM = (0, pn.useRef)(null);
@@ -6647,10 +6647,10 @@ var InfernoSetup = ({
   const eS = (eX) =>
     onChange({
       ...config,
-      [a7]: String(C(eX)),
+      [infernoStartWaveKey]: String(clampInfernoWave(eX)),
     });
   const eT = (eX) => {
-    const eY = C(eX);
+    const eY = clampInfernoWave(eX);
     eS(eY);
     eC?.execute({
       encounter: "inferno",
@@ -6862,11 +6862,11 @@ function InfernoLayoutDraft({
     ...config,
     ...eG,
   };
-  const { startWave: startWave } = b0(eI);
+  const { startWave: startWave } = getInfernoSetup(eI);
   const eM = (eN) => {
     eH(
       Object.fromEntries(
-        [a7, aG, aP, ...Object.values(aB)].map((eO) => [eO, eN[eO]]),
+        [infernoStartWaveKey, infernoSpawnLayoutKey, infernoStartTileKey, ...Object.values(infernoPillarDestroyedKeys)].map((eO) => [eO, eN[eO]]),
       ),
     );
     onChange(eN);
@@ -6900,7 +6900,7 @@ function InfernoLayoutDraft({
   });
 }
 function mMe(ez) {
-  if (c4(ez)) {
+  if (isInfernoSnapshot(ez)) {
     return ez.state.wave;
   } else {
     return null;
@@ -6911,7 +6911,7 @@ var fMe = bA.reduce(
   new Map(),
 );
 var bMe = {
-  [dk]: {
+  [infernoEncounterKind]: {
     label: "Edit layout",
     icon: "layout",
     disabledReason: (ez) =>
@@ -6923,12 +6923,12 @@ var bMe = {
   },
 };
 var SETUP_CONTROLS = {
-  [dk]: {
+  [infernoEncounterKind]: {
     keys: cMe,
     railSection: "Wave & arena",
     practiceSection: "Start wave",
     summary: function (ez) {
-      const { startWave: startWave, spawnLayout: spawnLayout } = b0(ez);
+      const { startWave: startWave, spawnLayout: spawnLayout } = getInfernoSetup(ez);
       if (startWave === 69) {
         return "Wave 69 · TzKal-Zuk";
       } else if (spawnLayout?.wave === startWave) {
@@ -6950,7 +6950,7 @@ function Moe(ez) {
   if (undefined === ez) {
     return undefined;
   } else {
-    return SETUP_CONTROLS[ev(ez)];
+    return SETUP_CONTROLS[resolveBaseEncounterKind(ez)];
   }
 }
 function yMe(ez) {
@@ -6963,12 +6963,12 @@ function yMe(ez) {
 function vMe(ez) {
   if (ez) {
     return (function (eB) {
-      if (c4(eB)) {
+      if (isInfernoSnapshot(eB)) {
         return aw({
           startWave: eB.state.startWave,
           destroyedPillars: eB.state.startDestroyedPillars,
-          spawnLayout: at(eB.state.startSpawnLayout),
-          startTile: dA(eB.state.startPlayerTile) ?? bL,
+          spawnLayout: parseInfernoSpawnLayout(eB.state.startSpawnLayout),
+          startTile: parseTileString(eB.state.startPlayerTile) ?? infernoDefaultStartTile,
         });
       } else {
         return "";
@@ -6981,10 +6981,10 @@ function vMe(ez) {
 function wMe(ez) {
   if (ez) {
     return (function (eB) {
-      if (!c4(eB)) {
+      if (!isInfernoSnapshot(eB)) {
         return;
       }
-      const eC = at(eB.state.waveSpawnLayout);
+      const eC = parseInfernoSpawnLayout(eB.state.waveSpawnLayout);
       const waveStartPlayerTile2 = eB.state.waveStartPlayerTile;
       if ((eC && eC.wave !== eB.state.wave) || (!eC && !waveStartPlayerTile2)) {
         return undefined;
@@ -7007,11 +7007,11 @@ function infernoSession(ez, eA) {
   if (ez) {
     return (function (eC, eD) {
       const eE = mMe(eC);
-      if (null === eE || !c4(eC)) {
+      if (null === eE || !isInfernoSnapshot(eC)) {
         return null;
       }
-      const eG = e7(eC);
-      const eH = at(eC.state.startSpawnLayout)?.wave === eE;
+      const eG = getInfernoSpawnCommandType(eC);
+      const eH = parseInfernoSpawnLayout(eC.state.startSpawnLayout)?.wave === eE;
       const eI = !eH && eG === "reroll-wave";
       return {
         title: eI ? "Wave " + eE + " · spawn layout locked" : "Wave " + eE,
@@ -7107,7 +7107,7 @@ function infernoWaveInfobox(ez) {
   }
 }
 var MMe = {
-  [dk]: function (ez) {
+  [infernoEncounterKind]: function (ez) {
     const eB = [];
     const eC = new Map();
     let eD = null;
@@ -7118,7 +7118,7 @@ var MMe = {
       const eO = fMe.get(eH.wave);
       const eQ = eO
         ? (function ({ kind: kind, count: count }) {
-            const eT = aT[kind];
+            const eT = infernoMonsterDisplayNames[kind];
             if (1 === count) {
               return "First " + eT.one + " (" + eT.game + ")";
             } else {
@@ -7148,7 +7148,7 @@ var MMe = {
     };
     for (let eH = 0; eH < ez.length; eH++) {
       const encounter2 = ez[eH].state.encounter;
-      if (!encounter2 || !c4(encounter2)) {
+      if (!encounter2 || !isInfernoSnapshot(encounter2)) {
         continue;
       }
       const { wave: wave, phase: phase } = encounter2.state;
@@ -8267,7 +8267,7 @@ function eNe(ez) {
   }
   const frames2 = ez.frames;
   if (frames2.length > 6000) {
-    throw new b2("validation-work-limit", {
+    throw new ReplaySafetyError("validation-work-limit", {
       actual: frames2.length,
       limit: al,
     });
@@ -8283,18 +8283,18 @@ function eNe(ez) {
         ez.clip.sourceStartFrame <= 0 ||
         !Array.isArray(eE.effectContext)
       ) {
-        throw new b2("validation-work-limit");
+        throw new ReplaySafetyError("validation-work-limit");
       }
       eC = eE.effectContext;
       if (eC.length + frames2.length > 6000) {
-        throw new b2("validation-work-limit", {
+        throw new ReplaySafetyError("validation-work-limit", {
           actual: eC.length + frames2.length,
           limit: al,
         });
       }
       for (const eG of eC) {
         if (JTe(eG) && undefined !== eG.effectContext) {
-          throw new b2("validation-work-limit");
+          throw new ReplaySafetyError("validation-work-limit");
         }
       }
     }
@@ -8400,23 +8400,23 @@ function iNe(ez) {
 function aNe(ez, eA) {
   if (
     ez !== undefined &&
-    (!("number" == typeof ez) || !Number.isInteger(ez) || !dO(30 * ez))
+    (!("number" == typeof ez) || !Number.isInteger(ez) || !isSafeReplayCycle(30 * ez))
   ) {
-    throw new b2("invalid-clock", {
+    throw new ReplaySafetyError("invalid-clock", {
       frameIndex: eA,
     });
   }
 }
 function sNe(ez, eA) {
-  if (ez !== undefined && !M(ez)) {
-    throw new b2("invalid-geometry", {
+  if (ez !== undefined && !isSafeReplayPosition(ez)) {
+    throw new ReplaySafetyError("invalid-geometry", {
       frameIndex: eA,
     });
   }
 }
 function lNe(ez, eA) {
-  if (ez !== undefined && !b8(ez)) {
-    throw new b2("invalid-geometry", {
+  if (ez !== undefined && !isSafeReplaySize(ez)) {
+    throw new ReplaySafetyError("invalid-geometry", {
       frameIndex: eA,
     });
   }
@@ -8424,7 +8424,7 @@ function lNe(ez, eA) {
 function cNe(ez, eA) {
   if (undefined !== ez) {
     if (!Array.isArray(ez) || ez.length > 2) {
-      throw new b2("movement-path-limit", {
+      throw new ReplaySafetyError("movement-path-limit", {
         frameIndex: eA,
         ...(Array.isArray(ez)
           ? {
@@ -8443,8 +8443,8 @@ function uNe(ez, eA, eB, eC) {
   if (ez === undefined) {
     return;
   }
-  if (!iNe(ez) || !M(ez.from) || !M(ez.to)) {
-    throw new b2("invalid-geometry", {
+  if (!iNe(ez) || !isSafeReplayPosition(ez.from) || !isSafeReplayPosition(ez.to)) {
+    throw new ReplaySafetyError("invalid-geometry", {
       frameIndex: eC,
     });
   }
@@ -8455,11 +8455,11 @@ function uNe(ez, eA, eB, eC) {
     !Number.isInteger(eI) ||
     !Number.isInteger(eK) ||
     1 !== Math.max(Math.abs(eI), Math.abs(eK)) ||
-    !M(eA) ||
+    !isSafeReplayPosition(eA) ||
     eG[0] !== eA[0] ||
     eG[1] !== eA[1]
   ) {
-    throw new b2("invalid-geometry", {
+    throw new ReplaySafetyError("invalid-geometry", {
       frameIndex: eC,
     });
   }
@@ -8469,7 +8469,7 @@ function uNe(ez, eA, eB, eC) {
     "number" != typeof eB ||
     startTick > eB
   ) {
-    throw new b2("invalid-clock", {
+    throw new ReplaySafetyError("invalid-clock", {
       frameIndex: eC,
     });
   }
@@ -8935,8 +8935,8 @@ var FNe = zObject({
 }).strict();
 function HNe(ez, eA, eB) {
   if (eA !== undefined) {
-    if ("number" != typeof eA || !dO(eA) || !dO(ez + eA)) {
-      throw new b2("invalid-clock", {
+    if ("number" != typeof eA || !isSafeReplayCycle(eA) || !isSafeReplayCycle(ez + eA)) {
+      throw new ReplaySafetyError("invalid-clock", {
         frameIndex: eB,
       });
     }
@@ -8977,12 +8977,12 @@ function qNe(ez, eA, eB) {
   const eQ =
     (eM ? eE?.targetSize : undefined) ??
     (iNe(eK) ? eK.size : eA.primaryNpcSize);
-  if (!M(eN) || !M(eO) || !b8(eQ) || "number" != typeof ez.tick) {
+  if (!isSafeReplayPosition(eN) || !isSafeReplayPosition(eO) || !isSafeReplaySize(eQ) || "number" != typeof ez.tick) {
     return;
   }
-  const eR = eD ? cP.magic_spell : az(eG, true === ez.usingSpecialAttack);
-  const eS = ay(...eN, ...eO, eQ);
-  const eT = eR ? ci(eR, eS) : eI.projectileStartDelay + 30;
+  const eR = eD ? projectileTimings.magic_spell : getWeaponProjectileTiming(eG, true === ez.usingSpecialAttack);
+  const eS = getDistanceToFootprint(...eN, ...eO, eQ);
+  const eT = eR ? getProjectileFlightCycles(eR, eS) : eI.projectileStartDelay + 30;
   const eU = HNe(ez.tick * 30, eI.projectileStartDelay, eB);
   const eV = HNe(30 * ez.tick, eT, eB);
   if (eU !== undefined && eV !== undefined) {
@@ -9004,18 +9004,18 @@ function zNe(ez, eA, eB) {
     return ez.ricochets.flatMap((eD) => {
       if (
         !iNe(eD) ||
-        !M(eD.sourcePosition) ||
-        !M(eD.targetPosition) ||
-        !b8(eD.targetSize)
+        !isSafeReplayPosition(eD.sourcePosition) ||
+        !isSafeReplayPosition(eD.targetPosition) ||
+        !isSafeReplaySize(eD.targetSize)
       ) {
-        throw new b2("invalid-geometry", {
+        throw new ReplaySafetyError("invalid-geometry", {
           frameIndex: eB,
         });
       }
       const eE = HNe(eA, eD.startCycles, eB);
       const eG = HNe(eA, eD.endCycles, eB);
       if (eE === undefined || eG === undefined || eG < eE) {
-        throw new b2("invalid-clock", {
+        throw new ReplaySafetyError("invalid-clock", {
           frameIndex: eB,
         });
       }
@@ -9041,14 +9041,14 @@ function BNe(ez) {
     const eN = (eO, eQ) => {
       if (Array.isArray(eO)) {
         if (eO.length > eQ) {
-          throw new b2("validation-work-limit", {
+          throw new ReplaySafetyError("validation-work-limit", {
             actual: eO.length,
             limit: eQ,
           });
         }
         eM += eO.length;
         if (eM > 1048576) {
-          throw new b2("validation-work-limit", {
+          throw new ReplaySafetyError("validation-work-limit", {
             actual: eM,
             limit: bP,
           });
@@ -9082,7 +9082,7 @@ function BNe(ez) {
       }
     }
     if (!rNe(eK) || (ZTe(eI, 4) && !nNe(eI.menuEvents))) {
-      throw new b2("validation-work-limit");
+      throw new ReplaySafetyError("validation-work-limit");
     }
     if (iNe(eI.overlays)) {
       eN(eI.overlays.tileMarkers, c9);
@@ -9165,7 +9165,7 @@ function BNe(ez) {
   const eC =
     (Array.isArray(ez.cursorClicks) ? ez.cursorClicks.length : 0) + eB.length;
   if (eC > dx.cursorClicks) {
-    throw new b2("validation-work-limit", {
+    throw new ReplaySafetyError("validation-work-limit", {
       actual: eC,
       limit: dx.cursorClicks,
     });
@@ -9191,7 +9191,7 @@ function BNe(ez) {
       aNe(state3.currentTick, eO);
       if (typeof state3.currentTick == "number") {
         if (state3.currentTick < eN) {
-          throw new b2("invalid-clock", {
+          throw new ReplaySafetyError("invalid-clock", {
             frameIndex: eO,
           });
         }
@@ -9200,7 +9200,7 @@ function BNe(ez) {
           "number" == typeof eQ.throughTick &&
           eQ.throughTick < state3.currentTick
         ) {
-          throw new b2("invalid-clock", {
+          throw new ReplaySafetyError("invalid-clock", {
             frameIndex: eO,
           });
         }
@@ -9221,13 +9221,13 @@ function BNe(ez) {
       cNe(state3.playerMovementPath, eO);
       let eS = 0;
       for (const [eU, eV] of [
-        ["npcs", e1],
-        ["groundItems", dJ],
+        ["npcs", snapshotNpcLimit],
+        ["groundItems", snapshotGroundItemLimit],
       ]) {
         const eW = state3[eU];
         if (Array.isArray(eW)) {
           if (eW.length > eV) {
-            throw new b2("snapshot-work-limit", {
+            throw new ReplaySafetyError("snapshot-work-limit", {
               actual: eW.length,
               limit: eV,
               frameIndex: eO,
@@ -9235,9 +9235,9 @@ function BNe(ez) {
           }
           eK += eW.length;
           if (eK > 131072) {
-            throw new b2("snapshot-work-limit", {
+            throw new ReplaySafetyError("snapshot-work-limit", {
               actual: eK,
-              limit: bF,
+              limit: snapshotWorkLimit,
               frameIndex: eO,
             });
           }
@@ -9259,9 +9259,9 @@ function BNe(ez) {
                 : (aNe(eX.droppedTick, eO), (eS += 1)),
               eS > 65536)
             ) {
-              throw new b2("snapshot-work-limit", {
+              throw new ReplaySafetyError("snapshot-work-limit", {
                 actual: eS,
-                limit: bR,
+                limit: snapshotFootprintLimit,
                 frameIndex: eO,
               });
             }
@@ -9270,9 +9270,9 @@ function BNe(ez) {
       }
       eM += eS;
       if (eM > 4194304) {
-        throw new b2("snapshot-work-limit", {
+        throw new ReplaySafetyError("snapshot-work-limit", {
           actual: eM,
-          limit: dU,
+          limit: totalSnapshotFootprintLimit,
           frameIndex: eO,
         });
       }
@@ -9297,9 +9297,9 @@ function BNe(ez) {
             "number" != typeof eN ||
             !Number.isFinite(eN) ||
             eN < 0 ||
-            !dO(Math.ceil((eN + eO) / 20))
+            !isSafeReplayCycle(Math.ceil((eN + eO) / 20))
           ) {
-            throw new b2("invalid-clock");
+            throw new ReplaySafetyError("invalid-clock");
           }
           eK = Math.max(eK, eN + eO);
         }
@@ -9359,8 +9359,8 @@ function BNe(ez) {
         "number" == typeof eW.throughTick ? 30 * (eW.throughTick + 1) - eY : 30;
       const f0 =
         eV === eI.length - 1 ? Math.max(eZ, Math.ceil(eK / 20) - 30 * eV) : eZ;
-      if (!dO(eY + f0)) {
-        throw new b2("invalid-clock", {
+      if (!isSafeReplayCycle(eY + f0)) {
+        throw new ReplaySafetyError("invalid-clock", {
           frameIndex: eV,
         });
       }
@@ -9401,7 +9401,7 @@ function BNe(ez) {
                         !Number.isFinite(fc) ||
                         Math.abs(fc) > 128000000)
                     ) {
-                      throw new b2("invalid-geometry", {
+                      throw new ReplaySafetyError("invalid-geometry", {
                         frameIndex: eV,
                       });
                     }
@@ -9419,7 +9419,7 @@ function BNe(ez) {
                   const fa = HNe(f4, f8.endDelayCycles, eV);
                   if (undefined !== f9 && fa !== undefined) {
                     if (fa < f9) {
-                      throw new b2("invalid-clock", {
+                      throw new ReplaySafetyError("invalid-clock", {
                         frameIndex: eV,
                       });
                     }
@@ -9524,9 +9524,9 @@ function BNe(ez) {
       }
       const fr = fq - fh.start + 1;
       if (fr > 262144) {
-        throw new b2("projectile-work-limit", {
+        throw new ReplaySafetyError("projectile-work-limit", {
           actual: Math.ceil(fr),
-          limit: cj,
+          limit: projectileWorkLimit,
         });
       }
       eQ.push({
@@ -9551,9 +9551,9 @@ function BNe(ez) {
       const cycle2 = eQ[ft].cycle;
       const fw = eT + eS * Math.max(0, cycle2 - eR - 1);
       if (eU > 0 && fw > 262144) {
-        throw new b2("projectile-work-limit", {
+        throw new ReplaySafetyError("projectile-work-limit", {
           actual: fw,
-          limit: cj,
+          limit: projectileWorkLimit,
         });
       }
       for (
@@ -9567,9 +9567,9 @@ function BNe(ez) {
       }
       eR = cycle2;
       if (eU > 0 && eT > 262144) {
-        throw new b2("projectile-work-limit", {
+        throw new ReplaySafetyError("projectile-work-limit", {
           actual: eT,
-          limit: cj,
+          limit: projectileWorkLimit,
         });
       }
     }
@@ -10037,7 +10037,7 @@ function kPe(ez) {
     if (eD instanceof vPe) {
       throw eD;
     }
-    if (eD instanceof b2) {
+    if (eD instanceof ReplaySafetyError) {
       throw new vPe("corrupt", undefined, [], eD);
     }
     if (eD instanceof ZodError) {
@@ -10201,14 +10201,14 @@ function IPe(ez, eA, eB, eC, eD, eE = false) {
   };
 }
 function EPe(ez) {
-  return true === ez.supported || ("combat" === ez.category && B(ez.label));
+  return true === ez.supported || ("combat" === ez.category && isSupportedCombatSpell(ez.label));
 }
 function OPe(ez, eA) {
   return (
-    (!eA || !!el(ez.label, eA.magicLevel)) &&
+    (!eA || !!hasMagicLevelForSpell(ez.label, eA.magicLevel)) &&
     (ez.supported === true
-      ? !eA || ej(ez.label) === null || et(ez.label, eA)
-      : !!EPe(ez) && (!eA || et(ez.label, eA)))
+      ? !eA || getSpellRuneTypes(ez.label) === null || canCastSpell(ez.label, eA)
+      : !!EPe(ez) && (!eA || canCastSpell(ez.label, eA)))
   );
 }
 function getSpellIconPath(ez, eA, eB, eC) {
@@ -10228,301 +10228,301 @@ var ARCEUUS_GRID = [
   IPe("home_teleport", "Arceuus Home Teleport", "teleport", 1, [], true),
   IPe("minigame_teleport", "Minigame Teleport", "teleport", 1, []),
   IPe("arceuus_library_teleport", "Arceuus Library Teleport", "teleport", 6, [
-    em.earth,
-    em.law,
+    RUNE_ITEM_IDS.earth,
+    RUNE_ITEM_IDS.law,
   ]),
   IPe("basic_reanimation", "Basic Reanimation", "utility", 16, [
-    em.body,
-    em.nature,
+    RUNE_ITEM_IDS.body,
+    RUNE_ITEM_IDS.nature,
   ]),
   IPe("draynor_manor_teleport", "Draynor Manor Teleport", "teleport", 17, [
-    em.earth,
-    em.water,
-    em.law,
+    RUNE_ITEM_IDS.earth,
+    RUNE_ITEM_IDS.water,
+    RUNE_ITEM_IDS.law,
   ]),
   IPe("battlefront_teleport", "Battlefront Teleport", "teleport", 23, [
-    em.earth,
-    em.fire,
-    em.law,
+    RUNE_ITEM_IDS.earth,
+    RUNE_ITEM_IDS.fire,
+    RUNE_ITEM_IDS.law,
   ]),
   IPe("mind_altar_teleport", "Mind Altar Teleport", "teleport", 28, [
-    em.mind,
-    em.law,
+    RUNE_ITEM_IDS.mind,
+    RUNE_ITEM_IDS.law,
   ]),
   IPe("respawn_teleport", "Respawn Teleport", "teleport", 34, [
-    em.soul,
-    em.law,
+    RUNE_ITEM_IDS.soul,
+    RUNE_ITEM_IDS.law,
   ]),
-  IPe("ghostly_grasp", "Ghostly Grasp", "combat", 35, [em.air, em.chaos]),
+  IPe("ghostly_grasp", "Ghostly Grasp", "combat", 35, [RUNE_ITEM_IDS.air, RUNE_ITEM_IDS.chaos]),
   IPe("ressurect_lesser_ghost", "Resurrect Lesser Ghost", "utility", 38, [
-    em.air,
-    em.mind,
-    em.cosmic,
+    RUNE_ITEM_IDS.air,
+    RUNE_ITEM_IDS.mind,
+    RUNE_ITEM_IDS.cosmic,
   ]),
   IPe("ressurect_lesser_skeleton", "Resurrect Lesser Skeleton", "utility", 38, [
-    em.air,
-    em.mind,
-    em.cosmic,
+    RUNE_ITEM_IDS.air,
+    RUNE_ITEM_IDS.mind,
+    RUNE_ITEM_IDS.cosmic,
   ]),
   IPe("ressurect_lesser_zombie", "Resurrect Lesser Zombie", "utility", 38, [
-    em.air,
-    em.mind,
-    em.cosmic,
+    RUNE_ITEM_IDS.air,
+    RUNE_ITEM_IDS.mind,
+    RUNE_ITEM_IDS.cosmic,
   ]),
   IPe("salve_graveyard_teleport", "Salve Graveyard Teleport", "teleport", 40, [
-    em.soul,
-    em.law,
+    RUNE_ITEM_IDS.soul,
+    RUNE_ITEM_IDS.law,
   ]),
   IPe("adept_reanimation", "Adept Reanimation", "utility", 41, [
-    em.body,
-    em.nature,
-    em.soul,
+    RUNE_ITEM_IDS.body,
+    RUNE_ITEM_IDS.nature,
+    RUNE_ITEM_IDS.soul,
   ]),
   IPe("inferior_demonbane", "Inferior Demonbane", "combat", 44, [
-    em.fire,
-    em.chaos,
+    RUNE_ITEM_IDS.fire,
+    RUNE_ITEM_IDS.chaos,
   ]),
   IPe("shadow_veil", "Shadow Veil", "combat", 47, [
-    em.earth,
-    em.fire,
-    em.cosmic,
+    RUNE_ITEM_IDS.earth,
+    RUNE_ITEM_IDS.fire,
+    RUNE_ITEM_IDS.cosmic,
   ]),
   IPe(
     "fenkenstrains_castle_teleport",
     "Fenkenstrain's Castle Teleport",
     "teleport",
     48,
-    [em.earth, em.soul, em.law],
+    [RUNE_ITEM_IDS.earth, RUNE_ITEM_IDS.soul, RUNE_ITEM_IDS.law],
   ),
-  IPe("dark_lure", "Dark Lure", "combat", 50, [em.nature, em.death]),
-  IPe("skeletal_grasp", "Skeletal Grasp", "combat", 56, [em.earth, em.death]),
+  IPe("dark_lure", "Dark Lure", "combat", 50, [RUNE_ITEM_IDS.nature, RUNE_ITEM_IDS.death]),
+  IPe("skeletal_grasp", "Skeletal Grasp", "combat", 56, [RUNE_ITEM_IDS.earth, RUNE_ITEM_IDS.death]),
   IPe("ressurect_superior_ghost", "Resurrect Superior Ghost", "utility", 57, [
-    em.earth,
-    em.death,
-    em.cosmic,
+    RUNE_ITEM_IDS.earth,
+    RUNE_ITEM_IDS.death,
+    RUNE_ITEM_IDS.cosmic,
   ]),
   IPe(
     "ressurect_superior_skeleton",
     "Resurrect Superior Skeleton",
     "utility",
     57,
-    [em.earth, em.death, em.cosmic],
+    [RUNE_ITEM_IDS.earth, RUNE_ITEM_IDS.death, RUNE_ITEM_IDS.cosmic],
   ),
   IPe("ressurect_superior_zombie", "Resurrect Superior Zombie", "utility", 57, [
-    em.earth,
-    em.death,
-    em.cosmic,
+    RUNE_ITEM_IDS.earth,
+    RUNE_ITEM_IDS.death,
+    RUNE_ITEM_IDS.cosmic,
   ]),
   IPe(
     "mark_of_darkness",
     "Mark of Darkness",
     "combat",
     59,
-    [em.cosmic, em.soul],
+    [RUNE_ITEM_IDS.cosmic, RUNE_ITEM_IDS.soul],
     true,
   ),
   IPe("west_ardougne_teleport", "West Ardougne Teleport", "teleport", 61, [
-    em.law,
-    em.soul,
+    RUNE_ITEM_IDS.law,
+    RUNE_ITEM_IDS.soul,
   ]),
   IPe("superior_demonbane", "Superior Demonbane", "combat", 62, [
-    em.fire,
-    em.soul,
+    RUNE_ITEM_IDS.fire,
+    RUNE_ITEM_IDS.soul,
   ]),
   IPe("lesser_corruption", "Lesser Corruption", "combat", 64, [
-    em.death,
-    em.soul,
+    RUNE_ITEM_IDS.death,
+    RUNE_ITEM_IDS.soul,
   ]),
   IPe("harmony_island_teleport", "Harmony Island Teleport", "teleport", 65, [
-    em.law,
-    em.soul,
-    em.nature,
+    RUNE_ITEM_IDS.law,
+    RUNE_ITEM_IDS.soul,
+    RUNE_ITEM_IDS.nature,
   ]),
-  IPe("vile_vigour", "Vile Vigour", "utility", 66, [em.air, em.soul]),
-  IPe("degrime", "Degrime", "utility", 70, [em.earth, em.nature]),
+  IPe("vile_vigour", "Vile Vigour", "utility", 66, [RUNE_ITEM_IDS.air, RUNE_ITEM_IDS.soul]),
+  IPe("degrime", "Degrime", "utility", 70, [RUNE_ITEM_IDS.earth, RUNE_ITEM_IDS.nature]),
   IPe("cemetary_teleport", "Cemetery Teleport", "teleport", 71, [
-    em.law,
-    em.soul,
-    em.blood,
+    RUNE_ITEM_IDS.law,
+    RUNE_ITEM_IDS.soul,
+    RUNE_ITEM_IDS.blood,
   ]),
   IPe("expert_reanimation", "Expert Reanimation", "utility", 72, [
-    em.nature,
-    em.blood,
-    em.soul,
+    RUNE_ITEM_IDS.nature,
+    RUNE_ITEM_IDS.blood,
+    RUNE_ITEM_IDS.soul,
   ]),
   IPe("ward_of_arceuus", "Ward of Arceuus", "combat", 73, [
-    em.cosmic,
-    em.nature,
-    em.soul,
+    RUNE_ITEM_IDS.cosmic,
+    RUNE_ITEM_IDS.nature,
+    RUNE_ITEM_IDS.soul,
   ]),
   IPe("ressurect_greater_ghost", "Resurrect Greater Ghost", "utility", 76, [
-    em.fire,
-    em.blood,
-    em.cosmic,
+    RUNE_ITEM_IDS.fire,
+    RUNE_ITEM_IDS.blood,
+    RUNE_ITEM_IDS.cosmic,
   ], true),
   IPe(
     "ressurect_greater_skeleton",
     "Resurrect Greater Skeleton",
     "utility",
     76,
-    [em.fire, em.blood, em.cosmic],
+    [RUNE_ITEM_IDS.fire, RUNE_ITEM_IDS.blood, RUNE_ITEM_IDS.cosmic],
     true,
   ),
   IPe("ressurect_greater_zombie", "Resurrect Greater Zombie", "utility", 76, [
-    em.fire,
-    em.blood,
-    em.cosmic,
+    RUNE_ITEM_IDS.fire,
+    RUNE_ITEM_IDS.blood,
+    RUNE_ITEM_IDS.cosmic,
   ], true),
   IPe("reanimate_crops", "Resurrect Crops", "utility", 78, [
-    em.soul,
-    em.nature,
-    em.blood,
-    em.earth,
+    RUNE_ITEM_IDS.soul,
+    RUNE_ITEM_IDS.nature,
+    RUNE_ITEM_IDS.blood,
+    RUNE_ITEM_IDS.earth,
   ]),
-  IPe("undead_grasp", "Undead Grasp", "combat", 79, [em.fire, em.blood]),
+  IPe("undead_grasp", "Undead Grasp", "combat", 79, [RUNE_ITEM_IDS.fire, RUNE_ITEM_IDS.blood]),
   IPe(
     "death_charge",
     "Death Charge",
     "combat",
     80,
-    [em.death, em.blood, em.soul],
+    [RUNE_ITEM_IDS.death, RUNE_ITEM_IDS.blood, RUNE_ITEM_IDS.soul],
     true,
   ),
-  IPe("dark_demonbane", "Dark Demonbane", "combat", 82, [em.fire, em.soul]),
+  IPe("dark_demonbane", "Dark Demonbane", "combat", 82, [RUNE_ITEM_IDS.fire, RUNE_ITEM_IDS.soul]),
   IPe("barrows_teleport", "Barrows Teleport", "teleport", 83, [
-    em.law,
-    em.soul,
-    em.blood,
+    RUNE_ITEM_IDS.law,
+    RUNE_ITEM_IDS.soul,
+    RUNE_ITEM_IDS.blood,
   ]),
   IPe("demonic_offering", "Demonic Offering", "utility", 84, [
-    em.soul,
-    em.wrath,
+    RUNE_ITEM_IDS.soul,
+    RUNE_ITEM_IDS.wrath,
   ]),
   IPe("greater_corruption", "Greater Corruption", "combat", 85, [
-    em.blood,
-    em.soul,
+    RUNE_ITEM_IDS.blood,
+    RUNE_ITEM_IDS.soul,
   ]),
   IPe("master_reanimation", "Master Reanimation", "utility", 90, [
-    em.nature,
-    em.blood,
-    em.soul,
+    RUNE_ITEM_IDS.nature,
+    RUNE_ITEM_IDS.blood,
+    RUNE_ITEM_IDS.soul,
   ]),
   IPe("ape_atoll_teleport", "Ape Atoll Teleport", "teleport", 90, [
-    em.law,
-    em.soul,
-    em.blood,
+    RUNE_ITEM_IDS.law,
+    RUNE_ITEM_IDS.soul,
+    RUNE_ITEM_IDS.blood,
   ]),
   IPe("sinister_offering", "Sinister Offering", "utility", 92, [
-    em.blood,
-    em.wrath,
+    RUNE_ITEM_IDS.blood,
+    RUNE_ITEM_IDS.wrath,
   ]),
 ];
 var ANCIENT_GRID = [
   IPe("home_teleport", "Edgeville Home Teleport", "teleport", 1, [], true),
   IPe("minigame_teleport", "Minigame Teleport", "teleport", 1, []),
   IPe("smoke_rush", "Smoke Rush", "combat", 50, [
-    em.air,
-    em.fire,
-    em.chaos,
-    em.death,
+    RUNE_ITEM_IDS.air,
+    RUNE_ITEM_IDS.fire,
+    RUNE_ITEM_IDS.chaos,
+    RUNE_ITEM_IDS.death,
   ]),
   IPe("shadow_rush", "Shadow Rush", "combat", 52, [
-    em.air,
-    em.soul,
-    em.chaos,
-    em.death,
+    RUNE_ITEM_IDS.air,
+    RUNE_ITEM_IDS.soul,
+    RUNE_ITEM_IDS.chaos,
+    RUNE_ITEM_IDS.death,
   ]),
   IPe("paddewwa_teleport", "Paddewwa Teleport", "teleport", 54, [
-    em.air,
-    em.fire,
-    em.law,
+    RUNE_ITEM_IDS.air,
+    RUNE_ITEM_IDS.fire,
+    RUNE_ITEM_IDS.law,
   ]),
-  IPe("blood_rush", "Blood Rush", "combat", 56, [em.blood, em.chaos, em.death]),
-  IPe("ice_rush", "Ice Rush", "combat", 58, [em.water, em.chaos, em.death]),
+  IPe("blood_rush", "Blood Rush", "combat", 56, [RUNE_ITEM_IDS.blood, RUNE_ITEM_IDS.chaos, RUNE_ITEM_IDS.death]),
+  IPe("ice_rush", "Ice Rush", "combat", 58, [RUNE_ITEM_IDS.water, RUNE_ITEM_IDS.chaos, RUNE_ITEM_IDS.death]),
   IPe("senntisten_teleport", "Senntisten Teleport", "teleport", 60, [
-    em.soul,
-    em.law,
+    RUNE_ITEM_IDS.soul,
+    RUNE_ITEM_IDS.law,
   ]),
   IPe("smoke_burst", "Smoke Burst", "combat", 62, [
-    em.air,
-    em.fire,
-    em.chaos,
-    em.death,
+    RUNE_ITEM_IDS.air,
+    RUNE_ITEM_IDS.fire,
+    RUNE_ITEM_IDS.chaos,
+    RUNE_ITEM_IDS.death,
   ]),
   IPe("shadow_burst", "Shadow Burst", "combat", 64, [
-    em.air,
-    em.soul,
-    em.chaos,
-    em.death,
+    RUNE_ITEM_IDS.air,
+    RUNE_ITEM_IDS.soul,
+    RUNE_ITEM_IDS.chaos,
+    RUNE_ITEM_IDS.death,
   ]),
   IPe("kharyrll_teleport", "Kharyrll Teleport", "teleport", 66, [
-    em.blood,
-    em.law,
+    RUNE_ITEM_IDS.blood,
+    RUNE_ITEM_IDS.law,
   ]),
   IPe("blood_burst", "Blood Burst", "combat", 68, [
-    em.blood,
-    em.chaos,
-    em.death,
+    RUNE_ITEM_IDS.blood,
+    RUNE_ITEM_IDS.chaos,
+    RUNE_ITEM_IDS.death,
   ]),
-  IPe("ice_burst", "Ice Burst", "combat", 70, [em.water, em.chaos, em.death]),
-  IPe("lassar_teleport", "Lassar Teleport", "teleport", 72, [em.water, em.law]),
+  IPe("ice_burst", "Ice Burst", "combat", 70, [RUNE_ITEM_IDS.water, RUNE_ITEM_IDS.chaos, RUNE_ITEM_IDS.death]),
+  IPe("lassar_teleport", "Lassar Teleport", "teleport", 72, [RUNE_ITEM_IDS.water, RUNE_ITEM_IDS.law]),
   IPe("smoke_blitz", "Smoke Blitz", "combat", 74, [
-    em.air,
-    em.fire,
-    em.blood,
-    em.death,
+    RUNE_ITEM_IDS.air,
+    RUNE_ITEM_IDS.fire,
+    RUNE_ITEM_IDS.blood,
+    RUNE_ITEM_IDS.death,
   ]),
   IPe("shadow_blitz", "Shadow Blitz", "combat", 76, [
-    em.air,
-    em.soul,
-    em.blood,
-    em.death,
+    RUNE_ITEM_IDS.air,
+    RUNE_ITEM_IDS.soul,
+    RUNE_ITEM_IDS.blood,
+    RUNE_ITEM_IDS.death,
   ]),
   IPe("dareeyak_teleport", "Dareeyak Teleport", "teleport", 78, [
-    em.air,
-    em.fire,
-    em.law,
+    RUNE_ITEM_IDS.air,
+    RUNE_ITEM_IDS.fire,
+    RUNE_ITEM_IDS.law,
   ]),
-  IPe("blood_blitz", "Blood Blitz", "combat", 80, [em.blood, em.death]),
-  IPe("ice_blitz", "Ice Blitz", "combat", 82, [em.water, em.blood, em.death]),
+  IPe("blood_blitz", "Blood Blitz", "combat", 80, [RUNE_ITEM_IDS.blood, RUNE_ITEM_IDS.death]),
+  IPe("ice_blitz", "Ice Blitz", "combat", 82, [RUNE_ITEM_IDS.water, RUNE_ITEM_IDS.blood, RUNE_ITEM_IDS.death]),
   IPe("carrallangar_teleport", "Carrallanger Teleport", "teleport", 84, [
-    em.soul,
-    em.law,
+    RUNE_ITEM_IDS.soul,
+    RUNE_ITEM_IDS.law,
   ]),
   IPe("teleport_to_target", "Teleport to Target", "teleport", 85, [
-    em.law,
-    em.chaos,
-    em.death,
+    RUNE_ITEM_IDS.law,
+    RUNE_ITEM_IDS.chaos,
+    RUNE_ITEM_IDS.death,
   ]),
   IPe("smoke_barrage", "Smoke Barrage", "combat", 86, [
-    em.air,
-    em.fire,
-    em.blood,
-    em.death,
+    RUNE_ITEM_IDS.air,
+    RUNE_ITEM_IDS.fire,
+    RUNE_ITEM_IDS.blood,
+    RUNE_ITEM_IDS.death,
   ]),
   IPe("shadow_barrage", "Shadow Barrage", "combat", 88, [
-    em.air,
-    em.soul,
-    em.blood,
-    em.death,
+    RUNE_ITEM_IDS.air,
+    RUNE_ITEM_IDS.soul,
+    RUNE_ITEM_IDS.blood,
+    RUNE_ITEM_IDS.death,
   ]),
   IPe("annakarl_teleport", "Annakarl Teleport", "teleport", 90, [
-    em.blood,
-    em.law,
+    RUNE_ITEM_IDS.blood,
+    RUNE_ITEM_IDS.law,
   ]),
   IPe("blood_barrage", "Blood Barrage", "combat", 92, [
-    em.blood,
-    em.soul,
-    em.death,
+    RUNE_ITEM_IDS.blood,
+    RUNE_ITEM_IDS.soul,
+    RUNE_ITEM_IDS.death,
   ]),
   IPe("ice_barrage", "Ice Barrage", "combat", 94, [
-    em.water,
-    em.blood,
-    em.death,
+    RUNE_ITEM_IDS.water,
+    RUNE_ITEM_IDS.blood,
+    RUNE_ITEM_IDS.death,
   ]),
   IPe("ghorrock_teleport", "Ghorrock Teleport", "teleport", 96, [
-    em.water,
-    em.law,
+    RUNE_ITEM_IDS.water,
+    RUNE_ITEM_IDS.law,
   ]),
 ];
 function FPe() {
@@ -10602,7 +10602,7 @@ function passesSpellFilter(ez, eA, eB, eC, eD, eE, eG = {}) {
         return (
           (!!eO.showLackRunes ||
             !runeContext2 ||
-            !!eM.runeTypes.every((eW) => eh(eW, runeContext2))) &&
+            !!eM.runeTypes.every((eW) => hasRuneAvailable(eW, runeContext2))) &&
           (!!eO.showLackRequirements || !eM.locked) &&
           (!!eO.showUnsimulated || !!EPe(eM))
         );
@@ -10881,7 +10881,7 @@ var Wse = ({ compact: compact }) =>
   });
 function jPe(ez) {
   return (
-    cy(ez.npcTypeId) ??
+    getMonsterName(ez.npcTypeId) ??
     ez.archetypeId
       .replace(/[_-]+/g, " ")
       .replace(/([a-z])([A-Z])/g, "$1 $2")
@@ -14001,7 +14001,7 @@ function wRe(ez) {
     }
     eC[eD] = eH;
   }
-  return eg(eC, (eM, eN) => ({
+  return consolidateRetiredEncounterKinds(eC, (eM, eN) => ({
     ...eM,
     ...eN,
   })).map;
@@ -14979,7 +14979,7 @@ function Zn(ez) {
     return null;
   }
   const eB = ez;
-  const eC = ex(eB.encounter) ? eB.encounter : undefined;
+  const eC = isEncounterKind(eB.encounter) ? eB.encounter : undefined;
   const eD = zRe(eB.tick);
   const eE = zRe(eB.sinceStartMs);
   const eG = zRe(eB.encounterMs);
@@ -15491,7 +15491,7 @@ function yoe(ez, eA = {}) {
           eM = false;
           eV += eT * (eU ? 2 : 1);
           if (eV > 33554432) {
-            throw new b2("validation-work-limit");
+            throw new ReplaySafetyError("validation-work-limit");
           }
         } else {
           eT++;
@@ -15514,7 +15514,7 @@ function yoe(ez, eA = {}) {
           eW.push(eY === "{" ? 0 : null);
           eO = eY === "{";
           if (eQ > 2097152 || eW.length > 128) {
-            throw new b2("validation-work-limit");
+            throw new ReplaySafetyError("validation-work-limit");
           }
         } else if ("}" === eY || eY === "]") {
           eW.pop();
@@ -15526,7 +15526,7 @@ function yoe(ez, eA = {}) {
           const eZ = eW.at(-1);
           if ("number" == typeof eZ) {
             if (eZ >= 128) {
-              throw new b2("validation-work-limit");
+              throw new ReplaySafetyError("validation-work-limit");
             }
             eW[eW.length - 1] = eZ + 1;
             eS = Math.max(eS, eZ + 1);
@@ -15541,7 +15541,7 @@ function yoe(ez, eA = {}) {
           eR++;
         }
         if (eR > 6291456) {
-          throw new b2("validation-work-limit");
+          throw new ReplaySafetyError("validation-work-limit");
         }
       }
     }
@@ -15624,7 +15624,7 @@ function Xoe(ez) {
 function kse(ez) {
   const { error: error } = ez;
   const eC = (function (eE) {
-    if (eE instanceof b2) {
+    if (eE instanceof ReplaySafetyError) {
       return eE;
     }
     if (eE instanceof coe) {
@@ -18471,7 +18471,7 @@ function useReplay({
     return hv;
   }, [fz, fO]);
   const gc = f2.current.ME();
-  const gd = (0, pn.useMemo)(() => ek(gc), [gc]);
+  const gd = (0, pn.useMemo)(() => parseEngineBootstrap(gc), [gc]);
   const [gg, gh] = (0, pn.useState)(-1);
   const gi = (0, pn.useRef)(gg);
   const gj = (0, pn.useCallback)((hr) => {
@@ -19207,7 +19207,7 @@ function useReplay({
       }
       let hz;
       try {
-        hz = eo(hv, current26.L$(), restoreFrameIndex2, objTypeLoader);
+        hz = rebuildEngineAtReplayFrame(hv, current26.L$(), restoreFrameIndex2, objTypeLoader);
       } catch (hE) {
         const hF =
           hE instanceof Error
@@ -19216,7 +19216,7 @@ function useReplay({
         fQ({
           frameIndex: selectedFrameIndex,
           message:
-            hE instanceof b2
+            hE instanceof ReplaySafetyError
               ? "Take Over stopped because this recording exceeds supported reconstruction limits."
               : "Take Over could not rebuild this recording.",
         });
@@ -19244,7 +19244,7 @@ function useReplay({
       const state7 = hz.getState();
       const hB = dIe(hy.state, state7);
       if (hB.length > 0) {
-        Z.warn(
+        logger.warn(
           "Replay",
           "Take Over reconstruction diverged from the recorded frame",
           {
@@ -19320,7 +19320,7 @@ function useReplay({
     } else if (current27.hasRecording()) {
       if ((current27.D$()?.sourceStartFrame ?? 0) > 0) {
         return "A mid-fight clip cannot be restored.";
-      } else if (current27.ME() === gc ? gd : ek(current27.ME())) {
+      } else if (current27.ME() === gc ? gd : parseEngineBootstrap(current27.ME())) {
         return null;
       } else {
         return "This recording cannot be restored.";
@@ -19655,7 +19655,7 @@ function useReplay({
     () =>
       fq
         ? (function (hr, hs) {
-            const hu = undefined === hr ? undefined : MMe[ev(hr)];
+            const hu = undefined === hr ? undefined : MMe[resolveBaseEncounterKind(hr)];
             if (hu) {
               return hu(hs);
             } else {
@@ -20263,8 +20263,8 @@ function useSimulationWiring({
   const fi = (0, pn.useRef)(false);
   const [fj, fl] = (0, pn.useState)(
     () =>
-      new es({
-        encounter: new af(),
+      new SimulationEngine({
+        encounter: new LobbyEncounter(),
         stats: playerConfig.stats,
       }),
   );
@@ -20276,8 +20276,8 @@ function useSimulationWiring({
   fv.current = getReplayUiState;
   const fw = (0, pn.useRef)(playerConfig.equipment);
   const fx = (0, pn.useRef)(playerConfig.stats);
-  const fy = (0, pn.useRef)(ee());
-  const fz = (0, pn.useRef)(ec());
+  const fy = (0, pn.useRef)(createEmptyInventory());
+  const fz = (0, pn.useRef)(createEmptyCombatSupplies());
   const fA = (0, pn.useRef)(null);
   const [fB, fD] = (0, pn.useState)(null);
   const fE = (0, pn.useRef)(null);
@@ -20488,7 +20488,7 @@ function useSimulationWiring({
       return hF;
     }
     const current33 = fm.current;
-    switch (b7[hE]) {
+    switch (prayerSlotByPrayer[hE]) {
       case "protection":
         return current33.activePrayer === hE;
       case "offensive":
@@ -20498,7 +20498,7 @@ function useSimulationWiring({
     }
   }, []);
   const gF = (0, pn.useCallback)(
-    (hE) => Object.values(S).filter((hF) => b7[hF] === hE && gE(hF)),
+    (hE) => Object.values(Prayer).filter((hF) => prayerSlotByPrayer[hF] === hE && gE(hF)),
     [gE],
   );
   const gG = (0, pn.useCallback)(
@@ -20569,7 +20569,7 @@ function useSimulationWiring({
   );
   const gI = (0, pn.useCallback)((hE) => {
     const hG = g0.current ?? fm.current.projectPendingPrayers();
-    const hH = ef(hG, [hE], fm.current.prayerState.points > 0);
+    const hH = applyPrayerActions(hG, [hE], fm.current.prayerState.points > 0);
     const hJ = g1.current + 1;
     g1.current = hJ;
     g0.current = hH;
@@ -20587,7 +20587,7 @@ function useSimulationWiring({
       const hG = (function (hH, hJ, hK) {
         let hL = hH;
         let hN = hJ;
-        for (const hO of Object.values(S)) {
+        for (const hO of Object.values(Prayer)) {
           const hP = hJ[hO]?.answeredAtTick;
           if (hP == null || hK < hP) {
             continue;
@@ -20736,7 +20736,7 @@ function useSimulationWiring({
         : playerConfig,
     [playerConfig, gM.displayState.playerEquipment, gM.replayMode],
   );
-  const gO = aC(fj.getEncounterKind(), fo.mechanicsConfig);
+  const gO = hasCountdownMovement(fj.getEncounterKind(), fo.mechanicsConfig);
   // While the encounter holds the run (the sandbox before its Start), the
   // start-of-fight countdown waits as it does under a modal, and counts once
   // the hold ends; "sandbox-clock" says the hold changed.
@@ -20954,7 +20954,7 @@ function useSimulationWiring({
           boundary: {},
           cadence: null,
           sequence: 0,
-          offered: aC(
+          offered: hasCountdownMovement(
             hF.engine.getEncounterKind(),
             hF.engine.getMechanicsConfig(),
           ),
@@ -21180,7 +21180,7 @@ function useSimulationWiring({
         ].join("\n");
       })(state9.inventory, state9.playerEquipment, (hH) => {
         try {
-          return Y(hH, objTypeLoader?.load(hH)?.name, "Item " + hH);
+          return getItemName(hH, objTypeLoader?.load(hH)?.name, "Item " + hH);
         } catch {
           return "Item " + hH;
         }
@@ -21856,7 +21856,7 @@ function useSimulationWiring({
       null !== current45 &&
       Jae(current45.equipment, hE.equipment) &&
       Cie(current45.inventory, hE.inventory) &&
-      aC(current46.getEncounterKind(), current46.getMechanicsConfig())
+      hasCountdownMovement(current46.getEncounterKind(), current46.getMechanicsConfig())
     ) {
       return (function (hK, hL) {
         const equipment2 = hK.equipment;
@@ -22259,7 +22259,7 @@ function useSimulationWiring({
           index: hE,
         });
         fm.current.setAttackStyleIndex(hE);
-        const hG = bQ(playerConfig.equipment.weapon);
+        const hG = getWeaponCategoryOrUnarmed(playerConfig.equipment.weapon);
         updateAttackStylePerCategory({
           ...attackStylePerCategory,
           [hG]: hE,
@@ -22518,7 +22518,7 @@ function useSimulationWiring({
       if (gM.replayMode) {
         return;
       }
-      const hF = hE.filter((hN) => b7[hN] !== undefined);
+      const hF = hE.filter((hN) => prayerSlotByPrayer[hN] !== undefined);
       const { predicted: predicted, retire: retire } = gI({
         type: "quickPrayers",
         selections: hF,
@@ -26266,7 +26266,7 @@ function usePracticeControls({
     bossNpc: eI,
     bossHpPresets: (0, pn.useMemo)(
       () =>
-        engine ? (cL(engine.getEncounterKind())?.bossHpPresets ?? []) : [],
+        engine ? (getEncounterControls(engine.getEncounterKind())?.bossHpPresets ?? []) : [],
       [engine],
     ),
     hasPracticeControls: mechanicsToggles.length > 0 || undefined !== eI,
@@ -26787,8 +26787,8 @@ var OPAQUE_INK = {
   caret: "#0000ff",
   shadow: false,
   highlights: {
-    [K.red]: "#e00a19",
-    [K.green]: "#06600c",
+    [solMessageColors.red]: "#e00a19",
+    [solMessageColors.green]: "#06600c",
   },
 };
 var TRANSPARENT_INK = {
@@ -28168,8 +28168,8 @@ function zOe(ez, eA, eB = false) {
     const eD = eA.load(ez);
     const eE = eB
       ? "Drop"
-      : R(ez, eD.inventoryActions).find((eH) => eH != null) || "Use";
-    const eG = Y(ez, eD.name);
+      : getInventoryActions(ez, eD.inventoryActions).find((eH) => eH != null) || "Use";
+    const eG = getItemName(ez, eD.name);
     return {
       lines: [
         {
@@ -28196,7 +28196,7 @@ function BOe(ez, eA, eB = true) {
   }
   try {
     const eD = eA.load(ez);
-    const eE = Y(ez, eD.name);
+    const eE = getItemName(ez, eD.name);
     return {
       lines: [
         {
@@ -29922,7 +29922,7 @@ function rLe(ez) {
               if (!(fb instanceof Error)) {
                 throw fb;
               }
-              Z.debug(
+              logger.debug(
                 "UI",
                 "Failed to load picked NPC type " + f5.npcTypeId,
                 fb,
@@ -29968,7 +29968,7 @@ function rLe(ez) {
             if (!(fh instanceof Error)) {
               throw fh;
             }
-            Z.debug("UI", "Failed to load NPC type " + eU.npcId, fh);
+            logger.debug("UI", "Failed to load NPC type " + eU.npcId, fh);
           }
         }
         return [];
@@ -30040,13 +30040,13 @@ function rLe(ez) {
           if (eS.objTypeLoader) {
             try {
               const eX = eS.objTypeLoader.load(eU.itemId);
-              eV = Y(eU.itemId, eX.name);
+              eV = getItemName(eU.itemId, eX.name);
               eW = eX.groundActions.filter((eY) => eY != null);
             } catch (eY) {
               if (!(eY instanceof Error)) {
                 throw eY;
               }
-              Z.debug("UI", "Failed to load ground item type " + eU.itemId, eY);
+              logger.debug("UI", "Failed to load ground item type " + eU.itemId, eY);
             }
           }
           if (!eW.some((eZ) => eZ.toLowerCase() === "take")) {
@@ -30463,9 +30463,9 @@ function pLe(ez, eA, eB, eC, eD) {
   }
   try {
     const eG = eB.load(ez);
-    const eH = Y(ez, eG.name);
+    const eH = getItemName(ez, eG.name);
     const eI = [];
-    for (const eM of R(ez, eG.inventoryActions)) {
+    for (const eM of getInventoryActions(ez, eG.inventoryActions)) {
       if (null == eM) {
         continue;
       }
@@ -30555,7 +30555,7 @@ function hLe(ez, eA, eB, eC) {
   }
   try {
     const eE = eB.load(ez);
-    const eG = Y(ez, eE.name);
+    const eG = getItemName(ez, eE.name);
     return {
       entries: [
         {
@@ -31476,7 +31476,7 @@ var AutocastSpellPicker = ({
   };
   const { bindTooltip: bindTooltip } = useTooltip();
   const iconDir2 = SPELLBOOKS[spellbook].iconDir;
-  const eK = (0, pn.useMemo)(() => bx(spellbook), [spellbook]);
+  const eK = (0, pn.useMemo)(() => getCombatSpellsOfSpellbook(spellbook), [spellbook]);
   const eM = Math.max(1, Math.min(4, eK.length));
   const eN = eM > 1 ? Math.floor((ILe - eM * ELe) / (eM - 1)) : 0;
   const eO = eM * ELe + (eM - 1) * eN;
@@ -31524,7 +31524,7 @@ var AutocastSpellPicker = ({
             },
             children: [
               "No autocast spells on the ",
-              bs[spellbook],
+              spellbookLabels[spellbook],
               " spellbook.",
             ],
           })
@@ -31584,7 +31584,7 @@ var AutocastSpellPicker = ({
                   justifyContent: "center",
                 },
                 children: (0, wn.jsx)(Vse, {
-                  src: getSpellIconPath(iconDir2, c8(eR.name), ELe, true),
+                  src: getSpellIconPath(iconDir2, getSpellIconName(eR.name), ELe, true),
                   alt: eR.name,
                   style: {
                     width: 38,
@@ -31835,7 +31835,7 @@ var CombatContent = ({
   onAutoRetaliateToggle: onAutoRetaliateToggle,
   objTypeLoader: objTypeLoader,
   enumTypeLoader: enumTypeLoader,
-  spellbook: eT = am,
+  spellbook: eT = defaultSpellbook,
   selectedSpell: eU = null,
   onSelectedSpellChange: onSelectedSpellChange,
   stats: stats,
@@ -31900,8 +31900,8 @@ var CombatContent = ({
     },
     pxSSB: "Category: ",
   };
-  const eY = e0(weaponId);
-  const eZ = I(stats ?? bj());
+  const eY = getWeaponCategoryDefinition(weaponId);
+  const eZ = getCombatLevel(stats ?? createDefaultStats());
   const f0 = (0, pn.useMemo)(() => {
     if (weaponId && objTypeLoader) {
       try {
@@ -32115,7 +32115,7 @@ var CombatContent = ({
             const fe = styles2.indexOf(fb);
             const ff = eM === fe;
             const fg = "Defensive Casting" === fb.combatStyle;
-            const fh = dT({
+            const fh = getActiveSpell({
               weaponId: weaponId,
               selectedStyleIndex: fe,
               selectedSpell: eU,
@@ -32909,7 +32909,7 @@ var EquipmentContent = ({
                 label: "Weight",
                 text:
                   ((eU = objTypeLoader
-                    ? dE(eC, inventory ?? [], objTypeLoader)
+                    ? getCarriedWeight(eC, inventory ?? [], objTypeLoader)
                     : 0),
                   (Math.trunc(eU) || 0) + " kg"),
               }),
@@ -33610,10 +33610,10 @@ function vDe() {
           },
         };
       }
-      const eZ = b7[eV];
+      const eZ = prayerSlotByPrayer[eV];
       const f0 =
         "protection" === eZ || "offensive" === eZ
-          ? quickPrayerSelections2.filter((f2) => b7[f2] !== eZ)
+          ? quickPrayerSelections2.filter((f2) => prayerSlotByPrayer[f2] !== eZ)
           : quickPrayerSelections2;
       return {
         ...eX,
@@ -33984,7 +33984,7 @@ var InventoryContent = ({
           onReplayCursorClick?.(fv.clientX, fv.clientY, "yellow", fv.timeStamp);
           return;
         }
-        if (eu[fx.id]) {
+        if (consumableDefinitionByItemId[fx.id]) {
           f3(null);
           eU.hfkSs(onUseItem, ft);
           onReplayCursorClick?.(fv.clientX, fv.clientY, "yellow", fv.timeStamp);
@@ -33993,7 +33993,7 @@ var InventoryContent = ({
         if (objTypeLoader) {
           try {
             const fy = objTypeLoader.load(fx.id);
-            const fz = R(fx.id, fy.inventoryActions)
+            const fz = getInventoryActions(fx.id, fy.inventoryActions)
               .find((fA) => fA !== undefined)
               ?.trim()
               .toLowerCase();
@@ -34253,7 +34253,7 @@ var InventoryContent = ({
   const fo = ((eX - 1) * -36) / 2;
   const fp = (-32 * (eX - 1)) / 2;
   const fq = (ft) =>
-    ea(ft.id, ft.quantity, objTypeLoader)
+    isItemStackable(ft.id, ft.quantity, objTypeLoader)
       ? (0, wn.jsx)(RPe, {
           top: 0,
           left: 0,
@@ -35543,14 +35543,14 @@ var PRAYER_GRID = [
     icon: "rapid_restore",
     label: "Rapid Restore",
     level: 19,
-    prayer: S.RapidRestore,
+    prayer: Prayer.RapidRestore,
     healing: true,
   },
   {
     icon: "rapid_heal",
     label: "Rapid Heal",
     level: 22,
-    prayer: S.RapidHeal,
+    prayer: Prayer.RapidHeal,
     healing: true,
   },
   {
@@ -35597,46 +35597,46 @@ var PRAYER_GRID = [
     icon: "protect_from_magic",
     label: "Protect from Magic",
     level: 37,
-    prayer: S.ProtectMagic,
+    prayer: Prayer.ProtectMagic,
   },
   {
     icon: "protect_from_missiles",
     label: "Protect from Missiles",
     level: 40,
-    prayer: S.ProtectRange,
+    prayer: Prayer.ProtectRange,
   },
   {
     icon: "protect_from_melee",
     label: "Protect from Melee",
     level: 43,
-    prayer: S.ProtectMelee,
+    prayer: Prayer.ProtectMelee,
   },
   {
     icon: "eagle_eye",
     label: "Eagle Eye",
     level: 44,
-    prayer: S.EagleEye,
+    prayer: Prayer.EagleEye,
     tierGroup: "ranged",
     successor: "rigour",
     upgrade: {
       icon: "deadeye",
       label: "Deadeye",
       level: 62,
-      prayer: S.Deadeye,
+      prayer: Prayer.Deadeye,
     },
   },
   {
     icon: "mystic_might",
     label: "Mystic Might",
     level: 45,
-    prayer: S.MysticMight,
+    prayer: Prayer.MysticMight,
     tierGroup: "magic",
     successor: "augury",
     upgrade: {
       icon: "mystic_vigour",
       label: "Mystic Vigour",
       level: 63,
-      prayer: S.MysticVigour,
+      prayer: Prayer.MysticVigour,
     },
   },
   {
@@ -35648,7 +35648,7 @@ var PRAYER_GRID = [
     icon: "redemption",
     label: "Redemption",
     level: 49,
-    prayer: S.Redemption,
+    prayer: Prayer.Redemption,
   },
   {
     icon: "smite",
@@ -35659,7 +35659,7 @@ var PRAYER_GRID = [
     icon: "preserve",
     label: "Preserve",
     level: 55,
-    prayer: S.Preserve,
+    prayer: Prayer.Preserve,
   },
   {
     icon: "chivalry",
@@ -35673,14 +35673,14 @@ var PRAYER_GRID = [
     icon: "piety",
     label: "Piety",
     level: 70,
-    prayer: S.Piety,
+    prayer: Prayer.Piety,
     tierGroup: "melee-combined",
     defenceLevel: 70,
     upgrade: {
       icon: "zeal",
       label: "Zeal",
       level: 84,
-      prayer: S.Zeal,
+      prayer: Prayer.Zeal,
       attackLevel: 75,
       strengthLevel: 75,
     },
@@ -35689,7 +35689,7 @@ var PRAYER_GRID = [
     icon: "rigour",
     label: "Rigour",
     level: 74,
-    prayer: S.Rigour,
+    prayer: Prayer.Rigour,
     tierGroup: "ranged-combined",
     defenceLevel: 70,
   },
@@ -35697,7 +35697,7 @@ var PRAYER_GRID = [
     icon: "augury",
     label: "Augury",
     level: 77,
-    prayer: S.Augury,
+    prayer: Prayer.Augury,
     tierGroup: "magic-combined",
     defenceLevel: 70,
   },
@@ -35730,7 +35730,7 @@ function resolvePrayerSlots(ez, eA = zDe, eB = {}) {
     const upgrade2 = eD.upgrade;
     if (
       undefined === upgrade2 ||
-      !F(upgrade2.prayer, eB) ||
+      !isPrayerUnlockedByMechanics(upgrade2.prayer, eB) ||
       eA.basePrayerLevel < upgrade2.level
     ) {
       return {
@@ -36068,7 +36068,7 @@ var PrayerContent = ({
         if (undefined !== fH) {
           return fH;
         }
-        const fJ = b7[fB];
+        const fJ = prayerSlotByPrayer[fB];
         if ("protection" === fJ) {
           return fD === fB;
         } else if ("offensive" === fJ) {
@@ -36090,7 +36090,7 @@ var PrayerContent = ({
       if (!fA.prayer || !fA.available) {
         return;
       }
-      const fB = b7[fA.prayer];
+      const fB = prayerSlotByPrayer[fA.prayer];
       if (fB === "protection") {
         onPrayerChange(fA.prayer);
       } else if ("offensive" === fB) {
@@ -36366,7 +36366,7 @@ var PrayerContent = ({
                     (fx(fH, fB),
                     !reorderMode && (fv(fA), fA.prayer && fA.available))
                   ) {
-                    const fJ = b7[fA.prayer];
+                    const fJ = prayerSlotByPrayer[fA.prayer];
                     if (
                       "protection" === fJ ||
                       ("offensive" === fJ &&
@@ -37313,7 +37313,7 @@ var SkillsPanelCanvas = ({
         }
       })
       .catch((eN) => {
-        Z.error("SkillsPanelCanvas", "Failed to compose the skills panel:", eN);
+        logger.error("SkillsPanelCanvas", "Failed to compose the skills panel:", eN);
       });
     return () => {
       eK = true;
@@ -37351,7 +37351,7 @@ var vFe = (ez, eA) => ({
 });
 var SkillsContent = ({ stats: stats }) => {
   const eB = {
-    ...bj(),
+    ...createDefaultStats(),
     ...stats,
   };
   const eC = uie();
@@ -39008,7 +39008,7 @@ var XFe = () => {
 };
 var GFe = () => {};
 function KFe(ez) {
-  return e4.getDescriptorOfKindOrVariant(ez)?.mapSquare;
+  return encounterRegistry.getDescriptorOfKindOrVariant(ez)?.mapSquare;
 }
 var HINTS = [
   {
@@ -41355,7 +41355,7 @@ function useEncounterTool(ez, eA = false) {
     },
   };
   const encounter3 = ez.simulationState.encounter;
-  const eD = undefined === (eE = encounter3.kind) ? undefined : bMe[ev(eE)];
+  const eD = undefined === (eE = encounter3.kind) ? undefined : bMe[resolveBaseEncounterKind(eE)];
   var eE;
   const eG = yMe(encounter3);
   const eH = vMe(encounter3);
@@ -43951,7 +43951,7 @@ var Minimap = (0, pn.forwardRef)(function (
   const fw = (0, pn.useRef)(154);
   const fx = (0, pn.useRef)(null);
   if (fx.current === null) {
-    const gF = new ai(
+    const gF = new PlayerVisualTracker(
       simulationState.playerPosition[0],
       simulationState.playerPosition[1],
     );
@@ -44017,7 +44017,7 @@ var Minimap = (0, pn.forwardRef)(function (
       if (!(gL instanceof Error)) {
         throw gL;
       }
-      Z.debug("UI", "Failed to load minimap NPC type " + gG.npcTypeId, gL);
+      logger.debug("UI", "Failed to load minimap NPC type " + gG.npcTypeId, gL);
       fr.current.set(gG.npcTypeId, false);
       return false;
     }
@@ -44184,7 +44184,7 @@ var Minimap = (0, pn.forwardRef)(function (
                       const hb = ((gV * 256) / gY) | 0;
                       const hc = (gW / gZ) | 0;
                       const hd = (gX / gZ) | 0;
-                      gM[gU][h8] = aW(hb, hc, hd);
+                      gM[gU][h8] = packHsl(hb, hc, hd);
                     }
                   }
                 }
@@ -44264,10 +44264,10 @@ var Minimap = (0, pn.forwardRef)(function (
                   gI.set(gL + 1, -1);
                   continue;
                 }
-                gN = aW(gM.hue, gM.saturation, gM.lightness);
+                gN = packHsl(gM.hue, gM.saturation, gM.lightness);
               }
               if (gM.secondaryColor !== -1) {
-                gN = aW(
+                gN = packHsl(
                   gM.secondaryHue,
                   gM.secondarySaturation,
                   gM.secondaryLightness,
@@ -44300,7 +44300,7 @@ var Minimap = (0, pn.forwardRef)(function (
           fG(gI);
         }
       } catch (gO) {
-        Z.error("UI", "Failed to load minimap data:", gO);
+        logger.error("UI", "Failed to load minimap data:", gO);
       }
     })();
     return () => {
@@ -48630,7 +48630,7 @@ function resolveInteractiveNpcPick(ez, eA) {
       if (!(eG instanceof Error)) {
         throw eG;
       }
-      Z.debug("UI", "Failed to load picked NPC type " + eD.npcTypeId, eG);
+      logger.debug("UI", "Failed to load picked NPC type " + eD.npcTypeId, eG);
       eC ??= {
         picked: eD,
       };
@@ -52448,7 +52448,7 @@ var wBe = (0, pn.memo)(function (ez) {
 var uZ = {
   kind: "ok",
 };
-var kBe = Object.fromEntries(bq.map((ez) => [ez.actorId, ez]));
+var kBe = Object.fromEntries(lobbyNpcs.map((ez) => [ez.actorId, ez]));
 var xBe = {
   x: 0,
   y: 0,
@@ -52973,7 +52973,7 @@ var ViewportEntityBridge = ({
             try {
               const fd = fc.load(fb);
               const fe = fd.groundActions.find((fg) => fg != null) || "Take";
-              const ff = Y(fb, fd.name);
+              const ff = getItemName(fb, fd.name);
               return {
                 lines: [
                   {
@@ -54424,7 +54424,7 @@ var Grid = (ez) => {
           ? simulationState.npcs.find((n5) => n5.role === "boss")
           : simulationState.npcs.find((n5) => n5.id === n2);
       if (n3) {
-        if (aR(n3, simulationState.currentTick)) {
+        if (isNpcTargetableAtTick(n3, simulationState.currentTick)) {
           return {
             actorId: n3.id,
             npcTypeId: n3.npcTypeId,
@@ -55457,12 +55457,12 @@ var Grid = (ez) => {
                           minimapNpcDotUrl: minimapNpcDotUrl,
                           mapSquare: KFe(encounterKind),
                           speedMultiplier: gl,
-                          arenaBounds: aJ(),
+                          arenaBounds: getArenaBounds(),
                           hasSpecialAttack: K$e(
                             playerEquipment?.weapon,
                             enumTypeLoader,
                           ),
-                          soulreaperStacks: ep(
+                          soulreaperStacks: getSoulreaperStacksForWeapon(
                             playerEquipment?.weapon,
                             simulationState.soulreaperStacks,
                           ),
@@ -55720,7 +55720,7 @@ var Grid = (ez) => {
                           weaponId: playerEquipment?.weapon,
                           specialAttackPercent:
                             simulationState.specialAttack?.energy,
-                          soulreaperStacks: ep(
+                          soulreaperStacks: getSoulreaperStacksForWeapon(
                             playerEquipment?.weapon,
                             simulationState.soulreaperStacks,
                           ),

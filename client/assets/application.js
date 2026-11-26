@@ -39,19 +39,19 @@ import {
 import {
   wB as x,
   sn as y,
-  statLevelBounds as z,
+  statLevelBounds,
   Ew as A,
-  isIntroEnabledForKind as B,
+  isIntroEnabledForKind,
   qB as C,
   II as D,
   Vk as E,
-  getCanonicalEquipmentId as F,
+  getCanonicalEquipmentId,
   tf as G,
   sg as H,
   QV as I,
-  Prayer as J,
+  Prayer,
   isAppleTouchDevice,
-  logger as L,
+  logger,
   AC as M,
   AS as N,
   YV as O,
@@ -66,65 +66,65 @@ import {
   Nw as Y,
   nC as Z,
   iV as a0,
-  createStatsFromLevels as a1,
+  createStatsFromLevels,
   Th as a2,
   NB as a3,
-  clampStatLevel as a4,
+  clampStatLevel,
   qh as a5,
-  registerArenaConfig as a7,
+  registerArenaConfig,
   VB as a8,
   jw as a9,
   Yk as aa,
-  yamaSpawnFireballCommand as ab,
-  statNames as ac,
-  getDistanceToFootprint as ad,
-  getWeaponProjectileTiming as ae,
+  yamaSpawnFireballCommand,
+  statNames,
+  getDistanceToFootprint,
+  getWeaponProjectileTiming,
   $w as ag,
   iS as ah,
   sq as ai,
   cS as aj,
-  resolveKindOrRetiredEntry as ak,
+  resolveKindOrRetiredEntry,
   dq as al,
   SS as am,
   ZV as an,
   eS as ao,
-  getSpellDefinition as ap,
+  getSpellDefinition,
   FF as aq,
   ce as ar,
   ZB as as,
-  getInfernoSetup as at,
+  getInfernoSetup,
   Kk as au,
-  yamaSpawnVoidFlareCommand as av,
-  getEquipmentDefinition as aw,
+  yamaSpawnVoidFlareCommand,
+  getEquipmentDefinition,
   af as ax,
-  ReplaySafetyError as ay,
+  ReplaySafetyError,
   aK as az,
   hq as aB,
-  getEquipmentDefinitions as aC,
-  LogLevel as aD,
+  getEquipmentDefinitions,
+  LogLevel,
   Yw as aE,
   kC as aF,
   LS as aG,
   KV as aH,
-  getBaseItemId as aJ,
+  getBaseItemId,
   $B as aL,
-  spotAnimIds as aM,
+  spotAnimIds,
   NI as aN,
   Yz as aO,
   TI as aP,
-  createDefaultStats as aQ,
+  createDefaultStats,
   qz as aR,
   xB as aT,
   bz as aU,
-  spellbookLabels as aV,
+  spellbookLabels,
   CB as aW,
   GF as aX,
-  getCombatSpellsOfSpellbook as aY,
+  getCombatSpellsOfSpellbook,
   EF as aZ,
-  getWeaponCategory as b0,
+  getWeaponCategory,
   Sx as b1,
   fK as b2,
-  infernoDefaultStartTile as b3,
+  infernoDefaultStartTile,
   wm as b4,
   V_ as b5,
   BA as b6,
@@ -140,42 +140,42 @@ import {
   tb as bi,
   jK as bj,
   tZ as bk,
-  isArrowOrBolt as bl,
+  isArrowOrBolt,
   N_ as bm,
   CA as bn,
   zB as bo,
-  getSpellIconName as bp,
+  getSpellIconName,
   AB as bq,
   NK as br,
   _q as bs,
   O_ as bt,
-  weaponCategoryDefinitions as bu,
-  getProjectileFlightCycles as bv,
+  weaponCategoryDefinitions,
+  getProjectileFlightCycles,
   pA as bw,
-  EventAudioPlayer as by,
+  EventAudioPlayer,
   GS as bC,
   Mq as bD,
   lD as bE,
   RS as bF,
-  getMonsterName as bG,
+  getMonsterName,
   HB as bI,
   Sy as bK,
-  statLabels as bL,
-  buildMechanicsConfig as bM,
+  statLabels,
+  buildMechanicsConfig,
   sC as bN,
   gS as bO,
   rC as bP,
   mS as bQ,
-  getEncounterControls as bR,
+  getEncounterControls,
   lZ as bS,
   FD as bT,
   U_ as bU,
   lA as bV,
   bB as bW,
-  ReplayRecorder as bX,
+  ReplayRecorder,
   ZL as bY,
   Kp as bZ,
-  projectileTimings as c0,
+  projectileTimings,
   he as c1,
   lF as c2,
   GA as c3,
@@ -184,10 +184,10 @@ import {
   kB as c7,
   H_ as c8,
   mB as c9,
-  isValidStatLevel as ca,
+  isValidStatLevel,
   GB as cb,
-  infernoEncounterKind as cc,
-  canChooseInfernoStartTile as cd,
+  infernoEncounterKind,
+  canChooseInfernoStartTile,
   TB as cf,
   $_ as cg,
   Pb as ch,
@@ -202,14 +202,14 @@ import {
   qS as cq,
   px as cr,
   US as cs,
-  getEquipmentVariantIds as ct,
+  getEquipmentVariantIds,
   nf as cu,
   eA as cv,
   XV as cw,
   ef as cx,
   pg as cy,
   dK as cz,
-  commonMechanicsDefaults as cA,
+  commonMechanicsDefaults,
   aA as cB,
   kx as cC,
   _S as cD,
@@ -222,15 +222,15 @@ import { toLocPlacement, CacheManager, defaultPlayerModelConfig } from "./player
 import {
   eae as cM,
   tae as cN,
-  DisclosureChevron as cO,
+  DisclosureChevron,
   aae as cP,
-  DEFAULT_NPC_HIGHLIGHT_COLOR as cQ,
+  DEFAULT_NPC_HIGHLIGHT_COLOR,
   oae as cR,
   rae as cT,
-  COMPACT_ORBS_LAYOUT_LABELS as cU,
+  COMPACT_ORBS_LAYOUT_LABELS,
   lae as cV,
   cae as cW,
-  OutcomePracticeActions as cX,
+  OutcomePracticeActions,
   uae as cZ,
   hae as d0,
   pae as d1,
@@ -241,8 +241,8 @@ import {
   bae as d6,
   vae as d7,
   wae as d8,
-  getSpellIconPath as d9,
-  PRAYER as da,
+  getSpellIconPath,
+  PRAYER,
   Cae as db,
   Nae as dd,
   xae as de,
@@ -250,19 +250,19 @@ import {
   Mae as dg,
   Pae as dh,
   Iae as di,
-  handleOverlayClose as dj,
+  handleOverlayClose,
   Rae as dk,
   Lae as dl,
   Eae as dm,
-  sheet as dn,
+  sheet,
   Oae as dp,
   Fae as ds,
   $ae as dt,
   _ae as du,
   Hae as dv,
   qae as dw,
-  TUTORIAL_CLOSE_PANE_EVENT as dx,
-  LauncherIcon as dy,
+  TUTORIAL_CLOSE_PANE_EVENT,
+  LauncherIcon,
   Wae as dz,
   Gae as dA,
   Kae as dB,
@@ -278,19 +278,19 @@ import {
   iie as dM,
   oie as dN,
   rie as dO,
-  OsrsNumberInput as dP,
+  OsrsNumberInput,
   lie as dQ,
   cie as dR,
   die as dS,
   uie as dT,
-  usePersistedSettings as dU,
-  replayCaptureNotice as dV,
+  usePersistedSettings,
+  replayCaptureNotice,
   mie as dW,
-  InfoHint as dX,
+  InfoHint,
   fie as dY,
   yie as dZ,
-  CLIENT_LAYOUT_LABELS as e0,
-  SystemNotice as e1,
+  CLIENT_LAYOUT_LABELS,
+  SystemNotice,
   wie as e2,
   kie as e3,
   Sie as e4,
@@ -299,10 +299,10 @@ import {
   xie as e8,
   Tie as e9,
   Mie as ea,
-  infoboxPinTargetUnavailableReason as eb,
-  PanelSnapRegistryProvider as ec,
-  SPELLBOOKS as ed,
-  MOBILE as ee,
+  infoboxPinTargetUnavailableReason,
+  PanelSnapRegistryProvider,
+  SPELLBOOKS,
+  MOBILE,
   Rie as eg,
   Lie as eh,
   Eie as ei,
@@ -314,50 +314,50 @@ import {
   Hie as ep,
   qie as eq,
   Bie as er,
-  ESC_PRIORITY as es,
+  ESC_PRIORITY,
   Wie as et,
   Gie as eu,
-  TUTORIAL_QUICK_SEARCH_OPENED_EVENT as ev,
-  useHoverCard as ew,
-  MechanicsSettings as ex,
+  TUTORIAL_QUICK_SEARCH_OPENED_EVENT,
+  useHoverCard,
+  MechanicsSettings,
   Vie as ey,
-  TUTORIAL_HUD_OPENED_EVENT as ez,
+  TUTORIAL_HUD_OPENED_EVENT,
   Jie as eB,
-  FpsOverlay as eC,
+  FpsOverlay,
   Xie as eD,
-  TUTORIAL_REPLAY_ENTERED_EVENT as eE,
+  TUTORIAL_REPLAY_ENTERED_EVENT,
   eoe as eF,
   toe as eG,
   noe as eH,
   aoe as eI,
-  ResetToDefaultsControl as eK,
+  ResetToDefaultsControl,
   ooe as eL,
-  projectActiveClicks as eM,
+  projectActiveClicks,
   soe as eN,
   loe as eO,
   coe as eP,
   doe as eQ,
   uoe as eR,
   hoe as eT,
-  RESOLUTION_PRESETS as eU,
+  RESOLUTION_PRESETS,
   moe as eV,
   goe as eW,
-  OSM_TAB_SLOTS as eX,
+  OSM_TAB_SLOTS,
   yoe as eY,
-  INFOBOX_ITEM_IDS as f0,
+  INFOBOX_ITEM_IDS,
   voe as f1,
   woe as f2,
   koe as f3,
-  NO_WEBGL2_BODY as f4,
-  SettingRow as f5,
+  NO_WEBGL2_BODY,
+  SettingRow,
   ln as f6,
   Noe as f7,
-  SIDE_BACKGROUND_SPRITES as f8,
+  SIDE_BACKGROUND_SPRITES,
   Toe as f9,
   Moe as fa,
   Poe as fb,
-  GAMEPANEL_KEYBINDS_ID as fc,
-  OsrsCheckbox as fd,
+  GAMEPANEL_KEYBINDS_ID,
+  OsrsCheckbox,
   Roe as fe,
   Loe as ff,
   Eoe as fg,
@@ -372,16 +372,16 @@ import {
   zoe as fp,
   Woe as fq,
   Goe as fr,
-  advanceZukSetTimer as fs,
+  advanceZukSetTimer,
   joe as ft,
   Uoe as fv,
   Voe as fw,
-  EDIT_LAYOUT_HELP as fx,
+  EDIT_LAYOUT_HELP,
   Joe as fz,
   Zoe as fA,
   Xoe as fB,
   Qoe as fC,
-  GAMEPANEL_AUDIO_LABELS as fD,
+  GAMEPANEL_AUDIO_LABELS,
   tse as fE,
   Kn as fF,
   nse as fG,
@@ -389,16 +389,16 @@ import {
   ise as fI,
   ose as fJ,
   rse as fL,
-  REPLAY_CLICK_SHEET_URLS as fM,
+  REPLAY_CLICK_SHEET_URLS,
   lse as fN,
   cse as fO,
   dse as fP,
-  STATUS_BAR_PRAYER_ICON as fQ,
+  STATUS_BAR_PRAYER_ICON,
   hse as fR,
   pse as fS,
-  useSimulationWiring as fT,
+  useSimulationWiring,
   gse as fU,
-  CloseButton as fV,
+  CloseButton,
   yse as fW,
   bse as fX,
   vse as fY,
@@ -408,31 +408,31 @@ import {
   Cse as g2,
   Nse as g3,
   xse as g4,
-  Grid as g5,
-  NO_WEBGL2_TITLE as g6,
-  KeybindingsContent as g7,
+  Grid,
+  NO_WEBGL2_TITLE,
+  KeybindingsContent,
   Pse as g8,
   Ise as g9,
   CommunityLinks,
   Rse as gb,
   Lse as gc,
   Ese as gd,
-  TouchControls as ge,
+  TouchControls,
   Ose as gf,
   Fse as gg,
-  GAME_RESOLUTION_MAX as gh,
-  TooltipCard as gi,
+  GAME_RESOLUTION_MAX,
+  TooltipCard,
   Hse as gj,
-  MINIMAP as gk,
-  parseStoredPosition as gl,
+  MINIMAP,
+  parseStoredPosition,
   zse as gm,
   Wse as go,
-  TOOLTIP_COLORS as gp,
+  TOOLTIP_COLORS,
   Kse as gq,
   jse as gr,
   Use as gs,
   Vse as gt,
-  PERSISTED_SETTINGS_DEFAULTS as gu,
+  PERSISTED_SETTINGS_DEFAULTS,
   Jse as gv,
   Zse as gx,
   Xse as gy,
@@ -440,23 +440,23 @@ import {
 } from "./Grid.js";
 import { OsrsButton } from "./packThemes.js";
 import {
-  isItemStackable as gB,
-  createEmptyCombatSupplies as gC,
-  areCombatSuppliesEqual as gD,
-  parseCombatSupplies as gE,
-  createEmptyInventory as gF,
-  cloneCombatSupplies as gG,
-  retiredEncounterKindEntries as gH,
-  consolidateRetiredEncounterKinds as gI,
-  COMBINATION_RUNE_ITEM_IDS as gL,
-  encounterDefinitions as gM,
-  withRunePouchSlot as gN,
-  RUNE_ITEM_IDS as gO,
-  createSimulationEngine as gP,
-  consumableDefinitionByItemId as gQ,
-  resolveBaseEncounterKind as gR,
-  normalizeInventory as gT,
-  resolveRetiredEncounterKind as gU,
+  isItemStackable,
+  createEmptyCombatSupplies,
+  areCombatSuppliesEqual,
+  parseCombatSupplies,
+  createEmptyInventory,
+  cloneCombatSupplies,
+  retiredEncounterKindEntries,
+  consolidateRetiredEncounterKinds,
+  COMBINATION_RUNE_ITEM_IDS,
+  encounterDefinitions,
+  withRunePouchSlot,
+  RUNE_ITEM_IDS,
+  createSimulationEngine,
+  consumableDefinitionByItemId,
+  resolveBaseEncounterKind,
+  normalizeInventory,
+  resolveRetiredEncounterKind,
 } from "./simulationEngineFactory.js";
 import { legalDocuments } from "../seo/legalDocuments.js";
 import { buildSeoRoutes, findSeoRoute, withTrailingSlash, canonicalUrl } from "../seo/routes.js";
@@ -492,12 +492,12 @@ var BrowserSupportScreen = ({ diagnostics: diagnostics }) =>
             }),
           ],
         }),
-        (0, jsxRuntime.jsx)(e1, {
+        (0, jsxRuntime.jsx)(SystemNotice, {
           role: "alert",
           tone: "blocked",
           className: "browser-support__notice",
-          title: g6,
-          body: f4,
+          title: NO_WEBGL2_TITLE,
+          body: NO_WEBGL2_BODY,
           steps: fX(),
           links: (0, jsxRuntime.jsx)(fk, {}),
           note: fH(),
@@ -508,7 +508,7 @@ var BrowserSupportScreen = ({ diagnostics: diagnostics }) =>
                     (0, jsxRuntime.jsxs)("summary", {
                       tabIndex: -1,
                       children: [
-                        (0, jsxRuntime.jsx)(cO, {}),
+                        (0, jsxRuntime.jsx)(DisclosureChevron, {}),
                         "Troubleshooting info",
                       ],
                     }),
@@ -2207,7 +2207,7 @@ function CacheExplorer({
           });
         }
       } catch (ia) {
-        L.error("UI", "Failed to load seq " + i4 + ":", ia);
+        logger.error("UI", "Failed to load seq " + i4 + ":", ia);
       }
       return;
     }
@@ -2225,7 +2225,7 @@ function CacheExplorer({
           });
         }
       } catch (id) {
-        L.error("UI", "Failed to load " + hb + " " + i4 + ":", id);
+        logger.error("UI", "Failed to load " + hb + " " + i4 + ":", id);
       }
     }
   }, [hg, hb, spotAnimLoader, npcTypeLoader, animationSystem, hN, hL, hO, hP]);
@@ -2244,7 +2244,7 @@ function CacheExplorer({
         }
         hR(Math.max(0, i4.idleSeqId - 10), 50, "seq");
       } catch (i5) {
-        L.error("UI", "Failed to load Yama NPC for seqs:", i5);
+        logger.error("UI", "Failed to load Yama NPC for seqs:", i5);
       }
     }
   }, [hb, hR, npcTypeLoader]);
@@ -2330,7 +2330,7 @@ function CacheExplorer({
                 "spotanim_" + i7 + "." + ih,
               );
             } catch (ii) {
-              L.error(
+              logger.error(
                 "CacheExplorer",
                 "Failed to export SpotAnim " + i7 + " as " + ia + ":",
                 ii,
@@ -2339,7 +2339,7 @@ function CacheExplorer({
             }
           })(i4, spotAnimLoader, modelLoader, i5);
         } catch (i7) {
-          L.error("UI", "Failed to export SpotAnim " + i4 + ":", i7);
+          logger.error("UI", "Failed to export SpotAnim " + i4 + ":", i7);
         }
       }
     },
@@ -2400,7 +2400,7 @@ function CacheExplorer({
                   : "npc_" + i9 + "." + il,
               );
             } catch (ir) {
-              L.error(
+              logger.error(
                 "CacheExplorer",
                 "Failed to export NPC " + i9 + " as " + id + ":",
                 ir,
@@ -2409,7 +2409,7 @@ function CacheExplorer({
             }
           })(i4, i5, npcTypeLoader, modelLoader, i7);
         } catch (i9) {
-          L.error("UI", "Failed to export NPC " + i4 + ":", i9);
+          logger.error("UI", "Failed to export NPC " + i4 + ":", i9);
         }
       }
     },
@@ -2694,7 +2694,7 @@ function CacheExplorer({
                         ? "Jump to Yama Seqs"
                         : "Jump to Yama Assets",
                     }),
-                  (0, jsxRuntime.jsx)(fV, {
+                  (0, jsxRuntime.jsx)(CloseButton, {
                     className: "close-btn",
                     onClick: onClose,
                     "aria-label": "Close",
@@ -3835,7 +3835,7 @@ var CreditsModal = ({ isOpen: isOpen, onClose: onClose }) => {
   if (isOpen) {
     return (0, jsxRuntime.jsx)("div", {
       className: "credits-modal-overlay",
-      ...dn.overlay,
+      ...sheet.overlay,
       onClick: onClose,
       role: "dialog",
       "aria-modal": "true",
@@ -3843,7 +3843,7 @@ var CreditsModal = ({ isOpen: isOpen, onClose: onClose }) => {
       children: (0, jsxRuntime.jsxs)("div", {
         ref: h5,
         className: "credits-modal-card centered-modal-snap",
-        ...dn.card,
+        ...sheet.card,
         onClick: (h6) => h6.stopPropagation(),
         onMouseDown: (h6) => {
           if (h6.target.closest("button")) {
@@ -3851,9 +3851,9 @@ var CreditsModal = ({ isOpen: isOpen, onClose: onClose }) => {
           }
         },
         children: [
-          (0, jsxRuntime.jsx)(fV, {
+          (0, jsxRuntime.jsx)(CloseButton, {
             className: "credits-modal-close",
-            ...dn.close,
+            ...sheet.close,
             onClick: onClose,
             "aria-label": "Close",
           }),
@@ -3921,7 +3921,7 @@ var SOURCE_NAMES = {
 };
 var kle = (h2) => {
   return (
-    (h2.sourceNpcTypeId === undefined ? undefined : bG(h2.sourceNpcTypeId)) ??
+    (h2.sourceNpcTypeId === undefined ? undefined : getMonsterName(h2.sourceNpcTypeId)) ??
     ((h3 = h2.source), SOURCE_NAMES[h3] ?? h3.replace(/([A-Z])/g, " $1").trim())
   );
   var h3;
@@ -4133,7 +4133,7 @@ var DeathModal = ({
             }),
           (0, jsxRuntime.jsx)("div", {
             className: "death-modal-actions",
-            children: (0, jsxRuntime.jsx)(cX, {
+            children: (0, jsxRuntime.jsx)(OutcomePracticeActions, {
               controls: replayPractice,
               encounterSession: encounterSession,
               onRestart: onRestart,
@@ -4491,7 +4491,7 @@ function Mle(h2, h3) {
   const h6 = (h7) => {
     const h8 = ITEM_WIELD_REQUIREMENTS[h7];
     if (h8) {
-      for (const h9 of ac) {
+      for (const h9 of statNames) {
         const ha = h8[h9];
         if (undefined !== ha && ha > (h5[h9] ?? 0)) {
           h5[h9] = ha;
@@ -4514,23 +4514,23 @@ function Mle(h2, h3) {
 var Ple = {
   name: "No Equipment",
   equipment: {},
-  inventory: gF(),
+  inventory: createEmptyInventory(),
   isFallback: true,
 };
 var Ile = {
   kind: "divine",
   slots: [
     {
-      id: gO.death,
+      id: RUNE_ITEM_IDS.death,
     },
     {
-      id: gO.fire,
+      id: RUNE_ITEM_IDS.fire,
     },
     {
-      id: gO.blood,
+      id: RUNE_ITEM_IDS.blood,
     },
     {
-      id: gL.aether,
+      id: COMBINATION_RUNE_ITEM_IDS.aether,
     },
   ],
 };
@@ -4617,16 +4617,16 @@ var Ele = {
   kind: "divine",
   slots: [
     {
-      id: gO.soul,
+      id: RUNE_ITEM_IDS.soul,
     },
     {
-      id: gO.blood,
+      id: RUNE_ITEM_IDS.blood,
     },
     {
-      id: gO.death,
+      id: RUNE_ITEM_IDS.death,
     },
     {
-      id: gO.water,
+      id: RUNE_ITEM_IDS.water,
     },
   ],
 };
@@ -4634,13 +4634,13 @@ var Dle = {
   kind: "standard",
   slots: [
     {
-      id: gO.water,
+      id: RUNE_ITEM_IDS.water,
     },
     {
-      id: gO.chaos,
+      id: RUNE_ITEM_IDS.chaos,
     },
     {
-      id: gO.death,
+      id: RUNE_ITEM_IDS.death,
     },
   ],
 };
@@ -4659,16 +4659,16 @@ var Fle = {
   kind: "divine",
   slots: [
     {
-      id: gO.death,
+      id: RUNE_ITEM_IDS.death,
     },
     {
-      id: gO.blood,
+      id: RUNE_ITEM_IDS.blood,
     },
     {
-      id: gO.soul,
+      id: RUNE_ITEM_IDS.soul,
     },
     {
-      id: gO.water,
+      id: RUNE_ITEM_IDS.water,
     },
   ],
 };
@@ -4686,7 +4686,7 @@ var INFERNO_PRESETS = {
       boots: 31097,
       ring: 28310,
     },
-    inventory: gT([
+    inventory: normalizeInventory([
       {
         id: 21006,
       },
@@ -4738,7 +4738,7 @@ var INFERNO_PRESETS = {
       boots: 22954,
       ring: 26764,
     },
-    inventory: gT([
+    inventory: normalizeInventory([
       {
         id: 27624,
       },
@@ -4789,7 +4789,7 @@ var INFERNO_PRESETS = {
       boots: 29806,
       ring: 26764,
     },
-    inventory: gT([
+    inventory: normalizeInventory([
       {
         id: 6914,
       },
@@ -4900,7 +4900,7 @@ var INFERNO_PRESETS = {
       boots: 19921,
       ring: 26764,
     },
-    inventory: gT([
+    inventory: normalizeInventory([
       {
         id: 6914,
       },
@@ -5010,7 +5010,7 @@ var INFERNO_PRESETS = {
       boots: 31097,
       ring: 28313,
     },
-    inventory: gT([
+    inventory: normalizeInventory([
       {
         id: 31113,
       },
@@ -5121,7 +5121,7 @@ var INFERNO_PRESETS = {
       boots: 31097,
       ring: 26764,
     },
-    inventory: gT([
+    inventory: normalizeInventory([
       {
         id: 21006,
       },
@@ -5229,7 +5229,7 @@ var INFERNO_PRESETS = {
       boots: 31097,
       ring: 26764,
     },
-    inventory: gT([
+    inventory: normalizeInventory([
       {
         id: 10925,
       },
@@ -5336,7 +5336,7 @@ var INFERNO_PRESETS = {
       boots: 31097,
       ring: 28310,
     },
-    inventory: gT([
+    inventory: normalizeInventory([
       {
         id: 10925,
       },
@@ -5359,7 +5359,7 @@ var INFERNO_PRESETS = {
         id: 25818,
       },
       {
-        id: gO.soul,
+        id: RUNE_ITEM_IDS.soul,
       },
       {
         id: 22325,
@@ -5428,16 +5428,16 @@ var INFERNO_PRESETS = {
         kind: "divine",
         slots: [
           {
-            id: gO.blood,
+            id: RUNE_ITEM_IDS.blood,
           },
           {
-            id: gO.death,
+            id: RUNE_ITEM_IDS.death,
           },
           {
-            id: gL.smoke,
+            id: COMBINATION_RUNE_ITEM_IDS.smoke,
           },
           {
-            id: gO.cosmic,
+            id: RUNE_ITEM_IDS.cosmic,
           },
         ],
       },
@@ -5460,7 +5460,7 @@ var INFERNO_PRESETS = {
       boots: 22954,
       ring: 26764,
     },
-    inventory: gT([
+    inventory: normalizeInventory([
       {
         id: 12926,
       },
@@ -5555,16 +5555,16 @@ var INFERNO_PRESETS = {
         kind: "divine",
         slots: [
           {
-            id: gO.death,
+            id: RUNE_ITEM_IDS.death,
           },
           {
-            id: gO.water,
+            id: RUNE_ITEM_IDS.water,
           },
           {
-            id: gO.blood,
+            id: RUNE_ITEM_IDS.blood,
           },
           {
-            id: gO.soul,
+            id: RUNE_ITEM_IDS.soul,
           },
         ],
       },
@@ -5592,7 +5592,7 @@ var EQUIPMENT_PRESETS = {
         boots: 31097,
         ring: 28313,
       },
-      inventory: gT([
+      inventory: normalizeInventory([
         27235, 27238, 27241, 20997, // Fortified Masori and twisted bow
         28951, 33639, 26235, 12926, // Quiver, rupture, vambraces and blowpipe
         27291, 27665, 27641, 22461, // Sun keris, charged sceptre, heart and bastion
@@ -5633,7 +5633,7 @@ var EQUIPMENT_PRESETS = {
         boots: 31097, // Avernic treads (max)
         ring: 25975, // Lightbearer
       },
-      inventory: gT([
+      inventory: normalizeInventory([
         26374, 29796, 6746, 21255, // Zaryte crossbow, noxious halberd, Darklight, Slayer's staff (e)
         29591, 22325, 23733, 2444, // Scorching bow, Scythe of Vitur, divine ranging, ranging
         2444, 6685, 6685, 6685,
@@ -5645,7 +5645,7 @@ var EQUIPMENT_PRESETS = {
       supplies: {
         equippedAmmo: { id: 33595 }, // Seeking dragon arrow
         quiverAmmo: { id: 9242 }, // Ruby bolts (e), for the Zaryte crossbow
-        runePouch: { kind: "divine", slots: [{ id: gO.death }, { id: 30843 }, { id: gO.blood }, { id: gO.fire }] }, // Death Charge, demonbane
+        runePouch: { kind: "divine", slots: [{ id: RUNE_ITEM_IDS.death }, { id: 30843 }, { id: RUNE_ITEM_IDS.blood }, { id: RUNE_ITEM_IDS.fire }] }, // Death Charge, demonbane
         selectedSpell: "Dark Demonbane",
         spellbook: "arceuus",
       },
@@ -5674,7 +5674,7 @@ var EQUIPMENT_PRESETS = {
         boots: 31097,
         ring: 28310,
       },
-      inventory: gT([
+      inventory: normalizeInventory([
         30434, 30779, 28254, 22325, // Echo venator bow, radiant oathplate chest, sanguine Torva full helm, scythe of Vitur
         30781, 29801, 21295, 28307, // Radiant oathplate legs, amulet of rancour, infernal cape, ultor ring
         20997, 30955, 22981, 21003, // Twisted bow, Arkan blade, ferocious gloves, elder maul
@@ -5710,7 +5710,7 @@ var EQUIPMENT_PRESETS = {
         boots: 31097, // Avernic treads (max)
         ring: 28316, // Bellator ring
       },
-      inventory: gT([
+      inventory: normalizeInventory([
         13652, 12695, 3024, 3024, // Dragon claws, a super combat potion, two super restores
         3024, 29143, 29143, 29143, // A super restore, cooked moonlight antelope
         29143, 29143, 29143, 29143, // Cooked moonlight antelope
@@ -5743,7 +5743,7 @@ var EQUIPMENT_PRESETS = {
         boots: 31097,
         ring: 28307,
       },
-      inventory: gT([
+      inventory: normalizeInventory([
         {
           id: 20997,
         },
@@ -5855,7 +5855,7 @@ var EQUIPMENT_PRESETS = {
         boots: 13239,
         ring: 28307,
       },
-      inventory: gT([
+      inventory: normalizeInventory([
         {
           id: 25865,
         },
@@ -5968,7 +5968,7 @@ var EQUIPMENT_PRESETS = {
         boots: 11840,
         ring: 11773,
       },
-      inventory: gT([
+      inventory: normalizeInventory([
         {
           id: 25865,
         },
@@ -6079,7 +6079,7 @@ var EQUIPMENT_PRESETS = {
         boots: 11840,
         ring: 11773,
       },
-      inventory: gT([
+      inventory: normalizeInventory([
         {
           id: 25865,
         },
@@ -6172,13 +6172,13 @@ var EQUIPMENT_PRESETS = {
           kind: "standard",
           slots: [
             {
-              id: gO.blood,
+              id: RUNE_ITEM_IDS.blood,
             },
             {
-              id: gO.soul,
+              id: RUNE_ITEM_IDS.soul,
             },
             {
-              id: gO.death,
+              id: RUNE_ITEM_IDS.death,
             },
           ],
         },
@@ -6206,7 +6206,7 @@ var EQUIPMENT_PRESETS = {
         boots: 31097,
         ring: 28313,
       },
-      inventory: gT([
+      inventory: normalizeInventory([
         {
           id: 27275,
         },
@@ -6306,7 +6306,7 @@ var EQUIPMENT_PRESETS = {
         boots: 31097,
         ring: 28307,
       },
-      inventory: gT([
+      inventory: normalizeInventory([
         {
           id: 29594,
         },
@@ -6406,7 +6406,7 @@ var EQUIPMENT_PRESETS = {
         boots: 31097,
         ring: 28307,
       },
-      inventory: gT([
+      inventory: normalizeInventory([
         {
           id: 29594,
         },
@@ -6506,7 +6506,7 @@ var EQUIPMENT_PRESETS = {
         boots: 6920,
         ring: 11770,
       },
-      inventory: gT([
+      inventory: normalizeInventory([
         {
           id: 6685,
         },
@@ -6611,7 +6611,7 @@ var EQUIPMENT_PRESETS = {
         boots: 31097,
         ring: 24736,
       },
-      inventory: gT([
+      inventory: normalizeInventory([
         {
           id: 11806,
         },
@@ -6714,7 +6714,7 @@ var EQUIPMENT_PRESETS = {
         boots: 22954,
         ring: 13202,
       },
-      inventory: gT([
+      inventory: normalizeInventory([
         {
           id: 21003,
         },
@@ -6817,7 +6817,7 @@ var EQUIPMENT_PRESETS = {
         boots: 31097,
         ring: 25975,
       },
-      inventory: gT([
+      inventory: normalizeInventory([
         {
           id: 11806,
         },
@@ -6920,7 +6920,7 @@ var EQUIPMENT_PRESETS = {
         boots: 31097,
         ring: 28313,
       },
-      inventory: gT([
+      inventory: normalizeInventory([
         {
           id: 11806,
         },
@@ -7023,7 +7023,7 @@ var EQUIPMENT_PRESETS = {
         boots: 31097,
         ring: 28313,
       },
-      inventory: gT([
+      inventory: normalizeInventory([
         {
           id: 11806,
         },
@@ -7119,7 +7119,7 @@ for (const kind of cE.getRegisteredKinds()) {
   const loadouts = cE.getDescriptor(kind)?.loadouts;
   if (loadouts) {
     EQUIPMENT_PRESETS[kind] = {
-      ...Object.fromEntries(Object.entries(loadouts).map(([key, preset]) => [key, { ...preset, inventory: gT((preset.inventory ?? []).map((id) => (id === null ? null : { id }))) }])),
+      ...Object.fromEntries(Object.entries(loadouts).map(([key, preset]) => [key, { ...preset, inventory: normalizeInventory((preset.inventory ?? []).map((id) => (id === null ? null : { id }))) }])),
       naked: Ple,
     };
   }
@@ -7143,7 +7143,7 @@ EQUIPMENT_PRESETS.sandbox = Object.fromEntries(
 EQUIPMENT_PRESETS.sandbox.naked = Ple;
 var Hle = "yama_p3";
 var qle = "learner-mage";
-var Ble = gT([
+var Ble = normalizeInventory([
   {
     id: 28810,
   },
@@ -7220,7 +7220,7 @@ function Kle(h2) {
   }
 }
 function jle(h2) {
-  const h4 = gF();
+  const h4 = createEmptyInventory();
   if (!Array.isArray(h2)) {
     return h4;
   }
@@ -7234,23 +7234,23 @@ function Ule(h2) {
   return {
     equipment: df(h2.equipment),
     inventory: du(h2.inventory),
-    supplies: gG(h2.supplies),
+    supplies: cloneCombatSupplies(h2.supplies),
   };
 }
 function Vle(h2) {
-  const h4 = EQUIPMENT_PRESETS[gU(h2)];
+  const h4 = EQUIPMENT_PRESETS[resolveRetiredEncounterKind(h2)];
   const h5 = h4 ? Object.values(h4)[0] : undefined;
   return {
     equipment: df(h5?.equipment ?? {}),
-    inventory: h5 ? du(h5.inventory) : gF(),
-    supplies: h5?.supplies ? gG(h5.supplies) : gC(),
+    inventory: h5 ? du(h5.inventory) : createEmptyInventory(),
+    supplies: h5?.supplies ? cloneCombatSupplies(h5.supplies) : createEmptyCombatSupplies(),
   };
 }
 function Yle(h2, h3) {
-  return Object.values(EQUIPMENT_PRESETS[gU(h2)] ?? {}).some(
+  return Object.values(EQUIPMENT_PRESETS[resolveRetiredEncounterKind(h2)] ?? {}).some(
     (h5) =>
       dG(h5.equipment, h3.equipment) &&
-      (h5.supplies === undefined || gD(h5.supplies, h3.supplies)),
+      (h5.supplies === undefined || areCombatSuppliesEqual(h5.supplies, h3.supplies)),
   );
 }
 function Jle(h2, h3) {
@@ -7265,20 +7265,20 @@ function Zle(h2) {
   if (!parseResult3.success) {
     return {
       equipment: {},
-      inventory: gF(),
-      supplies: gC(),
+      inventory: createEmptyInventory(),
+      supplies: createEmptyCombatSupplies(),
     };
   }
   const data2 = parseResult3.data;
   const h6 = "equipment" in data2 && "inventory" in data2;
   return {
     equipment: Gle(h6 ? data2.equipment : data2),
-    inventory: h6 ? jle(data2.inventory) : gF(),
-    supplies: h6 ? gE(data2.supplies) : gC(),
+    inventory: h6 ? jle(data2.inventory) : createEmptyInventory(),
+    supplies: h6 ? parseCombatSupplies(data2.supplies) : createEmptyCombatSupplies(),
   };
 }
 function Xle(h2, h3) {
-  const h5 = Object.values(EQUIPMENT_PRESETS[gU(h2)] ?? {}).find(
+  const h5 = Object.values(EQUIPMENT_PRESETS[resolveRetiredEncounterKind(h2)] ?? {}).find(
     (h6) => dG(h6.equipment, h3.equipment) && e5(h6.inventory, h3.inventory),
   );
   if (h5) {
@@ -7316,7 +7316,7 @@ function Qle(h2) {
         : {
             equipment: df(hc.equipment),
             inventory: du(hc.inventory),
-            supplies: gG(hc.supplies),
+            supplies: cloneCombatSupplies(hc.supplies),
           };
     if (undefined !== hc?.supplies) {
       h6 = true;
@@ -7327,14 +7327,14 @@ function Qle(h2) {
       h5[h8] = {
         ...Ule(hd),
         inventory: du(hf.inventory),
-        supplies: hf.supplies ? gG(hf.supplies) : gC(),
+        supplies: hf.supplies ? cloneCombatSupplies(hf.supplies) : createEmptyCombatSupplies(),
       };
     } else {
       h5[h8] = Ule(hd);
     }
   }
   const h7 = (function (hg) {
-    const hh = gI(hg, (hi, hj) => Ule(hj));
+    const hh = consolidateRetiredEncounterKinds(hg, (hi, hj) => Ule(hj));
     return {
       map: hh.map,
       repaired: hh.consolidated,
@@ -7495,13 +7495,13 @@ var oce = {
   ring: "ring",
 };
 function rce(h2) {
-  return h2 !== undefined && aw(h2)?.isTwoHanded === true;
+  return h2 !== undefined && getEquipmentDefinition(h2)?.isTwoHanded === true;
 }
 function sce(h2) {
   const h4 = {};
   for (const h5 of ice) {
     const h6 = h2[h5];
-    if (h6 !== undefined && (!(aw(h6)?.slot !== oce[h5]) || !!nce(h5, h6))) {
+    if (h6 !== undefined && (!(getEquipmentDefinition(h6)?.slot !== oce[h5]) || !!nce(h5, h6))) {
       h4[h5] = h6;
     }
   }
@@ -7842,8 +7842,8 @@ function _ce(h2) {
   return "unverified" !== $ce(h2);
 }
 function weaponCapabilityGaps(h2) {
-  const h4 = aJ(h2);
-  const h5 = b0(h4);
+  const h4 = getBaseItemId(h2);
+  const h5 = getWeaponCategory(h4);
   if (h5 === undefined) {
     return ["Attacks as if unarmed."];
   }
@@ -7882,10 +7882,10 @@ function describeWeaponVerificationGaps(h2) {
   }
 }
 function Bce(h2) {
-  return aC()
+  return getEquipmentDefinitions()
     .filter((h4) => h4.slot === h2)
     .map((h4) => {
-      const h5 = F(h4.id);
+      const h5 = getCanonicalEquipmentId(h4.id);
       return {
         id: h4.id,
         name: h4.name,
@@ -8026,7 +8026,7 @@ function normalizeCustomEquipmentPresetMap(h2) {
       h5[h8] = ha;
     }
   }
-  const h7 = gI(h5, (hk, hl) =>
+  const h7 = consolidateRetiredEncounterKinds(h5, (hk, hl) =>
     (function (hm, ho) {
       const hp = new Map(ho.map((hw) => [hw.id, hw]));
       const hr = hm.filter((hw) => !hp.has(hw.id));
@@ -8083,7 +8083,7 @@ var nde = [
     kind: "divine",
   },
 ];
-var toRuneCatalogItem = [...Object.entries(gO), ...Object.entries(gL)]
+var toRuneCatalogItem = [...Object.entries(RUNE_ITEM_IDS), ...Object.entries(COMBINATION_RUNE_ITEM_IDS)]
   .map(function ([h2, h3]) {
     return {
       id: h3,
@@ -8103,20 +8103,20 @@ function rde(h2, h3) {
   };
 }
 var RUNE_GROUPS = [
-  rde("elemental", [gO.air, gO.water, gO.earth, gO.fire]),
-  rde("combination", [gL.mist, gL.dust, gL.mud, gL.smoke, gL.steam, gL.lava]),
+  rde("elemental", [RUNE_ITEM_IDS.air, RUNE_ITEM_IDS.water, RUNE_ITEM_IDS.earth, RUNE_ITEM_IDS.fire]),
+  rde("combination", [COMBINATION_RUNE_ITEM_IDS.mist, COMBINATION_RUNE_ITEM_IDS.dust, COMBINATION_RUNE_ITEM_IDS.mud, COMBINATION_RUNE_ITEM_IDS.smoke, COMBINATION_RUNE_ITEM_IDS.steam, COMBINATION_RUNE_ITEM_IDS.lava]),
   rde("catalytic", [
-    gO.mind,
-    gO.body,
-    gO.cosmic,
-    gO.chaos,
-    gO.nature,
-    gO.law,
-    gO.death,
-    gO.blood,
-    gO.soul,
-    gO.wrath,
-    gL.aether,
+    RUNE_ITEM_IDS.mind,
+    RUNE_ITEM_IDS.body,
+    RUNE_ITEM_IDS.cosmic,
+    RUNE_ITEM_IDS.chaos,
+    RUNE_ITEM_IDS.nature,
+    RUNE_ITEM_IDS.law,
+    RUNE_ITEM_IDS.death,
+    RUNE_ITEM_IDS.blood,
+    RUNE_ITEM_IDS.soul,
+    RUNE_ITEM_IDS.wrath,
+    COMBINATION_RUNE_ITEM_IDS.aether,
   ]),
 ];
 function lde(h2) {
@@ -8251,11 +8251,11 @@ var pde = null;
 function buildCatalog() {
   pde ??= (function () {
     const h3 = new Map();
-    for (const h4 of Object.keys(gQ)) {
+    for (const h4 of Object.keys(consumableDefinitionByItemId)) {
       const h5 = Number(h4);
       const h6 = CONSUMABLE_ITEM_NAMES[h5];
       if (undefined !== h6) {
-        const track2 = gQ[h5].track;
+        const track2 = consumableDefinitionByItemId[h5].track;
         const h8 =
           /\(\d+\)$/.test(h6) || track2 === "potion"
             ? "potions"
@@ -8275,9 +8275,9 @@ function buildCatalog() {
         h3.set(h9.id, h9);
       }
     }
-    for (const ha of aC()) {
+    for (const ha of getEquipmentDefinitions()) {
       if (!h3.has(ha.id)) {
-        const hb = F(ha.id);
+        const hb = getCanonicalEquipmentId(ha.id);
         h3.set(ha.id, {
           id: ha.id,
           name: ha.name,
@@ -8348,7 +8348,7 @@ var kde = {
   arceuus: 3,
 };
 function Sde(h2) {
-  const h4 = gF();
+  const h4 = createEmptyInventory();
   for (let h5 = 0; h5 < h4.length; h5++) {
     const h6 = h2[h5];
     h4[h5] = h6
@@ -8480,7 +8480,7 @@ function importInventorySetup(h2) {
   if (rce(h6.weapon)) {
     delete h6.shield;
   }
-  const ha = gC();
+  const ha = createEmptyCombatSupplies();
   const hb = wde[parseResult8.data.setup.sb ?? 0] ?? "standard";
   const hc = (function (hl, hm) {
     if (hl?.length !== 3 && 4 !== hl?.length) {
@@ -8541,14 +8541,14 @@ function Tde(h2, h3, h4) {
             {
               id: h9,
             },
-            gB(h9, undefined, h4),
+            isItemStackable(h9, undefined, h4),
           );
   }
   h6[13] = Nde(h3.supplies.equippedAmmo, true);
   return JSON.stringify({
     setup: {
       inv: h3.inventory.map((ha) =>
-        Nde(ha, ha !== null && gB(ha.id, ha.quantity, h4)),
+        Nde(ha, ha !== null && isItemStackable(ha.id, ha.quantity, h4)),
       ),
       eq: h6,
       ...(h3.supplies.runePouch
@@ -9015,7 +9015,7 @@ var jde = {
       },
       category: "combat",
       action: {
-        event: eE,
+        event: TUTORIAL_REPLAY_ENTERED_EVENT,
         waitingText: "Select <b>Replay</b> to enter replay mode",
         completedText: "You're in replay mode!",
         autoAdvance: true,
@@ -9097,7 +9097,7 @@ var jde = {
       skipIfMissing: true,
       desktopOnly: true,
       action: {
-        event: ez,
+        event: TUTORIAL_HUD_OPENED_EVENT,
         waitingText: "Select <b>Practice</b> to open it",
         completedText: "Let's look at the setup.",
         autoAdvance: true,
@@ -9123,7 +9123,7 @@ var jde = {
         description:
           "In an encounter, <b>Practice</b> turns its mechanics on or off so you can practice one part of a fight at a time.<br><br>Tap <b>‹ Practice</b> at the top, then choose <b>Practice aids</b>. <b>Infinite Health</b> lets you learn the patterns without dying.",
       },
-      onExit: () => window.dispatchEvent(new CustomEvent(dx)),
+      onExit: () => window.dispatchEvent(new CustomEvent(TUTORIAL_CLOSE_PANE_EVENT)),
     },
     ...pluginsPanelSteps(6, {
       open: "Plugins are optional extras you turn on, each with its options in one place: tile markers, NPC highlights, XP drops, and more.",
@@ -9278,7 +9278,7 @@ var Jde = {
       skipIfMissing: true,
       desktopOnly: true,
       action: {
-        event: ez,
+        event: TUTORIAL_HUD_OPENED_EVENT,
         waitingText: "Select the highlighted button to open it",
         completedText: "Nice! Let's take a look.",
         autoAdvance: true,
@@ -9304,7 +9304,7 @@ var Jde = {
         isReady: () => !!document.querySelector(Ude),
         fallbackStep: 5,
       },
-      onExit: () => window.dispatchEvent(new CustomEvent(dx)),
+      onExit: () => window.dispatchEvent(new CustomEvent(TUTORIAL_CLOSE_PANE_EVENT)),
     },
     {
       kind: "spotlight",
@@ -9444,7 +9444,7 @@ var Jde = {
       category: "navigation",
       desktopOnly: true,
       action: {
-        event: ev,
+        event: TUTORIAL_QUICK_SEARCH_OPENED_EVENT,
         waitingText: 'Press <kbd class="kbd">Ctrl + K</kbd> to try it',
         completedText: "Nice!",
         autoAdvance: true,
@@ -9736,10 +9736,10 @@ var iue = {
                 label: "Open the prayer book",
               },
             ),
-            Xde(J.ProtectMagic, 10, {
+            Xde(Prayer.ProtectMagic, 10, {
               label: "Fire attack\nProtect from Magic",
             }),
-            Xde(J.ProtectRange, 17, {
+            Xde(Prayer.ProtectRange, 17, {
               label: "Shadow attack\nProtect from Missiles",
             }),
           ],
@@ -10489,7 +10489,7 @@ function Pue(h2) {
   if (!h2) {
     return;
   }
-  const h4 = gR(h2);
+  const h4 = resolveBaseEncounterKind(h2);
   return TRAINING_COURSES.find(
     (h5) => h5.surface === "encounter" && h5.encounterKind === h4,
   );
@@ -11125,7 +11125,7 @@ async function readFromClipboard() {
 }
 function Zue(h2, h3) {
   const h5 = {};
-  for (const h6 of ac) {
+  for (const h6 of statNames) {
     const h7 = h3.requirements?.[h6];
     if (undefined !== h7 && h2[h6].max < h7) {
       h5[h6] = h7;
@@ -11139,7 +11139,7 @@ function Que(h2, h3) {
     const h7 = {
       equipment: h6.equipment,
       inventory: h6.inventory,
-      supplies: h6.supplies ?? gC(),
+      supplies: h6.supplies ?? createEmptyCombatSupplies(),
     };
     if (gy(h7, h3)) {
       return h5;
@@ -11158,7 +11158,7 @@ var VERIFIED_ITEM_FACTS = {
   28688: ["Always uses dragon darts."],
 };
 function ahe(h2) {
-  const h4 = aw(h2);
+  const h4 = getEquipmentDefinition(h2);
   const h5 = undefined === h4 ? undefined : $ce(h4);
   if ("verified-with-limitations" === h5) {
     return describeWeaponVerificationGaps(h2);
@@ -11247,7 +11247,7 @@ var UnverifiedSlot = ({
   };
   const h8 = (0, React.useRef)(null);
   const h9 = (0, React.useId)();
-  const { card: card } = ew({
+  const { card: card } = useHoverCard({
     content: (0, jsxRuntime.jsxs)(jsxRuntime.Fragment, {
       children: [
         (0, jsxRuntime.jsx)("span", {
@@ -11527,7 +11527,7 @@ var EquipmentSettings = ({
               switch (hr.id) {
                 case "ammo":
                 case "quiverAmmo":
-                  return aw(hs)?.name;
+                  return getEquipmentDefinition(hs)?.name;
                 default:
                   return Jce(hr.id).find((ht) => ht.id === hs)?.name;
               }
@@ -12146,7 +12146,7 @@ var LoadoutPicker = ({
                           [hT.name]: !hT.expanded,
                         })),
                       children: [
-                        (0, jsxRuntime.jsx)(cO, {
+                        (0, jsxRuntime.jsx)(DisclosureChevron, {
                           open: hT.expanded,
                         }),
                         hT.name,
@@ -12450,8 +12450,8 @@ var PlayerSettings = ({
           agility: hy.agility.max,
         };
       })(stats);
-      hx[hv] = a4(hv, hw);
-      onStatsChange(a1(hx));
+      hx[hv] = clampStatLevel(hv, hw);
+      onStatsChange(createStatsFromLevels(hx));
     },
     [stats, onStatsChange],
   );
@@ -12557,21 +12557,21 @@ var PlayerSettings = ({
         }
         const { username: username, skills: skills } = parseResult11.data.data;
         const hH = {
-          attack: a4("attack", skills.attack.level),
-          strength: hv.fFqPh(a4, "strength", skills.strength.level),
-          defence: hv.esbPp(a4, "defence", skills.defence.level),
-          ranged: a4("ranged", skills.ranged.level),
-          magic: a4("magic", skills.magic.level),
-          prayer: a4("prayer", skills.prayer.level),
-          hitpoints: hv.esbPp(a4, "hitpoints", skills.hitpoints.level),
-          agility: a4("agility", skills.agility.level),
+          attack: clampStatLevel("attack", skills.attack.level),
+          strength: hv.fFqPh(clampStatLevel, "strength", skills.strength.level),
+          defence: hv.esbPp(clampStatLevel, "defence", skills.defence.level),
+          ranged: clampStatLevel("ranged", skills.ranged.level),
+          magic: clampStatLevel("magic", skills.magic.level),
+          prayer: clampStatLevel("prayer", skills.prayer.level),
+          hitpoints: hv.esbPp(clampStatLevel, "hitpoints", skills.hitpoints.level),
+          agility: clampStatLevel("agility", skills.agility.level),
         };
         return {
           kind: "success",
           data: {
             username: username,
             baseLevels: hH,
-            stats: hv.gPUrZ(a1, hH),
+            stats: hv.gPUrZ(createStatsFromLevels, hH),
           },
         };
       })(
@@ -12629,7 +12629,7 @@ var PlayerSettings = ({
                 onMouseDown: (hv) => hv.preventDefault(),
                 onClick: () => {
                   hr();
-                  onStatsChange(aQ());
+                  onStatsChange(createDefaultStats());
                   hh({
                     kind: "idle",
                   });
@@ -12721,7 +12721,7 @@ var PlayerSettings = ({
       (0, jsxRuntime.jsx)("div", {
         className: "combat-stats__grid",
         ref: hf,
-        children: ac.map((hv) => {
+        children: statNames.map((hv) => {
           const hw = {
             Ykzhc: function (hA, hB, hC) {
               return hA(hB, hC);
@@ -12740,7 +12740,7 @@ var PlayerSettings = ({
                 (0, jsxRuntime.jsx)("label", {
                   className: "combat-stats__tile-name",
                   htmlFor: hz,
-                  children: bL[hv],
+                  children: statLabels[hv],
                 }),
                 (0, jsxRuntime.jsx)(gt, {
                   className:
@@ -12751,13 +12751,13 @@ var PlayerSettings = ({
                   height: 20,
                   "aria-hidden": "true",
                 }),
-                (0, jsxRuntime.jsx)(dP, {
+                (0, jsxRuntime.jsx)(OsrsNumberInput, {
                   id: hz,
                   className: "combat-stats__input",
                   describedBy: undefined !== hx ? hy : undefined,
                   value: hi[hv] ?? String(stats[hv].max),
-                  min: z[hv].min,
-                  max: z[hv].max,
+                  min: statLevelBounds[hv].min,
+                  max: statLevelBounds[hv].max,
                   onChange: (hA) =>
                     ((hB, hC) => {
                       hj((hE) => ({
@@ -12786,7 +12786,7 @@ var PlayerSettings = ({
           );
         }),
       }),
-      ac.some((hv) => h4[hv] !== undefined) &&
+      statNames.some((hv) => h4[hv] !== undefined) &&
         (0, jsxRuntime.jsxs)("div", {
           className: "combat-stats__requirements",
           children: [
@@ -12794,14 +12794,14 @@ var PlayerSettings = ({
               className: "combat-stats__requirements-label",
               children: "Required for this loadout:",
             }),
-            ac.map((hv) =>
+            statNames.map((hv) =>
               h4[hv] !== undefined
                 ? (0, jsxRuntime.jsxs)(
                     "span",
                     {
                       className: "combat-stats__req",
                       id: "combat-stat-" + hv + "-req",
-                      children: [bL[hv], " ", h4[hv]],
+                      children: [statLabels[hv], " ", h4[hv]],
                     },
                     hv,
                   )
@@ -13787,7 +13787,7 @@ var SlotPickerPopover = ({
     (0, jsxRuntime.jsxs)("div", {
       ref: hs,
       className: "slot-picker",
-      ...dn.popover,
+      ...sheet.popover,
       role: "dialog",
       "aria-label": dialogLabel,
       onKeyDown: (hN) => {
@@ -14067,7 +14067,7 @@ var SlotPickerPopover = ({
                   className: "slot-picker__scope info-hint-region",
                   ref: hw,
                   children: [
-                    (0, jsxRuntime.jsx)(fd, {
+                    (0, jsxRuntime.jsx)(OsrsCheckbox, {
                       checked: hl,
                       onChange: (hN) => {
                         hm(hN);
@@ -14075,7 +14075,7 @@ var SlotPickerPopover = ({
                       },
                       label: "Show unverified items",
                     }),
-                    (0, jsxRuntime.jsx)(dX, {
+                    (0, jsxRuntime.jsx)(InfoHint, {
                       label: "Show unverified items",
                       hoverRegionRef: hw,
                       placement: "above",
@@ -14090,7 +14090,7 @@ var SlotPickerPopover = ({
                   ref: hv,
                   children: [
                     "Item support",
-                    (0, jsxRuntime.jsx)(dX, {
+                    (0, jsxRuntime.jsx)(InfoHint, {
                       label: "Item support",
                       hoverRegionRef: hv,
                       placement: "above",
@@ -14121,7 +14121,7 @@ var jhe = Ghe.map((h2, h3) => ({
   col: (h3 % 4) + 3 + 1,
   section: "inventory",
 }));
-var Uhe = Gce().filter((h2) => bl(h2.id));
+var Uhe = Gce().filter((h2) => isArrowOrBolt(h2.id));
 var Vhe = {
   head: "Head",
   cape: "Cape",
@@ -14252,20 +14252,20 @@ function tpe(h2) {
 }
 function npe(h2) {
   const h4 = [];
-  for (const h5 of ac) {
+  for (const h5 of statNames) {
     const h6 = h2[h5];
     if (undefined !== h6) {
       h4.push({
         stat: h5,
         level: h6,
-        label: bL[h5],
+        label: statLabels[h5],
       });
     }
   }
   return h4;
 }
 var SETUP_SPELLBOOK_LABELS = {
-  ...aV,
+  ...spellbookLabels,
   ancient: "Ancient",
 };
 var SpellbookSelector = ({ spellbook: spellbook, onSelect: onSelect }) =>
@@ -14629,7 +14629,7 @@ var EncounterLoadoutSection = ({
     aYgGI: "Account unlocks",
   };
   const [hk, hl] = (0, React.useState)(false);
-  const hm = inventory ?? gF();
+  const hm = inventory ?? createEmptyInventory();
   const ho = er(encounterEquipment.cape) || hm.some((iX) => er(iX?.id));
   const hp = hhe(ho);
   const length2 = hp.length;
@@ -14724,7 +14724,7 @@ var EncounterLoadoutSection = ({
       i2({
         equipment: iX.equipment,
         inventory: iX.inventory,
-        supplies: iX.supplies ?? gC(),
+        supplies: iX.supplies ?? createEmptyCombatSupplies(),
       });
     },
     [i2],
@@ -14752,7 +14752,7 @@ var EncounterLoadoutSection = ({
     () => ({
       equipment: encounterEquipment,
       inventory: hm,
-      supplies: supplies ?? gC(),
+      supplies: supplies ?? createEmptyCombatSupplies(),
     }),
     [encounterEquipment, hm, supplies],
   );
@@ -14903,7 +14903,7 @@ var EncounterLoadoutSection = ({
   const iB = hC?.suggestedName ?? ik?.name ?? iu?.name ?? "Custom loadout";
   const iC = "import" === hE?.button ? hE : null;
   const iD = "export" === hE?.button ? hE : null;
-  const iE = ew({
+  const iE = useHoverCard({
     content: iC?.note ?? "Import Inventory Setup string from clipboard.",
     anchorRef: hR,
     regionRef: hR,
@@ -14918,7 +14918,7 @@ var EncounterLoadoutSection = ({
           (iC.failed ? " hover-card--outcome-failed" : ""),
     onDismiss: () => hF(null),
   });
-  const iG = ew({
+  const iG = useHoverCard({
     content: iD?.note ?? "Export Inventory Setup string to clipboard.",
     anchorRef: hS,
     regionRef: hS,
@@ -15979,7 +15979,7 @@ var EncounterLoadoutSection = ({
                     hU();
                     i0();
                     const iY = supplies.selectedSpell
-                      ? ap(supplies.selectedSpell)?.spellbook
+                      ? getSpellDefinition(supplies.selectedSpell)?.spellbook
                       : undefined;
                     onLoadoutChange({
                       equipment: encounterEquipment,
@@ -16022,7 +16022,7 @@ var EncounterLoadoutSection = ({
                             supplies: {
                               ...ib.supplies,
                               runePouch: iZ.ycUbz(
-                                gN,
+                                withRunePouchSlot,
                                 runePouch2,
                                 j0,
                                 j1 === undefined
@@ -16188,7 +16188,7 @@ var EncounterLoadoutSection = ({
             (0, jsxRuntime.jsxs)("summary", {
               tabIndex: -1,
               children: [
-                (0, jsxRuntime.jsx)(cO, {}),
+                (0, jsxRuntime.jsx)(DisclosureChevron, {}),
                 "Combat stats",
                 " ",
                 (0, jsxRuntime.jsx)("span", {
@@ -16211,7 +16211,7 @@ var EncounterLoadoutSection = ({
           children: [
             (0, jsxRuntime.jsxs)("summary", {
               tabIndex: -1,
-              children: [(0, jsxRuntime.jsx)(cO, {}), "Account unlocks"],
+              children: [(0, jsxRuntime.jsx)(DisclosureChevron, {}), "Account unlocks"],
             }),
             accountUnlocks,
           ],
@@ -16371,7 +16371,7 @@ function EncounterSetupSelection({
                   (0, jsxRuntime.jsxs)("summary", {
                     tabIndex: -1,
                     children: [
-                      (0, jsxRuntime.jsx)(cO, {}),
+                      (0, jsxRuntime.jsx)(DisclosureChevron, {}),
                       (0, jsxRuntime.jsx)("span", {
                         children: variantLabel === "Contract" ? "Contract terms" : "About this " + variantLabel.toLowerCase(),
                       }),
@@ -16617,14 +16617,14 @@ var StartingHitpointsField = ({ value: value, max: h3, onChange: onChange }) => 
             htmlFor: h8,
             children: "Starting Hitpoints",
           }),
-          (0, jsxRuntime.jsx)(dX, {
+          (0, jsxRuntime.jsx)(InfoHint, {
             label: "Starting Hitpoints",
             text: "Wretched Strength: your minimum hit rises as health falls.",
             hoverRegionRef: h9,
           }),
         ],
       }),
-      (0, jsxRuntime.jsx)(dP, {
+      (0, jsxRuntime.jsx)(OsrsNumberInput, {
         id: h8,
         className: "starthp-input",
         value: h6 ?? String(value),
@@ -16788,7 +16788,7 @@ var EncounterPanel = ({
   const hG = cw();
   const hH = hD.Sfjxw(h2, hF) || hG;
   const [hI, hK] = (0, React.useState)("setup");
-  dC(es.ENCOUNTER_PICKER - 1, hI !== "setup", () => hK("setup"));
+  dC(ESC_PRIORITY.ENCOUNTER_PICKER - 1, hI !== "setup", () => hK("setup"));
   const [hL, hN] = (0, React.useState)(false);
   const [hO, hP] = (0, React.useState)("");
   const hQ = {
@@ -16850,7 +16850,7 @@ var EncounterPanel = ({
   );
   const i8 =
     i7.length > 0
-      ? (0, jsxRuntime.jsx)(ex, {
+      ? (0, jsxRuntime.jsx)(MechanicsSettings, {
           config: mechanicsConfig,
           onConfigChange: onMechanicsConfigChange,
           mechanicsToggles: i7,
@@ -16878,7 +16878,7 @@ var EncounterPanel = ({
         (hV?.title ?? displayName);
   return (0, jsxRuntime.jsxs)("div", {
     className: "encounter-panel-overlay",
-    ...dn.overlay,
+    ...sheet.overlay,
     role: "dialog",
     "aria-modal": "true",
     "aria-label": displayName,
@@ -16894,7 +16894,7 @@ var EncounterPanel = ({
         className:
           "encounter-panel-card centered-modal-snap" +
           (hI === "loadout" ? " encounter-panel-card--loadout" : ""),
-        ...dn.card,
+        ...sheet.card,
         onPointerDownCapture: () => hN(true),
         onPointerUpCapture: () =>
           hN(document.activeElement instanceof HTMLInputElement),
@@ -16904,7 +16904,7 @@ var EncounterPanel = ({
         children: [
           (0, jsxRuntime.jsxs)("header", {
             className: "encounter-panel-header",
-            ...dn.head,
+            ...sheet.head,
             children: [
               hV &&
                 (0, jsxRuntime.jsx)(Fue, {
@@ -16971,8 +16971,8 @@ var EncounterPanel = ({
                     }),
                 ],
               }),
-              (0, jsxRuntime.jsx)(fV, {
-                ...dn.close,
+              (0, jsxRuntime.jsx)(CloseButton, {
+                ...sheet.close,
                 onClick: onClose,
                 "aria-label": "Close",
               }),
@@ -17000,7 +17000,7 @@ var EncounterPanel = ({
                 }),
                 (0, jsxRuntime.jsx)("div", {
                   className: "configurer-modifier-editor",
-                  ...dn.body,
+                  ...sheet.body,
                   children: (0, jsxRuntime.jsx)(ModifierGrid, {
                     modifiers: modifiers,
                     value: modifierSelection ?? {},
@@ -17019,7 +17019,7 @@ var EncounterPanel = ({
           (0, jsxRuntime.jsxs)("div", {
             className: "encounter-panel-body",
             hidden: "modifiers" === hI,
-            ...dn.body,
+            ...sheet.body,
             children: [
               (0, jsxRuntime.jsx)("div", {
                 className: "encounter-panel-main",
@@ -17053,7 +17053,7 @@ var EncounterPanel = ({
                         className: "section-label configurer-rail-heading",
                         children: hZ?.railSection ?? "Fight setup",
                       }),
-                      (0, jsxRuntime.jsx)(eK, {
+                      (0, jsxRuntime.jsx)(ResetToDefaultsControl, {
                         control: id,
                         variant: "rail",
                       }),
@@ -17091,7 +17091,7 @@ var EncounterPanel = ({
                                 {
                                   equipment: encounterEquipment,
                                   inventory: inventory,
-                                  supplies: supplies ?? gC(),
+                                  supplies: supplies ?? createEmptyCombatSupplies(),
                                 },
                                 objTypeLoader,
                               )
@@ -17105,7 +17105,7 @@ var EncounterPanel = ({
                         className: "section-label",
                         children: "Preparation",
                       }),
-                      (0, jsxRuntime.jsx)(ex, {
+                      (0, jsxRuntime.jsx)(MechanicsSettings, {
                         config: mechanicsConfig,
                         onConfigChange: onMechanicsConfigChange,
                         mechanicsToggles: i3,
@@ -17133,7 +17133,7 @@ var EncounterPanel = ({
                               className: "section-label",
                               children: "Mechanics",
                             }),
-                            (0, jsxRuntime.jsx)(ex, {
+                            (0, jsxRuntime.jsx)(MechanicsSettings, {
                               config: mechanicsConfig,
                               onConfigChange: onMechanicsConfigChange,
                               mechanicsToggles: mechanics,
@@ -17164,7 +17164,7 @@ var EncounterPanel = ({
                                     }),
                                 ],
                               }),
-                              (0, jsxRuntime.jsx)(ex, {
+                              (0, jsxRuntime.jsx)(MechanicsSettings, {
                                 config: mechanicsConfig,
                                 onConfigChange: onMechanicsConfigChange,
                                 mechanicsToggles: ij.toggles,
@@ -17186,7 +17186,7 @@ var EncounterPanel = ({
                               className: "section-label",
                               children: "Practice aids",
                             }),
-                            (0, jsxRuntime.jsx)(ex, {
+                            (0, jsxRuntime.jsx)(MechanicsSettings, {
                               config: mechanicsConfig,
                               onConfigChange: onMechanicsConfigChange,
                               mechanicsToggles: assists,
@@ -17202,7 +17202,7 @@ var EncounterPanel = ({
           }),
           (0, jsxRuntime.jsx)("footer", {
             className: "encounter-panel-footer",
-            ...dn.foot,
+            ...sheet.foot,
             children:
               hI === "modifiers"
                 ? (0, jsxRuntime.jsxs)(jsxRuntime.Fragment, {
@@ -17353,13 +17353,13 @@ function Spe({
   const cardRef = (0, React.useRef)(null);
   useCenteredModalSnap(cardRef, isOpen);
   const outsideClick = bpe(cardRef, onClose);
-  dC(es.ENCOUNTER_PICKER, isOpen, onClose);
+  dC(ESC_PRIORITY.ENCOUNTER_PICKER, isOpen, onClose);
   if (!isOpen) {
     return null;
   }
   return (0, jsxRuntime.jsx)(EncounterPicker, {
-    overlayProps: { ...dn.overlay, ...outsideClick },
-    cardProps: dn.card,
+    overlayProps: { ...sheet.overlay, ...outsideClick },
+    cardProps: sheet.card,
     cardRef: cardRef,
     onClose: onClose,
     onEnter: onEnter,
@@ -18454,7 +18454,7 @@ var HardwareAccelWarning = ({
     return (0, jsxRuntime.jsxs)("div", {
       className: "hw-accel-warning variant-" + variant,
       children: [
-        (0, jsxRuntime.jsx)(e1, {
+        (0, jsxRuntime.jsx)(SystemNotice, {
           role: "alert",
           tone: "caution",
           title: "Software rendering",
@@ -18468,7 +18468,7 @@ var HardwareAccelWarning = ({
                     (0, jsxRuntime.jsxs)("summary", {
                       tabIndex: -1,
                       children: [
-                        (0, jsxRuntime.jsx)(cO, {}),
+                        (0, jsxRuntime.jsx)(DisclosureChevron, {}),
                         "Troubleshooting info",
                       ],
                     }),
@@ -18595,7 +18595,7 @@ function SettingLinkRow({
     className: "setting-link",
     "data-search-id": searchId ?? undefined,
     children: [
-      (0, jsxRuntime.jsx)(f5, {
+      (0, jsxRuntime.jsx)(SettingRow, {
         searchId: null,
         isModified: false,
         onReset: () => {},
@@ -18780,14 +18780,14 @@ var _pe = ({ isOpen: isOpen, onClose: onClose }) => {
   })();
   return (0, jsxRuntime.jsx)("div", {
     className: "shortcuts-modal-overlay",
-    ...dn.overlay,
+    ...sheet.overlay,
     onClick: onClose,
     role: "dialog",
     "aria-modal": "true",
     children: (0, jsxRuntime.jsxs)("div", {
       ref: h5,
       className: "shortcuts-modal-card centered-modal-snap",
-      ...dn.card,
+      ...sheet.card,
       onClick: (h7) => h7.stopPropagation(),
       onMouseDown: (h7) => {
         if (h7.target.closest("button")) {
@@ -18797,15 +18797,15 @@ var _pe = ({ isOpen: isOpen, onClose: onClose }) => {
       children: [
         (0, jsxRuntime.jsxs)("div", {
           className: "shortcuts-modal-header",
-          ...dn.head,
+          ...sheet.head,
           children: [
             (0, jsxRuntime.jsx)("h2", {
               className: "shortcuts-modal-title",
               children: "Shortcuts",
             }),
-            (0, jsxRuntime.jsx)(fV, {
+            (0, jsxRuntime.jsx)(CloseButton, {
               className: "shortcuts-modal-close",
-              ...dn.close,
+              ...sheet.close,
               onClick: onClose,
               "aria-label": "Close shortcuts modal",
             }),
@@ -18817,7 +18817,7 @@ var _pe = ({ isOpen: isOpen, onClose: onClose }) => {
             "Change keybindings in the game panel.",
             " ",
             (0, jsxRuntime.jsx)(RevealLink, {
-              target: fc,
+              target: GAMEPANEL_KEYBINDS_ID,
               onNavigate: onClose,
               children: "Edit keybinds",
             }),
@@ -18825,7 +18825,7 @@ var _pe = ({ isOpen: isOpen, onClose: onClose }) => {
         }),
         (0, jsxRuntime.jsx)("div", {
           className: "shortcuts-modal-content",
-          ...dn.body,
+          ...sheet.body,
           children: (0, jsxRuntime.jsx)("div", {
             className: "shortcuts-modal-grid",
             children: h6.map((h7) =>
@@ -19384,14 +19384,14 @@ var STONE_TONES = [
 var jpe = STONE_TONES.map(([, h2, h3]) => [h2, h3]);
 function Upe() {
   return [
-    ee.railTopLeft,
-    ee.railTopRight,
-    ee.railBottomLeft,
-    ee.railBottomRight,
-    ee.railTop,
-    ee.railBottom,
-    ee.railLeft,
-    ee.railRight,
+    MOBILE.railTopLeft,
+    MOBILE.railTopRight,
+    MOBILE.railBottomLeft,
+    MOBILE.railBottomRight,
+    MOBILE.railTop,
+    MOBILE.railBottom,
+    MOBILE.railLeft,
+    MOBILE.railRight,
   ];
 }
 function landscapeReserves(h2) {
@@ -19480,8 +19480,8 @@ function Sheet({
 }) {
   const h9 = (function () {
     const ha = eQ(Upe());
-    const hb = gm(ee.railMiddle);
-    const hc = e8(ee.popoutStone, jpe);
+    const hb = gm(MOBILE.railMiddle);
+    const hc = e8(MOBILE.popoutStone, jpe);
     const hd = {
       backgroundImage: ha
         .map((hf) => (hf ? 'url("' + hf + '")' : "none"))
@@ -19588,7 +19588,7 @@ function WelcomeSheet({
                     onClick: onPlayFullscreen,
                     children: [
                       (0, jsxRuntime.jsx)(gt, {
-                        src: ee.fullscreenEnter,
+                        src: MOBILE.fullscreenEnter,
                         width: 33,
                         height: 36,
                         alt: "",
@@ -19655,7 +19655,7 @@ function RotateSheet({
                 onClick: onGoFullscreen,
                 children: [
                   (0, jsxRuntime.jsx)(gt, {
-                    src: ee.fullscreenEnter,
+                    src: MOBILE.fullscreenEnter,
                     width: 33,
                     height: 36,
                     alt: "",
@@ -19741,15 +19741,15 @@ function ame(h2, h3, h4) {
   });
   const h7 = h4;
   return [
-    h6(ee.railMiddle, h7, h7, h2 - h7 * 2, h3 - h7 * 2),
-    h6(ee.railTop, h7, 0, h2 - h7 * 2, h7),
-    h6(ee.railBottom, h7, h3 - h7, h2 - h7 * 2, h7),
-    h6(ee.railLeft, 0, h7, h7, h3 - h7 * 2),
-    h6(ee.railRight, h2 - h7, h7, h7, h3 - 2 * h7),
-    h6(ee.railTopLeft, 0, 0, h7, h7),
-    h6(ee.railTopRight, h2 - h7, 0, h7, h7),
-    h6(ee.railBottomLeft, 0, h3 - h7, h7, h7),
-    h6(ee.railBottomRight, h2 - h7, h3 - h7, h7, h7),
+    h6(MOBILE.railMiddle, h7, h7, h2 - h7 * 2, h3 - h7 * 2),
+    h6(MOBILE.railTop, h7, 0, h2 - h7 * 2, h7),
+    h6(MOBILE.railBottom, h7, h3 - h7, h2 - h7 * 2, h7),
+    h6(MOBILE.railLeft, 0, h7, h7, h3 - h7 * 2),
+    h6(MOBILE.railRight, h2 - h7, h7, h7, h3 - 2 * h7),
+    h6(MOBILE.railTopLeft, 0, 0, h7, h7),
+    h6(MOBILE.railTopRight, h2 - h7, 0, h7, h7),
+    h6(MOBILE.railBottomLeft, 0, h3 - h7, h7, h7),
+    h6(MOBILE.railBottomRight, h2 - h7, h3 - h7, h7, h7),
   ];
 }
 var MobileFullscreenStone = ({
@@ -19766,7 +19766,7 @@ var MobileFullscreenStone = ({
     ...eO,
   });
   const hb = "home-screen" === control;
-  const { card: card } = ew({
+  const { card: card } = useHoverCard({
     content: hb
       ? "On iPhone, full screen only works from the Home Screen. Tap Share, then Add to Home Screen, and open OpenScim.dev from there."
       : "exit" === control
@@ -19787,8 +19787,8 @@ var MobileFullscreenStone = ({
     frame,
     ha,
     Math.max(1, Math.round(frame.scale * 3)),
-    ee.popoutStone,
-    "exit" === control ? ee.fullscreenExit : ee.fullscreenEnter,
+    MOBILE.popoutStone,
+    "exit" === control ? MOBILE.fullscreenExit : MOBILE.fullscreenEnter,
   );
   return (0, jsxRuntime.jsxs)("div", {
     className: "osm-menu osm-fullscreen" + (tucked ? " osm-menu--tucked" : ""),
@@ -19888,7 +19888,7 @@ var MobileRestartStone = ({
       hb(false);
     }
   }, [disabled, tucked]);
-  const { card: card } = ew({
+  const { card: card } = useHoverCard({
     content: hc ? "Tap again to restart" : "Restart",
     anchorRef: h8,
     placement: "inline",
@@ -19905,8 +19905,8 @@ var MobileRestartStone = ({
     frame,
     hf,
     Math.max(1, Math.round(frame.scale * 3)),
-    hc ? ee.popoutStoneSelected : ee.popoutStone,
-    ee.restart,
+    hc ? MOBILE.popoutStoneSelected : MOBILE.popoutStone,
+    MOBILE.restart,
   );
   if (disabled) {
     const hh = hg.length - 1;
@@ -20160,10 +20160,10 @@ var ModifiersModal = ({
   const ha = (0, React.useRef)(null);
   useCenteredModalSnap(ha);
   const hb = bpe(ha, onClose);
-  dC(es.ENCOUNTER_PICKER, true, onClose);
+  dC(ESC_PRIORITY.ENCOUNTER_PICKER, true, onClose);
   return (0, jsxRuntime.jsxs)("div", {
     className: "modifiers-modal-overlay",
-    ...dn.overlay,
+    ...sheet.overlay,
     ...hb,
     role: "dialog",
     "aria-modal": "true",
@@ -20176,11 +20176,11 @@ var ModifiersModal = ({
       (0, jsxRuntime.jsxs)("section", {
         ref: ha,
         className: "modifiers-modal-card centered-modal-snap",
-        ...dn.card,
+        ...sheet.card,
         children: [
           (0, jsxRuntime.jsxs)("header", {
             className: "modifiers-modal-header",
-            ...dn.head,
+            ...sheet.head,
             children: [
               (0, jsxRuntime.jsxs)("div", {
                 className: "modifiers-modal-heading",
@@ -20198,9 +20198,9 @@ var ModifiersModal = ({
                   }),
                 ],
               }),
-              (0, jsxRuntime.jsx)(fV, {
+              (0, jsxRuntime.jsx)(CloseButton, {
                 className: "modifiers-modal-close",
-                ...dn.close,
+                ...sheet.close,
                 onClick: onClose,
                 "aria-label": "Close",
               }),
@@ -20208,7 +20208,7 @@ var ModifiersModal = ({
           }),
           (0, jsxRuntime.jsx)("div", {
             className: "modifiers-modal-body",
-            ...dn.body,
+            ...sheet.body,
             children: (0, jsxRuntime.jsx)(ModifierGrid, {
               modifiers: modifiers,
               value: h8,
@@ -20217,7 +20217,7 @@ var ModifiersModal = ({
           }),
           (0, jsxRuntime.jsxs)("footer", {
             className: "modifiers-modal-footer",
-            ...dn.foot,
+            ...sheet.foot,
             children: [
               (0, jsxRuntime.jsx)(OsrsButton, {
                 onClick: onClose,
@@ -20258,7 +20258,7 @@ var ENCOUNTER_PLUGIN_SECTION_NAMES = {
   sol_heredit: "Colosseum",
 };
 function gme(h2, h3) {
-  return !!h3 && ENCOUNTER_PLUGINS[h2].encounters.includes(gR(h3));
+  return !!h3 && ENCOUNTER_PLUGINS[h2].encounters.includes(resolveBaseEncounterKind(h3));
 }
 function fme(h2, h3, h4, h5) {
   if (h4 && gme(h2, h3)) {
@@ -20313,7 +20313,7 @@ function Sme() {
         "boolean" == typeof h3.showPercentage
           ? h3.showPercentage
           : kme.showPercentage,
-      position: gl(h3.position) ?? kme.position,
+      position: parseStoredPosition(h3.position) ?? kme.position,
     };
   } else {
     return {
@@ -20346,7 +20346,7 @@ function Tme() {
       showIcons:
         "boolean" == typeof h3.showIcons ? h3.showIcons : Nme.showIcons,
       speed: typeof h3.speed == "number" ? xme(h3.speed) : Nme.speed,
-      position: gl(h3.position) ?? Nme.position,
+      position: parseStoredPosition(h3.position) ?? Nme.position,
     };
   } else {
     return Nme;
@@ -20415,9 +20415,9 @@ function FixedLayoutScaleField({
         className: "plugin-group-label",
         children: "Fixed layout scale",
       }),
-      (0, jsxRuntime.jsx)(f5, {
+      (0, jsxRuntime.jsx)(SettingRow, {
         searchId: null,
-        isModified: fixedLayoutScale !== gu.fixedLayoutScale,
+        isModified: fixedLayoutScale !== PERSISTED_SETTINGS_DEFAULTS.fixedLayoutScale,
         onReset: () => hc("fit"),
         children: (0, jsxRuntime.jsxs)("select", {
           value: hb,
@@ -20451,7 +20451,7 @@ function FixedLayoutScaleField({
         }),
       }),
       "custom" === hb &&
-        (0, jsxRuntime.jsx)(f5, {
+        (0, jsxRuntime.jsx)(SettingRow, {
           searchId: null,
           isModified: false,
           onReset: () => {},
@@ -20499,11 +20499,11 @@ function FixedLayoutScaleField({
           }),
         }),
       "number" != typeof fixedLayoutScale &&
-        (0, jsxRuntime.jsx)(f5, {
-          isModified: integerScaling !== gu.fixedLayoutIntegerScaling,
-          onReset: () => onIntegerScalingChange(gu.fixedLayoutIntegerScaling),
+        (0, jsxRuntime.jsx)(SettingRow, {
+          isModified: integerScaling !== PERSISTED_SETTINGS_DEFAULTS.fixedLayoutIntegerScaling,
+          onReset: () => onIntegerScalingChange(PERSISTED_SETTINGS_DEFAULTS.fixedLayoutIntegerScaling),
           searchId: gs("stretchedMode", "Integer scaling"),
-          children: (0, jsxRuntime.jsx)(fd, {
+          children: (0, jsxRuntime.jsx)(OsrsCheckbox, {
             label: "Integer scaling",
             checked: integerScaling,
             onChange: onIntegerScalingChange,
@@ -20699,7 +20699,7 @@ var Yme = [
       ],
     }),
     {
-      id: fc,
+      id: GAMEPANEL_KEYBINDS_ID,
       title: "Keybinds",
       panel: "gamepanel",
       breadcrumb: ["Game panel", "Settings"],
@@ -20785,7 +20785,7 @@ var Yme = [
     },
     {
       id: fR.masterVolume,
-      title: fD.masterVolume,
+      title: GAMEPANEL_AUDIO_LABELS.masterVolume,
       panel: "gamepanel",
       breadcrumb: ["Game panel", "Settings", "Audio"],
       kind: "setting",
@@ -20804,7 +20804,7 @@ var Yme = [
     },
     {
       id: fR.sfxVolume,
-      title: fD.sfxVolume,
+      title: GAMEPANEL_AUDIO_LABELS.sfxVolume,
       resultTitle: "Sound effects volume",
       panel: "gamepanel",
       breadcrumb: ["Game panel", "Settings", "Audio"],
@@ -20821,7 +20821,7 @@ var Yme = [
     },
     {
       id: fR.areaVolume,
-      title: fD.areaVolume,
+      title: GAMEPANEL_AUDIO_LABELS.areaVolume,
       resultTitle: "Area sounds volume",
       panel: "gamepanel",
       breadcrumb: ["Game panel", "Settings", "Audio"],
@@ -20839,7 +20839,7 @@ var Yme = [
     },
     {
       id: fR.muteWhenUnfocused,
-      title: fD.muteWhenUnfocused,
+      title: GAMEPANEL_AUDIO_LABELS.muteWhenUnfocused,
       panel: "gamepanel",
       breadcrumb: ["Game panel", "Settings", "Audio"],
       kind: "setting",
@@ -23451,7 +23451,7 @@ function SidebarSearchToggle({ search: search, fieldId: fieldId }) {
         search.expand("touch" !== h5.current && h5.current !== "pen");
       }
     },
-    children: (0, jsxRuntime.jsx)(dy, {
+    children: (0, jsxRuntime.jsx)(LauncherIcon, {
       glyph: "search",
     }),
   });
@@ -24169,7 +24169,7 @@ function OverheadNumberPlacementRows({
 }) {
   return (0, jsxRuntime.jsxs)(jsxRuntime.Fragment, {
     children: [
-      (0, jsxRuntime.jsx)(f5, {
+      (0, jsxRuntime.jsx)(SettingRow, {
         searchId: gs(pluginKey, "Show Above Prayer Icon"),
         isModified: placement.abovePrayerIcon !== defaults.abovePrayerIcon,
         onReset: () => {
@@ -24177,14 +24177,14 @@ function OverheadNumberPlacementRows({
             onAbovePrayerIconToggle();
           }
         },
-        children: (0, jsxRuntime.jsx)(fd, {
+        children: (0, jsxRuntime.jsx)(OsrsCheckbox, {
           label: "Show Above Prayer Icon",
           checked: placement.abovePrayerIcon,
           onChange: () => onAbovePrayerIconToggle(),
           disabled: disabled,
         }),
       }),
-      (0, jsxRuntime.jsx)(f5, {
+      (0, jsxRuntime.jsx)(SettingRow, {
         searchId: gs(pluginKey, "Offset"),
         isModified:
           placement.offsetX !== defaults.offsetX ||
@@ -24217,7 +24217,7 @@ function OverheadNumberPlacementRows({
                         "aria-hidden": "true",
                         children: ha,
                       }),
-                      (0, jsxRuntime.jsx)(dP, {
+                      (0, jsxRuntime.jsx)(OsrsNumberInput, {
                         min: -200,
                         max: 200,
                         fieldWidth: 34,
@@ -24240,7 +24240,7 @@ function OverheadNumberPlacementRows({
           ],
         }),
       }),
-      (0, jsxRuntime.jsx)(f5, {
+      (0, jsxRuntime.jsx)(SettingRow, {
         searchId: gs(pluginKey, "Font Size"),
         isModified: placement.fontSize !== defaults.fontSize,
         onReset: () => onFontSizeChange(defaults.fontSize),
@@ -24251,7 +24251,7 @@ function OverheadNumberPlacementRows({
               className: "plugin-setting-label",
               children: "Font Size:",
             }),
-            (0, jsxRuntime.jsx)(dP, {
+            (0, jsxRuntime.jsx)(OsrsNumberInput, {
               min: 8,
               max: 72,
               value: placement.fontSize,
@@ -24275,11 +24275,11 @@ function AutoOverlaySizeSetting({ enabled: enabled, onToggle: onToggle }) {
     className: "overlay-size-setting",
     title:
       "Makes the menus, replay bar, panels and plugin overlays larger on bigger screens.",
-    children: (0, jsxRuntime.jsx)(f5, {
+    children: (0, jsxRuntime.jsx)(SettingRow, {
       isModified: !enabled,
       onReset: () => !enabled && onToggle(),
       searchId: gs("stretchedMode", "Auto-size interface and overlays"),
-      children: (0, jsxRuntime.jsx)(fd, {
+      children: (0, jsxRuntime.jsx)(OsrsCheckbox, {
         label: "Auto-size interface and overlays",
         checked: enabled,
         onChange: onToggle,
@@ -24298,11 +24298,11 @@ function sceneOverlayScaleSetting({
   return (0, jsxRuntime.jsxs)("div", {
     className: "overlay-size-setting",
     children: [
-      (0, jsxRuntime.jsx)(f5, {
+      (0, jsxRuntime.jsx)(SettingRow, {
         isModified: !follow,
         onReset: () => !follow && onFollowToggle(),
         searchId: gs("stretchedMode", "Scale health bars, hitsplats and prayers with UI"),
-        children: (0, jsxRuntime.jsx)(fd, {
+        children: (0, jsxRuntime.jsx)(OsrsCheckbox, {
           label: "Scale health bars, hitsplats and prayers with UI",
           checked: follow,
           onChange: onFollowToggle,
@@ -24319,7 +24319,7 @@ function sceneOverlayScaleSetting({
               title: "Sizes health bars, hitsplats and overhead prayers.",
               children: "Health bar, hitsplat and prayer scale",
             }),
-            (0, jsxRuntime.jsx)(dP, {
+            (0, jsxRuntime.jsx)(OsrsNumberInput, {
               id: "stretched-mode-scene-overlay-scale",
               value: percent,
               min: 50,
@@ -24349,7 +24349,7 @@ function PillarAdditionsSettings({ pluginKey: pluginKey, options: options, onCha
         ["markPillarTiles", "Mark pillar tiles"],
       ].map(([h7, h8]) =>
         (0, jsxRuntime.jsx)(
-          f5,
+          SettingRow,
           {
             isModified: options[h7] !== h6[h7],
             onReset: () =>
@@ -24358,7 +24358,7 @@ function PillarAdditionsSettings({ pluginKey: pluginKey, options: options, onCha
                 [h7]: h6[h7],
               }),
             searchId: gs(pluginKey, h8),
-            children: (0, jsxRuntime.jsx)(fd, {
+            children: (0, jsxRuntime.jsx)(OsrsCheckbox, {
               label: h8,
               checked: options[h7],
               onChange: () =>
@@ -24379,7 +24379,7 @@ function PillarAdditionsSettings({ pluginKey: pluginKey, options: options, onCha
             className: "plugin-group-label",
             children: "Pillar marker style",
           }),
-          (0, jsxRuntime.jsx)(f5, {
+          (0, jsxRuntime.jsx)(SettingRow, {
             searchId: null,
             isModified: options.pillarMarkerStyle !== h6.pillarMarkerStyle,
             onReset: () =>
@@ -24414,7 +24414,7 @@ function PillarAdditionsSettings({ pluginKey: pluginKey, options: options, onCha
           }),
         ],
       }),
-      (0, jsxRuntime.jsx)(f5, {
+      (0, jsxRuntime.jsx)(SettingRow, {
         isModified: options.pillarTileColor !== h6.pillarTileColor,
         onReset: () =>
           onChange({
@@ -24441,7 +24441,7 @@ function PillarAdditionsSettings({ pluginKey: pluginKey, options: options, onCha
           ],
         }),
       }),
-      (0, jsxRuntime.jsx)(f5, {
+      (0, jsxRuntime.jsx)(SettingRow, {
         isModified: options.pillarTileOpacity !== h6.pillarTileOpacity,
         onReset: () =>
           onChange({
@@ -24456,7 +24456,7 @@ function PillarAdditionsSettings({ pluginKey: pluginKey, options: options, onCha
               className: "plugin-setting-label",
               children: "Opacity (%):",
             }),
-            (0, jsxRuntime.jsx)(dP, {
+            (0, jsxRuntime.jsx)(OsrsNumberInput, {
               min: 0,
               max: 100,
               value: Math.round(options.pillarTileOpacity * 100),
@@ -24505,7 +24505,7 @@ function AttackRangesSettings({ pluginKey: pluginKey, options: options, onChange
   const set = (key, value) => onChange({ ...options, [key]: value });
   const row = (option, label, control) =>
     (0, jsxRuntime.jsx)(
-      f5,
+      SettingRow,
       {
         isModified: options[option.key] !== defaults[option.key],
         onReset: () => set(option.key, defaults[option.key]),
@@ -24528,14 +24528,14 @@ function AttackRangesSettings({ pluginKey: pluginKey, options: options, onChange
     const value = options[option.key];
     if (option.type === "boolean") {
       return (0, jsxRuntime.jsx)(
-        f5,
+        SettingRow,
         {
           isModified: value !== defaults[option.key],
           onReset: () => set(option.key, defaults[option.key]),
           searchId: gs(pluginKey, option.label),
           children: (0, jsxRuntime.jsx)("div", {
             title: option.info,
-            children: (0, jsxRuntime.jsx)(fd, {
+            children: (0, jsxRuntime.jsx)(OsrsCheckbox, {
               label: option.label,
               checked: value,
               onChange: () => set(option.key, !value),
@@ -24562,7 +24562,7 @@ function AttackRangesSettings({ pluginKey: pluginKey, options: options, onChange
       return row(
         option,
         option.label + ":",
-        (0, jsxRuntime.jsx)(dP, {
+        (0, jsxRuntime.jsx)(OsrsNumberInput, {
           min: option.min,
           max: option.max,
           value: String(value),
@@ -24591,7 +24591,7 @@ function AttackRangesSettings({ pluginKey: pluginKey, options: options, onChange
               onMouseDown: tfe,
             }),
             (0, jsxRuntime.jsx)("span", { className: "plugin-setting-label", children: "Alpha:" }),
-            (0, jsxRuntime.jsx)(dP, {
+            (0, jsxRuntime.jsx)(OsrsNumberInput, {
               min: 0,
               max: 255,
               value: String(alpha),
@@ -24709,7 +24709,7 @@ function CompactOrbsLayoutGlyph({ layout: layout }) {
     ),
   });
 }
-var rfe = gu;
+var rfe = PERSISTED_SETTINGS_DEFAULTS;
 var sfe = bme;
 var lfe = aL;
 var PluginsPanelContent = (0, React.memo)(
@@ -25379,7 +25379,7 @@ var PluginsPanelContent = (0, React.memo)(
       lr || ls || lu || lv
         ? (function (lC) {
             if (lC) {
-              return ENCOUNTER_PLUGIN_SECTION_NAMES[gR(lC)] ?? null;
+              return ENCOUNTER_PLUGIN_SECTION_NAMES[resolveBaseEncounterKind(lC)] ?? null;
             } else {
               return null;
             }
@@ -25424,10 +25424,10 @@ var PluginsPanelContent = (0, React.memo)(
     })();
     const lz = new Map(fo.map((lC) => [lC.value, lC.label]));
     const lB = {
-      hitpoints: gk.orbHitpointsIcon,
-      prayer: gk.orbPrayerIcon,
-      run: gk.orbRunIcon,
-      special: gk.orbSpecialIcon,
+      hitpoints: MINIMAP.orbHitpointsIcon,
+      prayer: MINIMAP.orbPrayerIcon,
+      run: MINIMAP.orbRunIcon,
+      special: MINIMAP.orbSpecialIcon,
     };
     return (0, jsxRuntime.jsxs)(jsxRuntime.Fragment, {
       children: [
@@ -25437,7 +25437,7 @@ var PluginsPanelContent = (0, React.memo)(
         }),
         (0, jsxRuntime.jsxs)("aside", {
           className: "plugins-overlay " + (visible ? "open" : ""),
-          ...dn.drawer,
+          ...sheet.drawer,
           inert: l5.VPjKU(!visible, undefined),
           onTransitionEnd: (lC) => {
             if (
@@ -25472,9 +25472,9 @@ var PluginsPanelContent = (0, React.memo)(
                       className: "panel-header-divider",
                       "aria-hidden": "true",
                     }),
-                    (0, jsxRuntime.jsx)(fV, {
+                    (0, jsxRuntime.jsx)(CloseButton, {
                       className: "panel-close-button",
-                      ...dn.close,
+                      ...sheet.close,
                       onClick: onClose,
                       "aria-label": "Close plugins",
                     }),
@@ -25552,7 +25552,7 @@ var PluginsPanelContent = (0, React.memo)(
                                 className: "plugin-group-label",
                                 children: "Show HP",
                               }),
-                              (0, jsxRuntime.jsx)(f5, {
+                              (0, jsxRuntime.jsx)(SettingRow, {
                                 searchId: null,
                                 isModified:
                                   tzhaarHpTracker.showHp !== a8.showHp,
@@ -25601,7 +25601,7 @@ var PluginsPanelContent = (0, React.memo)(
                                 className: "plugin-group-label",
                                 children: "Highlight style",
                               }),
-                              (0, jsxRuntime.jsx)(f5, {
+                              (0, jsxRuntime.jsx)(SettingRow, {
                                 searchId: null,
                                 isModified:
                                   tzhaarHpTracker.highlightStyle !==
@@ -25651,7 +25651,7 @@ var PluginsPanelContent = (0, React.memo)(
                                 className: "plugin-group-label",
                                 children: "Dynamic HP color",
                               }),
-                              (0, jsxRuntime.jsx)(f5, {
+                              (0, jsxRuntime.jsx)(SettingRow, {
                                 searchId: null,
                                 isModified:
                                   tzhaarHpTracker.dynamicColor !==
@@ -25690,7 +25690,7 @@ var PluginsPanelContent = (0, React.memo)(
                               }),
                             ],
                           }),
-                          (0, jsxRuntime.jsx)(f5, {
+                          (0, jsxRuntime.jsx)(SettingRow, {
                             isModified:
                               tzhaarHpTracker.recolorMenu !== a8.recolorMenu,
                             onReset: () =>
@@ -25699,7 +25699,7 @@ var PluginsPanelContent = (0, React.memo)(
                                 recolorMenu: a8.recolorMenu,
                               }),
                             searchId: gs("tzhaarHpTracker", "Recolor menu"),
-                            children: (0, jsxRuntime.jsx)(fd, {
+                            children: (0, jsxRuntime.jsx)(OsrsCheckbox, {
                               label: "Recolor menu",
                               checked: tzhaarHpTracker.recolorMenu,
                               onChange: () =>
@@ -25709,7 +25709,7 @@ var PluginsPanelContent = (0, React.memo)(
                                 }),
                             }),
                           }),
-                          (0, jsxRuntime.jsx)(f5, {
+                          (0, jsxRuntime.jsx)(SettingRow, {
                             isModified:
                               tzhaarHpTracker.hideDead !== a8.hideDead,
                             onReset: () =>
@@ -25718,7 +25718,7 @@ var PluginsPanelContent = (0, React.memo)(
                                 hideDead: a8.hideDead,
                               }),
                             searchId: gs("tzhaarHpTracker", "Hide dead NPCs"),
-                            children: (0, jsxRuntime.jsx)(fd, {
+                            children: (0, jsxRuntime.jsx)(OsrsCheckbox, {
                               label: "Hide dead NPCs",
                               checked: tzhaarHpTracker.hideDead,
                               onChange: () =>
@@ -25744,7 +25744,7 @@ var PluginsPanelContent = (0, React.memo)(
                         onToggleExpand: () => lx("setTimer"),
                         children: (0, jsxRuntime.jsx)("div", {
                           "data-search-id": gs("setTimer", "Shortcuts"),
-                          children: (0, jsxRuntime.jsx)(g7, {
+                          children: (0, jsxRuntime.jsx)(KeybindingsContent, {
                             group: cB.zukSetTimerAdvance.group,
                             readOnly: setTimer.readOnly,
                           }),
@@ -25764,7 +25764,7 @@ var PluginsPanelContent = (0, React.memo)(
                       expanded: l6.antiDrag,
                       onToggleExpand: () => lx("antiDrag"),
                       children: [
-                        (0, jsxRuntime.jsx)(f5, {
+                        (0, jsxRuntime.jsx)(SettingRow, {
                           isModified: dragOnShiftOnly !== sfe.onShiftOnly,
                           onReset: () => {
                             if (dragOnShiftOnly !== sfe.onShiftOnly) {
@@ -25772,13 +25772,13 @@ var PluginsPanelContent = (0, React.memo)(
                             }
                           },
                           searchId: gs("antiDrag", "Require Shift to drag"),
-                          children: (0, jsxRuntime.jsx)(fd, {
+                          children: (0, jsxRuntime.jsx)(OsrsCheckbox, {
                             label: "Require Shift to drag",
                             checked: dragOnShiftOnly,
                             onChange: () => onDragOnShiftOnlyToggle(),
                           }),
                         }),
-                        (0, jsxRuntime.jsx)(f5, {
+                        (0, jsxRuntime.jsx)(SettingRow, {
                           isModified: antiDragCtrlToDrag !== sfe.ctrlToDrag,
                           onReset: () => {
                             if (antiDragCtrlToDrag !== sfe.ctrlToDrag) {
@@ -25786,13 +25786,13 @@ var PluginsPanelContent = (0, React.memo)(
                             }
                           },
                           searchId: gs("antiDrag", "Ctrl to drag immediately"),
-                          children: (0, jsxRuntime.jsx)(fd, {
+                          children: (0, jsxRuntime.jsx)(OsrsCheckbox, {
                             label: "Ctrl to drag immediately",
                             checked: antiDragCtrlToDrag,
                             onChange: () => onAntiDragCtrlToDragToggle(),
                           }),
                         }),
-                        (0, jsxRuntime.jsx)(f5, {
+                        (0, jsxRuntime.jsx)(SettingRow, {
                           isModified: antiDragDelay !== sfe.dragDelay,
                           onReset: () => onAntiDragDelayChange(sfe.dragDelay),
                           searchId: gs("antiDrag", "Drag delay"),
@@ -25806,7 +25806,7 @@ var PluginsPanelContent = (0, React.memo)(
                                 className: "plugin-setting-label",
                                 children: "Drag delay:",
                               }),
-                              (0, jsxRuntime.jsx)(dP, {
+                              (0, jsxRuntime.jsx)(OsrsNumberInput, {
                                 min: 0,
                                 max: 2000,
                                 value: antiDragDelay,
@@ -25845,7 +25845,7 @@ var PluginsPanelContent = (0, React.memo)(
                       expanded: l6.attackTimerMetronome,
                       onToggleExpand: () => lx("attackTimerMetronome"),
                       children: [
-                        (0, jsxRuntime.jsx)(f5, {
+                        (0, jsxRuntime.jsx)(SettingRow, {
                           isModified:
                             attackTimerMetronomeShowBar !==
                             rfe.attackTimerMetronomeShowBar,
@@ -25861,14 +25861,14 @@ var PluginsPanelContent = (0, React.memo)(
                             "attackTimerMetronome",
                             "Show Attack Bar",
                           ),
-                          children: (0, jsxRuntime.jsx)(fd, {
+                          children: (0, jsxRuntime.jsx)(OsrsCheckbox, {
                             label: "Show Attack Bar",
                             checked: attackTimerMetronomeShowBar,
                             onChange: () =>
                               onAttackTimerMetronomeShowBarToggle(),
                           }),
                         }),
-                        (0, jsxRuntime.jsx)(f5, {
+                        (0, jsxRuntime.jsx)(SettingRow, {
                           isModified:
                             attackTimerMetronomeShowTicks !==
                             rfe.attackTimerMetronomeShowTicks,
@@ -25884,7 +25884,7 @@ var PluginsPanelContent = (0, React.memo)(
                             "attackTimerMetronome",
                             "Show Attack Cooldown Ticks",
                           ),
-                          children: (0, jsxRuntime.jsx)(fd, {
+                          children: (0, jsxRuntime.jsx)(OsrsCheckbox, {
                             label: "Show Attack Cooldown Ticks",
                             checked: attackTimerMetronomeShowTicks,
                             onChange: () =>
@@ -25945,7 +25945,7 @@ var PluginsPanelContent = (0, React.memo)(
                       expanded: l6.bossHealthBar,
                       onToggleExpand: () => lx("bossHealthBar"),
                       children: [
-                        (0, jsxRuntime.jsx)(f5, {
+                        (0, jsxRuntime.jsx)(SettingRow, {
                           isModified: bossHealthBarShowName !== kme.showName,
                           onReset: () => {
                             if (bossHealthBarShowName !== kme.showName) {
@@ -25953,13 +25953,13 @@ var PluginsPanelContent = (0, React.memo)(
                             }
                           },
                           searchId: gs("bossHealthBar", "Show boss name"),
-                          children: (0, jsxRuntime.jsx)(fd, {
+                          children: (0, jsxRuntime.jsx)(OsrsCheckbox, {
                             label: "Show boss name",
                             checked: bossHealthBarShowName,
                             onChange: () => onBossHealthBarShowNameToggle(),
                           }),
                         }),
-                        (0, jsxRuntime.jsx)(f5, {
+                        (0, jsxRuntime.jsx)(SettingRow, {
                           isModified:
                             bossHealthBarShowValues !== kme.showValues,
                           onReset: () => {
@@ -25968,13 +25968,13 @@ var PluginsPanelContent = (0, React.memo)(
                             }
                           },
                           searchId: gs("bossHealthBar", "Show hitpoints"),
-                          children: (0, jsxRuntime.jsx)(fd, {
+                          children: (0, jsxRuntime.jsx)(OsrsCheckbox, {
                             label: "Show hitpoints",
                             checked: bossHealthBarShowValues,
                             onChange: () => onBossHealthBarShowValuesToggle(),
                           }),
                         }),
-                        (0, jsxRuntime.jsx)(f5, {
+                        (0, jsxRuntime.jsx)(SettingRow, {
                           isModified:
                             bossHealthBarShowPercentage !== kme.showPercentage,
                           onReset: () => {
@@ -25985,7 +25985,7 @@ var PluginsPanelContent = (0, React.memo)(
                             }
                           },
                           searchId: gs("bossHealthBar", "Show percentage"),
-                          children: (0, jsxRuntime.jsx)(fd, {
+                          children: (0, jsxRuntime.jsx)(OsrsCheckbox, {
                             label: "Show percentage",
                             checked: bossHealthBarShowPercentage,
                             onChange: () =>
@@ -26010,7 +26010,7 @@ var PluginsPanelContent = (0, React.memo)(
                               className: "plugin-group-label",
                               children: "Rotate",
                             }),
-                            (0, jsxRuntime.jsx)(f5, {
+                            (0, jsxRuntime.jsx)(SettingRow, {
                               isModified:
                                 cameraVerticalCamera !==
                                 rfe.cameraVerticalCamera,
@@ -26023,13 +26023,13 @@ var PluginsPanelContent = (0, React.memo)(
                                 }
                               },
                               searchId: gs("camera", "Expand pitch limit"),
-                              children: (0, jsxRuntime.jsx)(fd, {
+                              children: (0, jsxRuntime.jsx)(OsrsCheckbox, {
                                 label: "Expand pitch limit",
                                 checked: cameraVerticalCamera,
                                 onChange: () => onCameraVerticalCameraToggle(),
                               }),
                             }),
-                            (0, jsxRuntime.jsx)(f5, {
+                            (0, jsxRuntime.jsx)(SettingRow, {
                               isModified:
                                 cameraInvertYaw !== rfe.cameraInvertYaw,
                               onReset: () => {
@@ -26038,13 +26038,13 @@ var PluginsPanelContent = (0, React.memo)(
                                 }
                               },
                               searchId: gs("camera", "Invert yaw"),
-                              children: (0, jsxRuntime.jsx)(fd, {
+                              children: (0, jsxRuntime.jsx)(OsrsCheckbox, {
                                 label: "Invert yaw",
                                 checked: cameraInvertYaw,
                                 onChange: () => onCameraInvertYawToggle(),
                               }),
                             }),
-                            (0, jsxRuntime.jsx)(f5, {
+                            (0, jsxRuntime.jsx)(SettingRow, {
                               isModified:
                                 cameraInvertPitch !== rfe.cameraInvertPitch,
                               onReset: () => {
@@ -26055,13 +26055,13 @@ var PluginsPanelContent = (0, React.memo)(
                                 }
                               },
                               searchId: gs("camera", "Invert pitch"),
-                              children: (0, jsxRuntime.jsx)(fd, {
+                              children: (0, jsxRuntime.jsx)(OsrsCheckbox, {
                                 label: "Invert pitch",
                                 checked: cameraInvertPitch,
                                 onChange: () => onCameraInvertPitchToggle(),
                               }),
                             }),
-                            (0, jsxRuntime.jsx)(f5, {
+                            (0, jsxRuntime.jsx)(SettingRow, {
                               isModified:
                                 cameraRightClickMovesCamera !==
                                 rfe.cameraRightClickMovesCamera,
@@ -26077,14 +26077,14 @@ var PluginsPanelContent = (0, React.memo)(
                                 "camera",
                                 "Right-click moves camera",
                               ),
-                              children: (0, jsxRuntime.jsx)(fd, {
+                              children: (0, jsxRuntime.jsx)(OsrsCheckbox, {
                                 label: "Right-click moves camera",
                                 checked: cameraRightClickMovesCamera,
                                 onChange: () =>
                                   onCameraRightClickMovesCameraToggle(),
                               }),
                             }),
-                            (0, jsxRuntime.jsx)(f5, {
+                            (0, jsxRuntime.jsx)(SettingRow, {
                               isModified: cameraSpeed !== rfe.cameraSpeed,
                               onReset: () =>
                                 onCameraSpeedChange(rfe.cameraSpeed),
@@ -26096,7 +26096,7 @@ var PluginsPanelContent = (0, React.memo)(
                                     className: "plugin-setting-label",
                                     children: "Keyboard speed:",
                                   }),
-                                  (0, jsxRuntime.jsx)(dP, {
+                                  (0, jsxRuntime.jsx)(OsrsNumberInput, {
                                     min: 0.1,
                                     step: 0.1,
                                     value: cameraSpeed,
@@ -26111,7 +26111,7 @@ var PluginsPanelContent = (0, React.memo)(
                                 ],
                               }),
                             }),
-                            (0, jsxRuntime.jsx)(f5, {
+                            (0, jsxRuntime.jsx)(SettingRow, {
                               isModified:
                                 cameraDragSpeed !== rfe.cameraDragSpeed,
                               onReset: () =>
@@ -26124,7 +26124,7 @@ var PluginsPanelContent = (0, React.memo)(
                                     className: "plugin-setting-label",
                                     children: "Mouse speed:",
                                   }),
-                                  (0, jsxRuntime.jsx)(dP, {
+                                  (0, jsxRuntime.jsx)(OsrsNumberInput, {
                                     min: 0.1,
                                     step: 0.1,
                                     value: cameraDragSpeed,
@@ -26148,7 +26148,7 @@ var PluginsPanelContent = (0, React.memo)(
                               className: "plugin-group-label",
                               children: "Zoom",
                             }),
-                            (0, jsxRuntime.jsx)(f5, {
+                            (0, jsxRuntime.jsx)(SettingRow, {
                               isModified:
                                 cameraInnerZoomLevel !==
                                 rfe.cameraInnerZoomLevel,
@@ -26164,7 +26164,7 @@ var PluginsPanelContent = (0, React.memo)(
                                     className: "plugin-setting-label",
                                     children: "Inner limit:",
                                   }),
-                                  (0, jsxRuntime.jsx)(dP, {
+                                  (0, jsxRuntime.jsx)(OsrsNumberInput, {
                                     min: 0,
                                     max: 8,
                                     value: cameraInnerZoomLevel,
@@ -26183,7 +26183,7 @@ var PluginsPanelContent = (0, React.memo)(
                                 ],
                               }),
                             }),
-                            (0, jsxRuntime.jsx)(f5, {
+                            (0, jsxRuntime.jsx)(SettingRow, {
                               isModified:
                                 cameraOuterZoomLimit !==
                                 rfe.cameraOuterZoomLimit,
@@ -26199,7 +26199,7 @@ var PluginsPanelContent = (0, React.memo)(
                                     className: "plugin-setting-label",
                                     children: "Outer limit:",
                                   }),
-                                  (0, jsxRuntime.jsx)(dP, {
+                                  (0, jsxRuntime.jsx)(OsrsNumberInput, {
                                     min: -400,
                                     max: 400,
                                     value: cameraOuterZoomLimit,
@@ -26218,7 +26218,7 @@ var PluginsPanelContent = (0, React.memo)(
                                 ],
                               }),
                             }),
-                            (0, jsxRuntime.jsx)(f5, {
+                            (0, jsxRuntime.jsx)(SettingRow, {
                               isModified:
                                 cameraZoomIncrement !== rfe.cameraZoomIncrement,
                               onReset: () =>
@@ -26233,7 +26233,7 @@ var PluginsPanelContent = (0, React.memo)(
                                     className: "plugin-setting-label",
                                     children: "Speed:",
                                   }),
-                                  (0, jsxRuntime.jsx)(dP, {
+                                  (0, jsxRuntime.jsx)(OsrsNumberInput, {
                                     min: 1,
                                     value: cameraZoomIncrement,
                                     onMouseDown: tfe,
@@ -26269,7 +26269,7 @@ var PluginsPanelContent = (0, React.memo)(
                               " keeps the client's own orb arrangement.",
                             ],
                           }),
-                        (0, jsxRuntime.jsx)(f5, {
+                        (0, jsxRuntime.jsx)(SettingRow, {
                           isModified: compactOrbsLayout !== dM,
                           onReset: () => onCompactOrbsLayoutChange(dM),
                           hideReset: lq,
@@ -26307,7 +26307,7 @@ var PluginsPanelContent = (0, React.memo)(
                                         (0, jsxRuntime.jsx)("span", {
                                           className:
                                             "compact-orbs-segment__label",
-                                          children: cU[lC],
+                                          children: COMPACT_ORBS_LAYOUT_LABELS[lC],
                                         }),
                                       ],
                                     },
@@ -26318,7 +26318,7 @@ var PluginsPanelContent = (0, React.memo)(
                             ],
                           }),
                         }),
-                        (0, jsxRuntime.jsx)(f5, {
+                        (0, jsxRuntime.jsx)(SettingRow, {
                           isModified: !dY(compactOrbsOrder),
                           onReset: () => {
                             lp(null);
@@ -26461,7 +26461,7 @@ var PluginsPanelContent = (0, React.memo)(
                       hasSettings: true,
                       expanded: l6.dpsOverlay,
                       onToggleExpand: () => lx("dpsOverlay"),
-                      children: (0, jsxRuntime.jsx)(f5, {
+                      children: (0, jsxRuntime.jsx)(SettingRow, {
                         isModified:
                           dpsOverlayShowDetails !== rfe.dpsOverlayShowDetails,
                         onReset: () => {
@@ -26472,7 +26472,7 @@ var PluginsPanelContent = (0, React.memo)(
                           }
                         },
                         searchId: gs("dpsOverlay", "Detailed DPS"),
-                        children: (0, jsxRuntime.jsx)(fd, {
+                        children: (0, jsxRuntime.jsx)(OsrsCheckbox, {
                           label: "Detailed DPS",
                           checked: dpsOverlayShowDetails,
                           onChange: () => onDpsOverlayShowDetailsToggle(),
@@ -26489,7 +26489,7 @@ var PluginsPanelContent = (0, React.memo)(
                       onToggleExpand: () => lx("entityHider"),
                       children: c2.map(({ key: lC, label: label }) =>
                         (0, jsxRuntime.jsx)(
-                          f5,
+                          SettingRow,
                           {
                             isModified: entityHider[lC] !== ck[lC],
                             onReset: () => {
@@ -26498,7 +26498,7 @@ var PluginsPanelContent = (0, React.memo)(
                               }
                             },
                             searchId: gs("entityHider", label),
-                            children: (0, jsxRuntime.jsx)(fd, {
+                            children: (0, jsxRuntime.jsx)(OsrsCheckbox, {
                               label: label,
                               checked: entityHider[lC],
                               onChange: () => onEntityHiderOptionToggle(lC),
@@ -26516,7 +26516,7 @@ var PluginsPanelContent = (0, React.memo)(
                       hasSettings: true,
                       expanded: l6.instantInventory,
                       onToggleExpand: () => lx("instantInventory"),
-                      children: (0, jsxRuntime.jsx)(f5, {
+                      children: (0, jsxRuntime.jsx)(SettingRow, {
                         isModified:
                           instantPrayerEnabled !== rfe.instantPrayerEnabled,
                         onReset: () => {
@@ -26527,7 +26527,7 @@ var PluginsPanelContent = (0, React.memo)(
                           }
                         },
                         searchId: gs("instantInventory", "Instant prayer"),
-                        children: (0, jsxRuntime.jsx)(fd, {
+                        children: (0, jsxRuntime.jsx)(OsrsCheckbox, {
                           label: "Instant prayer",
                           checked: instantPrayerEnabled,
                           onChange: () => onInstantPrayerToggle(),
@@ -26542,7 +26542,7 @@ var PluginsPanelContent = (0, React.memo)(
                       hasSettings: true,
                       expanded: l6.interfaceStyles,
                       onToggleExpand: () => lx("interfaceStyles"),
-                      children: (0, jsxRuntime.jsx)(f5, {
+                      children: (0, jsxRuntime.jsx)(SettingRow, {
                         isModified:
                           interfaceStylesHdHealthBars !==
                           rfe.interfaceStylesHdHealthBars,
@@ -26558,7 +26558,7 @@ var PluginsPanelContent = (0, React.memo)(
                           "interfaceStyles",
                           "High detail health bars",
                         ),
-                        children: (0, jsxRuntime.jsx)(fd, {
+                        children: (0, jsxRuntime.jsx)(OsrsCheckbox, {
                           label: "High detail health bars",
                           checked: interfaceStylesHdHealthBars,
                           onChange: () => onInterfaceStylesHdHealthBarsToggle(),
@@ -26899,11 +26899,11 @@ var PluginsPanelContent = (0, React.memo)(
                           (0, jsxRuntime.jsxs)("div", {
                             className: "plugin-options-stack",
                             children: [
-                              (0, jsxRuntime.jsx)(f5, {
+                              (0, jsxRuntime.jsx)(SettingRow, {
                                 isModified: !showLineMarkerLabels,
                                 onReset: onToggleShowLineMarkerLabels,
                                 searchId: gs("lineMarkers", "Show Labels"),
-                                children: (0, jsxRuntime.jsx)(fd, {
+                                children: (0, jsxRuntime.jsx)(OsrsCheckbox, {
                                   label: "Show Labels",
                                   checked: showLineMarkerLabels,
                                   onChange: () =>
@@ -26911,7 +26911,7 @@ var PluginsPanelContent = (0, React.memo)(
                                   disabled: ii,
                                 }),
                               }),
-                              (0, jsxRuntime.jsx)(f5, {
+                              (0, jsxRuntime.jsx)(SettingRow, {
                                 isModified:
                                   Math.abs(lineMarkerWidth - 1) > 0.01,
                                 onReset: () => {
@@ -26926,7 +26926,7 @@ var PluginsPanelContent = (0, React.memo)(
                                       className: "plugin-setting-label",
                                       children: "Line width:",
                                     }),
-                                    (0, jsxRuntime.jsx)(dP, {
+                                    (0, jsxRuntime.jsx)(OsrsNumberInput, {
                                       min: bq,
                                       max: 10,
                                       step: cl,
@@ -27094,7 +27094,7 @@ var PluginsPanelContent = (0, React.memo)(
                           }),
                           (0, jsxRuntime.jsx)("div", {
                             className: "npc-highlight-options",
-                            children: (0, jsxRuntime.jsx)(f5, {
+                            children: (0, jsxRuntime.jsx)(SettingRow, {
                               isModified:
                                 false !== npcHighlightColorMenuEntries,
                               onReset: () => {
@@ -27106,7 +27106,7 @@ var PluginsPanelContent = (0, React.memo)(
                                 "npcHighlights",
                                 "Color menu and hover text",
                               ),
-                              children: (0, jsxRuntime.jsx)(fd, {
+                              children: (0, jsxRuntime.jsx)(OsrsCheckbox, {
                                 label: "Color menu and hover text",
                                 checked: npcHighlightColorMenuEntries,
                                 onChange: () =>
@@ -27126,7 +27126,7 @@ var PluginsPanelContent = (0, React.memo)(
                       expanded: l6.prayer,
                       onToggleExpand: () => lx("prayer"),
                       children: [
-                        (0, jsxRuntime.jsx)(f5, {
+                        (0, jsxRuntime.jsx)(SettingRow, {
                           isModified:
                             prayerFlickOrbEnabled !== rfe.prayerFlickOrbEnabled,
                           onReset: () => {
@@ -27138,13 +27138,13 @@ var PluginsPanelContent = (0, React.memo)(
                             }
                           },
                           searchId: gs("prayer", "Pray flick on prayer orb"),
-                          children: (0, jsxRuntime.jsx)(fd, {
+                          children: (0, jsxRuntime.jsx)(OsrsCheckbox, {
                             label: "Pray flick on prayer orb",
                             checked: prayerFlickOrbEnabled,
                             onChange: () => onPrayerFlickOrbToggle(),
                           }),
                         }),
-                        (0, jsxRuntime.jsx)(f5, {
+                        (0, jsxRuntime.jsx)(SettingRow, {
                           isModified:
                             prayerFlickAlwaysOn !== rfe.prayerFlickAlwaysOn,
                           onReset: () => {
@@ -27155,7 +27155,7 @@ var PluginsPanelContent = (0, React.memo)(
                             }
                           },
                           searchId: gs("prayer", "Never hide pray flick"),
-                          children: (0, jsxRuntime.jsx)(fd, {
+                          children: (0, jsxRuntime.jsx)(OsrsCheckbox, {
                             label: "Never hide pray flick",
                             checked: prayerFlickAlwaysOn,
                             onChange: () => onPrayerFlickAlwaysOnToggle(),
@@ -27200,7 +27200,7 @@ var PluginsPanelContent = (0, React.memo)(
                       hasSettings: true,
                       expanded: l6.statusBars,
                       onToggleExpand: () => lx("statusBars"),
-                      children: (0, jsxRuntime.jsx)(f5, {
+                      children: (0, jsxRuntime.jsx)(SettingRow, {
                         isModified:
                           statusBarsShowValues !== rfe.statusBarsShowValues,
                         onReset: () => {
@@ -27211,7 +27211,7 @@ var PluginsPanelContent = (0, React.memo)(
                           }
                         },
                         searchId: gs("statusBars", "Show values"),
-                        children: (0, jsxRuntime.jsx)(fd, {
+                        children: (0, jsxRuntime.jsx)(OsrsCheckbox, {
                           label: "Show values",
                           checked: statusBarsShowValues,
                           onChange: () => onStatusBarsShowValuesToggle(),
@@ -27275,7 +27275,7 @@ var PluginsPanelContent = (0, React.memo)(
                                           "Sizes the game panel, minimap and orbs. Infoboxes, tooltips and menus grow less.",
                                         children: "UI scale",
                                       }),
-                                      (0, jsxRuntime.jsx)(dP, {
+                                      (0, jsxRuntime.jsx)(OsrsNumberInput, {
                                         id: "stretched-mode-custom-scale",
                                         value: Math.round(uiScale * 100),
                                         min: 100,
@@ -27355,7 +27355,7 @@ var PluginsPanelContent = (0, React.memo)(
                       expanded: l6.tickAudioMetronome,
                       onToggleExpand: () => lx("tickAudioMetronome"),
                       children: [
-                        (0, jsxRuntime.jsx)(f5, {
+                        (0, jsxRuntime.jsx)(SettingRow, {
                           isModified:
                             tickAudioMetronomeTock !==
                             rfe.tickAudioMetronomeTock,
@@ -27371,13 +27371,13 @@ var PluginsPanelContent = (0, React.memo)(
                             "tickAudioMetronome",
                             "Alternate tick and tock",
                           ),
-                          children: (0, jsxRuntime.jsx)(fd, {
+                          children: (0, jsxRuntime.jsx)(OsrsCheckbox, {
                             label: "Alternate tick and tock",
                             checked: tickAudioMetronomeTock,
                             onChange: () => onTickAudioMetronomeTockToggle(),
                           }),
                         }),
-                        (0, jsxRuntime.jsx)(f5, {
+                        (0, jsxRuntime.jsx)(SettingRow, {
                           isModified:
                             tickAudioMetronomeVolume !==
                             rfe.tickAudioMetronomeVolume,
@@ -27393,7 +27393,7 @@ var PluginsPanelContent = (0, React.memo)(
                                 className: "plugin-setting-label",
                                 children: "Volume (%):",
                               }),
-                              (0, jsxRuntime.jsx)(dP, {
+                              (0, jsxRuntime.jsx)(OsrsNumberInput, {
                                 min: 0,
                                 max: 100,
                                 value: Math.round(
@@ -27430,7 +27430,7 @@ var PluginsPanelContent = (0, React.memo)(
                       expanded: l6.tickCounter,
                       onToggleExpand: () => lx("tickCounter"),
                       children: [
-                        (0, jsxRuntime.jsx)(f5, {
+                        (0, jsxRuntime.jsx)(SettingRow, {
                           isModified:
                             showTickCounterInfobox !==
                             rfe.showTickCounterInfobox,
@@ -27443,7 +27443,7 @@ var PluginsPanelContent = (0, React.memo)(
                             }
                           },
                           searchId: gs("tickCounter", "Show Infobox"),
-                          children: (0, jsxRuntime.jsx)(fd, {
+                          children: (0, jsxRuntime.jsx)(OsrsCheckbox, {
                             label: "Show Infobox",
                             checked: showTickCounterInfobox,
                             onChange: () => onShowTickCounterInfoboxToggle(),
@@ -27454,7 +27454,7 @@ var PluginsPanelContent = (0, React.memo)(
                           className: "plugin-reveal-link",
                           children: "Infobox position and appearance",
                         }),
-                        (0, jsxRuntime.jsx)(f5, {
+                        (0, jsxRuntime.jsx)(SettingRow, {
                           isModified:
                             showTickCounterOverhead !==
                             rfe.showTickCounterOverhead,
@@ -27467,7 +27467,7 @@ var PluginsPanelContent = (0, React.memo)(
                             }
                           },
                           searchId: gs("tickCounter", "Show Above Head"),
-                          children: (0, jsxRuntime.jsx)(fd, {
+                          children: (0, jsxRuntime.jsx)(OsrsCheckbox, {
                             label: "Show Above Head",
                             checked: showTickCounterOverhead,
                             onChange: () => onShowTickCounterOverheadToggle(),
@@ -27493,7 +27493,7 @@ var PluginsPanelContent = (0, React.memo)(
                           onOffsetChange: onTickCounterOffsetChange,
                           onFontSizeChange: onTickCounterFontSizeChange,
                         }),
-                        (0, jsxRuntime.jsx)(f5, {
+                        (0, jsxRuntime.jsx)(SettingRow, {
                           isModified: tickCounterMax !== rfe.tickCounterMax,
                           onReset: () =>
                             onTickCounterMaxChange(rfe.tickCounterMax),
@@ -27505,7 +27505,7 @@ var PluginsPanelContent = (0, React.memo)(
                                 className: "plugin-setting-label",
                                 children: "Cycle Length:",
                               }),
-                              (0, jsxRuntime.jsx)(dP, {
+                              (0, jsxRuntime.jsx)(OsrsNumberInput, {
                                 min: 2,
                                 max: 20,
                                 value: tickCounterMax,
@@ -27524,7 +27524,7 @@ var PluginsPanelContent = (0, React.memo)(
                             ],
                           }),
                         }),
-                        (0, jsxRuntime.jsx)(f5, {
+                        (0, jsxRuntime.jsx)(SettingRow, {
                           isModified: Object.keys(tickCounterColors).length > 0,
                           onReset: () =>
                             onTickCounterColorsChange(rfe.tickCounterColors),
@@ -27556,7 +27556,7 @@ var PluginsPanelContent = (0, React.memo)(
                       expanded: l6.tileGrid,
                       onToggleExpand: () => lx("tileGrid"),
                       children: [
-                        (0, jsxRuntime.jsx)(f5, {
+                        (0, jsxRuntime.jsx)(SettingRow, {
                           isModified:
                             tileGridColor.toLowerCase() !== rfe.tileGridColor,
                           onReset: () =>
@@ -27578,7 +27578,7 @@ var PluginsPanelContent = (0, React.memo)(
                             ],
                           }),
                         }),
-                        (0, jsxRuntime.jsx)(f5, {
+                        (0, jsxRuntime.jsx)(SettingRow, {
                           isModified: tileGridOpacity !== rfe.tileGridOpacity,
                           onReset: () =>
                             onTileGridOpacityChange(rfe.tileGridOpacity),
@@ -27590,7 +27590,7 @@ var PluginsPanelContent = (0, React.memo)(
                                 className: "plugin-setting-label",
                                 children: "Opacity (%):",
                               }),
-                              (0, jsxRuntime.jsx)(dP, {
+                              (0, jsxRuntime.jsx)(OsrsNumberInput, {
                                 min: 0,
                                 max: 100,
                                 value: Math.round(tileGridOpacity * 100),
@@ -27609,7 +27609,7 @@ var PluginsPanelContent = (0, React.memo)(
                             ],
                           }),
                         }),
-                        (0, jsxRuntime.jsx)(f5, {
+                        (0, jsxRuntime.jsx)(SettingRow, {
                           isModified:
                             Math.abs(tileGridWidth - rfe.tileGridWidth) > 0.01,
                           onReset: () => {
@@ -27624,7 +27624,7 @@ var PluginsPanelContent = (0, React.memo)(
                                 className: "plugin-setting-label",
                                 children: "Line width:",
                               }),
-                              (0, jsxRuntime.jsx)(dP, {
+                              (0, jsxRuntime.jsx)(OsrsNumberInput, {
                                 min: a3,
                                 max: 10,
                                 step: cb,
@@ -27683,7 +27683,7 @@ var PluginsPanelContent = (0, React.memo)(
                             lE.cornerOnly !== lG.cornerOnly ||
                             lE.enabled !== lG.enabled;
                           return (0, jsxRuntime.jsx)(
-                            f5,
+                            SettingRow,
                             {
                               searchId: gs("tileIndicators", lH),
                               isModified: lL,
@@ -27761,7 +27761,7 @@ var PluginsPanelContent = (0, React.memo)(
                                             className: "ti-control-label",
                                             children: "Width:",
                                           }),
-                                          (0, jsxRuntime.jsx)(dP, {
+                                          (0, jsxRuntime.jsx)(OsrsNumberInput, {
                                             min: 0.5,
                                             max: 10,
                                             step: 0.5,
@@ -27798,7 +27798,7 @@ var PluginsPanelContent = (0, React.memo)(
                                           }),
                                         ],
                                       }),
-                                      (0, jsxRuntime.jsx)(fd, {
+                                      (0, jsxRuntime.jsx)(OsrsCheckbox, {
                                         label: "Corners only",
                                         checked: lE.cornerOnly,
                                         onChange: () =>
@@ -28120,11 +28120,11 @@ var PluginsPanelContent = (0, React.memo)(
                           (0, jsxRuntime.jsxs)("div", {
                             className: "plugin-options-stack",
                             children: [
-                              (0, jsxRuntime.jsx)(f5, {
+                              (0, jsxRuntime.jsx)(SettingRow, {
                                 isModified: !showTileMarkerLabels,
                                 onReset: onToggleShowTileMarkerLabels,
                                 searchId: gs("tileMarkers", "Show Labels"),
-                                children: (0, jsxRuntime.jsx)(fd, {
+                                children: (0, jsxRuntime.jsx)(OsrsCheckbox, {
                                   label: "Show Labels",
                                   checked: showTileMarkerLabels,
                                   onChange: () =>
@@ -28132,7 +28132,7 @@ var PluginsPanelContent = (0, React.memo)(
                                   disabled: ii,
                                 }),
                               }),
-                              (0, jsxRuntime.jsx)(f5, {
+                              (0, jsxRuntime.jsx)(SettingRow, {
                                 isModified:
                                   Math.abs(tileMarkerWidth - 2) > 0.01,
                                 onReset: () => {
@@ -28147,7 +28147,7 @@ var PluginsPanelContent = (0, React.memo)(
                                       className: "plugin-setting-label",
                                       children: "Border width:",
                                     }),
-                                    (0, jsxRuntime.jsx)(dP, {
+                                    (0, jsxRuntime.jsx)(OsrsNumberInput, {
                                       min: bh,
                                       max: 10,
                                       step: bW,
@@ -28185,7 +28185,7 @@ var PluginsPanelContent = (0, React.memo)(
                       expanded: l6.xpDrops,
                       onToggleExpand: () => lx("xpDrops"),
                       children: [
-                        (0, jsxRuntime.jsx)(f5, {
+                        (0, jsxRuntime.jsx)(SettingRow, {
                           isModified:
                             xpDropsShowPredictedHit !== Nme.showPredictedHit,
                           onReset: () => {
@@ -28196,13 +28196,13 @@ var PluginsPanelContent = (0, React.memo)(
                             }
                           },
                           searchId: gs("xpDrops", "Show predicted hit"),
-                          children: (0, jsxRuntime.jsx)(fd, {
+                          children: (0, jsxRuntime.jsx)(OsrsCheckbox, {
                             label: "Show predicted hit",
                             checked: xpDropsShowPredictedHit,
                             onChange: () => onXpDropsPredictedHitToggle(),
                           }),
                         }),
-                        (0, jsxRuntime.jsx)(f5, {
+                        (0, jsxRuntime.jsx)(SettingRow, {
                           isModified: xpDropsGrouped !== Nme.grouped,
                           onReset: () => {
                             if (xpDropsGrouped !== Nme.grouped) {
@@ -28210,13 +28210,13 @@ var PluginsPanelContent = (0, React.memo)(
                             }
                           },
                           searchId: gs("xpDrops", "Group XP drops"),
-                          children: (0, jsxRuntime.jsx)(fd, {
+                          children: (0, jsxRuntime.jsx)(OsrsCheckbox, {
                             label: "Group XP drops",
                             checked: xpDropsGrouped,
                             onChange: () => onXpDropsGroupedToggle(),
                           }),
                         }),
-                        (0, jsxRuntime.jsx)(f5, {
+                        (0, jsxRuntime.jsx)(SettingRow, {
                           isModified: xpDropsShowIcons !== Nme.showIcons,
                           onReset: () => {
                             if (xpDropsShowIcons !== Nme.showIcons) {
@@ -28224,13 +28224,13 @@ var PluginsPanelContent = (0, React.memo)(
                             }
                           },
                           searchId: gs("xpDrops", "Show skill icons"),
-                          children: (0, jsxRuntime.jsx)(fd, {
+                          children: (0, jsxRuntime.jsx)(OsrsCheckbox, {
                             label: "Show skill icons",
                             checked: xpDropsShowIcons,
                             onChange: () => onXpDropsShowIconsToggle(),
                           }),
                         }),
-                        (0, jsxRuntime.jsx)(f5, {
+                        (0, jsxRuntime.jsx)(SettingRow, {
                           isModified: xpDropsSpeed !== Nme.speed,
                           onReset: () => onXpDropsSpeedChange(Nme.speed),
                           searchId: gs("xpDrops", "Speed"),
@@ -28241,7 +28241,7 @@ var PluginsPanelContent = (0, React.memo)(
                                 className: "plugin-setting-label",
                                 children: "Speed:",
                               }),
-                              (0, jsxRuntime.jsx)(dP, {
+                              (0, jsxRuntime.jsx)(OsrsNumberInput, {
                                 min: 10,
                                 max: 200,
                                 value: xpDropsSpeed,
@@ -28273,7 +28273,7 @@ var PluginsPanelContent = (0, React.memo)(
                       expanded: l6.debugOverlays,
                       onToggleExpand: () => lx("debugOverlays"),
                       children: [
-                        (0, jsxRuntime.jsx)(f5, {
+                        (0, jsxRuntime.jsx)(SettingRow, {
                           isModified: showCoordinates !== rfe.showCoordinates,
                           onReset: () => {
                             if (showCoordinates !== rfe.showCoordinates) {
@@ -28281,13 +28281,13 @@ var PluginsPanelContent = (0, React.memo)(
                             }
                           },
                           searchId: gs("debugOverlays", "Coordinate Overlay"),
-                          children: (0, jsxRuntime.jsx)(fd, {
+                          children: (0, jsxRuntime.jsx)(OsrsCheckbox, {
                             label: "Coordinate Overlay",
                             checked: showCoordinates,
                             onChange: () => onShowCoordinatesToggle(),
                           }),
                         }),
-                        (0, jsxRuntime.jsx)(f5, {
+                        (0, jsxRuntime.jsx)(SettingRow, {
                           isModified: showNpcClickbox !== rfe.showNpcClickbox,
                           onReset: () => {
                             if (showNpcClickbox !== rfe.showNpcClickbox) {
@@ -28295,13 +28295,13 @@ var PluginsPanelContent = (0, React.memo)(
                             }
                           },
                           searchId: gs("debugOverlays", "NPC Clickbox"),
-                          children: (0, jsxRuntime.jsx)(fd, {
+                          children: (0, jsxRuntime.jsx)(OsrsCheckbox, {
                             label: "NPC Clickbox",
                             checked: showNpcClickbox,
                             onChange: () => onShowNpcClickboxToggle(),
                           }),
                         }),
-                        (0, jsxRuntime.jsx)(f5, {
+                        (0, jsxRuntime.jsx)(SettingRow, {
                           isModified:
                             npcAttackTimerMetronomeEnabled !==
                             rfe.npcAttackTimerMetronomeEnabled,
@@ -28317,13 +28317,13 @@ var PluginsPanelContent = (0, React.memo)(
                             "debugOverlays",
                             "NPC Attack Timer Metronome",
                           ),
-                          children: (0, jsxRuntime.jsx)(fd, {
+                          children: (0, jsxRuntime.jsx)(OsrsCheckbox, {
                             label: "NPC Attack Timer Metronome",
                             checked: npcAttackTimerMetronomeEnabled,
                             onChange: () => onNpcAttackTimerMetronomeToggle(),
                           }),
                         }),
-                        (0, jsxRuntime.jsx)(f5, {
+                        (0, jsxRuntime.jsx)(SettingRow, {
                           isModified: showTickTiming !== rfe.showTickTiming,
                           onReset: () => {
                             if (showTickTiming !== rfe.showTickTiming) {
@@ -28331,13 +28331,13 @@ var PluginsPanelContent = (0, React.memo)(
                             }
                           },
                           searchId: gs("debugOverlays", "Tick Timing"),
-                          children: (0, jsxRuntime.jsx)(fd, {
+                          children: (0, jsxRuntime.jsx)(OsrsCheckbox, {
                             label: "Tick Timing",
                             checked: showTickTiming,
                             onChange: () => onShowTickTimingToggle(),
                           }),
                         }),
-                        (0, jsxRuntime.jsx)(f5, {
+                        (0, jsxRuntime.jsx)(SettingRow, {
                           isModified: showSoundDebug !== rfe.showSoundDebug,
                           onReset: () => {
                             if (showSoundDebug !== rfe.showSoundDebug) {
@@ -28345,13 +28345,13 @@ var PluginsPanelContent = (0, React.memo)(
                             }
                           },
                           searchId: gs("debugOverlays", "Sound Debug"),
-                          children: (0, jsxRuntime.jsx)(fd, {
+                          children: (0, jsxRuntime.jsx)(OsrsCheckbox, {
                             label: "Sound Debug",
                             checked: showSoundDebug,
                             onChange: () => onShowSoundDebugToggle(),
                           }),
                         }),
-                        (0, jsxRuntime.jsx)(f5, {
+                        (0, jsxRuntime.jsx)(SettingRow, {
                           isModified: showCameraDebug !== rfe.showCameraDebug,
                           onReset: () => {
                             if (showCameraDebug !== rfe.showCameraDebug) {
@@ -28359,13 +28359,13 @@ var PluginsPanelContent = (0, React.memo)(
                             }
                           },
                           searchId: gs("debugOverlays", "Camera Debug"),
-                          children: (0, jsxRuntime.jsx)(fd, {
+                          children: (0, jsxRuntime.jsx)(OsrsCheckbox, {
                             label: "Camera Debug",
                             checked: showCameraDebug,
                             onChange: () => onShowCameraDebugToggle(),
                           }),
                         }),
-                        (0, jsxRuntime.jsx)(f5, {
+                        (0, jsxRuntime.jsx)(SettingRow, {
                           isModified: showModifierKeys !== rfe.showModifierKeys,
                           onReset: () => {
                             if (showModifierKeys !== rfe.showModifierKeys) {
@@ -28373,13 +28373,13 @@ var PluginsPanelContent = (0, React.memo)(
                             }
                           },
                           searchId: gs("debugOverlays", "Input Display"),
-                          children: (0, jsxRuntime.jsx)(fd, {
+                          children: (0, jsxRuntime.jsx)(OsrsCheckbox, {
                             label: "Input Display",
                             checked: showModifierKeys,
                             onChange: () => onShowModifierKeysToggle(),
                           }),
                         }),
-                        (0, jsxRuntime.jsx)(f5, {
+                        (0, jsxRuntime.jsx)(SettingRow, {
                           isModified:
                             hideHardwareAccelWarning !==
                             rfe.hideHardwareAccelWarning,
@@ -28395,7 +28395,7 @@ var PluginsPanelContent = (0, React.memo)(
                             "debugOverlays",
                             "Hide HW Accel Warning",
                           ),
-                          children: (0, jsxRuntime.jsx)(fd, {
+                          children: (0, jsxRuntime.jsx)(OsrsCheckbox, {
                             label: "Hide HW Accel Warning",
                             checked: hideHardwareAccelWarning,
                             onChange: () => onHideHardwareAccelWarningToggle(),
@@ -28414,7 +28414,7 @@ var PluginsPanelContent = (0, React.memo)(
                                 }),
                               hQ.map((lC) =>
                                 (0, jsxRuntime.jsx)(
-                                  fd,
+                                  OsrsCheckbox,
                                   {
                                     label: lC.label,
                                     checked: !!encounterDebugFlags[lC.key],
@@ -28475,10 +28475,10 @@ function mfe({
   onChooseEncounter: onChooseEncounter,
   onBrowseEncounters: onBrowseEncounters,
 }) {
-  dC(es.QUICK_SEARCH, isOpen, onClose);
+  dC(ESC_PRIORITY.QUICK_SEARCH, isOpen, onClose);
   (0, React.useEffect)(() => {
     if (isOpen) {
-      window.dispatchEvent(new CustomEvent(ev));
+      window.dispatchEvent(new CustomEvent(TUTORIAL_QUICK_SEARCH_OPENED_EVENT));
     }
   }, [isOpen]);
   if (isOpen) {
@@ -29032,7 +29032,7 @@ var RendererErrorBoundary = class extends React.Component {
   }
   componentDidCatch(h2, h3) {
     f3(h2);
-    L.error("Renderer", "Renderer error caught by boundary:", h2, h3);
+    logger.error("Renderer", "Renderer error caught by boundary:", h2, h3);
   }
   render() {
     if (this.state.hasError) {
@@ -29093,7 +29093,7 @@ var RendererErrorBoundary = class extends React.Component {
                     cursor: "pointer",
                     fontWeight: "bold",
                   },
-                  children: [(0, jsxRuntime.jsx)(cO, {}), "Error details"],
+                  children: [(0, jsxRuntime.jsx)(DisclosureChevron, {}), "Error details"],
                 }),
                 (0, jsxRuntime.jsx)("pre", {
                   style: {
@@ -29480,7 +29480,7 @@ function $fe({ isOpen: isOpen, onClose: onClose, onLoad: onLoad }) {
   };
   return (0, jsxRuntime.jsx)("div", {
     className: "replay-library-overlay",
-    ...dn.overlay,
+    ...sheet.overlay,
     ...h7,
     role: "dialog",
     "aria-modal": "true",
@@ -29488,7 +29488,7 @@ function $fe({ isOpen: isOpen, onClose: onClose, onLoad: onLoad }) {
     "aria-describedby": "replay-library-intro",
     children: (0, jsxRuntime.jsxs)("div", {
       className: "replay-library-card centered-modal-snap",
-      ...dn.card,
+      ...sheet.card,
       ref: h6,
       onMouseDown: (hy) => {
         if (hy.target.closest("button")) {
@@ -29498,7 +29498,7 @@ function $fe({ isOpen: isOpen, onClose: onClose, onLoad: onLoad }) {
       children: [
         (0, jsxRuntime.jsxs)("div", {
           className: "replay-library-header",
-          ...dn.head,
+          ...sheet.head,
           children: [
             (0, jsxRuntime.jsxs)("div", {
               className: "replay-library-heading",
@@ -29516,9 +29516,9 @@ function $fe({ isOpen: isOpen, onClose: onClose, onLoad: onLoad }) {
                 }),
               ],
             }),
-            (0, jsxRuntime.jsx)(fV, {
+            (0, jsxRuntime.jsx)(CloseButton, {
               className: "replay-library-close",
-              ...dn.close,
+              ...sheet.close,
               onClick: onClose,
               "aria-label": "Close",
             }),
@@ -29526,7 +29526,7 @@ function $fe({ isOpen: isOpen, onClose: onClose, onLoad: onLoad }) {
         }),
         (0, jsxRuntime.jsxs)("div", {
           className: "replay-library-body",
-          ...dn.body,
+          ...sheet.body,
           children: [
             "loading" === hc &&
               (0, jsxRuntime.jsx)("p", {
@@ -29865,7 +29865,7 @@ function $fe({ isOpen: isOpen, onClose: onClose, onLoad: onLoad }) {
   });
 }
 var Gfe = Object.fromEntries(
-  gM.flatMap((h2) =>
+  encounterDefinitions.flatMap((h2) =>
     h2.registered && h2.slug !== null ? [[h2.slug, h2.kind]] : [],
   ),
 );
@@ -29874,7 +29874,7 @@ function jfe(h2) {
   return h2.replace(/_/g, "-");
 }
 var Ufe = Object.fromEntries(
-  gH.map(({ retired: retired }) => [retired.slug, retired.kind]),
+  retiredEncounterKindEntries.map(({ retired: retired }) => [retired.slug, retired.kind]),
 );
 // memo: a pure function of `path` (the encounter list is fixed at load);
 // it rebuilt the whole route list with every tick.
@@ -29941,7 +29941,7 @@ function gye() {
   return (0, jsxRuntime.jsxs)("div", {
     className: "control-group control-group--no-border",
     children: [
-      (0, jsxRuntime.jsx)(fd, {
+      (0, jsxRuntime.jsx)(OsrsCheckbox, {
         checked: h3,
         label: "Send crash reports",
         onChange: (h7) => {
@@ -29991,7 +29991,7 @@ var CollapsibleSection = ({
         onClick: () => h8(!h7),
         "aria-expanded": h7,
         children: [
-          (0, jsxRuntime.jsx)(cO, {
+          (0, jsxRuntime.jsx)(DisclosureChevron, {
             open: h7,
             className: "collapse-indicator",
           }),
@@ -30012,7 +30012,7 @@ var CollapsibleSection = ({
     ],
   });
 };
-var Dre = gu;
+var Dre = PERSISTED_SETTINGS_DEFAULTS;
 var FPS_CAP_OPTIONS = [
   {
     value: 0,
@@ -30117,7 +30117,7 @@ var SimulationControls = ({
       }),
       (0, jsxRuntime.jsx)("div", {
         className: "control-group",
-        children: (0, jsxRuntime.jsx)(f5, {
+        children: (0, jsxRuntime.jsx)(SettingRow, {
           isModified: inputLagMs !== Dre.inputLagMs,
           onReset: () => onInputLagMsChange(Dre.inputLagMs),
           hideReset: true,
@@ -30173,17 +30173,17 @@ var SimulationControls = ({
             className: "group-title",
             children: "Start of Fight Countdown",
           }),
-          (0, jsxRuntime.jsx)(f5, {
+          (0, jsxRuntime.jsx)(SettingRow, {
             isModified: fightStartCountdown !== Dre.fightStartCountdown,
             onReset: () => onFightStartCountdownChange(Dre.fightStartCountdown),
             searchId: eR("Simulation", "Start of Fight Countdown", "Countdown"),
-            children: (0, jsxRuntime.jsx)(fd, {
+            children: (0, jsxRuntime.jsx)(OsrsCheckbox, {
               checked: fightStartCountdown,
               onChange: onFightStartCountdownChange,
               label: "Countdown",
             }),
           }),
-          (0, jsxRuntime.jsx)(f5, {
+          (0, jsxRuntime.jsx)(SettingRow, {
             isModified: hj,
             onReset: () =>
               onFightStartCountdownTicksChange(Dre.fightStartCountdownTicks),
@@ -30249,7 +30249,7 @@ var SimulationControls = ({
       (0, jsxRuntime.jsxs)("div", {
         className: "control-group control-group--no-border",
         children: [
-          (0, jsxRuntime.jsx)(f5, {
+          (0, jsxRuntime.jsx)(SettingRow, {
             isModified: autoAdvance !== Dre.autoAdvance,
             onReset: () => {
               if (autoAdvance !== Dre.autoAdvance) {
@@ -30257,17 +30257,17 @@ var SimulationControls = ({
               }
             },
             searchId: eR("Simulation", "Auto-Advance"),
-            children: (0, jsxRuntime.jsx)(fd, {
+            children: (0, jsxRuntime.jsx)(OsrsCheckbox, {
               checked: autoAdvance,
               onChange: () => onAutoAdvanceToggle(),
               label: "Auto-Advance",
             }),
           }),
-          (0, jsxRuntime.jsx)(f5, {
+          (0, jsxRuntime.jsx)(SettingRow, {
             isModified: pauseWhenUnfocused !== Dre.pauseWhenUnfocused,
             onReset: () => onPauseWhenUnfocusedChange(Dre.pauseWhenUnfocused),
             searchId: eR("Simulation", "Pause simulator when unfocused"),
-            children: (0, jsxRuntime.jsx)(fd, {
+            children: (0, jsxRuntime.jsx)(OsrsCheckbox, {
               checked: pauseWhenUnfocused,
               onChange: onPauseWhenUnfocusedChange,
               label: "Pause simulator when unfocused",
@@ -30307,7 +30307,7 @@ var DisplayControls = ({
             className: "group-title",
             children: "View Mode",
           }),
-          (0, jsxRuntime.jsx)(f5, {
+          (0, jsxRuntime.jsx)(SettingRow, {
             searchId: null,
             isModified: selectedRenderer !== Dre.rendererType,
             onReset: () => onRendererChange(Dre.rendererType),
@@ -30343,7 +30343,7 @@ var DisplayControls = ({
             className: "group-title",
             children: "Display Options",
           }),
-          (0, jsxRuntime.jsx)(f5, {
+          (0, jsxRuntime.jsx)(SettingRow, {
             isModified: smoothTerrain !== Dre.smoothTerrain,
             onReset: () => {
               if (smoothTerrain !== Dre.smoothTerrain) {
@@ -30351,13 +30351,13 @@ var DisplayControls = ({
               }
             },
             searchId: eR("Graphics & Performance", "Smooth Terrain"),
-            children: (0, jsxRuntime.jsx)(fd, {
+            children: (0, jsxRuntime.jsx)(OsrsCheckbox, {
               checked: smoothTerrain,
               onChange: () => onSmoothTerrainToggle(),
               label: "Smooth Terrain",
             }),
           }),
-          (0, jsxRuntime.jsx)(f5, {
+          (0, jsxRuntime.jsx)(SettingRow, {
             isModified: Math.abs(brightness - Dre.brightness) > 0.005,
             onReset: () => onBrightnessChange(Dre.brightness),
             hideReset: true,
@@ -30403,7 +30403,7 @@ var DisplayControls = ({
               ],
             }),
           }),
-          (0, jsxRuntime.jsx)(f5, {
+          (0, jsxRuntime.jsx)(SettingRow, {
             isModified: Math.abs(contrast - Dre.contrast) > 0.005,
             onReset: () => onContrastChange(Dre.contrast),
             hideReset: true,
@@ -30449,7 +30449,7 @@ var DisplayControls = ({
               ],
             }),
           }),
-          (0, jsxRuntime.jsx)(f5, {
+          (0, jsxRuntime.jsx)(SettingRow, {
             isModified: Math.abs(saturation - Dre.saturation) > 0.005,
             onReset: () => onSaturationChange(Dre.saturation),
             hideReset: true,
@@ -30495,7 +30495,7 @@ var DisplayControls = ({
               ],
             }),
           }),
-          (0, jsxRuntime.jsx)(f5, {
+          (0, jsxRuntime.jsx)(SettingRow, {
             isModified: Math.abs(renderScale - Dre.renderScaleHardware) > 0.005,
             onReset: () => onRenderScaleChange(Dre.renderScaleHardware),
             hideReset: true,
@@ -30559,7 +30559,7 @@ var DisplayControls = ({
             className: "group-title",
             children: "FPS Cap",
           }),
-          (0, jsxRuntime.jsx)(f5, {
+          (0, jsxRuntime.jsx)(SettingRow, {
             searchId: null,
             isModified: fpsCap !== Dre.fpsCap,
             onReset: () => onFpsCapChange(Dre.fpsCap),
@@ -30590,7 +30590,7 @@ var DisplayControls = ({
             className: "group-title",
             children: "Anti-aliasing",
           }),
-          (0, jsxRuntime.jsx)(f5, {
+          (0, jsxRuntime.jsx)(SettingRow, {
             searchId: null,
             isModified: antiAliasing !== Dre.antiAliasing,
             onReset: () => onAntiAliasingChange(Dre.antiAliasing),
@@ -30662,7 +30662,7 @@ var InterfaceControls = ({
     gameResolution.width !== eL.width ||
     gameResolution.height !== eL.height ||
     gameResolution.presetId !== eL.presetId;
-  const hx = (hz) => Math.round(Math.max(320, Math.min(gh, hz)));
+  const hx = (hz) => Math.round(Math.max(320, Math.min(GAME_RESOLUTION_MAX, hz)));
   const hy = (function (hz, hA) {
     if (hz === "mobile") {
       return {
@@ -30717,7 +30717,7 @@ var InterfaceControls = ({
                   children: "Mobile",
                 }),
               })
-            : (0, jsxRuntime.jsx)(f5, {
+            : (0, jsxRuntime.jsx)(SettingRow, {
                 searchId: null,
                 isModified: "modern" !== clientLayoutMode,
                 onReset: () => onClientLayoutModeChange("modern"),
@@ -30734,7 +30734,7 @@ var InterfaceControls = ({
                         "option",
                         {
                           value: hz,
-                          children: e0[hz],
+                          children: CLIENT_LAYOUT_LABELS[hz],
                         },
                         hz,
                       ),
@@ -30783,7 +30783,7 @@ var InterfaceControls = ({
                       htmlFor: "viewport-preset",
                       children: "Resolution",
                     }),
-                    (0, jsxRuntime.jsx)(f5, {
+                    (0, jsxRuntime.jsx)(SettingRow, {
                       isModified: hw,
                       onReset: () =>
                         onGameResolutionChange({
@@ -30816,7 +30816,7 @@ var InterfaceControls = ({
                               });
                               return;
                             }
-                            const hB = eU.find((hC) => hC.id === hA);
+                            const hB = RESOLUTION_PRESETS.find((hC) => hC.id === hA);
                             if (hB) {
                               onGameResolutionChange({
                                 mode: "fixed",
@@ -30833,7 +30833,7 @@ var InterfaceControls = ({
                             value: "fit",
                             children: "Fit Window",
                           }),
-                          eU.map((hz) =>
+                          RESOLUTION_PRESETS.map((hz) =>
                             (0, jsxRuntime.jsx)(
                               "option",
                               {
@@ -30851,7 +30851,7 @@ var InterfaceControls = ({
                       }),
                     }),
                     gameResolution.presetId === "custom" &&
-                      (0, jsxRuntime.jsx)(f5, {
+                      (0, jsxRuntime.jsx)(SettingRow, {
                         searchId: null,
                         isModified: false,
                         onReset: () => {},
@@ -30975,25 +30975,25 @@ var InterfaceControls = ({
               className: "group-title",
               children: "Side panel",
             }),
-            (0, jsxRuntime.jsx)(f5, {
+            (0, jsxRuntime.jsx)(SettingRow, {
               isModified: transparentSidePanel !== Dre.transparentSidePanel,
               onReset: () =>
                 onTransparentSidePanelChange(Dre.transparentSidePanel),
               searchId: eR("Interface", "Transparent side panel"),
-              children: (0, jsxRuntime.jsx)(fd, {
+              children: (0, jsxRuntime.jsx)(OsrsCheckbox, {
                 checked: transparentSidePanel,
                 onChange: onTransparentSidePanelChange,
                 label: "Transparent side panel",
               }),
             }),
             clientLayoutMode === "modern" &&
-              (0, jsxRuntime.jsx)(f5, {
+              (0, jsxRuntime.jsx)(SettingRow, {
                 isModified: hotkeysCloseSidePanel !== Dre.hotkeysCloseSidePanel,
                 onReset: () =>
                   onHotkeysCloseSidePanelChange(Dre.hotkeysCloseSidePanel),
                 searchId: eR("Interface", "Hotkeys close side panel"),
                 hint: "Press the open panel's key again to close it. Clicking its tab always closes it.",
-                children: (0, jsxRuntime.jsx)(fd, {
+                children: (0, jsxRuntime.jsx)(OsrsCheckbox, {
                   checked: hotkeysCloseSidePanel,
                   onChange: onHotkeysCloseSidePanelChange,
                   label: "Hotkeys close side panel",
@@ -31010,18 +31010,18 @@ var InterfaceControls = ({
               className: "group-title",
               children: "Chatbox",
             }),
-            (0, jsxRuntime.jsx)(f5, {
+            (0, jsxRuntime.jsx)(SettingRow, {
               isModified: transparentChatbox !== Dre.transparentChatbox,
               onReset: () => onTransparentChatboxChange(Dre.transparentChatbox),
               searchId: eR("Interface", "Transparent chatbox"),
-              children: (0, jsxRuntime.jsx)(fd, {
+              children: (0, jsxRuntime.jsx)(OsrsCheckbox, {
                 checked: transparentChatbox,
                 onChange: onTransparentChatboxChange,
                 label: "Transparent chatbox",
               }),
             }),
             transparentChatbox &&
-              (0, jsxRuntime.jsx)(f5, {
+              (0, jsxRuntime.jsx)(SettingRow, {
                 isModified:
                   clickThroughTransparentChatbox !==
                   Dre.clickThroughTransparentChatbox,
@@ -31030,7 +31030,7 @@ var InterfaceControls = ({
                     Dre.clickThroughTransparentChatbox,
                   ),
                 searchId: eR("Interface", "Click through transparent chatbox"),
-                children: (0, jsxRuntime.jsx)(fd, {
+                children: (0, jsxRuntime.jsx)(OsrsCheckbox, {
                   checked: clickThroughTransparentChatbox,
                   onChange: onClickThroughTransparentChatboxChange,
                   label: "Click through transparent chatbox",
@@ -31062,7 +31062,7 @@ function DeviceModeControl() {
           className: "group-title__label info-hint-region",
           children: [
             "Device Mode",
-            (0, jsxRuntime.jsx)(dX, {
+            (0, jsxRuntime.jsx)(InfoHint, {
               label: "Device Mode",
               text: DEVICE_MODE_HELP,
               hoverRegionRef: h5,
@@ -31070,7 +31070,7 @@ function DeviceModeControl() {
           ],
         }),
       }),
-      (0, jsxRuntime.jsx)(f5, {
+      (0, jsxRuntime.jsx)(SettingRow, {
         searchId: null,
         isModified: h3 !== "auto",
         onReset: () => am("auto"),
@@ -31230,7 +31230,7 @@ var ShortcutHintsControl = ({
 }) =>
   (0, jsxRuntime.jsx)("div", {
     className: "control-group",
-    children: (0, jsxRuntime.jsx)(f5, {
+    children: (0, jsxRuntime.jsx)(SettingRow, {
       searchId: eR("Interface", "Show Shortcut Hints"),
       isModified: h2 !== Dre.showShortcutHints,
       onReset: () => {
@@ -31238,7 +31238,7 @@ var ShortcutHintsControl = ({
           h3();
         }
       },
-      children: (0, jsxRuntime.jsx)(fd, {
+      children: (0, jsxRuntime.jsx)(OsrsCheckbox, {
         checked: h2,
         onChange: () => h3(),
         label: "Show Shortcut Hints",
@@ -31261,7 +31261,7 @@ function InfoboxAppearanceSettings({
   onTextOutlineColorChange: onTextOutlineColorChange,
 }) {
   const ha = db(pinTarget, clientLayoutMode);
-  const hb = Pye.map((hc) => eb(hc, clientLayoutMode)).filter(
+  const hb = Pye.map((hc) => infoboxPinTargetUnavailableReason(hc, clientLayoutMode)).filter(
     (hc) => hc !== null,
   );
   return (0, jsxRuntime.jsxs)("div", {
@@ -31280,16 +31280,16 @@ function InfoboxAppearanceSettings({
             className: "settings-field-label",
             children: "Position",
           }),
-          (0, jsxRuntime.jsx)(f5, {
+          (0, jsxRuntime.jsx)(SettingRow, {
             searchId: null,
-            isModified: pinTarget !== gu.infoboxPinTarget,
-            onReset: () => onPinTargetChange(gu.infoboxPinTarget),
+            isModified: pinTarget !== PERSISTED_SETTINGS_DEFAULTS.infoboxPinTarget,
+            onReset: () => onPinTargetChange(PERSISTED_SETTINGS_DEFAULTS.infoboxPinTarget),
             children: (0, jsxRuntime.jsx)("div", {
               className: "settings-segmented",
               role: "radiogroup",
               "aria-label": "Infobox position",
               children: Pye.map((hc) => {
-                const hd = eb(hc, clientLayoutMode);
+                const hd = infoboxPinTargetUnavailableReason(hc, clientLayoutMode);
                 return (0, jsxRuntime.jsxs)(
                   "button",
                   {
@@ -31347,21 +31347,21 @@ function InfoboxAppearanceSettings({
       (0, jsxRuntime.jsx)("div", {
         className: "infobox-field",
         "data-search-id": eR("Interface", "Infobox appearance", "Text outline"),
-        children: (0, jsxRuntime.jsx)(f5, {
+        children: (0, jsxRuntime.jsx)(SettingRow, {
           searchId: null,
           isModified:
-            textOutlineEnabled !== gu.infoboxTextOutlineEnabled ||
+            textOutlineEnabled !== PERSISTED_SETTINGS_DEFAULTS.infoboxTextOutlineEnabled ||
             (textOutlineEnabled &&
-              textOutlineColor !== gu.infoboxTextOutlineColor),
+              textOutlineColor !== PERSISTED_SETTINGS_DEFAULTS.infoboxTextOutlineColor),
           onReset: () => {
-            onTextOutlineEnabledChange(gu.infoboxTextOutlineEnabled);
-            onTextOutlineColorChange(gu.infoboxTextOutlineColor);
+            onTextOutlineEnabledChange(PERSISTED_SETTINGS_DEFAULTS.infoboxTextOutlineEnabled);
+            onTextOutlineColorChange(PERSISTED_SETTINGS_DEFAULTS.infoboxTextOutlineColor);
           },
           hint: "Outlines infobox values so they stay readable over bright item icons.",
           children: (0, jsxRuntime.jsxs)("div", {
             className: "settings-inline-row",
             children: [
-              (0, jsxRuntime.jsx)(fd, {
+              (0, jsxRuntime.jsx)(OsrsCheckbox, {
                 checked: textOutlineEnabled,
                 label: "Text outline",
                 onChange: onTextOutlineEnabledChange,
@@ -31829,9 +31829,9 @@ function EditLayoutEntry({ onClose: onClose }) {
         className: "settings-inline-label info-hint-region",
         children: [
           "Overlay positions",
-          (0, jsxRuntime.jsx)(dX, {
+          (0, jsxRuntime.jsx)(InfoHint, {
             label: "Overlay positions",
-            text: fx,
+            text: EDIT_LAYOUT_HELP,
             hoverRegionRef: h4,
           }),
         ],
@@ -31854,7 +31854,7 @@ function MobilePreferencesBadge() {
     className: "panel-mode-badge info-hint-region",
     children: [
       "This device",
-      (0, jsxRuntime.jsx)(dX, {
+      (0, jsxRuntime.jsx)(InfoHint, {
         label: "Mobile preferences",
         text: "Settings on this device are stored separately from your desktop preferences. Changes here only affect mobile.",
         hoverRegionRef: h3,
@@ -31980,7 +31980,7 @@ var SettingsSidebarContent = (0, React.memo)(
         }),
         (0, jsxRuntime.jsxs)("aside", {
           className: "controls-overlay " + (visible ? "open" : ""),
-          ...dn.drawer,
+          ...sheet.drawer,
           inert: hd.WwtLW(!visible, undefined),
           children: [
             (0, jsxRuntime.jsxs)("div", {
@@ -32009,7 +32009,7 @@ var SettingsSidebarContent = (0, React.memo)(
                       onClick: onOpenWhatsNew,
                       hint: "What's New",
                       "aria-label": "See what's new in OpenScim",
-                      children: (0, jsxRuntime.jsx)(dy, {
+                      children: (0, jsxRuntime.jsx)(LauncherIcon, {
                         glyph: "news",
                       }),
                     }),
@@ -32023,7 +32023,7 @@ var SettingsSidebarContent = (0, React.memo)(
                         onClick: onOpenShortcuts,
                         "data-search-id": gf,
                         "aria-label": "Keyboard shortcuts",
-                        children: (0, jsxRuntime.jsx)(dy, {
+                        children: (0, jsxRuntime.jsx)(LauncherIcon, {
                           glyph: "keyboard",
                         }),
                       }),
@@ -32031,9 +32031,9 @@ var SettingsSidebarContent = (0, React.memo)(
                       className: "panel-header-divider",
                       "aria-hidden": "true",
                     }),
-                    (0, jsxRuntime.jsx)(fV, {
+                    (0, jsxRuntime.jsx)(CloseButton, {
                       className: "panel-close-button",
-                      ...dn.close,
+                      ...sheet.close,
                       onClick: onClose,
                       "aria-label": "Close Settings",
                     }),
@@ -32101,7 +32101,7 @@ var SettingsSidebarContent = (0, React.memo)(
                                 children: (0, jsxRuntime.jsx)(SettingLinkRow, {
                                   label: "Keybinds",
                                   hint: "Change game-panel and camera keys in the game panel.",
-                                  target: fc,
+                                  target: GAMEPANEL_KEYBINDS_ID,
                                   searchId: null,
                                   blockedReason: () =>
                                     hg ? "Needs a keyboard." : null,
@@ -32122,14 +32122,14 @@ var SettingsSidebarContent = (0, React.memo)(
                                           className: "group-title",
                                           children: "Resource Pack",
                                         }),
-                                        (0, jsxRuntime.jsx)(f5, {
+                                        (0, jsxRuntime.jsx)(SettingRow, {
                                           searchId: null,
                                           isModified:
                                             activeResourcePack !==
-                                            gu.activeResourcePack,
+                                            PERSISTED_SETTINGS_DEFAULTS.activeResourcePack,
                                           onReset: () =>
                                             onResourcePackChange(
-                                              gu.activeResourcePack,
+                                              PERSISTED_SETTINGS_DEFAULTS.activeResourcePack,
                                             ),
                                           children: (0, jsxRuntime.jsx)(
                                             "select",
@@ -32233,7 +32233,7 @@ var SettingsSidebarContent = (0, React.memo)(
                                 defaultExpanded: request > 0,
                                 searchId: eR("Mobile"),
                                 children: [
-                                  (0, jsxRuntime.jsx)(ge, {
+                                  (0, jsxRuntime.jsx)(TouchControls, {
                                     ...touchControls,
                                     mobileLayout: "mobile" === clientLayoutMode,
                                     showHaptics:
@@ -32560,7 +32560,7 @@ function Bye(h2, h3, h4 = {}) {
     const { overlays: overlays, ...hx } = h9;
     const hy = startFrame > 0 ? ci(h9.frames, startFrame) : undefined;
     const hz = hj("cursorClicks")
-      ? eM(
+      ? projectActiveClicks(
           {
             samples: h9.cursorSamples,
             clicks: h9.cursorClicks,
@@ -32677,7 +32677,7 @@ function zye(h2) {
   if (h2 instanceof bj) {
     return true;
   }
-  const h4 = h2 instanceof ay ? h2 : h2 instanceof fn ? h2.safety : undefined;
+  const h4 = h2 instanceof ReplaySafetyError ? h2 : h2 instanceof fn ? h2.safety : undefined;
   if (!h4) {
     return false;
   }
@@ -33007,7 +33007,7 @@ function Gye({
   );
   const hQ = hb === null ? null : Ife(hb);
   const hR = h5 ?? hd;
-  const hS = dV(data?.capture);
+  const hS = replayCaptureNotice(data?.capture);
   const hT = null !== data && null === h5;
   const hU = hg || hp || !hT || "ready" !== hk;
   const hV = async () => {
@@ -33149,7 +33149,7 @@ function Gye({
       }
       hf(Wye(i2));
       const i3 = i2 instanceof fn ? i2.issues : [];
-      L.error(
+      logger.error(
         "UI",
         "Replay could not be packaged for sharing",
         i3.length > 0 ? i3 : i2,
@@ -33258,14 +33258,14 @@ function Gye({
   if (hE) {
     return (0, jsxRuntime.jsx)("div", {
       className: "share-replay-overlay",
-      ...dn.overlay,
+      ...sheet.overlay,
       ...hw,
       role: "dialog",
       "aria-modal": "true",
       "aria-labelledby": "share-replay-title",
       children: (0, jsxRuntime.jsxs)("div", {
         className: "share-replay-card centered-modal-snap",
-        ...dn.card,
+        ...sheet.card,
         ref: ha,
         onMouseDown: (hY) => {
           if (hY.target.closest("button")) {
@@ -33275,7 +33275,7 @@ function Gye({
         children: [
           (0, jsxRuntime.jsxs)("div", {
             className: "share-replay-header",
-            ...dn.head,
+            ...sheet.head,
             children: [
               (0, jsxRuntime.jsx)("h2", {
                 id: "share-replay-title",
@@ -33286,9 +33286,9 @@ function Gye({
                     ? "Share replay"
                     : "Replay shared",
               }),
-              (0, jsxRuntime.jsx)(fV, {
+              (0, jsxRuntime.jsx)(CloseButton, {
                 className: "share-replay-close",
-                ...dn.close,
+                ...sheet.close,
                 onClick: hv,
                 "aria-label": "Close",
               }),
@@ -33302,7 +33302,7 @@ function Gye({
           }),
           (0, jsxRuntime.jsxs)("div", {
             className: "share-replay-body",
-            ...dn.body,
+            ...sheet.body,
             children: [
               hG
                 ? (0, jsxRuntime.jsxs)(jsxRuntime.Fragment, {
@@ -33533,7 +33533,7 @@ function Gye({
           }),
           (0, jsxRuntime.jsx)("div", {
             className: "share-replay-footer",
-            ...dn.foot,
+            ...sheet.foot,
             children:
               hG || hb !== null
                 ? (0, jsxRuntime.jsx)(OsrsButton, {
@@ -34180,13 +34180,13 @@ function TutorialPickerModal({
   }
   return (0, jsxRuntime.jsx)("div", {
     className: "tutorial-picker-backdrop",
-    ...dn.overlay,
+    ...sheet.overlay,
     role: "dialog",
     "aria-modal": "true",
     ...hj,
     children: (0, jsxRuntime.jsxs)("div", {
       className: "tp-shell centered-modal-snap",
-      ...dn.card,
+      ...sheet.card,
       ref: hg,
       onMouseDown: (hp) => {
         if (hp.target.closest("button, summary")) {
@@ -34196,14 +34196,14 @@ function TutorialPickerModal({
       children: [
         (0, jsxRuntime.jsxs)("header", {
           className: "tp-header",
-          ...dn.head,
+          ...sheet.head,
           children: [
             (0, jsxRuntime.jsx)("h1", {
               className: "tp-heading",
               children: "Training",
             }),
-            (0, jsxRuntime.jsx)(fV, {
-              ...dn.close,
+            (0, jsxRuntime.jsx)(CloseButton, {
+              ...sheet.close,
               onClick: onClose,
               "aria-label": "Close tutorial picker",
             }),
@@ -34472,7 +34472,7 @@ function Curriculum({
             (0, jsxRuntime.jsxs)("summary", {
               tabIndex: -1,
               children: [
-                (0, jsxRuntime.jsx)(cO, {}),
+                (0, jsxRuntime.jsx)(DisclosureChevron, {}),
                 "Coming soon · ",
                 hh,
                 " ",
@@ -35197,7 +35197,7 @@ function VictoryModal({
             (0, jsxRuntime.jsxs)("div", {
               className: "victory-modal-actions",
               children: [
-                (0, jsxRuntime.jsx)(cX, {
+                (0, jsxRuntime.jsx)(OutcomePracticeActions, {
                   controls: replayPractice,
                   encounterSession: encounterSession,
                   onRestart: onRestart,
@@ -36515,7 +36515,7 @@ var Lbe = ({ isOpen: isOpen, onClose: onClose }) => {
   })(h7);
   return (0, jsxRuntime.jsx)("div", {
     className: "whats-new-overlay",
-    ...dn.overlay,
+    ...sheet.overlay,
     ...h6,
     role: "dialog",
     "aria-modal": "true",
@@ -36523,7 +36523,7 @@ var Lbe = ({ isOpen: isOpen, onClose: onClose }) => {
     "aria-describedby": "whats-new-desc",
     children: (0, jsxRuntime.jsxs)("div", {
       className: "whats-new-card centered-modal-snap",
-      ...dn.card,
+      ...sheet.card,
       ref: h5,
       onMouseDown: (ha) => {
         if (ha.target.closest("button")) {
@@ -36533,7 +36533,7 @@ var Lbe = ({ isOpen: isOpen, onClose: onClose }) => {
       children: [
         (0, jsxRuntime.jsxs)("div", {
           className: "whats-new-header",
-          ...dn.head,
+          ...sheet.head,
           children: [
             (0, jsxRuntime.jsxs)("div", {
               className: "whats-new-heading",
@@ -36550,9 +36550,9 @@ var Lbe = ({ isOpen: isOpen, onClose: onClose }) => {
                 }),
               ],
             }),
-            (0, jsxRuntime.jsx)(fV, {
+            (0, jsxRuntime.jsx)(CloseButton, {
               className: "whats-new-close",
-              ...dn.close,
+              ...sheet.close,
               onClick: onClose,
               "aria-label": "Close",
             }),
@@ -36582,7 +36582,7 @@ var Lbe = ({ isOpen: isOpen, onClose: onClose }) => {
         }),
         (0, jsxRuntime.jsx)("ol", {
           className: "whats-new-list",
-          ...dn.body,
+          ...sheet.body,
           children: h9.map((ha) =>
             (0, jsxRuntime.jsxs)(
               "li",
@@ -37120,14 +37120,14 @@ var ZUK_INFERNO = [
 var Zbe = new Map();
 function Xbe(h2) {
   for (const h4 of h2) {
-    const h5 = gR(h4.encounterKind);
+    const h5 = resolveBaseEncounterKind(h4.encounterKind);
     const h6 = Zbe.get(h5) ?? [];
     h6.push(h4);
     Zbe.set(h5, h6);
   }
 }
 function Qbe(h2) {
-  return Zbe.get(gR(h2)) ?? [];
+  return Zbe.get(resolveBaseEncounterKind(h2)) ?? [];
 }
 Xbe(Ybe);
 Xbe(ZUK_INFERNO);
@@ -37152,9 +37152,9 @@ function ave(h2) {
   }
 }
 function ive(h2) {
-  const h4 = at(h2);
+  const h4 = getInfernoSetup(h2);
   const [h5, h6] = h4.startTile;
-  const h7 = cd(h4.startWave) && (h5 !== b3[0] || h6 !== b3[1]);
+  const h7 = canChooseInfernoStartTile(h4.startWave) && (h5 !== infernoDefaultStartTile[0] || h6 !== infernoDefaultStartTile[1]);
   return aN({
     startWave: h4.startWave,
     layout: h4.spawnLayout?.wave === h4.startWave ? h4.spawnLayout : null,
@@ -37312,21 +37312,21 @@ var mve = 178;
 var gve = [518, 519, 520, 521];
 var pF = "player";
 var fve = {
-  [J.ProtectMagic]: 2675,
-  [J.ProtectRange]: 2677,
-  [J.ProtectMelee]: 2676,
-  [J.EagleEye]: 2665,
-  [J.MysticMight]: 2669,
-  [J.Piety]: 3825,
-  [J.Zeal]: 12645,
-  [J.Rigour]: 2685,
-  [J.Augury]: 2670,
-  [J.Deadeye]: 10194,
-  [J.MysticVigour]: 10100,
-  [J.Redemption]: 2680,
-  [J.Preserve]: 2679,
-  [J.RapidRestore]: 2679,
-  [J.RapidHeal]: 2678,
+  [Prayer.ProtectMagic]: 2675,
+  [Prayer.ProtectRange]: 2677,
+  [Prayer.ProtectMelee]: 2676,
+  [Prayer.EagleEye]: 2665,
+  [Prayer.MysticMight]: 2669,
+  [Prayer.Piety]: 3825,
+  [Prayer.Zeal]: 12645,
+  [Prayer.Rigour]: 2685,
+  [Prayer.Augury]: 2670,
+  [Prayer.Deadeye]: 10194,
+  [Prayer.MysticVigour]: 10100,
+  [Prayer.Redemption]: 2680,
+  [Prayer.Preserve]: 2679,
+  [Prayer.RapidRestore]: 2679,
+  [Prayer.RapidHeal]: 2678,
 };
 var yve = 2672;
 var bve = 2401;
@@ -37335,17 +37335,17 @@ var wve = 2238;
 var kve = 2247;
 var Sve = [5046, 5015];
 var Cve = new Set([
-  aM.VFX_PLAYER_DEATH_CHARGE,
-  aM.VFX_PLAYER_DEATH_CHARGE_UPGRADE,
+  spotAnimIds.VFX_PLAYER_DEATH_CHARGE,
+  spotAnimIds.VFX_PLAYER_DEATH_CHARGE_UPGRADE,
 ]);
 var Nve = {
   id: 9315,
   delayCycles: 5,
 };
 var xve = new Set([
-  aM.VFX_IGNITE_STAFF_01_1X1,
-  aM.VFX_IGNITE_STAFF_01_2X2,
-  aM.VFX_IGNITE_STAFF_01_3X3,
+  spotAnimIds.VFX_IGNITE_STAFF_01_1X1,
+  spotAnimIds.VFX_IGNITE_STAFF_01_2X2,
+  spotAnimIds.VFX_IGNITE_STAFF_01_3X3,
 ]);
 var Tve = [5053, 5035];
 var ANCIENT_SPELL_SOUNDS = {
@@ -37407,7 +37407,7 @@ var Ave = [
 function Rve(...h2) {
   const h4 = new Set(h2);
   for (const h5 of h2) {
-    for (const h6 of ct(h5)) {
+    for (const h6 of getEquipmentVariantIds(h5)) {
       h4.add(h6);
     }
   }
@@ -37634,7 +37634,7 @@ function bwe(h2, h3, h4, h5) {
   if (h4?.accurate !== true) {
     return h2;
   }
-  const h6 = ad(
+  const h6 = getDistanceToFootprint(
     h4.sourcePosition[0],
     h4.sourcePosition[1],
     h4.targetPosition[0],
@@ -37647,7 +37647,7 @@ function bwe(h2, h3, h4, h5) {
       id: h3,
       position: h4.targetPosition,
       range: 10,
-      delayCycles: bv(h5, h6),
+      delayCycles: getProjectileFlightCycles(h5, h6),
     },
   ];
 }
@@ -37687,19 +37687,19 @@ function vwe(h2) {
   const spellId2 = h2.spellId;
   const h5 = spellId2 === undefined ? undefined : ANCIENT_SPELL_SOUNDS[spellId2];
   if (h5) {
-    return bwe(h5[0], h5[1], h2.spellCast, c0.magic_spell);
+    return bwe(h5[0], h5[1], h2.spellCast, projectileTimings.magic_spell);
   }
   if (spellId2 === "Dark Demonbane") {
     return ywe(h2, Tve[0], Tve[1]);
   }
-  const h6 = h2.weaponId === undefined ? undefined : aJ(h2.weaponId);
+  const h6 = h2.weaponId === undefined ? undefined : getBaseItemId(h2.weaponId);
   const h7 = h2.usingSpecialAttack === true;
   if ("number" == typeof h6) {
     if (h6 === 29000) {
       return 2699;
     }
     if (Ove.has(h6)) {
-      return bwe(6410, 1460, h2.spellCast, c0.tumekens_shadow);
+      return bwe(6410, 1460, h2.spellCast, projectileTimings.tumekens_shadow);
     }
     if (h7) {
       if (Hve.has(h6)) {
@@ -37735,13 +37735,13 @@ function vwe(h2) {
       if (uwe.has(h6)) {
         return (function (h9) {
           const spellCast2 = h9.spellCast;
-          const hb = ae(29591, true);
+          const hb = getWeaponProjectileTiming(29591, true);
           if (h3.NIXms(!spellCast2, !hb)) {
             return Jve;
           }
-          const hc = bv(
+          const hc = getProjectileFlightCycles(
             hb,
-            ad(
+            getDistanceToFootprint(
               spellCast2.sourcePosition[0],
               spellCast2.sourcePosition[1],
               spellCast2.targetPosition[0],
@@ -37809,21 +37809,21 @@ function vwe(h2) {
       if (h7) {
         return Ave;
       } else {
-        return bwe(Ive[0], Ive[1], h2.spellCast, c0.eye_of_ayak);
+        return bwe(Ive[0], Ive[1], h2.spellCast, projectileTimings.eye_of_ayak);
       }
     }
     if (undefined === spellId2 && twe.has(h6)) {
-      return bwe(178, 1460, h2.spellCast, c0.magic_spell);
+      return bwe(178, 1460, h2.spellCast, projectileTimings.magic_spell);
     }
     if (h7 && (Lve.has(h6) || Eve.has(h6))) {
       return (function (h9) {
         const spellCast3 = h9.spellCast;
         const hb =
-          undefined === h9.weaponId ? undefined : ae(h9.weaponId, true);
+          undefined === h9.weaponId ? undefined : getWeaponProjectileTiming(h9.weaponId, true);
         if (!spellCast3 || !hb) {
           return ywe(h9, Pve[0], Pve[1]);
         }
-        const hc = ad(
+        const hc = getDistanceToFootprint(
           spellCast3.sourcePosition[0],
           spellCast3.sourcePosition[1],
           spellCast3.targetPosition[0],
@@ -37834,7 +37834,7 @@ function vwe(h2) {
           Pve[0],
           {
             id: Pve[1],
-            delayCycles: bv(hb, hc),
+            delayCycles: getProjectileFlightCycles(hb, hc),
           },
         ];
       })(h2);
@@ -37842,7 +37842,7 @@ function vwe(h2) {
     if (Lve.has(h6)) {
       return 178;
     }
-    if ("crossbow" === b0(h6)) {
+    if ("crossbow" === getWeaponCategory(h6)) {
       return 2695;
     }
   }
@@ -37981,7 +37981,7 @@ var coreAudioRules = {
       const h4 = h2;
       const h5 =
         "weapon" === h4.slot && "number" == typeof h4.itemId
-          ? WEAPON_EQUIP_SOUNDS[aJ(h4.itemId)]
+          ? WEAPON_EQUIP_SOUNDS[getBaseItemId(h4.itemId)]
           : undefined;
       return cr(h5 ?? EQUIP_SOUND_BY_KIND[h4.equipSound] ?? wve);
     },
@@ -38001,7 +38001,7 @@ var coreAudioRules = {
       if (h2.soundId !== undefined) {
         return cr(h2.soundId);
       }
-      if (spotAnimId2 === aM.VFX_PLAYER_MARK_OF_DARKNESS) {
+      if (spotAnimId2 === spotAnimIds.VFX_PLAYER_MARK_OF_DARKNESS) {
         return cr(Sve);
       } else if (Cve.has(spotAnimId2)) {
         return cr(5034);
@@ -38024,7 +38024,7 @@ var coreAudioRules = {
       const spotAnimId3 = h2.spotAnimId;
       if (2287 === spotAnimId3) {
         return cr(6847);
-      } else if (spotAnimId3 === aM.VFX_PLAYER_REDEMPTION) {
+      } else if (spotAnimId3 === spotAnimIds.VFX_PLAYER_REDEMPTION) {
         return cr(2681);
       } else {
         return cC;
@@ -38134,7 +38134,7 @@ var FrameSoundTracker = class {
     const h6 = h2.seqType?.frameSounds?.get(h3);
     if (h6) {
       for (const h7 of h6) {
-        L.debug(
+        logger.debug(
           "FrameSoundTracker",
           "[" +
             h2.actorId +
@@ -38193,7 +38193,7 @@ var Swe = new (class {
     ar(this, "decodeCount", 0);
     ar(this, "decodeStarts", 0);
     ar(this, "sourceStarts", 0);
-    ar(this, "soundCache", new bX());
+    ar(this, "soundCache", new ReplayRecorder());
     ar(this, "failedLoads", new Set());
     ar(this, "activeSources", new Map());
     ar(this, "pausedVoices", []);
@@ -38393,7 +38393,7 @@ var Swe = new (class {
             })
             .catch((hb) => {
               this.pendingLoads.delete(h2);
-              L.warn("AudioEngine", "Failed to lazy-load sound " + h2, hb);
+              logger.warn("AudioEngine", "Failed to lazy-load sound " + h2, hb);
             });
         }
         return;
@@ -38517,7 +38517,7 @@ var Swe = new (class {
           return;
         }
         this.metronomeFailureLogged = true;
-        L.warn("AudioEngine", "Metronome beat failed", h7);
+        logger.warn("AudioEngine", "Metronome beat failed", h7);
       }
     }
   }
@@ -38700,13 +38700,13 @@ var Cwe = [
 ];
 function Nwe(h2) {
   const h4 = new Set();
-  for (const h5 of Object.keys(gQ)) {
+  for (const h5 of Object.keys(consumableDefinitionByItemId)) {
     const h6 = Number(h5);
     if (h6 > 0) {
       h4.add(h6);
     }
   }
-  for (const h7 of Object.values(gQ)) {
+  for (const h7 of Object.values(consumableDefinitionByItemId)) {
     if ("replace" === h7.consume.type) {
       h4.add(h7.consume.withId);
     }
@@ -38730,13 +38730,13 @@ function Nwe(h2) {
       h4.add(hc.id);
     }
   }
-  for (const hd of Object.values(f0)) {
+  for (const hd of Object.values(INFOBOX_ITEM_IDS)) {
     h4.add(hd);
   }
   return [...h4];
 }
 function xwe() {
-  return [...Upe(), ...Object.values(f8), ...fC(), ...Object.values(fM)];
+  return [...Upe(), ...Object.values(SIDE_BACKGROUND_SPRITES), ...fC(), ...Object.values(REPLAY_CLICK_SHEET_URLS)];
 }
 async function Twe(h2) {
   const h3 = [];
@@ -38763,14 +38763,14 @@ function collectLocalAssetPaths(h2 = dT()) {
         const h6 = [];
         h6.push(...d6());
         for (const h8 of Object.values(fb)) {
-          h6.push(cT(eX[h8].iconPath));
+          h6.push(cT(OSM_TAB_SLOTS[h8].iconPath));
         }
         for (const h9 of Object.values(b5)) {
           if (h9) {
             h6.push(h9);
           }
         }
-        h6.push(fQ);
+        h6.push(STATUS_BAR_PRAYER_ICON);
         for (const ha of new Set(Object.values(bS))) {
           h6.push(ha);
         }
@@ -38780,15 +38780,15 @@ function collectLocalAssetPaths(h2 = dT()) {
           h6.push("/assets/ui/healthbar/dark_back_" + hb + "px.png");
           h6.push("/assets/ui/healthbar/yellow_front_" + hb + "px.png");
         }
-        for (const hc of ac) {
+        for (const hc of statNames) {
           h6.push("/assets/ui/skill-" + hc + ".png");
         }
         for (const hd of ff) {
-          h6.push(da.icon(hd));
-          h6.push(da.iconDisabled(hd));
+          h6.push(PRAYER.icon(hd));
+          h6.push(PRAYER.iconDisabled(hd));
         }
         const h7 = new Set();
-        for (const hf of Object.values(bu)) {
+        for (const hf of Object.values(weaponCategoryDefinitions)) {
           for (const hg of hf.styles) {
             h7.add(hg.icon);
           }
@@ -38796,20 +38796,20 @@ function collectLocalAssetPaths(h2 = dT()) {
         for (const hh of h7) {
           h6.push("/assets/ui/combat-styles/" + hh);
         }
-        for (const hi of Object.values(ed)) {
+        for (const hi of Object.values(SPELLBOOKS)) {
           for (const hj of hi.grid) {
-            h6.push(d9(hi.iconDir, hj.icon, 24, true));
-            h6.push(d9(hi.iconDir, hj.icon, 24, false));
-            h6.push(d9(hi.iconDir, hj.icon, 40, true));
-            h6.push(d9(hi.iconDir, hj.icon, 40, false));
+            h6.push(getSpellIconPath(hi.iconDir, hj.icon, 24, true));
+            h6.push(getSpellIconPath(hi.iconDir, hj.icon, 24, false));
+            h6.push(getSpellIconPath(hi.iconDir, hj.icon, 40, true));
+            h6.push(getSpellIconPath(hi.iconDir, hj.icon, 40, false));
           }
         }
-        for (const hk of Object.keys(ed)) {
-          const { iconDir: iconDir } = ed[hk];
-          for (const hm of aY(hk)) {
-            const ho = bp(hm.name);
-            h6.push(d9(iconDir, ho, 24, true));
-            h6.push(d9(iconDir, ho, 40, true));
+        for (const hk of Object.keys(SPELLBOOKS)) {
+          const { iconDir: iconDir } = SPELLBOOKS[hk];
+          for (const hm of getCombatSpellsOfSpellbook(hk)) {
+            const ho = getSpellIconName(hm.name);
+            h6.push(getSpellIconPath(iconDir, ho, 24, true));
+            h6.push(getSpellIconPath(iconDir, ho, 40, true));
           }
         }
         h6.push(...Object.values(bs));
@@ -39183,7 +39183,7 @@ function useEncounterManager({
   const hI = hH;
   const hK = "loading" === hp.kind ? null : hH;
   const hL = (0, React.useCallback)(
-    (iq) => bR(iq)?.defaultMechanicsConfig ?? {},
+    (iq) => getEncounterControls(iq)?.defaultMechanicsConfig ?? {},
     [],
   );
   const hN = (0, React.useCallback)(
@@ -39205,7 +39205,7 @@ function useEncounterManager({
     [mechanicsConfigPerEncounter],
   );
   const hO = (0, React.useCallback)(
-    (iq, ir) => bM(hL(iq), hN(iq, ir)),
+    (iq, ir) => buildMechanicsConfig(hL(iq), hN(iq, ir)),
     [hL, hN],
   );
   const hP = (0, React.useCallback)((iq) => hO(iq, null), [hO]);
@@ -39241,7 +39241,7 @@ function useEncounterManager({
         return {
           equipment: df(is.equipment),
           inventory: du(is.inventory),
-          supplies: gG(is.supplies),
+          supplies: cloneCombatSupplies(is.supplies),
         };
       }
       var is;
@@ -39257,7 +39257,7 @@ function useEncounterManager({
   const hT = (0, React.useCallback)(
     (iq, ir) => {
       const is = hO(iq, ir);
-      const it = bM(hL(iq));
+      const it = buildMechanicsConfig(hL(iq));
       const iu = hQ(iq, ir);
       const iv = hR(iq, ir);
       const iw = cE.getDescriptorOfKindOrVariant(iq);
@@ -39309,7 +39309,7 @@ function useEncounterManager({
       })
       .catch((it) => {
         if (!is) {
-          L.error("useEncounterManager", "Failed to load encounter locs", it);
+          logger.error("useEncounterManager", "Failed to load encounter locs", it);
           hD({
             key: i2,
             locs: [],
@@ -39350,13 +39350,13 @@ function useEncounterManager({
             !(null === iv.walkableTiles) ||
             !(null === iv.collisionMap))
         ) {
-          a7(ir.kind, iv);
+          registerArenaConfig(ir.kind, iv);
           bindingsRef.current?.engineRef.current.reapplyArenaConfig();
         }
       })
       .catch((iv) => {
         if (!is) {
-          L.error(
+          logger.error(
             "useEncounterManager",
             "Failed to resolve arena collision",
             iv,
@@ -39382,7 +39382,7 @@ function useEncounterManager({
           ? bd(it?.modifiers, ir.modifiers)
           : hQ(is, ir.tutorial);
       const current31 = bindingsRef.current;
-      return gP({
+      return createSimulationEngine({
         encounterConfig: {
           kind: is,
           mechanics: {
@@ -39398,16 +39398,16 @@ function useEncounterManager({
             : {}),
         },
         objTypeLoader: objTypeLoader,
-        enableIntro: ir.enableIntro ?? B(is),
+        enableIntro: ir.enableIntro ?? isIntroEnabledForKind(is),
         stats: playerStats,
         ...(undefined === iu
           ? {}
           : {
               startHp: iu,
             }),
-        inventory: current31?.playerInventoryRef.current ?? gF(),
+        inventory: current31?.playerInventoryRef.current ?? createEmptyInventory(),
         equipment: current31?.playerEquipmentRef.current ?? {},
-        combatSupplies: current31?.playerCombatSuppliesRef.current ?? gC(),
+        combatSupplies: current31?.playerCombatSuppliesRef.current ?? createEmptyCombatSupplies(),
         attackStylePerCategory: attackStylePerCategory,
       });
     },
@@ -39430,8 +39430,8 @@ function useEncounterManager({
       }
       hz(null);
       const is = {};
-      const it = gF();
-      const iu = gC();
+      const it = createEmptyInventory();
+      const iu = createEmptyCombatSupplies();
       current32.setPlayerConfig((ix) => ({
         ...ix,
         equipment: is,
@@ -39525,7 +39525,7 @@ function useEncounterManager({
       for (const [iw, ix] of Object.entries(ir)) {
         if (undefined !== ix) {
           if (cu.has(iw)) {
-            if (cA[iw] === ix) {
+            if (commonMechanicsDefaults[iw] === ix) {
               delete iu[iw];
             } else {
               iu[iw] = ix;
@@ -39642,9 +39642,9 @@ function useEncounterManager({
       if (!current34) {
         return;
       }
-      const iu = ak(iq);
+      const iu = resolveKindOrRetiredEntry(iq);
       if (!iu || !cE.isRegistered(iu.kind)) {
-        L.warn(
+        logger.warn(
           "useEncounterManager",
           "Ignoring unsupported encounter transition request: '" + iq + "'",
         );
@@ -39756,7 +39756,7 @@ function useEncounterManager({
           ...current36,
           loadout: {
             ...current36.loadout,
-            supplies: gG(ir),
+            supplies: cloneCombatSupplies(ir),
           },
         });
       }
@@ -39811,7 +39811,7 @@ function useEncounterManager({
     getSavedSetup: hU,
     handleConfigureEncounter: (0, React.useCallback)(
       (iq, ir, is, it) => {
-        const iu = ak(iq);
+        const iu = resolveKindOrRetiredEntry(iq);
         const iv = iu?.kind ?? iq;
         // The sandbox has no setup window from the menus: its arena is
         // entered with its editor open at its start screen
@@ -40445,7 +40445,7 @@ function rke(h2, h3) {
       }
     }
   }
-  return gI(h5, (hd, hf) => ({
+  return consolidateRetiredEncounterKinds(h5, (hd, hf) => ({
     ...hd,
     ...hf,
   })).map;
@@ -40487,8 +40487,8 @@ function ske() {
     }
   }
   return {
-    linesByEncounter: gI(h4, (hc, hd) => Jwe([...(hc ?? []), ...hd])).map,
-    hiddenDefaultLineKeysByEncounter: gI(h5, (hc, hd) => [
+    linesByEncounter: consolidateRetiredEncounterKinds(h4, (hc, hd) => Jwe([...(hc ?? []), ...hd])).map,
+    hiddenDefaultLineKeysByEncounter: consolidateRetiredEncounterKinds(h5, (hc, hd) => [
       ...new Set([...(hc ?? []), ...hd]),
     ]).map,
     showLines: "boolean" == typeof h3.showLines ? h3.showLines : Uwe.showLines,
@@ -41352,7 +41352,7 @@ var bke = "osrs-npc-highlights";
 var vke = {
   highlights: [],
   showHighlights: true,
-  lastColor: cQ,
+  lastColor: DEFAULT_NPC_HIGHLIGHT_COLOR,
   colorMenuEntries: false,
   seededBossDefaults: [],
 };
@@ -41368,7 +41368,7 @@ function wke(h2) {
       npcName: h2.npcName,
       npcTypeId: h2.npcTypeId,
       mode: h2.mode,
-      color: "string" == typeof h2.color ? h2.color : cQ,
+      color: "string" == typeof h2.color ? h2.color : DEFAULT_NPC_HIGHLIGHT_COLOR,
     };
   } else {
     return null;
@@ -41409,20 +41409,20 @@ var Ske = "osrs-player-stats";
 function Cke() {
   const h3 = bO(Ske);
   if (!h3) {
-    return aQ();
+    return createDefaultStats();
   }
-  const h4 = Nke(aQ());
-  for (const h5 of ac) {
+  const h4 = Nke(createDefaultStats());
+  for (const h5 of statNames) {
     if ("agility" === h5 && h3[h5] === undefined) {
       continue;
     }
     const h6 = h3[h5];
-    if (!ca(h5, h6)) {
-      return aQ();
+    if (!isValidStatLevel(h5, h6)) {
+      return createDefaultStats();
     }
     h4[h5] = h6;
   }
-  return a1({
+  return createStatsFromLevels({
     attack: h4.attack,
     strength: h4.strength,
     defence: h4.defence,
@@ -41616,7 +41616,7 @@ function useRouting(h2, h3, h4, h5, h6, h7 = NO_ROUTE_QUERY) {
             : "loading" === h2.kind
               ? h2.targetEncounter
               : null;
-        if ("lobby" === h2.kind || (hk !== null && gU(hk) !== gU(hj))) {
+        if ("lobby" === h2.kind || (hk !== null && resolveRetiredEncounterKind(hk) !== resolveRetiredEncounterKind(hj))) {
           h9.current = true;
           h3(hj);
           setTimeout(() => {
@@ -42100,7 +42100,7 @@ function Oke() {
     }
   }
   return {
-    markersByEncounter: gI(h4, (h9, ha) => Wue([...(h9 ?? []), ...ha])).map,
+    markersByEncounter: consolidateRetiredEncounterKinds(h4, (h9, ha) => Wue([...(h9 ?? []), ...ha])).map,
     showMarkers:
       "boolean" == typeof h3.showMarkers ? h3.showMarkers : que.showMarkers,
     showLabels:
@@ -42212,7 +42212,7 @@ function $ke({ enabled: enabled, currentTick: currentTick }) {
         return;
       }
       if (
-        dj(hg) ||
+        handleOverlayClose(hg) ||
         (hh = hg.target) instanceof HTMLInputElement ||
         hh instanceof HTMLTextAreaElement ||
         (hh instanceof HTMLElement && hh.isContentEditable) ||
@@ -42231,7 +42231,7 @@ function $ke({ enabled: enabled, currentTick: currentTick }) {
           if (hi) {
             h6(dR);
           } else if (hj) {
-            h6((hl) => fs(hl, hb.current));
+            h6((hl) => advanceZukSetTimer(hl, hb.current));
           } else if (hk) {
             h8((hl) => !hl);
           }
@@ -42991,7 +42991,7 @@ function DemoCursorLayer({
             }),
             (0, jsxRuntime.jsx)(g1, {}),
             ha.label &&
-              (0, jsxRuntime.jsx)(gi, {
+              (0, jsxRuntime.jsx)(TooltipCard, {
                 content: Qke(ha.label),
                 style: {
                   position: "absolute",
@@ -43019,7 +43019,7 @@ function Qke(h2) {
       spans: [
         {
           text: h4,
-          color: h3.length > 1 && h5 === h3.length - 1 ? gp.ui : gp.action,
+          color: h3.length > 1 && h5 === h3.length - 1 ? TOOLTIP_COLORS.ui : TOOLTIP_COLORS.action,
         },
       ],
     })),
@@ -45776,9 +45776,9 @@ function resolveTutorialEncounterCommand(h2) {
     case "yama-opening-range":
       return a0;
     case "yama-spawn-fireball":
-      return ab;
+      return yamaSpawnFireballCommand;
     case "yama-spawn-void-flare":
-      return av;
+      return yamaSpawnVoidFlareCommand;
     default:
       return h2;
   }
@@ -47554,7 +47554,7 @@ var QSe = (h2) => {
   }
 };
 function b9(h2 = {}) {
-  return (0, jsxRuntime.jsx)(ec, {
+  return (0, jsxRuntime.jsx)(PanelSnapRegistryProvider, {
     children: (0, jsxRuntime.jsx)(AppShell, {
       ...h2,
     }),
@@ -48164,7 +48164,7 @@ function AppShell({ devHarness: devHarness } = {}) {
   const [hN, hO] = (0, React.useState)(null);
   const { profileReady: profileReady } = Ewe();
   const hQ = (0, React.useRef)(null);
-  const [hR, hS] = dU();
+  const [hR, hS] = usePersistedSettings();
   const {
     masterVolume: masterVolume,
     sfxVolume: sfxVolume,
@@ -48387,7 +48387,7 @@ function AppShell({ devHarness: devHarness } = {}) {
     // Made once: `useRef(new ...)` built (and threw away) both on every render.
     const sY = (0, React.useRef)(null);
     if (sY.current === null) {
-      sY.current = new by(Swe, ...O(), {
+      sY.current = new EventAudioPlayer(Swe, ...O(), {
         name: "core",
         rules: coreAudioRules,
       });
@@ -48604,7 +48604,7 @@ function AppShell({ devHarness: devHarness } = {}) {
             H.end("preloadAllAssets");
             for (const u7 of u5) {
               if ("rejected" === u7.status) {
-                L.error("useCacheBootstrap", "Preload task failed:", u7.reason);
+                logger.error("useCacheBootstrap", "Preload task failed:", u7.reason);
               }
             }
             tP(true);
@@ -48766,16 +48766,16 @@ function AppShell({ devHarness: devHarness } = {}) {
     }, []);
     const sU = (0, React.useCallback)(
       (t0) => {
-        const t1 = gU(t0);
+        const t1 = resolveRetiredEncounterKind(t0);
         return Owe(sR[t1] ?? Vle(t1));
       },
       [sR],
     );
     const sW = (0, React.useCallback)((t0) => df(sU(t0).equipment), [sU]);
     const sX = (0, React.useCallback)((t0) => du(sU(t0).inventory), [sU]);
-    const sY = (0, React.useCallback)((t0) => gG(sU(t0).supplies), [sU]);
+    const sY = (0, React.useCallback)((t0) => cloneCombatSupplies(sU(t0).supplies), [sU]);
     const sZ = (0, React.useCallback)((t0, t1) => {
-      const t2 = sP.WZugR(gU, t0);
+      const t2 = sP.WZugR(resolveRetiredEncounterKind, t0);
       sS((t4) => ({
         ...t4,
         [t2]: Owe(t1),
@@ -48787,7 +48787,7 @@ function AppShell({ devHarness: devHarness } = {}) {
       getSupplies: sY,
       getLoadout: sU,
       setEquipment: (0, React.useCallback)((t0, t1) => {
-        const t2 = gU(t0);
+        const t2 = resolveRetiredEncounterKind(t0);
         sS((t4) => ({
           ...t4,
           [t2]: {
@@ -48797,7 +48797,7 @@ function AppShell({ devHarness: devHarness } = {}) {
         }));
       }, []),
       setInventory: (0, React.useCallback)((t0, t1) => {
-        const t2 = gU(t0);
+        const t2 = resolveRetiredEncounterKind(t0);
         sS((t4) => ({
           ...t4,
           [t2]: {
@@ -48807,12 +48807,12 @@ function AppShell({ devHarness: devHarness } = {}) {
         }));
       }, []),
       setSupplies: (0, React.useCallback)((t0, t1) => {
-        const t2 = gU(t0);
+        const t2 = resolveRetiredEncounterKind(t0);
         sS((t4) => ({
           ...t4,
           [t2]: {
             ...Owe(t4[t2] ?? Vle(t2)),
-            supplies: gG(t1),
+            supplies: cloneCombatSupplies(t1),
           },
         }));
       }, []),
@@ -49178,7 +49178,7 @@ function AppShell({ devHarness: devHarness } = {}) {
           npcName: td,
           npcTypeId: t9,
           mode: "trueTile",
-          color: cQ,
+          color: DEFAULT_NPC_HIGHLIGHT_COLOR,
         };
         return {
           ...th,
@@ -49551,7 +49551,7 @@ function AppShell({ devHarness: devHarness } = {}) {
   const ny = (0, React.useRef)([]);
   (0, React.useEffect)(() => {
     if (!new URLSearchParams(window.location.search).get("logLevel")) {
-      L.setLevel(logLevel);
+      logger.setLevel(logLevel);
     }
   }, [logLevel]);
   const nz = (0, React.useCallback)(
@@ -49946,7 +49946,7 @@ function AppShell({ devHarness: devHarness } = {}) {
       lineMarkerWidth: lineWidth,
     });
     if (omitted.tileMarkers > 0 || omitted.lineMarkers > 0) {
-      L.warn(
+      logger.warn(
         "Replay",
         "A shared replay cannot carry every marker on screen: omitting " +
           omitted.tileMarkers +
@@ -50052,7 +50052,7 @@ function AppShell({ devHarness: devHarness } = {}) {
     tickTimingRef: tickTimingRef,
     dispatchInput: dispatchInput,
     focusPaused: focusPaused,
-  } = fT({
+  } = useSimulationWiring({
     activeMechanicsConfig: activeMechanicsConfig,
     attackStylePerCategory: attackStylePerCategory,
     autoAdvance: autoAdvance,
@@ -50592,7 +50592,7 @@ function AppShell({ devHarness: devHarness } = {}) {
       if (parseResult16.success) {
         return t2;
       } else {
-        L.warn(
+        logger.warn(
           "Replay",
           "Layout could not be projected onto the share format; recording the last valid one",
           {
@@ -50793,7 +50793,7 @@ function AppShell({ devHarness: devHarness } = {}) {
         if (sR.ok) {
           try {
             const sS = g4(sR.value);
-            const sT = gU(sS.encounterKind);
+            const sT = resolveRetiredEncounterKind(sS.encounterKind);
             if (!cE.getDescriptorOfKindOrVariant(sT)) {
               qZ(
                 h6.code,
@@ -50843,7 +50843,7 @@ function AppShell({ devHarness: devHarness } = {}) {
         ? sceneState.encounterKind
         : "loading" === sceneState.kind
           ? sceneState.targetEncounter
-          : "lobby") === gU(h6.file.encounterKind)
+          : "lobby") === resolveRetiredEncounterKind(h6.file.encounterKind)
     ) {
       try {
         r4.current.loadExternalReplay(fB(h6.file));
@@ -51469,7 +51469,7 @@ function AppShell({ devHarness: devHarness } = {}) {
       playerTile: simulationState.playerPosition,
       range: engine?.getPlayerAttackRange?.() ?? 0,
       player: player,
-      weaponName: weaponId == null ? "" : (aw(weaponId)?.name ?? ""),
+      weaponName: weaponId == null ? "" : (getEquipmentDefinition(weaponId)?.name ?? ""),
       npcs: simulationState.npcs,
     });
   }, [
@@ -51553,7 +51553,7 @@ function AppShell({ devHarness: devHarness } = {}) {
     };
   }, [activeSetup, replay.replayMode, resetSavedSetup]);
   const rQ = (0, React.useMemo)(
-    () => getEncounterMergedMechanicsConfig(cc),
+    () => getEncounterMergedMechanicsConfig(infernoEncounterKind),
     [getEncounterMergedMechanicsConfig],
   );
   const rR =
@@ -51600,15 +51600,15 @@ function AppShell({ devHarness: devHarness } = {}) {
     (0, React.useMemo)(() => ave(rQ), [rQ]),
     !replay.replayMode &&
       null === h6 &&
-      ((rR !== null && "inferno" === gU(rR)) ||
+      ((rR !== null && "inferno" === resolveRetiredEncounterKind(rR)) ||
         ("lobby" === sceneState.kind &&
           selectedLobbyEncounter?.encounterKind === "inferno")),
   );
-  const rT = mechanicsConfigPerEncounter[cc];
+  const rT = mechanicsConfigPerEncounter[infernoEncounterKind];
   const rU = (0, React.useMemo)(
     () => ({
       mechanics: rT,
-      loadout: getLoadout(cc),
+      loadout: getLoadout(infernoEncounterKind),
     }),
     [rT, getLoadout],
   );
@@ -51717,18 +51717,18 @@ function AppShell({ devHarness: devHarness } = {}) {
   })({
     ready: profileReady,
     saved: rQ,
-    saveLoadout: (sP) => setLoadout(cc, sP),
+    saveLoadout: (sP) => setLoadout(infernoEncounterKind, sP),
     openSetup: (sP) => {
-      const descriptor2 = cE.getDescriptor(cc);
+      const descriptor2 = cE.getDescriptor(infernoEncounterKind);
       handleConfigureEncounter(
-        cc,
+        infernoEncounterKind,
         descriptor2?.displayName ?? "inferno",
         descriptor2?.description ?? "",
         h3.KyWIA(sP, {}),
       );
     },
     start: (sP, sQ) =>
-      enterEncounter(cc, sQ, {
+      enterEncounter(infernoEncounterKind, sQ, {
         mechanics: sP,
       }),
     stored: rU,
@@ -51737,12 +51737,12 @@ function AppShell({ devHarness: devHarness } = {}) {
         ...mechanicsConfigPerEncounter,
       };
       if (mechanics) {
-        sR[cc] = mechanics;
+        sR[infernoEncounterKind] = mechanics;
       } else {
-        delete sR[cc];
+        delete sR[infernoEncounterKind];
       }
       lI(sR);
-      setLoadout(cc, loadout);
+      setLoadout(infernoEncounterKind, loadout);
     },
   });
   useRouting(sceneState, enterEncounter, enterLobby, cE, r0, rS);
@@ -51768,9 +51768,9 @@ function AppShell({ devHarness: devHarness } = {}) {
     }
   }, [sceneState]);
   jke(rW);
-  dC(es.ARMED_SPELL, null !== rj, () => rk(null));
-  dC(es.SETTINGS, kR, () => kX(false));
-  dC(es.SETTINGS + 1, kY, () => kZ(false));
+  dC(ESC_PRIORITY.ARMED_SPELL, null !== rj, () => rk(null));
+  dC(ESC_PRIORITY.SETTINGS, kR, () => kX(false));
+  dC(ESC_PRIORITY.SETTINGS + 1, kY, () => kZ(false));
   fz(gf, lp ? null : () => hG(true));
   f1(({ surface: surface }) => {
     if ("action" === surface) {
@@ -51802,14 +51802,14 @@ function AppShell({ devHarness: devHarness } = {}) {
       }
     }
   });
-  dC(es.CACHE_EXPLORER, hx, () => hy(false));
-  dC(es.CACHE_EXPLORER + 10, null !== selectedLobbyEncounter, () =>
+  dC(ESC_PRIORITY.CACHE_EXPLORER, hx, () => hy(false));
+  dC(ESC_PRIORITY.CACHE_EXPLORER + 10, null !== selectedLobbyEncounter, () =>
     setSelectedLobbyEncounter(null),
   );
   (0, React.useRef)(null);
   (0, React.useLayoutEffect)(() => {});
   (0, React.useEffect)(() => {}, [devHarness, isFullyLoaded]);
-  const rX = bR(engineRef.current.getEncounterKind());
+  const rX = getEncounterControls(engineRef.current.getEncounterKind());
   const rY = rX?.mechanicsToggles ?? [];
   const rZ = rX?.debugActions ?? [];
   const s0 = rX?.debugFlags ?? [];
@@ -52081,7 +52081,7 @@ function AppShell({ devHarness: devHarness } = {}) {
       const sY = xle(sR, sX?.variants);
       const sZ = EQUIPMENT_PRESETS[sY]?.[sS];
       if (sZ) {
-        const t0 = sZ.supplies ?? gC();
+        const t0 = sZ.supplies ?? createEmptyCombatSupplies();
         sT = {
           equipment: sZ.equipment,
           inventory: sZ.inventory,
@@ -52139,7 +52139,7 @@ function AppShell({ devHarness: devHarness } = {}) {
         title: su(kR ? "Hide Settings" : "Open Settings"),
         children: [
           sk &&
-            (0, jsxRuntime.jsx)(dy, {
+            (0, jsxRuntime.jsx)(LauncherIcon, {
               glyph: "modifiers",
             }),
           sk
@@ -52255,7 +52255,7 @@ function AppShell({ devHarness: devHarness } = {}) {
                 "data-tutorial": "plugins-button",
                 onClick: () => kZ(true),
                 children: [
-                  (0, jsxRuntime.jsx)(dy, {
+                  (0, jsxRuntime.jsx)(LauncherIcon, {
                     glyph: "actions",
                   }),
                   (0, jsxRuntime.jsx)("span", {
@@ -52309,7 +52309,7 @@ function AppShell({ devHarness: devHarness } = {}) {
           visible: showTickTiming,
         }),
         sk &&
-          (0, jsxRuntime.jsx)(eC, {
+          (0, jsxRuntime.jsx)(FpsOverlay, {
             visible: showFps,
           }),
         (0, jsxRuntime.jsx)(SoundDebugOverlay, {
@@ -52398,7 +52398,7 @@ function AppShell({ devHarness: devHarness } = {}) {
                 isDefault: sX.isDefault,
                 onReset: () => resetSavedSetup(encounterKind3),
               },
-              mechanicsToggles: bR(encounterKind3)?.mechanicsToggles ?? [
+              mechanicsToggles: getEncounterControls(encounterKind3)?.mechanicsToggles ?? [
                 {
                   key: "infiniteHealth",
                   label: "Infinite Health",
@@ -52916,7 +52916,7 @@ function AppShell({ devHarness: devHarness } = {}) {
                                     viewportInsets: q4,
                                     viewportOffsetX: q5,
                                   },
-                                  children: (0, jsxRuntime.jsx)(g5, {
+                                  children: (0, jsxRuntime.jsx)(Grid, {
                                     onRestart: handleReset,
                                     exportEncounterGear: mz,
                                     onEncounterToolOpenChange: oI,
@@ -53620,10 +53620,10 @@ var nCe = new (class {
     this.enabled = h2;
     if (h2) {
       this.start();
-      L.info("Perf", "Enabled - sampling every %ds", 10);
+      logger.info("Perf", "Enabled - sampling every %ds", 10);
     } else {
       this.stop();
-      L.info("Perf", "Disabled");
+      logger.info("Perf", "Disabled");
     }
   }
   isEnabled() {
@@ -53705,7 +53705,7 @@ var nCe = new (class {
     if (!this.enabled) {
       return;
     }
-    if (!L.isEnabled(aD.INFO, "Perf")) {
+    if (!logger.isEnabled(LogLevel.INFO, "Perf")) {
       return;
     }
     const report2 = this.getReport();
@@ -53780,7 +53780,7 @@ var aCe = new (class {
       }
     };
     window.addEventListener("keydown", this.keyHandler);
-    L.info(
+    logger.info(
       "Perf",
       "Initialized. Press F2 to toggle profiling, or use window.__perf in console.",
     );
@@ -53792,13 +53792,13 @@ var aCe = new (class {
     nCe.setEnabled(this.enabled);
     window.__perf.enabled = this.enabled;
     if (this.enabled) {
-      L.info(
+      logger.info(
         "Perf",
         "Profiling ENABLED. Reports every 5s. Use window.__perf.data() for instant snapshot.",
       );
     } else {
       this.report();
-      L.info("Perf", "Profiling DISABLED. Final report above.");
+      logger.info("Perf", "Profiling DISABLED. Final report above.");
     }
   }
   report() {
@@ -53861,7 +53861,7 @@ var interfaceFonts = [
   "RuneScape Quill 8",
   "RuneScape Small",
 ];
-L.init();
+logger.init();
 aCe.init();
 Promise.resolve()
   .then(() =>
