@@ -1,0 +1,342 @@
+{
+  "rd": {
+    "name": "ByteBuffer",
+    "evidence": "upstream scimgg@f1cab1f src/rs/io/ByteBuffer.ts#ByteBuffer; 29 of 31 methods verified by body"
+  },
+  "fd": {
+    "name": "BaseTypeLoader",
+    "evidence": "upstream scimgg@f1cab1f src/rs/config/TypeLoader.ts#BaseTypeLoader; 2 of 3 methods verified by body"
+  },
+  "ud": {
+    "name": "ArchiveTypeLoader",
+    "evidence": "upstream scimgg@f1cab1f src/rs/config/TypeLoader.ts#ArchiveTypeLoader; 2 of 3 methods verified by body"
+  },
+  "vd": {
+    "name": "IndexTypeLoader",
+    "evidence": "upstream scimgg@f1cab1f src/rs/config/TypeLoader.ts#IndexTypeLoader; 3 of 4 methods verified by body"
+  },
+  "pd": {
+    "name": "Type",
+    "evidence": "upstream scimgg@f1cab1f src/rs/config/Type.ts#Type; 3 of 5 methods verified by body"
+  },
+  "wd": {
+    "name": "SkeletalBone",
+    "evidence": "upstream scimgg@f1cab1f src/rs/model/skeletal/SkeletalBone.ts#SkeletalBone; 13 of 14 methods verified by body"
+  },
+  "Md": {
+    "name": "IndexSeqBaseLoader",
+    "evidence": "upstream scimgg@f1cab1f src/rs/model/seq/SeqBaseLoader.ts#IndexSeqBaseLoader; 2 of 3 methods verified by body"
+  },
+  "Cd": {
+    "name": "SeqFrameMap",
+    "evidence": "upstream scimgg@f1cab1f src/rs/model/seq/SeqFrameMap.ts#SeqFrameMap; 1 of 2 methods verified by body"
+  },
+  "xd": {
+    "name": "Dat2SeqFrameLoader",
+    "evidence": "upstream scimgg@f1cab1f src/rs/model/seq/SeqFrameLoader.ts#Dat2SeqFrameLoader; 2 of 3 methods verified by body"
+  },
+  "Ud": {
+    "name": "Curve",
+    "evidence": "upstream scimgg@f1cab1f src/rs/model/skeletal/Curve.ts#Curve; 7 of 8 methods verified by body"
+  },
+  "jd": {
+    "name": "CurvePoint",
+    "evidence": "upstream scimgg@f1cab1f src/rs/model/skeletal/Curve.ts#CurvePoint; 1 of 2 methods verified by body"
+  },
+  "eg": {
+    "name": "SkeletalSeq",
+    "evidence": "upstream scimgg@f1cab1f src/rs/model/skeletal/SkeletalSeq.ts#SkeletalSeq; 5 of 6 methods verified by body"
+  },
+  "ag": {
+    "name": "IndexSkeletalSeqLoader",
+    "evidence": "upstream scimgg@f1cab1f src/rs/model/skeletal/SkeletalSeqLoader.ts#IndexSkeletalSeqLoader; 2 of 3 methods verified by body"
+  },
+  "tg": {
+    "name": "AnimationSystem",
+    "evidence": "upstream scimgg@f1cab1f src/render/backends/picogl/AnimationSystem.ts#AnimationSystem; 26 of 27 methods verified by body"
+  },
+  "Lg": {
+    "name": "WasmBzip2InstanceImpl",
+    "evidence": "upstream scimgg@f1cab1f src/rs/compression/Bzip2.ts#WasmBzip2InstanceImpl; 2 of 3 methods verified by body"
+  },
+  "Pg": {
+    "name": "Container",
+    "evidence": "upstream scimgg@f1cab1f src/rs/cache/Container.ts#Container; 1 of 2 methods verified by body"
+  },
+  "Eg": {
+    "name": "ArchiveReference",
+    "evidence": "upstream scimgg@f1cab1f src/rs/cache/ref/ArchiveReference.ts#ArchiveReference; 2 of 3 methods verified by body"
+  },
+  "Ng": {
+    "name": "ReferenceTable",
+    "evidence": "upstream scimgg@f1cab1f src/rs/cache/ref/ReferenceTable.ts#ReferenceTable; 4 of 7 methods verified by body"
+  },
+  "Ug": {
+    "name": "CacheStoreIndex",
+    "evidence": "upstream scimgg@f1cab1f src/rs/cache/CacheIndex.ts#CacheStoreIndex; 1 of 2 methods verified by body"
+  },
+  "qg": {
+    "name": "Sector",
+    "evidence": "upstream scimgg@f1cab1f src/rs/cache/store/Sector.ts#Sector; 2 of 5 methods verified by body"
+  },
+  "Jg": {
+    "name": "MemoryStore",
+    "evidence": "upstream scimgg@f1cab1f src/rs/cache/store/MemoryStore.ts#MemoryStore; 4 of 5 methods verified by body"
+  },
+  "cm": {
+    "name": "EnumType",
+    "evidence": "upstream scimgg@f1cab1f src/rs/config/enumtype/EnumType.ts#EnumType; 3 of 4 methods verified by body"
+  },
+  "fm": {
+    "name": "OverlayType",
+    "evidence": "upstream scimgg@f1cab1f src/rs/config/flotype/FloType.ts#OverlayType; 3 of 5 methods verified by body"
+  },
+  "pm": {
+    "name": "IdentKit",
+    "evidence": "upstream scimgg@f1cab1f src/rs/config/identkit/IdentKit.ts#IdentKit; 1 of 2 methods verified by body"
+  },
+  "Im": {
+    "name": "LocType",
+    "evidence": "upstream scimgg@f1cab1f src/rs/config/loctype/LocType.ts#LocType; 6 of 7 methods verified by body"
+  },
+  "Pm": {
+    "name": "NpcType",
+    "evidence": "upstream scimgg@f1cab1f src/rs/config/npctype/NpcType.ts#NpcType; 2 of 3 methods verified by body"
+  },
+  "Em": {
+    "name": "ObjType",
+    "evidence": "upstream scimgg@f1cab1f src/rs/config/objtype/ObjType.ts#ObjType; 3 of 5 methods verified by body"
+  },
+  "Gm": {
+    "name": "SpotAnimType",
+    "evidence": "upstream scimgg@f1cab1f src/rs/config/spotanimtype/SpotAnimType.ts#SpotAnimType; 1 of 2 methods verified by body"
+  },
+  "Eh": {
+    "name": "IndexedSprite",
+    "evidence": "upstream scimgg@f1cab1f src/rs/sprite/IndexedSprite.ts#IndexedSprite; 3 of 4 methods verified by body"
+  },
+  "Qb": {
+    "name": "SkeletalSpotAnimPoser",
+    "evidence": "upstream scimgg@f1cab1f src/render/effects/SkeletalSpotAnimPoser.ts#SkeletalSpotAnimPoser; 3 of 4 methods verified by body"
+  },
+  "gy": {
+    "name": "SpotAnimRenderer",
+    "evidence": "upstream scimgg@f1cab1f src/render/effects/SpotAnimRenderer.ts#SpotAnimRenderer; 56 of 64 methods verified by body"
+  },
+  "Vy": {
+    "name": "WindowedMatcher",
+    "evidence": "upstream scimgg@f1cab1f src/render/core/soupIndexing.ts#WindowedMatcher; 3 of 4 methods verified by body"
+  },
+  "Ky": {
+    "name": "SoupIndexingScratch",
+    "evidence": "upstream scimgg@f1cab1f src/render/core/soupIndexing.ts#SoupIndexingScratch; 4 of 5 methods verified by body"
+  },
+  "Zy": {
+    "name": "SoupCompactor",
+    "evidence": "upstream scimgg@f1cab1f src/render/core/soupIndexing.ts#SoupCompactor; 1 of 2 methods verified by body"
+  },
+  "az": {
+    "name": "PicoTexture",
+    "evidence": "upstream scimgg@f1cab1f src/render/backends/picogl/PicoTexture.ts#PicoTexture; 1 of 1 methods verified by body"
+  },
+  "iz": {
+    "name": "PicoGLAssetManager",
+    "evidence": "upstream scimgg@f1cab1f src/render/backends/picogl/PicoGLRenderer.ts#PicoGLAssetManager; 11 of 13 methods verified by body"
+  },
+  "ea": {
+    "name": "PicoGLRenderer",
+    "evidence": "upstream scimgg@f1cab1f src/render/backends/picogl/PicoGLRenderer.ts#PicoGLRenderer; 43 of 62 methods verified by body"
+  },
+  "Mz": {
+    "name": "Projection3D",
+    "evidence": "upstream scimgg@f1cab1f src/render/projections/Projection3D.ts#Projection3D; 46 of 47 methods verified by body"
+  },
+  "bx": {
+    "name": "EventAudioPlayer",
+    "evidence": "upstream scimgg@f1cab1f src/audio/EventAudioPlayer.ts#EventAudioPlayer; 6 of 7 methods verified by body"
+  },
+  "kW": {
+    "name": "TerrainBuilder",
+    "evidence": "upstream scimgg@f1cab1f src/render/backends/picogl/TerrainBuilder.ts#TerrainBuilder; 8 of 10 methods verified by body"
+  },
+  "AW": {
+    "name": "PlayerVisualTracker",
+    "evidence": "upstream scimgg@f1cab1f src/render/core/interpolation.ts#PlayerVisualTracker; 23 of 24 methods verified by body"
+  },
+  "LW": {
+    "name": "NpcVisualTracker",
+    "evidence": "upstream scimgg@f1cab1f src/render/core/interpolation.ts#NpcVisualTracker; 6 of 7 methods verified by body"
+  },
+  "PW": {
+    "name": "OneShotSpotAnim",
+    "evidence": "upstream scimgg@f1cab1f src/render/effects/spotAnimPlayback.ts#OneShotSpotAnim; 1 of 2 methods verified by body"
+  },
+  "VW": {
+    "name": "VoidFlareController",
+    "evidence": "upstream scimgg@f1cab1f src/render/effects/controllers/VoidFlareController.ts#VoidFlareController; 7 of 8 methods verified by body"
+  },
+  "ZW": {
+    "name": "YamaAttackController",
+    "evidence": "upstream scimgg@f1cab1f src/render/effects/controllers/YamaAttackController.ts#YamaAttackController; 6 of 7 methods verified by body"
+  },
+  "bR": {
+    "name": "ReplayCueStream",
+    "evidence": "upstream scimgg@f1cab1f src/render/core/replayCueStream.ts#ReplayCueStream; 4 of 5 methods verified by body"
+  },
+  "LR": {
+    "name": "ReplayDeferredPrimaryIndex",
+    "evidence": "upstream scimgg@f1cab1f src/render/core/replayDeferredPrimaryIndex.ts#ReplayDeferredPrimaryIndex; 2 of 3 methods verified by body"
+  },
+  "DR": {
+    "name": "InfernoReplayIndex",
+    "evidence": "upstream scimgg@f1cab1f src/render/core/infernoReplayIndex.ts#InfernoReplayIndex; 4 of 6 methods verified by body"
+  },
+  "IR": {
+    "name": "ReplayActorHistory",
+    "evidence": "upstream scimgg@f1cab1f src/render/core/replayActorHistory.ts#ReplayActorHistory; 3 of 4 methods verified by body"
+  },
+  "PR": {
+    "name": "ReplayEffectIndex",
+    "evidence": "upstream scimgg@f1cab1f src/render/core/replayEffectIndex.ts#ReplayEffectIndex; 5 of 6 methods verified by body"
+  },
+  "jR": {
+    "name": "PlayerGraphicController",
+    "evidence": "upstream scimgg@f1cab1f src/render/effects/controllers/PlayerGraphicController.ts#PlayerGraphicController; 5 of 6 methods verified by body"
+  },
+  "nP": {
+    "name": "ReplayProjectileWork",
+    "evidence": "upstream scimgg@f1cab1f src/render/effects/replayProjectileWork.ts#ReplayProjectileWork; 1 of 2 methods verified by body"
+  },
+  "sP": {
+    "name": "ProjectileFlight",
+    "evidence": "upstream scimgg@f1cab1f src/render/effects/ProjectileFlight.ts#ProjectileFlight; 4 of 5 methods verified by body"
+  },
+  "rP": {
+    "name": "ProjectileAim",
+    "evidence": "upstream scimgg@f1cab1f src/render/effects/projectileAim.ts#ProjectileAim; 2 of 5 methods verified by body"
+  },
+  "oP": {
+    "name": "ProjectileController",
+    "evidence": "upstream scimgg@f1cab1f src/render/effects/controllers/ProjectileController.ts#ProjectileController; 10 of 11 methods verified by body"
+  },
+  "dP": {
+    "name": "LocAnimated",
+    "evidence": "upstream scimgg@f1cab1f src/render/backends/picogl/LocAnimated.ts#LocAnimated; 3 of 4 methods verified by body"
+  },
+  "r_": {
+    "name": "LocRenderer",
+    "evidence": "upstream scimgg@f1cab1f src/render/environment/LocRenderer.ts#LocRenderer; 10 of 13 methods verified by body"
+  },
+  "d_": {
+    "name": "SceneObjectRenderer",
+    "evidence": "upstream scimgg@f1cab1f src/render/graphics/SceneObjectRenderer.ts#SceneObjectRenderer; 11 of 12 methods verified by body"
+  },
+  "A_": {
+    "name": "NpcAnimationController",
+    "evidence": "upstream scimgg@f1cab1f src/render/npc/NpcAnimationController.ts#NpcAnimationController; 35 of 38 methods verified by body"
+  },
+  "L_": {
+    "name": "NpcFacingController",
+    "evidence": "upstream scimgg@f1cab1f src/render/npc/NpcFacingController.ts#NpcFacingController; 6 of 7 methods verified by body"
+  },
+  "R_": {
+    "name": "NpcModelAdapter",
+    "evidence": "upstream scimgg@f1cab1f src/render/npc/NpcInstanceManager.ts#NpcModelAdapter; 6 of 7 methods verified by body"
+  },
+  "X_": {
+    "name": "UIOverlayRenderer",
+    "evidence": "upstream scimgg@f1cab1f src/render/overlay/UIOverlayRenderer.ts#UIOverlayRenderer; 5 of 33 methods verified by body"
+  },
+  "Q_": {
+    "name": "PlayerAnimationController",
+    "evidence": "upstream scimgg@f1cab1f src/render/player/PlayerAnimationController.ts#PlayerAnimationController; 30 of 31 methods verified by body"
+  },
+  "rF": {
+    "name": "GroundItemRenderer",
+    "evidence": "upstream scimgg@f1cab1f src/render/scene/GroundItemRenderer.ts#GroundItemRenderer; 10 of 11 methods verified by body"
+  },
+  "hF": {
+    "name": "SceneSurfaceHeightResolver",
+    "evidence": "upstream scimgg@f1cab1f src/render/scene/SceneSurfaceHeightResolver.ts#SceneSurfaceHeightResolver; 3 of 6 methods verified by body"
+  },
+  "WF": {
+    "name": "PlayerModelAdapter",
+    "evidence": "upstream scimgg@f1cab1f src/render/scene/SceneCompositor.ts#PlayerModelAdapter; 5 of 6 methods verified by body"
+  },
+  "HE": {
+    "name": "LobbyArenaRenderer",
+    "evidence": "upstream scimgg@f1cab1f src/render/scene/lobby/lobbyArenaRenderer.ts#LobbyArenaRenderer; 2 of 5 methods verified by body"
+  },
+  "IE": {
+    "name": "LobbySceneCompositor",
+    "evidence": "upstream scimgg@f1cab1f src/render/scene/lobby/LobbySceneCompositor.ts#LobbySceneCompositor; 7 of 9 methods verified by body"
+  },
+  "CE": {
+    "name": "LobbySceneBuilder",
+    "evidence": "upstream scimgg@f1cab1f src/render/scene/lobbySceneBuilder.ts#LobbySceneBuilder; 21 of 22 methods verified by body"
+  },
+  "RE": {
+    "name": "SolHereditSceneObjectController",
+    "evidence": "upstream scimgg@f1cab1f src/encounters/solHeredit/SolHereditSceneObjectController.ts#SolHereditSceneObjectController; 2 of 3 methods verified by body"
+  },
+  "EE": {
+    "name": "NpcProjectileFlights",
+    "evidence": "upstream scimgg@f1cab1f src/render/effects/NpcProjectileFlights.ts#NpcProjectileFlights; 9 of 10 methods verified by body"
+  },
+  "OE": {
+    "name": "ColosseumVisualController",
+    "evidence": "upstream scimgg@f1cab1f src/render/effects/controllers/ColosseumVisualController.ts#ColosseumVisualController; 8 of 9 methods verified by body"
+  },
+  "iN": {
+    "name": "ColosseumSceneCompositor",
+    "evidence": "upstream scimgg@f1cab1f src/render/scene/ColosseumSceneCompositor.ts#ColosseumSceneCompositor; 16 of 18 methods verified by body"
+  },
+  "mN": {
+    "name": "YamaSceneObjectController",
+    "evidence": "upstream scimgg@f1cab1f src/encounters/yamaP3/YamaSceneObjectController.ts#YamaSceneObjectController; 2 of 3 methods verified by body"
+  },
+  "IN": {
+    "name": "FireballController",
+    "evidence": "upstream scimgg@f1cab1f src/render/effects/controllers/FireballController.ts#FireballController; 7 of 8 methods verified by body"
+  },
+  "jN": {
+    "name": "WaveController",
+    "evidence": "upstream scimgg@f1cab1f src/render/effects/controllers/WaveController.ts#WaveController; 5 of 6 methods verified by body"
+  },
+  "qN": {
+    "name": "YamaSceneCompositor",
+    "evidence": "upstream scimgg@f1cab1f src/render/scene/YamaSceneCompositor.ts#YamaSceneCompositor; 27 of 29 methods verified by body"
+  },
+  "ZN": {
+    "name": "YamaSceneBuilder",
+    "evidence": "upstream scimgg@f1cab1f src/render/scene/yamaSceneBuilder.ts#YamaSceneBuilder; 24 of 25 methods verified by body"
+  },
+  "aG": {
+    "name": "InfernoSceneObjectController",
+    "evidence": "upstream scimgg@f1cab1f src/encounters/inferno/sceneObjects.ts#InfernoSceneObjectController; 2 of 2 methods verified by body"
+  },
+  "cG": {
+    "name": "InfernoVisualController",
+    "evidence": "upstream scimgg@f1cab1f src/render/effects/controllers/InfernoVisualController.ts#InfernoVisualController; 8 of 9 methods verified by body"
+  },
+  "fq": {
+    "name": "ProjectionAdapter",
+    "evidence": "upstream scimgg@f1cab1f src/render/adapters/projectionAdapter.ts#ProjectionAdapter; 4 of 5 methods verified by body"
+  },
+  "uq": {
+    "name": "Canvas2DRenderer",
+    "evidence": "upstream scimgg@f1cab1f src/render/backends/canvas2d/Canvas2DRenderer.ts#Canvas2DRenderer; 11 of 12 methods verified by body"
+  },
+  "Wq": {
+    "name": "TopDownProjection",
+    "evidence": "upstream scimgg@f1cab1f src/core/projection.ts#TopDownProjection; 4 of 5 methods verified by body"
+  },
+  "Rq": {
+    "name": "IsometricProjection",
+    "evidence": "upstream scimgg@f1cab1f src/core/projection.ts#IsometricProjection; 4 of 5 methods verified by body"
+  },
+  "Pq": {
+    "name": "ReplayRecorder",
+    "evidence": "upstream scimgg@f1cab1f src/core/ReplayRecorder.ts#ReplayRecorder; 2 of 5 methods verified by body"
+  }
+}

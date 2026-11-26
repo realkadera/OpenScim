@@ -115,7 +115,7 @@ td = sd;
 ce(sd, "MAX_VALUE", 3.4028234663852886e38);
 ce(sd, "float", new Float32Array(1));
 ce(sd, "integer", new Int32Array(td.float.buffer));
-var rd = class {
+var ByteBuffer = class {
   constructor(e) {
     ce(this, "_data", undefined);
     ce(this, "offset", 0);
@@ -310,7 +310,7 @@ for (let e = 0; e < 16384; e++) {
   cd[e] = Math.sin(e * hd) * 16384;
   md[e] = Math.cos(e * hd) * 16384;
 }
-var fd = class {
+var BaseTypeLoader = class {
   constructor(e, a) {
     ce(this, "typeConstructor", undefined);
     ce(this, "cacheInfo", undefined);
@@ -340,7 +340,7 @@ var fd = class {
     this.cache.clear();
   }
 };
-var ud = class extends fd {
+var ArchiveTypeLoader = class extends BaseTypeLoader {
   constructor(e, a, t) {
     super(e, a);
     ce(this, "typeConstructor", undefined);
@@ -384,7 +384,7 @@ var ud = class extends fd {
     return this.archive.fileCount;
   }
 };
-var vd = class extends fd {
+var IndexTypeLoader = class extends BaseTypeLoader {
   constructor(e, a, t, n = 8) {
     super(e, a);
     ce(this, "typeConstructor", undefined);
@@ -418,7 +418,7 @@ var vd = class extends fd {
     this.archives.clear();
   }
 };
-var pd = class {
+var Type = class {
   static readParamsMap(e, a) {
     const t = e.readUnsignedByte();
     a ||= new Map();
@@ -520,7 +520,7 @@ function Sd(e, a, t) {
   }
   return new kd(n, s, r, i);
 }
-var bd = class extends pd {
+var bd = class extends Type {
   constructor(e, a) {
     super(e, a);
     ce(this, "frameIds", undefined);
@@ -825,7 +825,7 @@ var bd = class extends pd {
     return this.frameStep !== -1;
   }
 };
-var yd = class extends ud {
+var yd = class extends ArchiveTypeLoader {
   constructor(e, a) {
     super(bd, e, a);
   }
@@ -855,7 +855,7 @@ ce(zd, "matrixLimit", undefined);
 ce(zd, "matrixPool", undefined);
 ce(zd, "IDENTITY", mat4Create());
 zd.init(100);
-var wd = class e {
+var SkeletalBone = class e {
   static readMat4(e, a) {
     if (a) {
       throw new Error("Not implemented");
@@ -1000,7 +1000,7 @@ var Ad = class {
     this.bones = new Array(a);
     this.poseCount = e.readUnsignedByte();
     for (let a = 0; a < this.bones.length; a++) {
-      this.bones[a] = new wd(this.poseCount, e, false);
+      this.bones[a] = new SkeletalBone(this.poseCount, e, false);
     }
     this.Kg();
   }
@@ -1062,7 +1062,7 @@ var Dd = class {
 };
 var Hd = class {
   static load(e, a, t) {
-    const n = new rd(t);
+    const n = new ByteBuffer(t);
     const s = n.readUnsignedByte();
     const r = new Array(s);
     const i = new Array(s).fill(false);
@@ -1106,7 +1106,7 @@ var Hd = class {
     return new Dd(a, s, r, i, l, o, d);
   }
 };
-var Md = class {
+var IndexSeqBaseLoader = class {
   constructor(e, a) {
     ce(this, "cacheInfo", undefined);
     ce(this, "index", undefined);
@@ -1162,8 +1162,8 @@ ce(Td, "transformZCache", new Int32Array(500));
 ce(Td, "resetOriginGroupsCache", new Int32Array(500));
 var Id = class {
   static load(e, a, t) {
-    const n = new rd(t);
-    const s = new rd(t);
+    const n = new ByteBuffer(t);
+    const s = new ByteBuffer(t);
     if (e.game === "runescape" && e.revision >= 610) {
       n.readUnsignedByte();
     }
@@ -1243,7 +1243,7 @@ var Id = class {
     return new Td(0, i, o, h, f, u, v, p, c, m);
   }
 };
-var Cd = class {
+var SeqFrameMap = class {
   constructor(e) {
     ce(this, "frames", undefined);
     this.frames = e;
@@ -1252,7 +1252,7 @@ var Cd = class {
     return this.frames[e].hasAlphaTransform;
   }
 };
-var xd = class {
+var Dat2SeqFrameLoader = class {
   constructor(e, a, t) {
     ce(this, "cacheInfo", undefined);
     ce(this, "animIndex", undefined);
@@ -1272,7 +1272,7 @@ var xd = class {
       for (const a of e.files) {
         t[a.id] = Id.load(this.cacheInfo, this.baseLoader, a.data);
       }
-      n = new Cd(t);
+      n = new SeqFrameMap(t);
       this.frameMaps.set(a, n);
     }
     return n.frames[t];
@@ -1749,7 +1749,7 @@ function Gd(e, a, t, n, s, r, i) {
     return g;
   }
 }
-var Ud = class {
+var Curve = class {
   constructor(e) {
     ce(this, "id", undefined);
     ce(this, "type", undefined);
@@ -1787,7 +1787,7 @@ var Ud = class {
     this.hasWeightedTangents = e.readUnsignedByte() !== 0;
     this.points = new Array(t);
     for (let s = 0; s < t; s++) {
-      const t = new jd();
+      const t = new CurvePoint();
       t.decode(e, a);
       this.points[s] = t;
       if (n) {
@@ -1890,7 +1890,7 @@ var Ud = class {
     return this.endTick - this.startTick;
   }
 };
-var jd = class {
+var CurvePoint = class {
   constructor() {
     ce(this, "tick", undefined);
     ce(this, "value", undefined);
@@ -1966,9 +1966,9 @@ function Xd(e) {
 }
 var Jd = vec3Create();
 var Qd = vec3Create();
-var eg = class e {
+var SkeletalSeq = class e {
   static load(a, t, n) {
-    const s = new rd(n);
+    const s = new ByteBuffer(n);
     const r = s.readUnsignedByte();
     const i = s.readUnsignedShort();
     const l = a.load(i);
@@ -2005,7 +2005,7 @@ var eg = class e {
       const t = Zd(s.readUnsignedByte());
       const n = s.ng();
       const r = Od(s.readUnsignedByte());
-      const i = new Ud(e);
+      const i = new Curve(e);
       let l;
       i.decode(s, a);
       l = t === qd.BONE ? this.boneCurves : this.curves;
@@ -2117,7 +2117,7 @@ var eg = class e {
     e[14] = l;
   }
 };
-var ag = class {
+var IndexSkeletalSeqLoader = class {
   constructor(e, a) {
     ce(this, "animIndex", undefined);
     ce(this, "baseLoader", undefined);
@@ -2142,7 +2142,7 @@ var ag = class {
     if (!file3) {
       return;
     }
-    const i = eg.load(this.baseLoader, e, file3.data);
+    const i = SkeletalSeq.load(this.baseLoader, e, file3.data);
     this.seqs.set(e, i);
     return i;
   }
@@ -2151,7 +2151,7 @@ var ag = class {
     this.archiveCache.clear();
   }
 };
-var tg = class {
+var AnimationSystem = class {
   constructor() {
     ce(this, "seqFrameLoader", null);
     ce(this, "seqTypeLoader", null);
@@ -2167,10 +2167,10 @@ var tg = class {
   }
   initialize(e, a, t, n, s) {
     this.animIndex = a;
-    this.seqBaseLoader = new Md(e, t);
-    this.seqFrameLoader = new xd(e, a, this.seqBaseLoader);
+    this.seqBaseLoader = new IndexSeqBaseLoader(e, t);
+    this.seqFrameLoader = new Dat2SeqFrameLoader(e, a, this.seqBaseLoader);
     const r = s ?? a;
-    this.skeletalSeqLoader = new ag(r, this.seqBaseLoader);
+    this.skeletalSeqLoader = new IndexSkeletalSeqLoader(r, this.seqBaseLoader);
     logger.info(
       "AnimationSystem",
       `Initialized with skeletalSeqLoader (using ${s ? "animKeyFrames" : "anim"} index)`,
@@ -2560,7 +2560,7 @@ var tg = class {
   }
 };
 function ng() {
-  return new tg();
+  return new AnimationSystem();
 }
 var sg = new (class {
   constructor() {
@@ -3141,7 +3141,7 @@ async function zg() {
 }
 var wg;
 var Ag = new Uint8Array([66, 90, 104, 49]);
-var Lg = class e {
+var WasmBzip2InstanceImpl = class e {
   constructor(e) {
     ce(this, "module", undefined);
     this.module = e;
@@ -3181,7 +3181,7 @@ var Hg = null;
 var Mg = null;
 var Bzip2Decoder = class {
   static async Am() {
-    Mg ??= Lg.init()
+    Mg ??= WasmBzip2InstanceImpl.init()
       .then((e) => {
         Hg = e;
         logger.info("Compression", "Bzip2 WASM initialized successfully");
@@ -3252,7 +3252,7 @@ var xg = class {
     this.data = t;
   }
   yg() {
-    return new rd(this.data);
+    return new ByteBuffer(this.data);
   }
 };
 var Bg = class e {
@@ -3264,7 +3264,7 @@ var Bg = class e {
     return new e(Ig.Dm, a, 0, 1, n, s, r);
   }
   static decodeOld(a, t, n) {
-    const s = new rd(t);
+    const s = new ByteBuffer(t);
     const r = new Map();
     let i;
     let l;
@@ -3278,10 +3278,10 @@ var Bg = class e {
       if (d) {
         const a = s.readUnsignedBytes(n);
         const t = Bzip2Decoder.decompress(a, e);
-        g = new rd(t);
-        c = new rd(t);
+        g = new ByteBuffer(t);
+        c = new ByteBuffer(t);
       } else {
-        g = new rd(t);
+        g = new ByteBuffer(t);
         c = s;
       }
       i = c.readUnsignedShort();
@@ -3333,7 +3333,7 @@ var Bg = class e {
       }
       const o = new Array(n);
       for (let e = 0; e < n; e++) {
-        o[e] = new rd(r[e]);
+        o[e] = new ByteBuffer(r[e]);
       }
       i.offset = 0;
       for (let a = 0; a < e; a++) {
@@ -3429,7 +3429,7 @@ wg = Rg;
 ce(Rg, "GOLDEN_RATIO", 2654435769);
 ce(Rg, "ROUNDS", 32);
 ce(Rg, "INITIAL_SUM", Math.imul(wg.GOLDEN_RATIO, wg.ROUNDS));
-var Pg = class e {
+var Container = class e {
   static decode(a, t) {
     if (a.remaining === 0) {
       throw new Error("Empty container");
@@ -3547,7 +3547,7 @@ var Fg = class {
     this.nameHash = t;
   }
 };
-var Eg = class {
+var ArchiveReference = class {
   constructor(e, a, t, n, s, r, i, l, o, d) {
     ce(this, "id", undefined);
     ce(this, "nameHash", undefined);
@@ -3591,7 +3591,7 @@ var Eg = class {
     return e;
   }
 };
-var Ng = class e {
+var ReferenceTable = class e {
   static fromArchiveCount(a) {
     const t = new Int32Array(a);
     const n = new Map();
@@ -3768,7 +3768,7 @@ var Ng = class e {
     for (let e = 0; e < i; e++) {
       g.set(o[e], e);
     }
-    return new Eg(e, t, n, int32, int322, i, l, g, o, d);
+    return new ArchiveReference(e, t, n, int32, int322, i, l, g, o, d);
   }
   get _m() {
     const e = new Array(this.archiveIds.length);
@@ -3782,9 +3782,9 @@ var Ng = class e {
   }
 };
 ce(
-  Ng,
+  ReferenceTable,
   "INVALID_TABLE",
-  new Ng(
+  new ReferenceTable(
     -1,
     -1,
     false,
@@ -3845,7 +3845,7 @@ var Gg = class {
   }
 };
 ce(Gg, "META_INDEX_ID", 255);
-var Ug = class extends Gg {
+var CacheStoreIndex = class extends Gg {
   constructor(e, a, t) {
     super(e, a);
     ce(this, "store", undefined);
@@ -3855,14 +3855,14 @@ var Ug = class extends Gg {
     return this.store.read(this.id, e);
   }
 };
-var jg = class extends Ug {
+var jg = class extends CacheStoreIndex {
   getFile(e, a, t) {
     return this.Lg(e, t).getFile(a);
   }
 };
 var Og = class e extends jg {
   static Gm(a, t, n) {
-    const s = Ng.fromArchiveCount(n.byteLength / rg.SIZE);
+    const s = ReferenceTable.fromArchiveCount(n.byteLength / rg.SIZE);
     return new e(a, s, t);
   }
   Lg(e, a) {
@@ -3872,7 +3872,7 @@ var Og = class e extends jg {
 };
 function $g(e, a, t) {
   try {
-    return Pg.decode(new rd(a), t);
+    return Container.decode(new ByteBuffer(a), t);
   } catch (a) {
     if (a instanceof Dg) {
       throw new Dg(`Cache archive ${e} is bzip2-compressed: ${a.message}`);
@@ -3888,9 +3888,9 @@ var Kg = class e extends jg {
       const s = (function (e, a) {
         if (a.length) {
           const t = $g(`${Gg.META_INDEX_ID}:${e}`, a);
-          return Ng.decode(new rd(t.data));
+          return ReferenceTable.decode(new ByteBuffer(t.data));
         }
-        return Ng.INVALID_TABLE;
+        return ReferenceTable.INVALID_TABLE;
       })(a, n);
       return new e(a, s, t);
     } catch (e) {
@@ -3916,12 +3916,12 @@ var Kg = class e extends jg {
         s.fileCount,
         s.fileIds,
         s.fileNameHashes,
-        new rd(r.data),
+        new ByteBuffer(r.data),
       );
     })(this, e, this.read(e), a);
   }
 };
-var qg = class e {
+var Sector = class e {
   constructor() {
     ce(this, "indexId", undefined);
     ce(this, "archiveId", undefined);
@@ -3952,15 +3952,15 @@ var qg = class e {
     return a;
   }
 };
-Vg = qg;
-ce(qg, "HEADER_SIZE", 8);
-ce(qg, "DATA_SIZE", 512);
-ce(qg, "EXTENDED_HEADER_SIZE", 10);
-ce(qg, "EXTENDED_DATA_SIZE", 510);
-ce(qg, "SIZE", Vg.HEADER_SIZE + Vg.DATA_SIZE);
+Vg = Sector;
+ce(Sector, "HEADER_SIZE", 8);
+ce(Sector, "DATA_SIZE", 512);
+ce(Sector, "EXTENDED_HEADER_SIZE", 10);
+ce(Sector, "EXTENDED_DATA_SIZE", 510);
+ce(Sector, "SIZE", Vg.HEADER_SIZE + Vg.DATA_SIZE);
 var Zg = typeof window != "undefined" && import.meta !== undefined && false;
 var Yg = new Set();
-var Jg = class e {
+var MemoryStore = class e {
   static fromFiles(a, t = []) {
     const n = [];
     const s = new Set(t);
@@ -4020,7 +4020,7 @@ var Jg = class e {
       );
     }
     const r = a > 65535;
-    const i = new rd(new Int8Array(t, s, rg.SIZE));
+    const i = new ByteBuffer(new Int8Array(t, s, rg.SIZE));
     const l = rg.decode(i);
     if (Zg && l.size === 0 && l.sector === 0) {
       (function (e, a) {
@@ -4036,19 +4036,19 @@ var Jg = class e {
     const o = new Int8Array(l.size);
     let d = 0;
     let g = l.size;
-    let c = l.sector * qg.SIZE;
-    const m = new rd(0);
-    const h = new qg();
+    let c = l.sector * Sector.SIZE;
+    const m = new ByteBuffer(0);
+    const h = new Sector();
     while (g > 0) {
-      const e = r ? qg.EXTENDED_HEADER_SIZE : qg.HEADER_SIZE;
-      const t = r ? qg.EXTENDED_DATA_SIZE : qg.DATA_SIZE;
+      const e = r ? Sector.EXTENDED_HEADER_SIZE : Sector.HEADER_SIZE;
+      const t = r ? Sector.EXTENDED_DATA_SIZE : Sector.DATA_SIZE;
       const s = Math.min(t, g);
       m._data = new Int8Array(this.dataFile, c, e + s);
       m.offset = 0;
       if (r) {
-        qg.Om(h, m, s);
+        Sector.Om(h, m, s);
       } else {
-        qg.decode(h, m, s);
+        Sector.decode(h, m, s);
       }
       if (g > t) {
         o.set(h.data, l.size - g);
@@ -4066,7 +4066,7 @@ var Jg = class e {
           throw new Error("Sector chunk mismatch");
         }
         d++;
-        c = h.nextSector * qg.SIZE;
+        c = h.nextSector * Sector.SIZE;
       } else {
         o.set(h.data.subarray(0, g), l.size - g);
       }
@@ -4099,7 +4099,7 @@ var Qg = class e {
       case "dat":
       case "dat2": {
         sg.start("CacheSystem.MemoryStore.fromFiles");
-        const s = Jg.fromFiles(t.files, n);
+        const s = MemoryStore.fromFiles(t.files, n);
         sg.end("CacheSystem.MemoryStore.fromFiles");
         const r = e.loadIndicesFromStore(a, s);
         sg.end("CacheSystem.fromFiles");
@@ -4590,7 +4590,7 @@ function gm(e) {
     };
   }
 }
-var cm = class extends pd {
+var EnumType = class extends Type {
   constructor(e, a) {
     super(e, a);
     ce(this, "inputType", undefined);
@@ -4654,12 +4654,12 @@ var cm = class extends pd {
     }
   }
 };
-var mm = class extends ud {
+var mm = class extends ArchiveTypeLoader {
   constructor(e, a) {
-    super(cm, e, a);
+    super(EnumType, e, a);
   }
 };
-var hm = class extends pd {
+var hm = class extends Type {
   constructor(...e) {
     super(...e);
     ce(this, "color", 0);
@@ -4728,7 +4728,7 @@ var hm = class extends pd {
     this.hue = Math.floor((this.hue * this.hueMultiplier) / 256);
   }
 };
-var fm = class extends pd {
+var OverlayType = class extends Type {
   constructor(...e) {
     super(...e);
     ce(this, "color", 0);
@@ -4816,17 +4816,17 @@ var fm = class extends pd {
     }
   }
 };
-var um = class extends ud {
+var um = class extends ArchiveTypeLoader {
   constructor(e, a) {
     super(hm, e, a);
   }
 };
-var vm = class extends ud {
+var vm = class extends ArchiveTypeLoader {
   constructor(e, a) {
-    super(fm, e, a);
+    super(OverlayType, e, a);
   }
 };
-var pm = class extends pd {
+var IdentKit = class extends Type {
   constructor(e, a) {
     super(e, a);
     ce(this, "bodyPartId", undefined);
@@ -4884,9 +4884,9 @@ var pm = class extends pd {
     }
   }
 };
-var km = class extends ud {
+var km = class extends ArchiveTypeLoader {
   constructor(e, a) {
-    super(pm, e, a);
+    super(IdentKit, e, a);
   }
 };
 var Sm = class {
@@ -5417,14 +5417,14 @@ var wm = class e extends Sm {
   }
   decodeV3(e) {
     this.version = 3;
-    const a = new rd(e);
-    const t = new rd(e);
-    const n = new rd(e);
-    const s = new rd(e);
-    const r = new rd(e);
-    const i = new rd(e);
-    const l = new rd(e);
-    const o = new rd(e);
+    const a = new ByteBuffer(e);
+    const t = new ByteBuffer(e);
+    const n = new ByteBuffer(e);
+    const s = new ByteBuffer(e);
+    const r = new ByteBuffer(e);
+    const i = new ByteBuffer(e);
+    const l = new ByteBuffer(e);
+    const o = new ByteBuffer(e);
     a.offset = e.length - 26;
     const d = a.readUnsignedShort();
     const g = a.readUnsignedShort();
@@ -5722,11 +5722,11 @@ var wm = class e extends Sm {
     this.version = 2;
     let a = false;
     let t = false;
-    const n = new rd(e);
-    const s = new rd(e);
-    const r = new rd(e);
-    const i = new rd(e);
-    const l = new rd(e);
+    const n = new ByteBuffer(e);
+    const s = new ByteBuffer(e);
+    const r = new ByteBuffer(e);
+    const i = new ByteBuffer(e);
+    const l = new ByteBuffer(e);
     n.offset = e.length - 23;
     const o = n.readUnsignedShort();
     const d = n.readUnsignedShort();
@@ -6003,13 +6003,13 @@ var wm = class e extends Sm {
   }
   decodeV1(e) {
     this.version = 1;
-    const a = new rd(e);
-    const t = new rd(e);
-    const n = new rd(e);
-    const s = new rd(e);
-    const r = new rd(e);
-    const i = new rd(e);
-    const l = new rd(e);
+    const a = new ByteBuffer(e);
+    const t = new ByteBuffer(e);
+    const n = new ByteBuffer(e);
+    const s = new ByteBuffer(e);
+    const r = new ByteBuffer(e);
+    const i = new ByteBuffer(e);
+    const l = new ByteBuffer(e);
     a.offset = e.length - 23;
     const o = a.readUnsignedShort();
     const d = a.readUnsignedShort();
@@ -6377,11 +6377,11 @@ var wm = class e extends Sm {
     this.version = 0;
     let a = false;
     let t = false;
-    const n = new rd(e);
-    const s = new rd(e);
-    const r = new rd(e);
-    const i = new rd(e);
-    const l = new rd(e);
+    const n = new ByteBuffer(e);
+    const s = new ByteBuffer(e);
+    const r = new ByteBuffer(e);
+    const i = new ByteBuffer(e);
+    const l = new ByteBuffer(e);
     n.offset = e.length - 18;
     const o = n.readUnsignedShort();
     const d = n.readUnsignedShort();
@@ -7557,7 +7557,7 @@ function Tm(e, a, t, n, s, r) {
   s[r + 1] = t;
   s[r + 2] = t;
 }
-var Im = class e extends pd {
+var LocType = class e extends Type {
   constructor(a, t) {
     super(a, t);
     ce(this, "lowDetail", undefined);
@@ -7977,7 +7977,7 @@ var Im = class e extends pd {
             a.readUnsignedByte();
           } else if (e !== 189 && e !== 190 && e !== 191) {
             if (e === 249) {
-              this.params = pd.readParamsMap(a, this.params);
+              this.params = Type.readParamsMap(a, this.params);
             } else {
               logger.warn("Config", `LocType: Unknown opcode ${e}. id: ${this.id}`);
             }
@@ -8024,10 +8024,10 @@ var Im = class e extends pd {
     }
   }
 };
-ce(Im, "DEFAULT_DECOR_DISPLACEMENT", 16);
-var Cm = class extends ud {
+ce(LocType, "DEFAULT_DECOR_DISPLACEMENT", 16);
+var Cm = class extends ArchiveTypeLoader {
   constructor(e, a) {
-    super(Im, e, a);
+    super(LocType, e, a);
   }
 };
 var xm = class e {
@@ -8174,8 +8174,8 @@ var Rm = class {
       this.seqTypeLoader = new yd(e, n);
     }
     if (s && r) {
-      const a = new Md(e, r);
-      this.seqFrameLoader = new xd(e, s, a);
+      const a = new IndexSeqBaseLoader(e, r);
+      this.seqFrameLoader = new Dat2SeqFrameLoader(e, s, a);
     }
   }
   setTextureLayerResolver(e) {
@@ -8429,7 +8429,7 @@ var Rm = class {
     };
   }
 };
-var Pm = class extends pd {
+var NpcType = class extends Type {
   constructor(e, a) {
     super(e, a);
     ce(this, "name", undefined);
@@ -8807,24 +8807,24 @@ var Pm = class extends pd {
       } else if (e >= 170 && e < 176) {
         a.readUnsignedShort();
       } else if (e === 249) {
-        this.params = pd.readParamsMap(a, this.params);
+        this.params = Type.readParamsMap(a, this.params);
       } else {
         logger.warn("Config", `NpcType: Unknown opcode ${e}. ID: ${this.id}`);
       }
     }
   }
 };
-var _m = class extends ud {
+var _m = class extends ArchiveTypeLoader {
   constructor(e, a) {
-    super(Pm, e, a);
+    super(NpcType, e, a);
   }
 };
-var Fm = class extends vd {
+var Fm = class extends IndexTypeLoader {
   constructor(e, a) {
-    super(Pm, e, a, 7);
+    super(NpcType, e, a, 7);
   }
 };
-var Em = class extends pd {
+var ObjType = class extends Type {
   constructor(e, a) {
     super(e, a);
     ce(this, "name", undefined);
@@ -9131,18 +9131,18 @@ var Em = class extends pd {
       a.readInt();
       this.readString(a);
     } else if (e === 249) {
-      this.params = pd.readParamsMap(a, this.params);
+      this.params = Type.readParamsMap(a, this.params);
     } else {
       logger.trace("Config", `Unknown opcode ${e} for item ${this.id}`);
     }
   }
 };
-var Nm = class extends ud {
+var Nm = class extends ArchiveTypeLoader {
   constructor(e, a) {
-    super(Em, e, a);
+    super(ObjType, e, a);
   }
 };
-var Gm = class extends pd {
+var SpotAnimType = class extends Type {
   constructor(e, a) {
     super(e, a);
     ce(this, "modelId", undefined);
@@ -9206,23 +9206,23 @@ var Gm = class extends pd {
     }
   }
 };
-var Um = class extends ud {
+var Um = class extends ArchiveTypeLoader {
   constructor(e, a) {
-    super(Gm, e, a);
+    super(SpotAnimType, e, a);
   }
 };
-var jm = class extends pd {
+var jm = class extends Type {
   constructor(...e) {
     super(...e);
     ce(this, "params", undefined);
   }
   Hg(e, a) {
     if (e === 249) {
-      this.params = pd.readParamsMap(a, this.params);
+      this.params = Type.readParamsMap(a, this.params);
     }
   }
 };
-var Om = class extends ud {
+var Om = class extends ArchiveTypeLoader {
   constructor(e, a) {
     super(jm, e, a);
   }
@@ -9394,7 +9394,7 @@ var Xm = class e {
         tileLightOcclusions: i,
       };
     })();
-    const r = new rd(n.data);
+    const r = new ByteBuffer(n.data);
     const i = e * 64;
     const l = a * 64;
     for (let e = 0; e < 4; e++) {
@@ -9468,7 +9468,7 @@ var Xm = class e {
       sg.end(`MapLoader.loadLocations(${e},${a})`);
       return null;
     }
-    const i = new rd(r.data);
+    const i = new ByteBuffer(r.data);
     const l = [];
     let o = -1;
     let d = i.sg();
@@ -9516,7 +9516,7 @@ var Xm = class e {
       sg.end(`MapLoader.loadNpcSpawns(${e},${a})`);
       return null;
     }
-    const i = new rd(r.data);
+    const i = new ByteBuffer(r.data);
     const l = [];
     const o = e * 64;
     const d = a * 64;
@@ -10514,7 +10514,7 @@ var Fh = class e {
   }
 };
 ce(Fh, "MODEL_CACHE_LIMIT", 128);
-var Eh = class {
+var IndexedSprite = class {
   constructor() {
     ce(this, "width", 0);
     ce(this, "height", 0);
@@ -10604,7 +10604,7 @@ function Nh(e) {
 }
 var Gh = class e {
   static load(a) {
-    const t = new rd(a);
+    const t = new ByteBuffer(a);
     t.offset = a.length - 2;
     e.spriteCount = t.readUnsignedShort();
     e.xOffsets = new Int32Array(e.spriteCount);
@@ -10679,7 +10679,7 @@ var Gh = class e {
       e.palette &&
       e.pixels
     ) {
-      const a = new Eh();
+      const a = new IndexedSprite();
       a.width = e.width;
       a.height = e.height;
       a.xOffset = e.xOffsets[0];
@@ -10704,7 +10704,7 @@ var Gh = class e {
     ) {
       const a = new Array(e.spriteCount);
       for (let t = 0; t < e.spriteCount; t++) {
-        const n = new Eh();
+        const n = new IndexedSprite();
         a[t] = n;
         n.width = e.width;
         n.height = e.height;
@@ -10735,10 +10735,10 @@ var Gh = class e {
     if (!s) {
       throw new Error("index.dat not found in archive");
     }
-    const r = new rd(file6.data);
-    const i = new rd(s.data);
+    const r = new ByteBuffer(file6.data);
+    const i = new ByteBuffer(s.data);
     i.offset = r.readUnsignedShort();
-    const l = new Eh();
+    const l = new IndexedSprite();
     l.width = i.readUnsignedShort();
     l.height = i.readUnsignedShort();
     const o = i.readUnsignedByte();
@@ -14955,7 +14955,7 @@ function Jb(e) {
   }
   return a;
 }
-var Qb = class {
+var SkeletalSpotAnimPoser = class {
   constructor(e, a, t) {
     ce(this, "loader", undefined);
     ce(this, "data", undefined);
@@ -15175,7 +15175,7 @@ function oy(e, a) {
 function dy(e, a) {
   return e === a || (Number.isNaN(e) && Number.isNaN(a));
 }
-var gy = class e {
+var SpotAnimRenderer = class e {
   constructor() {
     ce(this, "holder", new WeakRef(this));
     ce(this, "meshCache", new Map());
@@ -15414,7 +15414,7 @@ var gy = class e {
       });
       return;
     }
-    const s = new Qb(e, t, n);
+    const s = new SkeletalSpotAnimPoser(e, t, n);
     this.skeletalPosers.set(a, s);
     this.meshCache.set(a, {
       static: [],
@@ -16622,7 +16622,7 @@ function cy(e, a) {
   e.projectile = a.projectile === true;
   e.hasRenderCenter = false;
 }
-ce(gy, "sharedBaked", new WeakMap());
+ce(SpotAnimRenderer, "sharedBaked", new WeakMap());
 var my = 300;
 function hy(e, a) {
   if (e.length === 0) {
@@ -17208,7 +17208,7 @@ function Oy(e, a) {
 function $y(e) {
   return new Uint32Array(e.buffer, e.byteOffset, e.length);
 }
-var Vy = class {
+var WindowedMatcher = class {
   constructor(e, a, t) {
     ce(this, "sizes", undefined);
     ce(this, "table", undefined);
@@ -17272,7 +17272,7 @@ var Vy = class {
     }
   }
 };
-var Ky = class {
+var SoupIndexingScratch = class {
   constructor() {
     ce(this, "table", new Uint32Array(0));
     ce(this, "remap", new Uint32Array(0));
@@ -17323,7 +17323,7 @@ var qy = class {
     this.sizes = e;
     Uy(a, "corners");
     this.indices = new Uint32Array(a);
-    this.matcher = new Vy(e, a);
+    this.matcher = new WindowedMatcher(e, a);
     const t = Math.min(a, 24576);
     this.window = e.map((e) => new Uint32Array(t * e));
   }
@@ -17350,7 +17350,7 @@ var qy = class {
     return e;
   }
 };
-var Zy = class {
+var SoupCompactor = class {
   constructor(e, a, t) {
     ce(this, "sizes", undefined);
     ce(this, "indices", undefined);
@@ -17446,7 +17446,7 @@ function ez(e, a, t, n) {
   }
   return s;
 }
-var az = class extends PicoGLTexture {
+var PicoTexture = class extends PicoGLTexture {
   resize(e, a, t) {
     if (!(this.gl instanceof WebGL2RenderingContext)) {
       throw new Error("Only WebGL2 is supported");
@@ -17535,7 +17535,7 @@ var az = class extends PicoGLTexture {
   }
 };
 function tz(e, a, t, n, s, r) {
-  return new az(e.gl, e.state, PicoGL.TEXTURE_2D_ARRAY, a, t, n, s, true, r);
+  return new PicoTexture(e.gl, e.state, PicoGL.TEXTURE_2D_ARRAY, a, t, n, s, true, r);
 }
 var nz = class {
   constructor(e, a = {}) {
@@ -17694,7 +17694,7 @@ function rz(e) {
   }
   return a;
 }
-var iz = class {
+var PicoGLAssetManager = class {
   constructor(e) {
     ce(this, "countGlObjects", undefined);
     ce(this, "textures", new Map());
@@ -17902,7 +17902,7 @@ function uz(e, a, t) {
     const n = e.map(({ data: data }) => $y(data));
     const s = e.map(({ size: size }) => size);
     const r = s.reduce((e, a) => e + a, 0);
-    const i = new Vy(s, a, t);
+    const i = new WindowedMatcher(s, a, t);
     const l = t ? t.corners(a) : new Uint32Array(a);
     let o = 0;
     for (let e = 0; e < a; e++) {
@@ -17974,7 +17974,7 @@ var kz = 65536;
 var Sz = {
   kind: "ok",
 };
-var ea = class {
+var PicoGLRenderer = class {
   constructor(e = {}) {
     ce(this, "id", "picogl");
     ce(this, "assets", undefined);
@@ -18075,11 +18075,11 @@ var ea = class {
     ce(this, "instanceStaging", new Float32Array(0));
     ce(this, "opaqueRuns", []);
     ce(this, "transparentRuns", []);
-    ce(this, "indexingScratch", new Ky());
+    ce(this, "indexingScratch", new SoupIndexingScratch());
     ce(this, "depthMaskState", undefined);
     ce(this, "contextAttributes", sz);
     this.residentSourceBudgetBytes = e.residentSourceBudgetBytes ?? 134217728;
-    this.assetManager = new iz((e, a, t) => this.Fk(e, a, t));
+    this.assetManager = new PicoGLAssetManager((e, a, t) => this.Fk(e, a, t));
     this.assets = this.assetManager;
     this.viewProjMatrix = new Float32Array(16);
     this.mvpMatrix = new Float32Array(16);
@@ -20131,7 +20131,7 @@ var ea = class {
   }
 };
 function bz() {
-  return new ea();
+  return new PicoGLRenderer();
 }
 function ne(e) {
   return {
@@ -20164,7 +20164,7 @@ function Hz(e, a) {
   );
   return Math.trunc((n * (600 + s * 3)) / 256) / 128;
 }
-var Mz = class {
+var Projection3D = class {
   CS() {
     const e = Math.abs(this.getViewPitch()) * yz;
     const a = this.yaw * yz;
@@ -21004,7 +21004,7 @@ var Mz = class {
   }
 };
 function ae(e, a) {
-  return new Mz(e, a);
+  return new Projection3D(e, a);
 }
 function Tz(e, a, t) {
   const n = t.x - a.x;
@@ -21112,7 +21112,7 @@ var Vz = ({
   const i = (0, pn.useRef)(null);
   const l = (0, pn.useRef)(null);
   if (l.current === null) {
-    l.current = new gy();
+    l.current = new SpotAnimRenderer();
   }
   const [o, d] = (0, pn.useState)(null);
   const [g, c] = (0, pn.useState)(false);
@@ -33387,7 +33387,7 @@ function Sx(e) {
     return undefined;
   }
 }
-var bx = class {
+var EventAudioPlayer = class {
   constructor(e, ...a) {
     ce(this, "engine", undefined);
     ce(this, "ruleChains", undefined);
@@ -34803,7 +34803,7 @@ function vW(e, a, t) {
 function pW(e, a, t, n, s, r) {
   return e[s * a + r] - e[t * a + r] - e[s * a + n] + e[t * a + n];
 }
-var kW = class {
+var TerrainBuilder = class {
   buildMesh(e, a, t, n, s, r, i) {
     sg.start("TerrainBuilder.buildMesh");
     const l = new Float32Array(s * r * 18 * 12);
@@ -35264,7 +35264,7 @@ var bW = 128;
 var yW = 2048;
 var zW = 2047;
 var wW = 1024;
-var AW = class {
+var PlayerVisualTracker = class {
   get facingAngle() {
     return this._renderAngle;
   }
@@ -35582,7 +35582,7 @@ var AW = class {
     }
   }
 };
-var LW = class e {
+var NpcVisualTracker = class e {
   constructor(e = 0, a = 32) {
     ce(this, "_visualAngle", undefined);
     ce(this, "_targetAngle", undefined);
@@ -35688,7 +35688,7 @@ function DW(e, a, t, n, s = 0) {
     facingAngle: SW(c[0] - g[0], c[1] - g[1], s),
   };
 }
-ce(LW, "SUSTAINED_TURN_THRESHOLD", 25);
+ce(NpcVisualTracker, "SUSTAINED_TURN_THRESHOLD", 25);
 var re = new (class {
   constructor() {
     ce(this, "mapper", null);
@@ -35818,7 +35818,7 @@ function WW(e, a, t, n) {
 function RW(e, a, t) {
   return WW(e, a, t, undefined);
 }
-var PW = class {
+var OneShotSpotAnim = class {
   constructor(e) {
     ce(this, "request", undefined);
     ce(this, "spawn", undefined);
@@ -35847,7 +35847,7 @@ function jW(e) {
 }
 var OW = spotAnimIds.VFX_VOIDFLARE_EXPLODE_BLUE;
 var $W = [OW, spotAnimIds.VFX_VOIDFLARE_HUMAN_IMPACT_BLUE];
-var VW = class {
+var VoidFlareController = class {
   constructor(e) {
     ce(this, "explodingFlares", []);
     ce(this, "terrainHeights", null);
@@ -36078,7 +36078,7 @@ var qW = [
   spotAnimIds.VFX_PLAYER_YAMA_MAGIC_SHADOW_IMPACT01,
   spotAnimIds.VFX_PLAYER_YAMA_MAGIC_FIRE_IMPACT01,
 ];
-var ZW = class {
+var YamaAttackController = class {
   constructor() {
     ce(this, "activeNpcCastEffect", null);
     ce(this, "activePlayerImpactEffect", null);
@@ -36504,7 +36504,7 @@ function SR(e) {
   }
   return a;
 }
-var bR = class {
+var ReplayCueStream = class {
   constructor() {
     ce(this, "entries", []);
     ce(this, "maximumLifetimeCycles", 0);
@@ -36643,7 +36643,7 @@ function AR(e, a) {
     };
   }
 }
-var LR = class {
+var ReplayDeferredPrimaryIndex = class {
   constructor() {
     ce(this, "sources", []);
     ce(this, "lives", new Map());
@@ -36761,12 +36761,12 @@ var LR = class {
     };
   }
 };
-var DR = class {
+var InfernoReplayIndex = class {
   constructor() {
     ce(this, "seenEvents", new Set());
-    ce(this, "flights", new bR());
+    ce(this, "flights", new ReplayCueStream());
     ce(this, "graphics", new Map());
-    ce(this, "animations", new bR());
+    ce(this, "animations", new ReplayCueStream());
     ce(this, "actors", new Map());
     ce(this, "order", 0);
   }
@@ -36797,7 +36797,7 @@ var DR = class {
       for (const [e, n] of t.graphics.entries()) {
         let s = this.graphics.get(n.spotAnimId);
         if (!s) {
-          s = new bR();
+          s = new ReplayCueStream();
           this.graphics.set(n.spotAnimId, s);
         }
         s.append(
@@ -36833,7 +36833,7 @@ var DR = class {
       for (const [n, s] of e) {
         let e = this.actors.get(n);
         if (!e) {
-          e = new LR();
+          e = new ReplayDeferredPrimaryIndex();
           this.actors.set(n, e);
         }
         e.append(a, t.tick, s);
@@ -36915,7 +36915,7 @@ function TR(e, a) {
     (e.deathAnimationTick !== undefined && a < e.deathAnimationTick * 30)
   );
 }
-var IR = class {
+var ReplayActorHistory = class {
   constructor() {
     ce(this, "states", []);
     ce(this, "actors", new Map());
@@ -37176,11 +37176,11 @@ function RR(e, a, t = true) {
   }
   return n;
 }
-var PR = class {
+var ReplayEffectIndex = class {
   constructor(e) {
     ce(this, "frames", undefined);
-    ce(this, "actors", new IR());
-    ce(this, "inferno", new DR());
+    ce(this, "actors", new ReplayActorHistory());
+    ce(this, "inferno", new InfernoReplayIndex());
     ce(this, "playerPrimaries", []);
     ce(this, "yamaPrimaries", []);
     ce(this, "playerPrimaryTimeline", new wR(this.playerPrimaries));
@@ -37490,7 +37490,7 @@ var UR = [
   spotAnimIds.VFX_PLAYER_MARK_OF_DARKNESS,
   spotAnimIds.VFX_TELEPORT_CASTING,
 ];
-var jR = class {
+var PlayerGraphicController = class {
   constructor() {
     ce(this, "descriptor", undefined);
     ce(this, "activeGraphic", null);
@@ -37615,7 +37615,7 @@ function tP(e) {
     );
   }
 }
-var nP = class {
+var ReplayProjectileWork = class {
   constructor() {
     ce(this, "samples", 0);
   }
@@ -37630,7 +37630,7 @@ var nP = class {
     this.samples = a;
   }
 };
-var sP = class {
+var ProjectileFlight = class {
   constructor(e) {
     ce(this, "config", undefined);
     ce(this, "cycle", undefined);
@@ -37808,7 +37808,7 @@ var sP = class {
     }
     var d;
   }
-  updateReplay(e, a, t, n = new nP()) {
+  updateReplay(e, a, t, n = new ReplayProjectileWork()) {
     const { startCycle: startCycle, endCycleExclusive: endCycleExclusive } =
       this.config;
     if (
@@ -37898,7 +37898,7 @@ var sP = class {
     }
   }
 };
-var rP = class e {
+var ProjectileAim = class e {
   constructor(e, a) {
     ce(this, "actorId", undefined);
     ce(this, "point", undefined);
@@ -37937,12 +37937,12 @@ function lP(e, a, t, n) {
     height: n,
   };
   if (e) {
-    return rP.Uz(e, s);
+    return ProjectileAim.Uz(e, s);
   } else {
-    return rP.jz(s);
+    return ProjectileAim.jz(s);
   }
 }
-var oP = class {
+var ProjectileController = class {
   constructor() {
     ce(this, "consumedDescriptors", new WeakSet());
     ce(this, "replaySampler", undefined);
@@ -38044,7 +38044,7 @@ var oP = class {
         sourceSize: d?.origin === "target" ? s : 1,
         startHeight: e.projectileStartHeight,
         endHeight: e.projectileEndHeight,
-        flight: new sP({
+        flight: new ProjectileFlight({
           instanceId: b,
           spotAnimId: projectileId2,
           startCycle: p,
@@ -38091,7 +38091,7 @@ var oP = class {
       );
     }
   }
-  update(e, a, t, n, s, r, i = new nP()) {
+  update(e, a, t, n, s, r, i = new ReplayProjectileWork()) {
     if (a < this.lastObservedTick) {
       for (const a of this.activeProjectiles.keys()) {
         e.despawn(a);
@@ -38204,7 +38204,7 @@ var oP = class {
     }
   }
 };
-var dP = class {
+var LocAnimated = class {
   constructor(e, a, t, n, s) {
     ce(this, "drawRangeIndex", undefined);
     ce(this, "anim", undefined);
@@ -38283,7 +38283,7 @@ var gP = [
   22,
 ];
 var cP = [0, 1, 2, 3];
-var mP = Im.DEFAULT_DECOR_DISPLACEMENT;
+var mP = LocType.DEFAULT_DECOR_DISPLACEMENT;
 function hP(e) {
   return gP[e] ?? null;
 }
@@ -39136,7 +39136,7 @@ function VP(e) {
       return {
         buffers: d,
         indices: n.Ck(),
-        sink: new Zy(e.sizes, n.indices, arrays2),
+        sink: new SoupCompactor(e.sizes, n.indices, arrays2),
       };
     } else {
       return {
@@ -39386,7 +39386,7 @@ function t_(e) {
 }
 var n_ = "merged-static-locs";
 var s_ = new Set();
-var r_ = class {
+var LocRenderer = class {
   constructor() {
     ce(this, "cachedLocMeshes", []);
     ce(this, "locsLoading", false);
@@ -39660,7 +39660,7 @@ var r_ = class {
             (e, a) => [a, 0, 0],
           ),
         };
-        this.animatedLocs.set(locKey, new dP(0, a, u.seqType, n, true));
+        this.animatedLocs.set(locKey, new LocAnimated(0, a, u.seqType, n, true));
         return null;
       }
       const v =
@@ -39890,7 +39890,7 @@ function l_(e) {
   }
 }
 var o_ = new Set();
-var d_ = class {
+var SceneObjectRenderer = class {
   constructor(e) {
     ce(this, "locModelLoader", undefined);
     ce(this, "objects", new Map());
@@ -40481,7 +40481,7 @@ function w_(e) {
     );
   }
 }
-var A_ = class e {
+var NpcAnimationController = class e {
   constructor(e) {
     ce(this, "animationSet", undefined);
     ce(this, "modelAdapter", undefined);
@@ -40991,15 +40991,15 @@ var A_ = class e {
     return z_(e);
   }
 };
-ce(A_, "TURN_RELEASE_TICKS", 10);
-var L_ = class {
+ce(NpcAnimationController, "TURN_RELEASE_TICKS", 10);
+var NpcFacingController = class {
   constructor() {
     ce(this, "trackers", new Map());
   }
   Xw(e, a, t) {
     let n = this.trackers.get(e);
     if (!n) {
-      n = new LW(a);
+      n = new NpcVisualTracker(a);
       this.trackers.set(e, n);
     }
     if (t !== undefined) {
@@ -41083,7 +41083,7 @@ function W_(e, a, t, n) {
   const i = Math.atan2(-s, -r);
   return ((Math.round(i * (x_ / (Math.PI * 2))) % x_) + x_) % x_;
 }
-var R_ = class {
+var NpcModelAdapter = class {
   constructor(e, a, t, n, s, r, i, l, o, d, g) {
     ce(this, "model", undefined);
     ce(this, "originalX", undefined);
@@ -41204,7 +41204,7 @@ var NpcInstanceManager = class {
     ce(this, "hasSorterProjection", false);
     ce(this, "animMeshScratch", null);
     ce(this, "animMeshDataCache", null);
-    ce(this, "facingController", new L_());
+    ce(this, "facingController", new NpcFacingController());
     ce(this, "facingSnapPending", false);
     ce(this, "transparentFaceIndexScratch", null);
     ce(this, "primaryNpcSmoothedFacingAngle", undefined);
@@ -41257,7 +41257,7 @@ var NpcInstanceManager = class {
         b = mergedModel2.faceAlphas
           ? new Int8Array(mergedModel2.faceAlphas)
           : null;
-        u = new R_(
+        u = new NpcModelAdapter(
           mergedModel2,
           p,
           k,
@@ -41283,7 +41283,7 @@ var NpcInstanceManager = class {
             }
           },
         );
-        f = new A_({
+        f = new NpcAnimationController({
           animationSet: y,
           modelAdapter: u,
         });
@@ -42290,7 +42290,7 @@ var NpcInstanceManager = class {
       return null;
     }
     const mergedModel4 = a.modelData.mergedModel;
-    const n = new R_(
+    const n = new NpcModelAdapter(
       mergedModel4,
       e.originalVerticesX,
       e.originalVerticesY,
@@ -42313,7 +42313,7 @@ var NpcInstanceManager = class {
       },
     );
     e.modelAdapter = n;
-    return new A_({
+    return new NpcAnimationController({
       animationSet: a.animationSet,
       modelAdapter: n,
     });
@@ -42417,7 +42417,7 @@ var NpcInstanceManager = class {
       i
     ) {
       const mergedModel5 = a.modelData.mergedModel;
-      const t = new R_(
+      const t = new NpcModelAdapter(
         mergedModel5,
         s,
         r,
@@ -42440,7 +42440,7 @@ var NpcInstanceManager = class {
         },
       );
       o.modelAdapter = t;
-      o.animController = new A_({
+      o.animController = new NpcAnimationController({
         animationSet: a.animationSet,
         modelAdapter: t,
       });
@@ -43495,7 +43495,7 @@ function Y_(e, a) {
   }
   return t;
 }
-var X_ = class e {
+var UIOverlayRenderer = class e {
   constructor() {
     ce(this, "actorHitsplatState", new Map());
     ce(this, "overheadTextState", new Map());
@@ -44176,22 +44176,22 @@ var X_ = class e {
     }
   }
 };
-__ = X_;
-ce(X_, "HITSPLAT_DURATION_TICKS", 2);
-ce(X_, "HEALTHBAR_DURATION_TICKS", 10);
-ce(X_, "OSRS_HEALTHBAR_WIDTH", 40);
-ce(X_, "OSRS_HEALTHBAR_HEIGHT", 7);
-ce(X_, "OSRS_HITSPLAT_SIZE", 24);
-ce(X_, "OSRS_HITSPLAT_FONT_SIZE", 16);
-ce(X_, "OSRS_OVERHEAD_ICON_SIZE", 25);
-ce(X_, "OSRS_OVERHEAD_TEXT_COLOR", "#ffff00");
-ce(X_, "OSRS_OVERHEAD_TEXT_FONT_SIZE", 16);
-ce(X_, "OVERHEAD_NUMBER_GAP", 2);
-ce(X_, "HP_TEXT_ABOVE_BAR_HEIGHT", 25 / 128);
-ce(X_, "ATTACK_COOLDOWN_TICKS_COLOR", "#00ffff");
-ce(X_, "PLAYER_HEAD_WORLD_HEIGHT", 2.2);
-ce(X_, "PLAYER_MODEL_CENTER_HEIGHT", __.PLAYER_HEAD_WORLD_HEIGHT * (100 / 215));
-ce(X_, "HITSPLAT_OFFSETS", [
+__ = UIOverlayRenderer;
+ce(UIOverlayRenderer, "HITSPLAT_DURATION_TICKS", 2);
+ce(UIOverlayRenderer, "HEALTHBAR_DURATION_TICKS", 10);
+ce(UIOverlayRenderer, "OSRS_HEALTHBAR_WIDTH", 40);
+ce(UIOverlayRenderer, "OSRS_HEALTHBAR_HEIGHT", 7);
+ce(UIOverlayRenderer, "OSRS_HITSPLAT_SIZE", 24);
+ce(UIOverlayRenderer, "OSRS_HITSPLAT_FONT_SIZE", 16);
+ce(UIOverlayRenderer, "OSRS_OVERHEAD_ICON_SIZE", 25);
+ce(UIOverlayRenderer, "OSRS_OVERHEAD_TEXT_COLOR", "#ffff00");
+ce(UIOverlayRenderer, "OSRS_OVERHEAD_TEXT_FONT_SIZE", 16);
+ce(UIOverlayRenderer, "OVERHEAD_NUMBER_GAP", 2);
+ce(UIOverlayRenderer, "HP_TEXT_ABOVE_BAR_HEIGHT", 25 / 128);
+ce(UIOverlayRenderer, "ATTACK_COOLDOWN_TICKS_COLOR", "#00ffff");
+ce(UIOverlayRenderer, "PLAYER_HEAD_WORLD_HEIGHT", 2.2);
+ce(UIOverlayRenderer, "PLAYER_MODEL_CENTER_HEIGHT", __.PLAYER_HEAD_WORLD_HEIGHT * (100 / 215));
+ce(UIOverlayRenderer, "HITSPLAT_OFFSETS", [
   {
     dx: 0,
     dy: 0,
@@ -44210,7 +44210,7 @@ ce(X_, "HITSPLAT_OFFSETS", [
   },
 ]);
 var J_ = 0.000001;
-var Q_ = class {
+var PlayerAnimationController = class {
   constructor(e) {
     ce(this, "playerModelData", undefined);
     ce(this, "modelAdapter", undefined);
@@ -45100,7 +45100,7 @@ function nF(e) {
   ]);
 }
 var sF = new Float32Array([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
-var rF = class {
+var GroundItemRenderer = class {
   constructor() {
     ce(this, "objTypeLoader", null);
     ce(this, "modelLoader", null);
@@ -45427,7 +45427,7 @@ function cF(e, a, t) {
 function mF(e, a, t) {
   return a.entityHider !== null && !dF(e, a.entityHider, true, t);
 }
-var hF = class {
+var SceneSurfaceHeightResolver = class {
   constructor() {
     ce(this, "squares", []);
     ce(this, "raises", new Map());
@@ -45617,7 +45617,7 @@ function BF(e, a, t, n, s = 0) {
     zIndex: s,
   };
 }
-var WF = class {
+var PlayerModelAdapter = class {
   constructor(e, a, t, n, s, r, i, l) {
     ce(this, "model", undefined);
     ce(this, "originalX", undefined);
@@ -45678,7 +45678,7 @@ var SceneCompositor = class e {
     ce(this, "terrainLoad", null);
     ce(this, "textureIndexMapper", null);
     ce(this, "terrainHeights", null);
-    ce(this, "surfaceHeightResolver", new hF());
+    ce(this, "surfaceHeightResolver", new SceneSurfaceHeightResolver());
     ce(this, "resolveSurfaceHeight", (e, a) =>
       this.surfaceHeightResolver.cD
         ? this.surfaceHeightResolver.resolve(e, a)
@@ -45699,8 +45699,8 @@ var SceneCompositor = class e {
     ce(this, "deferNpcClickbox", false);
     ce(this, "playerAnimationSystem", null);
     ce(this, "npcLoadStarted", false);
-    ce(this, "locRenderer", new r_());
-    ce(this, "groundItemRenderer", new rF());
+    ce(this, "locRenderer", new LocRenderer());
+    ce(this, "groundItemRenderer", new GroundItemRenderer());
     ce(this, "groundItemLoaderSource", null);
     ce(this, "sceneObjectRenderer", null);
     ce(this, "sceneObjectController", null);
@@ -45733,9 +45733,9 @@ var SceneCompositor = class e {
     ce(this, "replayPlayerController", null);
     ce(this, "playerModelMatrix", new Float32Array(16));
     ce(this, "lastNpcVisualUpdateTime", 0);
-    ce(this, "spotAnimRenderer", new gy());
-    ce(this, "playerGraphicController", new jR());
-    ce(this, "projectileController", new oP());
+    ce(this, "spotAnimRenderer", new SpotAnimRenderer());
+    ce(this, "playerGraphicController", new PlayerGraphicController());
+    ce(this, "projectileController", new ProjectileController());
     ce(this, "replayEffectIndexes", new WeakMap());
     ce(this, "replayEffectIndex", undefined);
     ce(this, "pendingNpcTypeLoadAttempts", new Map());
@@ -45777,7 +45777,7 @@ var SceneCompositor = class e {
         return 90;
       }
     });
-    ce(this, "uiOverlayRenderer", new X_());
+    ce(this, "uiOverlayRenderer", new UIOverlayRenderer());
     ce(this, "spotAnimModelLoader", null);
     ce(this, "eventAudioPlayer", null);
     ce(this, "_disposed", false);
@@ -45918,7 +45918,7 @@ var SceneCompositor = class e {
     this.setSceneObjectController(e?.createSceneObjectController?.() ?? null);
   }
   setSceneObjectLocModelLoader(e) {
-    this.sceneObjectRenderer = new d_(e);
+    this.sceneObjectRenderer = new SceneObjectRenderer(e);
     this.sceneObjectRenderer.setTerrainHeights(this.terrainHeights);
   }
   setSceneObjectController(e) {
@@ -46136,7 +46136,7 @@ var SceneCompositor = class e {
               );
             }
           }
-          const c = new WF(
+          const c = new PlayerModelAdapter(
             a.mergedModel,
             e,
             n,
@@ -46154,7 +46154,7 @@ var SceneCompositor = class e {
             });
             r = this.playerAnimController;
           } else {
-            r = new Q_({
+            r = new PlayerAnimationController({
               playerModelData: a,
               animationSet: d,
               modelAdapter: c,
@@ -46975,7 +46975,7 @@ var SceneCompositor = class e {
         frameDeltaMs: 0,
       };
     }
-    this.replayProjectileWork = e.replayHistory ? new nP() : undefined;
+    this.replayProjectileWork = e.replayHistory ? new ReplayProjectileWork() : undefined;
     this.replayThroughFrameIndex = e.replayHistory?.throughFrameIndex;
     try {
       const s = this.buildScene(e, a, t);
@@ -47078,7 +47078,7 @@ var SceneCompositor = class e {
     if (replayHistory3) {
       let e = this.replayEffectIndexes.get(replayHistory3.frames);
       if (!e) {
-        e = new PR(replayHistory3.frames);
+        e = new ReplayEffectIndex(replayHistory3.frames);
         this.replayEffectIndexes.set(replayHistory3.frames, e);
       }
       e.extend();
@@ -49952,7 +49952,7 @@ function PF(e) {
     vertexCount: vertexCount,
     stride: stride,
     vertices: vertices,
-  } = new kW().buildMesh(
+  } = new TerrainBuilder().buildMesh(
     context,
     e.level,
     context.coreOriginX,
@@ -50912,7 +50912,7 @@ function DE(e, a, t, n, s, r, i, l) {
     },
   });
 }
-var HE = class {
+var LobbyArenaRenderer = class {
   constructor() {
     ce(this, "disabledEffects", new Set());
     ce(this, "effectAlphas", new Map());
@@ -54104,14 +54104,14 @@ function TE(e) {
     };
   }
 }
-var IE = class extends SceneCompositor {
+var LobbySceneCompositor = class extends SceneCompositor {
   constructor(e, a, t) {
     super();
     ce(this, "lobbyMapX", undefined);
     ce(this, "lobbyMapY", undefined);
     ce(this, "lobbyLevel", undefined);
     ce(this, "forcedTerrain", null);
-    ce(this, "arenaRenderer", new HE());
+    ce(this, "arenaRenderer", new LobbyArenaRenderer());
     ce(this, "celShadedCache", new Map());
     ce(this, "footprintCache", new Map());
     this.lobbyMapX = e;
@@ -54395,10 +54395,10 @@ var IE = class extends SceneCompositor {
     );
   }
 };
-var CE = class {
+var LobbySceneBuilder = class {
   constructor(e, a) {
     ce(this, "cacheManager", undefined);
-    ce(this, "compositor", new IE(25, 73, 0));
+    ce(this, "compositor", new LobbySceneCompositor(25, 73, 0));
     ce(this, "npcLoaded", false);
     this.cacheManager = e;
     if (a) {
@@ -54435,7 +54435,7 @@ var CE = class {
     try {
       const loader = this.cacheManager.wd();
       loader.setTextureLayerResolver(re.resolve);
-      this.compositor.gatewayObjects = await loadGatewayObjects(r_, loader, this.compositor.terrainHeights);
+      this.compositor.gatewayObjects = await loadGatewayObjects(LocRenderer, loader, this.compositor.terrainHeights);
     } catch (e) {
       logger.error("Lobby", "Failed to load the lobby gateways", e);
     }
@@ -54506,7 +54506,7 @@ var CE = class {
 };
 var WE = () =>
   new Float32Array([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
-var RE = class {
+var SolHereditSceneObjectController = class {
   constructor() {
     ce(
       this,
@@ -54662,7 +54662,7 @@ var PE = {
     bounds: null,
     levels: [0, 1, 2],
   },
-  createSceneObjectController: () => new RE(),
+  createSceneObjectController: () => new SolHereditSceneObjectController(),
 };
 function _E(e, a) {
   switch (e.kind) {
@@ -54677,7 +54677,7 @@ function _E(e, a) {
 function FE(e, a) {
   return [a[0] + e.size / 2, a[1] + e.size / 2];
 }
-var EE = class {
+var NpcProjectileFlights = class {
   constructor(e) {
     ce(this, "renderer", undefined);
     ce(this, "flights", new Map());
@@ -54696,7 +54696,7 @@ var EE = class {
     this.flights.set(e, {
       cue: a,
       lastKnownTarget: null,
-      runtime: new sP({
+      runtime: new ProjectileFlight({
         instanceId: e,
         spotAnimId: a.spotAnimId,
         startCycle: t + a.startDelayCycles,
@@ -54712,7 +54712,7 @@ var EE = class {
     this.renderer.despawn(e);
     this.flights.delete(e);
   }
-  update(e, a, t = new nP()) {
+  update(e, a, t = new ReplayProjectileWork()) {
     for (const [n, s] of this.flights) {
       if (
         (a
@@ -54792,7 +54792,7 @@ var UE = {
   cullOutsideView: true,
 };
 var jE = new Set(colosseumSpotAnimIds.solMelee);
-var OE = class {
+var ColosseumVisualController = class {
   constructor(e) {
     ce(this, "renderer", undefined);
     ce(this, "pending", []);
@@ -54804,7 +54804,7 @@ var OE = class {
     ce(this, "terrainHeights", null);
     ce(this, "resolveActor", () => null);
     this.renderer = e;
-    this.flights = new EE(e);
+    this.flights = new NpcProjectileFlights(e);
   }
   clear() {
     for (const e of this.graphics.keys()) {
@@ -54860,10 +54860,10 @@ var OE = class {
         count: -(e.frames[0]?.effectContext?.length ?? 0),
         order: 0,
         seen: new Set(),
-        animations: new bR(),
-        graphics: new bR(),
+        animations: new ReplayCueStream(),
+        graphics: new ReplayCueStream(),
         spotAnimIds: new Set(),
-        projectiles: new bR(),
+        projectiles: new ReplayCueStream(),
         actors: new Map(),
       };
       this.histories.set(e.frames, t);
@@ -54887,7 +54887,7 @@ var OE = class {
         for (const n of e.animations) {
           let s = t.actors.get(n.actorId);
           if (!s) {
-            s = new LR();
+            s = new ReplayDeferredPrimaryIndex();
             t.actors.set(n.actorId, s);
           }
           s.append(t.count, e.tick, [
@@ -55036,7 +55036,7 @@ var OE = class {
     return {
       cue: a,
       start: t,
-      playback: new PW({
+      playback: new OneShotSpotAnim({
         instanceId: e,
         spotAnimId: a.spotAnimId,
         startCycle: t,
@@ -55070,10 +55070,10 @@ var tN = TW(aN, 0.22);
 var nN = Kh(Number.parseInt(aN.slice(1), 16));
 var sN = (e) => `${e[0]},${e[1]}`;
 var rN = [...colosseumSpotAnimIds.crystalCharge, ...colosseumSpotAnimIds.crystalFire, colosseumSpotAnimIds.crystalImpact];
-var iN = class extends SceneCompositor {
+var ColosseumSceneCompositor = class extends SceneCompositor {
   constructor(e = {}) {
     super();
-    ce(this, "visuals", new OE(this.spotAnimRenderer));
+    ce(this, "visuals", new ColosseumVisualController(this.spotAnimRenderer));
     ce(this, "frameSoundTracker", null);
     ce(this, "playerVisualPosition", null);
     ce(this, "cullSolMeleeOutsideView", undefined);
@@ -55427,7 +55427,7 @@ var gN = {
 var cN = {
   kind: "done",
 };
-var mN = class {
+var YamaSceneObjectController = class {
   constructor() {
     ce(this, "activeSpecs", {
       range: hN("range", "active"),
@@ -55549,7 +55549,7 @@ var uN = {
       },
     },
   ],
-  createSceneObjectController: () => new mN(),
+  createSceneObjectController: () => new YamaSceneObjectController(),
 };
 function AN(e, a, t, n) {
   const { phase: phase } = getFireballPhase(t, n);
@@ -55576,7 +55576,7 @@ var TN = [
   spotAnimIds.VFX_PLAYER_YAMA_FALLING_ROCK_IMPACT01,
   spotAnimIds.VFX_FLAMING_SKULL_SHADOW_IMPACT01,
 ];
-var IN = class {
+var FireballController = class {
   constructor() {
     ce(this, "terrainHeights", null);
     ce(this, "active3dIds", new Set());
@@ -55842,7 +55842,7 @@ var EN = "waves";
 var NN = packHsl(83, 200, 100);
 var GN = 0.35;
 var UN = new Float32Array([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
-var jN = class {
+var WaveController = class {
   constructor() {
     ce(this, "terrainHeights", null);
     ce(this, "activeWaveIds", new Set());
@@ -55997,17 +55997,17 @@ function KN(e, a, t, n, s = 0) {
     zIndex: s,
   };
 }
-var qN = class extends SceneCompositor {
+var YamaSceneCompositor = class extends SceneCompositor {
   constructor() {
     super();
     // The animations other NPCs announce as "colosseum_visual" events, as
     // Sol Heredit's scene plays them: the sandbox's monsters beside Yama
     // (client/encounters/sandbox/brawler.js).
-    ce(this, "visuals", new OE(this.spotAnimRenderer));
-    ce(this, "waveController", new jN());
-    ce(this, "attackController", new ZW());
-    ce(this, "fireballController", new IN());
-    ce(this, "voidFlareController", new VW());
+    ce(this, "visuals", new ColosseumVisualController(this.spotAnimRenderer));
+    ce(this, "waveController", new WaveController());
+    ce(this, "attackController", new YamaAttackController());
+    ce(this, "fireballController", new FireballController());
+    ce(this, "voidFlareController", new VoidFlareController());
     ce(this, "frameSoundTracker", null);
     ce(this, "yamaAttackOutlineIsMagic", false);
     ce(this, "yamaAttackOutlineEndTick", undefined);
@@ -56525,10 +56525,10 @@ var qN = class extends SceneCompositor {
     }
   }
 };
-var ZN = class {
+var YamaSceneBuilder = class {
   constructor(e) {
     ce(this, "compositor", undefined);
-    this.compositor = new qN();
+    this.compositor = new YamaSceneCompositor();
     this.compositor.setEncounterRenderConfig(e?.encounterRenderConfig ?? uN);
     this.compositor.setEventAudioPlayer(e?.eventAudioPlayer ?? null);
     this.compositor.setFrameSoundTracker(e?.frameSoundTracker ?? null);
@@ -56837,7 +56837,7 @@ var QN = [
 ];
 var eG = () =>
   new Float32Array([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
-var aG = class {
+var InfernoSceneObjectController = class {
   consumeEvents() {}
   update(e) {
     const encounter8 = e.state.encounter;
@@ -57098,7 +57098,7 @@ var oG = {
     ],
     excludedLocs: XN,
   },
-  createSceneObjectController: () => new aG(),
+  createSceneObjectController: () => new InfernoSceneObjectController(),
 };
 var dG = {
   fadeOut: {
@@ -57124,7 +57124,7 @@ var dG = {
     random: [3, 5, 2],
   },
 };
-var cG = class {
+var InfernoVisualController = class {
   constructor(e) {
     ce(this, "renderer", undefined);
     ce(this, "seenEvents", new Set());
@@ -57134,7 +57134,7 @@ var cG = class {
     ce(this, "replayIndexes", new WeakMap());
     ce(this, "replay", undefined);
     this.renderer = e;
-    this.flights = new EE(e);
+    this.flights = new NpcProjectileFlights(e);
   }
   consumeEvents(e, a = Number.NEGATIVE_INFINITY) {
     this.replay = undefined;
@@ -57173,7 +57173,7 @@ var cG = class {
   syncReplay(e, a, t) {
     let n = t ?? this.replayIndexes.get(e.frames);
     if (!n) {
-      n = new PR(e.frames);
+      n = new ReplayEffectIndex(e.frames);
       this.replayIndexes.set(e.frames, n);
     }
     n.extend();
@@ -57205,7 +57205,7 @@ var cG = class {
     this.animations = this.animations.filter((a) => a.cycle > e);
     return a.sort((e, a) => e.cycle - a.cycle);
   }
-  update(e, a = new nP()) {
+  update(e, a = new ReplayProjectileWork()) {
     const t = this.replay?.index.actors.sampler(
       {
         cycle: e.cycle,
@@ -57305,7 +57305,7 @@ function vG(e) {
 var InfernoScene = class extends SceneCompositor {
   constructor() {
     super();
-    ce(this, "visuals", new cG(this.spotAnimRenderer));
+    ce(this, "visuals", new InfernoVisualController(this.spotAnimRenderer));
     ce(this, "frameSoundTracker", null);
     ce(this, "replayHistory", undefined);
     ce(this, "reconstructedHistory", false);
@@ -57994,7 +57994,7 @@ var KV = [
   ...presentationBuilders.map((buildPresentation) => buildPresentation(InfernoScene, packHsl, { widgetModelView, presentationOf: (kind) => ZV(kind) })),
   {
     kind: "yama_p3",
-    sceneBuilder: (e) => new ZN(e),
+    sceneBuilder: (e) => new YamaSceneBuilder(e),
     renderConfig: uN,
     audio: {
       layerName: "yama",
@@ -58028,7 +58028,7 @@ var KV = [
   {
     kind: "lobby",
     sceneBuilder: (e) => {
-      return new CE((a = e).cacheManager, a.eventAudioPlayer);
+      return new LobbySceneBuilder((a = e).cacheManager, a.eventAudioPlayer);
       var a;
     },
     defaultCamera: {
@@ -58043,7 +58043,7 @@ var KV = [
       (function (e) {
         const a =
           typeof navigator != "undefined" && isAppleTouchDevice(navigator);
-        const t = new iN({
+        const t = new ColosseumSceneCompositor({
           cullSolMeleeOutsideView: a,
           batchSolEffects: a,
           skipZeroAreaBeamParts: a,
@@ -59229,7 +59229,7 @@ function hq(e, a, t) {
   }
   return e[Math.max(0, n - 1)]?.viewportState ?? t;
 }
-var fq = class {
+var ProjectionAdapter = class {
   constructor(e) {
     ce(this, "projection", undefined);
     this.projection = e;
@@ -59264,7 +59264,7 @@ var fq = class {
     return this.projection.getTileCorners(e.x, e.y);
   }
 };
-var uq = class {
+var Canvas2DRenderer = class {
   constructor() {
     ce(this, "id", "canvas2d");
     ce(this, "assets", undefined);
@@ -59466,7 +59466,7 @@ var uq = class {
   }
 };
 function vq() {
-  return new uq();
+  return new Canvas2DRenderer();
 }
 var pq = (0, pn.createContext)(null);
 function kq({ store: store, children: children }) {
@@ -59556,7 +59556,7 @@ function Bq(e, a, t, n, s) {
       return [e, a];
   }
 }
-var Wq = class {
+var TopDownProjection = class {
   constructor(e) {
     ce(this, "name", "top-down");
     ce(this, "canvasWidth", undefined);
@@ -59644,7 +59644,7 @@ var Wq = class {
     return t;
   }
 };
-var Rq = class {
+var IsometricProjection = class {
   constructor(e) {
     ce(this, "name", "isometric");
     ce(this, "canvasWidth", undefined);
@@ -59745,7 +59745,7 @@ var Rq = class {
     return t;
   }
 };
-var Pq = class {
+var ReplayRecorder = class {
   constructor() {
     ce(this, "cache", new Map());
     ce(this, "inFlight", new Map());
@@ -59795,7 +59795,7 @@ var _q = {
   yellow: "/yellow_click.webp",
   red: "/red_click.webp",
 };
-var Fq = new Pq();
+var Fq = new ReplayRecorder();
 var Eq = 0;
 function Nq(e) {
   Fq.load(e, async () => {
@@ -60212,9 +60212,9 @@ var dZ = ({
       rotation: de,
     };
     if (z === "isometric") {
-      return new Rq(e);
+      return new IsometricProjection(e);
     } else {
-      return new Wq(e);
+      return new TopDownProjection(e);
     }
     var e;
   }, [z, de, ve]);
@@ -60225,7 +60225,7 @@ var dZ = ({
   const Se = (0, pn.useMemo)(
     () =>
       (function (e) {
-        return new fq(e);
+        return new ProjectionAdapter(e);
       })(pe),
     [pe],
   );
@@ -61275,7 +61275,7 @@ var pZ = {
 };
 function kZ(e, a) {
   const [t, n] = e.playerPosition;
-  const s = new AW(t, n);
+  const s = new PlayerVisualTracker(t, n);
   s.facingAngle = e.playerFacingAngle;
   return {
     tracker: s,
@@ -64394,7 +64394,7 @@ export {
   $h,
   isActorInWorld,
   setArenaConfigFromCache,
-  AW,
+  PlayerVisualTracker,
   Nw,
   nC,
   an,
@@ -64547,7 +64547,7 @@ export {
   Qm,
   clearNpcBurn,
   CB,
-  ea,
+  PicoGLRenderer,
   validateInfernoSpawnLayout,
   If,
   GF,
@@ -64636,7 +64636,7 @@ export {
   Bzip2Decoder,
   projectileWorkLimit,
   pA,
-  bx,
+  EventAudioPlayer,
   GS,
   pK,
   Mq,
@@ -64689,7 +64689,7 @@ export {
   bB,
   fe,
   UK,
-  Pq,
+  ReplayRecorder,
   ZL,
   Kp,
   projectileTimings,

@@ -71,7 +71,7 @@ import {
   LobbyEncounter as af,
   tq as ag,
   $h as ah,
-  AW as ai,
+  PlayerVisualTracker as ai,
   Nw as aj,
   nC as ak,
   DK as al,
