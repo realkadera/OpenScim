@@ -1759,6 +1759,8 @@ var SimulationEngine = class {
     this.pendingEquipmentSlotClicks = [];
     const inputs = {
       equipmentSlotClicks: equipmentSlotClicks,
+      // The current walk/interaction destination, available before NPC turns (opt-in via encounterRules.targetTile).
+      ...(encounterRules?.targetTile ? { targetTile } : {}),
     };
     const npcMovements = new Map();
     const setProtectionPrayer = (prayer) => this.setProtectionPrayer(prayer);
