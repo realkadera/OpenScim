@@ -30,6 +30,12 @@ The lobby's Desert Treasure II gate opens a chooser for its four bosses: Vardorv
 The waves of the Fortis Colosseum are at `/colosseum/`, the Doom of Mokhaiotl at `/doom-of-mokhaiotl/`, Araxxor at `/araxxor/`, the Alchemical Hydra at `/alchemical-hydra/`.
 
 `npm run build` writes a static site to `dist/`; `npm run preview` serves it.
+For search engines the build writes a page for every route
+(`dist/vardorvis/index.html`: the route's own title, description and text,
+from `client/seo/routes.js`) and `sitemap.xml`. A host must answer `/vardorvis/`
+with that page and an address that has no file with `dist/index.html`. Only a
+page served from openscim.dev asks to be indexed: any other host says
+"noindex" (`client/seo/site.js`).
 
 Game media is not in this repository. `npm run assets` downloads the game
 cache from OpenRS2, decodes the interface sprites it holds, and fetches the
