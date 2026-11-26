@@ -526,6 +526,13 @@ type, tile, facing), which the lobby's scene in `rendering.js` reads too.
 It takes Sol Heredit's NPC type id from `sol-heredit/constants.js`: the one
 import between two encounter directories.
 
+The lobby does not need an NPC or a gateway for every encounter: the
+encounter book (`client/lobby/book.js`, a lectern in front of the arriving
+player, lit by the `scene-lobby` shader of `client/lobby/shader.js`) opens
+the encounter picker, which lists every registered encounter. The lectern is
+clicked as a whole and not by the tile under the pointer
+(`pickLobbyObject` in `client/lobby/gateways.js`, called from `Grid.js`).
+
 **Yama, phase 3** – `client/encounters/yama/`. A module only imports modules
 above it in this table, the shared rules, the data modules and the logger
 (`fireballs.js`). The first four are what the encounter shares with its

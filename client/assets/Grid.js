@@ -3,6 +3,7 @@ import { parseDisplayMode } from "./deployment.js";
 import { attackRangesDefaults, readAttackRangesSettings, isAttackDragProtected } from "/plugins/attackRanges.js";
 import { projectileOverrideDefaults, readProjectileOverrideSettings } from "/plugins/projectileOverride.js";
 import { getDefenceTrackerInfoboxes } from "/plugins/defenceTracker.js";
+import { pickLobbyObject } from "/lobby/gateways.js";
 import {
   pako,
   requireJsxRuntime,
@@ -52997,6 +52998,17 @@ var NBe = ({
           null,
         );
       } else {
+        // A lobby object that is clicked as a whole says what a click does.
+        const lobbyObject = isLobby ? pickLobbyObject(eX) : null;
+        if (lobbyObject) {
+          eW(
+            "loc:lobby",
+            { lines: [{ spans: [{ text: lobbyObject.action + " ", color: Gse.action }, { text: lobbyObject.name, color: Gse.loc }] }] },
+            "red",
+            null,
+          );
+          return;
+        }
         if (!isLobby) {
           const { locs: locs } = entityContext;
           if (locs && locs.length > 0) {
@@ -54758,6 +54770,13 @@ var mn = (ez) => {
           m6.current = null;
           return false;
         }
+      }
+      // A lobby object that is clicked as a whole (the encounter book)
+      // counts as a click on its tile.
+      const lobbyObject = encounterKind === "lobby" ? pickLobbyObject(n4) : null;
+      if (lobbyObject) {
+        m8(lobbyObject.tile, n3);
+        return true;
       }
       if (onTakeGroundItem) {
         const n9 = lX(n2)[0];

@@ -4,7 +4,8 @@ import { awakenedKind, bosses } from "../client/dt2/bosses.js";
 import * as dt2 from "../client/dt2/gateway.js";
 import * as toa from "../client/toa/gateway.js";
 import * as sandbox from "../client/encounters/sandbox/gateway.js";
-import { gatewayFloor, gatewayPortals } from "../client/lobby/gateways.js";
+import * as book from "../client/lobby/book.js";
+import { gatewayPortals } from "../client/lobby/gateways.js";
 
 // The four bosses, one ancient element each.
 assert.deepEqual(bosses.map((boss) => boss.element), ["blood", "ice", "shadow", "smoke"]);
@@ -30,7 +31,8 @@ for (const { position: [x, y], open, encounterKind } of dt2.gatewayPortals) {
   assert.ok(x >= 0 && x < 64 && y >= 0 && y < 64, "portal tile " + x + "," + y + " lies on the lobby map");
   assert.ok(!toaTiles.has(x + "," + y), "portal tile " + x + "," + y + " belongs to one gateway");
 }
-assert.equal(gatewayPortals.length, toa.gatewayPortals.length + dt2.gatewayPortals.length + sandbox.gatewayPortals.length);
+// Neither gateway stands in the lobby at present: the encounter book alone does.
+assert.equal(gatewayPortals.length, book.gatewayPortals.length);
 // The sandbox's dais shares no tile with the other two gateways.
 const dt2Tiles = new Set(dt2.gatewayPortals.map(({ position }) => position.join(",")));
 for (const { position, open } of sandbox.gatewayPortals) {
@@ -68,8 +70,8 @@ assert.ok(reached, "the player can walk from the spawn tile to a tile that opens
 for (const key of walkable)
   if (!onPlatform.has(key)) {
     const [x, y] = key.split(",").map(Number);
-    assert.ok(gatewayFloor(x + 0.5, y + 0.5), "floor under walkway tile " + key);
+    assert.ok(dt2.gatewayFloor(x + 0.5, y + 0.5), "floor under walkway tile " + key);
   }
-for (const { position: [x, y] } of dt2.gatewayPortals) assert.ok(gatewayFloor(x + 0.5, y + 0.5), "floor under portal tile " + x + "," + y);
-assert.ok(!gatewayFloor(31.5, 25.5));
+for (const { position: [x, y] } of dt2.gatewayPortals) assert.ok(dt2.gatewayFloor(x + 0.5, y + 0.5), "floor under portal tile " + x + "," + y);
+assert.ok(!dt2.gatewayFloor(31.5, 25.5));
 console.log("DT2 gateway passed");

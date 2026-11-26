@@ -1,19 +1,43 @@
 // The lobby's gateways together: what the lobby asks of one, it asks of all.
-import * as toa from "../toa/gateway.js";
-import * as dt2 from "../dt2/gateway.js";
-import * as sandbox from "../encounters/sandbox/gateway.js";
+// Only the encounter book stands in the lobby now. The gateways of the Tombs
+// of Amascut (../toa/gateway.js), Desert Treasure II (../dt2/gateway.js) and
+// the Sandbox (../encounters/sandbox/gateway.js) are still written as
+// gateways; naming one here puts it back.
+import * as book from "./book.js";
 
-const gateways = { toa, dt2, sandbox };
+const gateways = { book };
 const all = Object.values(gateways);
 
 // Tiles that open something when clicked: { position, displayName } with
-// either `encounterKind`, the encounter to enter, or `open(select)`, which
-// asks the player and passes `select` the fight to set up.
+// either `encounterKind`, the encounter to enter, or `open(select, browse)`,
+// which asks the player and passes `select` the fight to set up, or calls
+// `browse` to show the list of all encounters.
 export const gatewayPortals = all.flatMap((gateway) => gateway.gatewayPortals);
 export const gatewayCovers = (x, y) => all.some((gateway) => gateway.gatewayCovers(x, y));
 // Whether the lobby should lay its own floor at a position beyond its rim.
 export const gatewayFloor = (x, y) => all.some((gateway) => gateway.gatewayFloor?.(x, y));
 export const extendLobbyArena = (walkable, block) => all.forEach((gateway) => gateway.extendLobbyArena(walkable, block));
+
+// Scenery that is clicked as a whole and not by the tile under the pointer: a
+// gateway's `clickBoxes` are { min, max, tile, action, name }: a box in lobby
+// tiles with its heights above the floor, the tile a click on it counts for,
+// and what the pointer says over it ("Pick" "Boss Encounter"). `ray` is the
+// pointer's ray, { origin, direction }, in the same tiles. Returns the box.
+export function pickLobbyObject(ray) {
+  for (const gateway of all)
+    for (const box of gateway.clickBoxes ?? []) {
+      const { min, max } = box;
+      let near = -Infinity, far = Infinity;
+      for (const [axis, index] of [["x", 0], ["y", 1], ["z", 2]]) {
+        const a = (min[index] - ray.origin[axis]) / ray.direction[axis];
+        const b = (max[index] - ray.origin[axis]) / ray.direction[axis];
+        near = Math.max(near, Math.min(a, b));
+        far = Math.min(far, Math.max(a, b));
+      }
+      if (far >= Math.max(near, 0)) return box;
+    }
+  return null;
+}
 export const gatewayMeshes = (context) => all.flatMap((gateway) => gateway.gatewayMeshes(context));
 
 // Loads each gateway's objects into an object renderer of its own. A renderer

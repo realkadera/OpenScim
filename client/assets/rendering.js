@@ -17844,6 +17844,7 @@ var cz = {
   "scene-effects": true,
   "scene-toa": true,
   "scene-dt2": true,
+  "scene-lobby": true,
 };
 function mz(e) {
   return e.normals !== undefined && cz[e.shaderId ?? "scene-base"];
@@ -18548,6 +18549,7 @@ var ea = class {
         ["scene-effects", ta],
         ["scene-toa", ta, toaFragmentShader],
         ["scene-dt2", ta, dt2FragmentShader],
+        ["scene-lobby", ta, lobbyFragmentShader],
       ];
       for (const [n, s, fragmentShader] of t) {
         try {
@@ -57729,6 +57731,7 @@ import {getBlindfold} from "/plugins/blindfold.js";
 import {getSkyboxColor} from "/plugins/skybox.js";
 import {getDefenceOverhead} from "/plugins/defenceTracker.js";
 import {dt2FragmentShader} from "/dt2/shader.js";
+import {lobbyFragmentShader} from "/lobby/shader.js";
 import { LobbyEncounter } from "../encounters/lobby/LobbyEncounter.js";
 import { divineSeveranceContract, forfeitBreathContract, sensoryCloudingContract, bloodiedBlowsContract, glyphicAttenuationContract, yamaContractVariants } from "../encounters/yama/contracts.js";
 import { buildYamaControls } from "../encounters/yama/controls.js";
