@@ -14,6 +14,9 @@ import { buildSandboxDefinition } from "./sandbox/encounter.js";
 //                      display name, map square, the player's start tile,
 //                      how the arena's collision is built, variants or
 //                      modifiers, the victory text
+//                      floorLevel: optional plane (0..3, default 0); shifts
+//                                  that plane down to ground level (plane 0)
+//                                  in the renderer
 //                      Three optional fields of it are the menus' own,
 //                      read by assets/application.js and seo/routes.js, so that an encounter
 //                      needs no entry in a table of that chunk:

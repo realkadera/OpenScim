@@ -9279,15 +9279,44 @@ function Ym(e, a) {
     return e.readUnsignedByte();
   }
 }
+// An encounter may declare which level of its map square is its floor
+// (`floorLevel` on its descriptor or `mapSquare.floorLevel`), shifting that
+// plane down to ground level (plane 0) so the renderer draws it normally.
+function getMapSquareFloorLevel(mapX, mapY, descriptor) {
+  if (!descriptor) return 0;
+  const base = descriptor.mapSquare;
+  if (!base) return 0;
+  const floorLevel = descriptor.floorLevel ?? base.floorLevel ?? 0;
+  if (!floorLevel) return 0;
+  const baseX = Array.isArray(base) ? base[0] : base.x;
+  const baseY = Array.isArray(base) ? base[1] : base.y;
+  if (baseX === mapX && baseY === mapY) return floorLevel;
+  if (descriptor.mapSquareOffsets) {
+    for (const offset of descriptor.mapSquareOffsets) {
+      if (baseX + offset.dx === mapX && baseY + offset.dy === mapY) {
+        return floorLevel;
+      }
+    }
+  }
+  return 0;
+}
 var Xm = class e {
   constructor(e, a = 232) {
     ce(this, "mapIndex", undefined);
     ce(this, "newTerrainFormat", undefined);
     ce(this, "namedIndex", undefined);
     ce(this, "mapSquareCache", new Map());
+    ce(this, "activeDescriptor", undefined);
+    ce(this, "activeFloorLevel", undefined);
     this.mapIndex = e;
     this.newTerrainFormat = a >= 209;
     this.namedIndex = e.table.named;
+  }
+  setActiveDescriptor(descriptor) {
+    this.activeDescriptor = descriptor;
+  }
+  setActiveFloorLevel(level) {
+    this.activeFloorLevel = level;
   }
   static ef(e, a) {
     return (e << 8) | a;
@@ -9325,14 +9354,15 @@ var Xm = class e {
       return -1;
     }
   }
-  async loadMapSquare(e, a, t) {
-    const n = `${e},${a}`;
+  async loadMapSquare(e, a, t, descriptor = this.activeDescriptor) {
+    const floorLevel = this.activeFloorLevel ?? getMapSquareFloorLevel(e, a, descriptor);
+    const n = `${e},${a},${floorLevel}`;
     const s = this.mapSquareCache.get(n);
     if (s) {
       return s;
     }
     let r;
-    r = this.decodeMapSquare(e, a).catch((e) => {
+    r = this.decodeMapSquare(e, a, floorLevel).catch((e) => {
       if (this.mapSquareCache.get(n) === r) {
         this.mapSquareCache.delete(n);
       }
@@ -9344,7 +9374,7 @@ var Xm = class e {
   clearMapSquareCache() {
     this.mapSquareCache.clear();
   }
-  async decodeMapSquare(e, a) {
+  async decodeMapSquare(e, a, floorLevelOverride) {
     sg.start(`MapLoader.loadMapSquare(${e},${a})`);
     const t = this.af(e, a);
     if (t === -1) {
@@ -9404,6 +9434,37 @@ var Xm = class e {
         }
       }
     }
+    const floorLevel = floorLevelOverride ?? this.activeFloorLevel ?? getMapSquareFloorLevel(e, a, this.activeDescriptor);
+    if (floorLevel > 0) {
+      const n = s.tileHeights[floorLevel][32][32] | 0;
+      for (let x = 0; x <= 64; x++) {
+        for (let y = 0; y <= 64; y++) {
+          for (let l = floorLevel; l < 4; l++) {
+            s.tileHeights[l][x][y] -= n;
+          }
+        }
+      }
+      for (let i = 0; i < 4; i++) {
+        const srcLevel = i + floorLevel;
+        if (srcLevel < 4) {
+          s.tileHeights[i] = s.tileHeights[srcLevel];
+          s.tileUnderlays[i] = s.tileUnderlays[srcLevel];
+          s.tileOverlays[i] = s.tileOverlays[srcLevel];
+          s.tileShapes[i] = s.tileShapes[srcLevel];
+          s.tileRotations[i] = s.tileRotations[srcLevel];
+          s.tileRenderFlags[i] = s.tileRenderFlags[srcLevel];
+          s.tileLightOcclusions[i] = s.tileLightOcclusions[srcLevel];
+        } else {
+          s.tileHeights[i] = Array.from({ length: 65 }, () => new Int32Array(65));
+          s.tileUnderlays[i] = Array.from({ length: 64 }, () => new Uint16Array(64));
+          s.tileOverlays[i] = Array.from({ length: 64 }, () => new Int16Array(64));
+          s.tileShapes[i] = Array.from({ length: 64 }, () => new Uint8Array(64));
+          s.tileRotations[i] = Array.from({ length: 64 }, () => new Uint8Array(64));
+          s.tileRenderFlags[i] = Array.from({ length: 64 }, () => new Uint8Array(64));
+          s.tileLightOcclusions[i] = Array.from({ length: 65 }, () => new Uint8Array(65));
+        }
+      }
+    }
     sg.end(`MapLoader.loadMapSquare(${e},${a})`);
     return {
       mapX: e,
@@ -9455,7 +9516,7 @@ var Xm = class e {
       }
     }
   }
-  async loadLocations(e, a, t) {
+  async loadLocations(e, a, t, descriptor = this.activeDescriptor) {
     sg.start(`MapLoader.loadLocations(${e},${a})`);
     const n = this.tf(e, a);
     if (n === -1) {
@@ -9470,6 +9531,7 @@ var Xm = class e {
     }
     const i = new ByteBuffer(r.data);
     const l = [];
+    const c = this.activeFloorLevel ?? getMapSquareFloorLevel(e, a, descriptor);
     let o = -1;
     let d = i.sg();
     while (d !== 0) {
@@ -9484,14 +9546,16 @@ var Xm = class e {
         const r = i.readUnsignedByte();
         const d = r >> 2;
         const g = r & 3;
-        l.push({
-          id: o,
-          localX: t,
-          localY: n,
-          level: s,
-          type: d,
-          rotation: g,
-        });
+        if (s >= c) {
+          l.push({
+            id: o,
+            localX: t,
+            localY: n,
+            level: s - c,
+            type: d,
+            rotation: g,
+          });
+        }
         a = i.readUnsignedSmart();
       }
       d = i.sg();
@@ -46151,6 +46215,9 @@ var SceneCompositor = class e {
       locations: s,
       locTypeInfoLoader: r,
     };
+    if (e && this.encounterRenderConfig) {
+      e.activeDescriptor = this.encounterRenderConfig;
+    }
     try {
       const n = await this.DD(e, a, t, s, r);
       if (this._disposed) {
@@ -48049,7 +48116,7 @@ var SceneCompositor = class e {
         return {
           mapX: n,
           mapY: s,
-          mapData: await e.loadMapSquare(n, s),
+          mapData: await e.loadMapSquare(n, s, undefined, this.encounterRenderConfig),
         };
       }),
     );
