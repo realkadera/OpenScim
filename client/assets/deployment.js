@@ -3,10 +3,13 @@
 // The original build only ran on scim.gg hosts and refused to start anywhere
 // else. This fork runs wherever it is served, so the host is taken from the
 // page location (it is used to build and recognise replay links).
+import { siteHost } from "../seo/site.js";
 var deploymentConfig = {
   hosts: [globalThis.location?.host ?? "localhost"],
-  // Search-engine indexing stays off until a deployment opts in.
-  indexable: false,
+  // Search engines index the project's own site and nothing else: a fork, a
+  // preview or a local build asks them not to, and its canonical address is
+  // the page of the site.
+  indexable: globalThis.location?.host === siteHost,
 };
 function getDeploymentConfig() {
   return deploymentConfig;
