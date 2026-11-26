@@ -9279,6 +9279,35 @@ function Ym(e, a) {
     return e.readUnsignedByte();
   }
 }
+// An encounter may declare which level of its map square is its floor
+// (`floorLevel` on its descriptor or `mapSquare.floorLevel`), shifting that
+// plane down to ground level (plane 0) so the renderer draws it normally.
+function getMapSquareFloorLevel(mapX, mapY) {
+  if (typeof registeredEncounterDefinitions === "undefined") return 0;
+  for (const definition of registeredEncounterDefinitions) {
+    const descriptors = [
+      definition.descriptor,
+      ...Object.values(definition.variantDescriptors ?? {}),
+    ].filter(Boolean);
+    for (const descriptor of descriptors) {
+      const base = descriptor.mapSquare;
+      if (!base) continue;
+      const floorLevel = descriptor.floorLevel ?? base.floorLevel ?? 0;
+      if (!floorLevel) continue;
+      const baseX = Array.isArray(base) ? base[0] : base.x;
+      const baseY = Array.isArray(base) ? base[1] : base.y;
+      if (baseX === mapX && baseY === mapY) return floorLevel;
+      if (descriptor.mapSquareOffsets) {
+        for (const offset of descriptor.mapSquareOffsets) {
+          if (baseX + offset.dx === mapX && baseY + offset.dy === mapY) {
+            return floorLevel;
+          }
+        }
+      }
+    }
+  }
+  return 0;
+}
 var Xm = class e {
   constructor(e, a = 232) {
     ce(this, "mapIndex", undefined);
@@ -9404,6 +9433,34 @@ var Xm = class e {
         }
       }
     }
+    const floorLevel = getMapSquareFloorLevel(e, a);
+    if (floorLevel > 0) {
+      const n = s.tileHeights[floorLevel][32][32] | 0;
+      for (let x = 0; x <= 64; x++) {
+        for (let y = 0; y <= 64; y++) {
+          for (let l = floorLevel; l < 4; l++) {
+            s.tileHeights[l][x][y] -= n;
+          }
+        }
+      }
+      for (const t of [
+        s.tileHeights,
+        s.tileUnderlays,
+        s.tileOverlays,
+        s.tileShapes,
+        s.tileRotations,
+        s.tileRenderFlags,
+        s.tileLightOcclusions,
+      ]) {
+        const shifted = [];
+        for (let i = 0; i < 4; i++) {
+          shifted[i] = t[(i + floorLevel) % 4];
+        }
+        for (let i = 0; i < 4; i++) {
+          t[i] = shifted[i];
+        }
+      }
+    }
     sg.end(`MapLoader.loadMapSquare(${e},${a})`);
     return {
       mapX: e,
@@ -9470,6 +9527,7 @@ var Xm = class e {
     }
     const i = new ByteBuffer(r.data);
     const l = [];
+    const c = getMapSquareFloorLevel(e, a);
     let o = -1;
     let d = i.sg();
     while (d !== 0) {
@@ -9484,14 +9542,16 @@ var Xm = class e {
         const r = i.readUnsignedByte();
         const d = r >> 2;
         const g = r & 3;
-        l.push({
-          id: o,
-          localX: t,
-          localY: n,
-          level: s,
-          type: d,
-          rotation: g,
-        });
+        if (s >= c) {
+          l.push({
+            id: o,
+            localX: t,
+            localY: n,
+            level: s - c,
+            type: d,
+            rotation: g,
+          });
+        }
         a = i.readUnsignedSmart();
       }
       d = i.sg();

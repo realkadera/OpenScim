@@ -106,6 +106,10 @@ export const sandboxCatalogExclusions = {
   14709: "the Doom of Mokhaiotl burrowed: the Doom himself under the floor, between his shield and his surfacing",
   15742: "the Maggot King fights from behind a row of bones, and most of his attacks are his floor's (bile, carrion, slams): he is fought in his own lair",
   15743: "the Ur-maggot larvae have no attack of their own: they fly in from the King's screeches and leech a player under them",
+  2215: "General Graardor fights with ranged and melee attacks, bodyguards, and God Wars dungeon mechanics: he is fought in his own stronghold",
+  2216: "Sergeant Strongstack is a bodyguard of General Graardor: fought in Graardor's stronghold",
+  2217: "Sergeant Steelwill is a bodyguard of General Graardor: fought in Graardor's stronghold",
+  2218: "Sergeant Grimspike is a bodyguard of General Graardor: fought in Graardor's stronghold",
 };
 
 export const sandboxNpcCatalog = curatedNpcCatalog;
