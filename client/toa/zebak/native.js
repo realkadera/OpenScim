@@ -620,6 +620,15 @@ export function zebakDefinition({
       kind: "zebak",
       displayName: "Zebak",
       description: "Tombs of Amascut",
+      // The texts of the page for search engines (client/seo/routes.js).
+      seo: {
+        summary: "Practice Zebak, the boss of the Path of Crondis in the Tombs of Amascut.",
+        title: "OSRS Zebak Simulator",
+        description: "Practice Zebak, the crocodile boss of the Tombs of Amascut, in your browser. Set the path level and the invocations of his fight before you start.",
+        h1: "Zebak Simulator",
+        intro: "Zebak is the boss of the Path of Crondis in the Tombs of Amascut, the OSRS raid. This sim covers his room, with the path level and the invocations of his fight to set before you start.",
+        keywords: ["OSRS Zebak", "Zebak simulator", "Zebak practice", "Tombs of Amascut simulator", "ToA simulator", "Path of Crondis"],
+      },
       playerStart: start,
       mapSquare,
       loadsMapLocs: true,

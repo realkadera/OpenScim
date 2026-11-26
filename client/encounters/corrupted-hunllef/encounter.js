@@ -329,6 +329,14 @@ export class CorruptedHunllefEncounter {
 
 export const corruptedHunllefDefinition = { kind, factory: () => new CorruptedHunllefEncounter(), descriptor: {
   kind, displayName: "Corrupted Hunllef", description: "Prepare in the Corrupted Gauntlet boss room.",
+  // The texts of the page for search engines (client/seo/routes.js).
+  seo: {
+    title: "OSRS Corrupted Hunllef Simulator",
+    description: "Practice the Corrupted Hunllef, the boss of the Corrupted Gauntlet, in your browser: his style and prayer switches, the tornadoes and the floor patterns.",
+    h1: "Corrupted Hunllef Simulator",
+    intro: "The Corrupted Hunllef is the boss of the Corrupted Gauntlet in OSRS. This sim puts you in his room with the gear you choose, and covers his switches of attack style and protection, the tornadoes and the patterns of the floor.",
+    keywords: ["Corrupted Hunllef", "Corrupted Gauntlet simulator", "Hunllef simulator", "CG practice", "OSRS Gauntlet simulator"],
+  },
   mapSquare, playerStart, collision: { mode: "custom" }, loadsMapLocs: true, isWorkInProgress: true,
   loadouts: corruptedHunllefLoadouts,
   victory: { title: "VICTORY", narrative: "CORRUPTED HUNLLEF DEFEATED", accent: "blood" },

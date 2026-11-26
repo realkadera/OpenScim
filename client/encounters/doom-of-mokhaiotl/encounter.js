@@ -645,6 +645,14 @@ export const doomDefinition = {
     kind: doomKind,
     displayName: "Doom of Mokhaiotl",
     description: "Delve into the Doom of Mokhaiotl's lair, delves 1 to 8.",
+    // The texts of the page for search engines (client/seo/routes.js).
+    seo: {
+      title: "OSRS Doom of Mokhaiotl Simulator",
+      description: "Practice the Doom of Mokhaiotl in your browser. Delve into its lair, from delve 1 to delve 8, and learn each level before you risk it for real.",
+      h1: "Doom of Mokhaiotl Simulator",
+      intro: "The Doom of Mokhaiotl is a boss in OSRS that is fought deeper with every delve. This sim covers delves 1 to 8 of its lair.",
+      keywords: ["Doom of Mokhaiotl", "OSRS Doom simulator", "Doom of Mokhaiotl simulator", "Doom delve practice", "Mokhaiotl"],
+    },
     mapSquare: doomMapSquare,
     playerStart,
     loadsMapLocs: true,

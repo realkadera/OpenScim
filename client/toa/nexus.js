@@ -124,6 +124,15 @@ export const nexusDefinition = {
     kind: nexusKind,
     displayName: "Tombs of Amascut",
     description: "The nexus. Each door leads to a path boss.",
+    // The texts of the page for search engines (client/seo/routes.js).
+    seo: {
+      summary: "Walk the nexus of the Tombs of Amascut and take a door to a path boss.",
+      title: "OSRS Tombs of Amascut Simulator",
+      description: "Walk the nexus of the Tombs of Amascut in your browser and take a door to a path boss. Zebak, on the Path of Crondis, is playable now.",
+      h1: "Tombs of Amascut Simulator",
+      intro: "The Tombs of Amascut is a raid in OSRS. This sim has its nexus, the room between the paths: each door leads to a path's boss. Zebak, on the Path of Crondis, is playable now; the other paths are sealed until their bosses are built.",
+      keywords: ["Tombs of Amascut", "OSRS ToA simulator", "Tombs of Amascut simulator", "ToA practice", "Zebak simulator"],
+    },
     playerStart: start,
     mapSquare,
     loadsMapLocs: true,

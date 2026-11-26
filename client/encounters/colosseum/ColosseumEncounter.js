@@ -714,6 +714,14 @@ export const colosseumDefinition = {
     kind: colosseumKind,
     displayName: "Fortis Colosseum",
     description: "The waves of the Fortis Colosseum that lead up to Sol Heredit. Start from any wave.",
+    // The texts of the page for search engines (client/seo/routes.js).
+    seo: {
+      title: "OSRS Fortis Colosseum Simulator",
+      description: "Practice the waves of the Fortis Colosseum in your browser. Start from any wave and fight your way up to Sol Heredit.",
+      h1: "Fortis Colosseum Simulator",
+      intro: "The Fortis Colosseum is a wave-based challenge in OSRS that ends with Sol Heredit. This sim covers the waves that lead up to him: start from any wave, with the modifiers you choose, and retry it as often as you need.",
+      keywords: ["Fortis Colosseum", "OSRS Colosseum simulator", "Fortis Colosseum simulator", "Colosseum waves", "Colosseum practice"],
+    },
     mapSquare: colosseumMapSquare,
     playerStart: [...colosseumPlayerStart],
     loadsMapLocs: true,

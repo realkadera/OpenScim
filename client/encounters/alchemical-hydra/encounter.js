@@ -673,6 +673,14 @@ export const alchemicalHydraDefinition = {
     kind: alchemicalHydraKind,
     displayName: "Alchemical Hydra",
     description: "The Karuulm Slayer Dungeon: three-attack style switches, its shield and the vents that take it away, and the poison, lightning and fire of its four forms.",
+    // The texts of the page for search engines (client/seo/routes.js).
+    seo: {
+      title: "OSRS Alchemical Hydra Simulator",
+      description: "Practice the Alchemical Hydra in your browser: the style switch every three attacks, the vents that remove its shield, and the poison, lightning and fire of its four forms.",
+      h1: "Alchemical Hydra Simulator",
+      intro: "The Alchemical Hydra is a Slayer boss in OSRS, found in the Karuulm Slayer Dungeon. This sim covers the switch of style after every three attacks, its shield and the vents that take it away, and the poison, lightning and fire of its four forms.",
+      keywords: ["OSRS Alchemical Hydra", "Alchemical Hydra simulator", "Hydra simulator", "Hydra practice", "OSRS Slayer boss simulator"],
+    },
     mapSquare: alchemicalHydraMapSquare,
     playerStart,
     loadsMapLocs: true,

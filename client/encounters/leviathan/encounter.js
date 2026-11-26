@@ -1172,6 +1172,14 @@ export const leviathanDefinition = {
     kind: leviathanKind,
     displayName: "The Leviathan",
     description: "Desert Treasure II. The Scar: volleys of orbs to pray against, rocks from its roars, a shadow stun, lightning and smoke, and the abyssal pathfinder.",
+    // The texts of the page for search engines (client/seo/routes.js).
+    seo: {
+      title: "OSRS Leviathan Simulator",
+      description: "Practice the Leviathan from Desert Treasure II in your browser: the volleys of orbs to pray against, the falling rocks, lightning and smoke, and the abyssal pathfinder.",
+      h1: "Leviathan Simulator",
+      intro: "The Leviathan is one of the four Desert Treasure II bosses in OSRS, fought in the Scar. This sim covers its volleys of orbs to pray against, the rocks from its roars, the shadow stun, lightning and smoke, and the abyssal pathfinder.",
+      keywords: ["OSRS Leviathan", "Leviathan simulator", "Leviathan practice", "Leviathan prayer switches", "Desert Treasure II bosses", "DT2 boss simulator"],
+    },
     mapSquare: leviathanMapSquare,
     playerStart: climbedTo,
     loadsMapLocs: true,

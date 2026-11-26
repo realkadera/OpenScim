@@ -757,6 +757,14 @@ export const vardorvisDefinition = {
     kind: vardorvisKind,
     displayName: "Vardorvis",
     description: "Desert Treasure II. The Stranglewood's ritual site: swinging axes, the head's gaze and darting spikes.",
+    // The texts of the page for search engines (client/seo/routes.js).
+    seo: {
+      title: "OSRS Vardorvis Simulator",
+      description: "Practice Vardorvis from Desert Treasure II in your browser: the swinging axes, the head's gaze and the darting spikes.",
+      h1: "Vardorvis Simulator",
+      intro: "Vardorvis is one of the four Desert Treasure II bosses in OSRS, fought at the ritual site in the Stranglewood. This sim covers his swinging axes, the head's gaze and the darting spikes, so you can drill the fight before doing it for real.",
+      keywords: ["OSRS Vardorvis", "Vardorvis simulator", "Vardorvis practice", "Desert Treasure II bosses", "DT2 boss simulator"],
+    },
     mapSquare: vardorvisMapSquare,
     playerStart,
     loadsMapLocs: true,

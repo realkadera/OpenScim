@@ -643,6 +643,14 @@ export const maggotKingDefinition = {
     kind: maggotKingKind,
     displayName: "Maggot King",
     description: "Vampyrium. Ranged and magic spits around screeches, bile and carrion on the floor, larvae that eat it, and head slams once he comes close.",
+    // The texts of the page for search engines (client/seo/routes.js).
+    seo: {
+      title: "OSRS Maggot King Simulator",
+      description: "Practice the Maggot King in your browser: his ranged and magic spits and screeches, the bile and carrion on the floor, the larvae and his head slams.",
+      h1: "Maggot King Simulator",
+      intro: "The Maggot King is a boss in OSRS, found in Vampyrium. This sim covers his ranged and magic spits around the screeches, the bile and carrion on the floor, the larvae that eat it, and the head slams once he comes close.",
+      keywords: ["OSRS Maggot King", "Maggot King simulator", "Maggot King practice", "Vampyrium boss"],
+    },
     mapSquare: maggotKingMapSquare,
     playerStart,
     loadsMapLocs: true,

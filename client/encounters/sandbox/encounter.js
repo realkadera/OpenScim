@@ -794,6 +794,15 @@ export function buildSandboxDefinition(otherDefinitions) {
     kind: sandboxKind,
     displayName: "Sandbox",
     description: `Place monsters of the other fights in an arena of your choice and fight them, or watch them fight each other. ${sandboxNpcCatalog.length} monsters, ${sandboxArenas.length} arenas.`,
+    // The texts of the page for search engines (client/seo/routes.js).
+    seo: {
+      summary: "Place monsters in an arena of your choice and fight them.",
+      title: "OSRS Combat Sandbox",
+      description: "Build your own OSRS fight in your browser: place the monsters of the other simulators in an arena of your choice and fight them, or watch them fight each other.",
+      h1: "OSRS Combat Sandbox",
+      intro: "The sandbox is a scenario editor. Place the monsters of the other fights in an arena of your choice and fight them, or watch them fight each other, and share the scenario as a link.",
+      keywords: ["OSRS combat sandbox", "OSRS scenario editor", "OSRS custom fight", "OSRS monster sandbox"],
+    },
     ...describeArena(firstArena),
     loadsMapLocs: true,
     isWorkInProgress: true,

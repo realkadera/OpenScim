@@ -32,7 +32,7 @@ try {
   await page.waitForFunction(() => window.engine && window.scene, null, { timeout: 60000 });
   await page.locator(".loading-screen").waitFor({ state: "hidden", timeout: 60000 });
   assert.equal(new URL(page.url()).pathname, "/colosseum/");
-  await page.waitForFunction(() => document.title === "Fortis Colosseum | OpenScim.dev");
+  await page.waitForFunction(() => document.title === "OSRS Fortis Colosseum Simulator | OpenScim.dev");
   assert.equal(await page.evaluate(() => engine.getEncounterKind()), "colosseum");
 
   // The scene has loaded the model of every NPC type a wave can place so far.

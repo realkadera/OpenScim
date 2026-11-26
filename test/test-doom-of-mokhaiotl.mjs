@@ -30,7 +30,7 @@ try {
   await page.goto(origin + "/doom-of-mokhaiotl/");
   await page.waitForFunction(() => window.engine && window.scene, null, { timeout: 60000 });
   await page.locator(".loading-screen").waitFor({ state: "hidden", timeout: 60000 });
-  await page.waitForFunction(() => document.title === "Doom of Mokhaiotl | OpenScim.dev");
+  await page.waitForFunction(() => document.title === "OSRS Doom of Mokhaiotl Simulator (Beta) | OpenScim.dev");
   await page.waitForFunction(() => scene.isTerrainLoaded() && scene.isPlayerLoaded() && scene.isNpcLoaded() && scene.isNpcTypeLoaded(14707), null, { timeout: 60000 });
   assert.deepEqual(await page.evaluate(() => engine.worldState.actors.get("doom").vitals), { hp: 525, maxHp: 525 });
 

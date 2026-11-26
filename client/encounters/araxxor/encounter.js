@@ -1320,6 +1320,14 @@ export const araxxorDefinition = {
     kind: araxxorKind,
     displayName: "Araxxor",
     description: "The Morytania Spider Cave: his three attack styles, the acid of his specials, nine eggs and their araxytes, and the cleave of his enrage.",
+    // The texts of the page for search engines (client/seo/routes.js).
+    seo: {
+      title: "OSRS Araxxor Simulator",
+      description: "Practice Araxxor in your browser: his three attack styles, the acid of his specials, the eggs and their araxytes, and the cleave of his enrage.",
+      h1: "Araxxor Simulator",
+      intro: "Araxxor is a Slayer boss in OSRS, found in the Morytania Spider Cave. This sim covers his three attack styles, the acid of his specials, the nine eggs and their araxytes, and the cleave of his enrage.",
+      keywords: ["OSRS Araxxor", "Araxxor simulator", "Araxxor practice", "Araxxor eggs", "OSRS Slayer boss simulator"],
+    },
     mapSquare: araxxorMapSquare,
     mapSquareOffsets: araxxorMapSquareOffsets,
     playerStart,

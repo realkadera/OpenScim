@@ -558,6 +558,14 @@ export const dukeDefinition = {
     kind: dukeKind,
     displayName: "Duke Sucellus",
     description: "Desert Treasure II. Ghorrock Prison's asylum: icicles and slams, the Freezing Gaze and gas from the vents.",
+    // The texts of the page for search engines (client/seo/routes.js).
+    seo: {
+      title: "OSRS Duke Sucellus Simulator",
+      description: "Practice Duke Sucellus from Desert Treasure II in your browser: the icicles and slams, the Freezing Gaze and the gas from the vents.",
+      h1: "Duke Sucellus Simulator",
+      intro: "Duke Sucellus is one of the four Desert Treasure II bosses in OSRS, fought in the asylum of Ghorrock Prison. This sim covers his icicles and slams, the Freezing Gaze and the gas from the vents, so you can drill the fight before doing it for real.",
+      keywords: ["OSRS Duke Sucellus", "Duke Sucellus simulator", "Duke Sucellus practice", "Desert Treasure II bosses", "DT2 boss simulator"],
+    },
     mapSquare: dukeMapSquare,
     playerStart,
     loadsMapLocs: true,

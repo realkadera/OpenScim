@@ -714,6 +714,14 @@ export const phosanisNightmareDefinition = {
     kind: phosanisNightmareKind,
     displayName: "Phosani's Nightmare",
     description: "Phosani's dream: her shield and the totems across three phases, her forms' specials in their order (claws, husks, flowers, curse, parasites, spores, surge), the sleepwalkers, her third phase's prayer disable and her last stand.",
+    // The texts of the page for search engines (client/seo/routes.js).
+    seo: {
+      title: "OSRS Phosani's Nightmare Simulator",
+      description: "Practice Phosani's Nightmare in your browser: the shield and totems of her three phases, her specials in their order, the sleepwalkers and her last stand.",
+      h1: "Phosani's Nightmare Simulator",
+      intro: "Phosani's Nightmare is the harder, solo form of the Nightmare in OSRS. This sim covers her shield and the totems across three phases, her specials in their order (claws, husks, flowers, curse, parasites, spores and surge), the sleepwalkers, the prayer disable of her third phase and her last stand.",
+      keywords: ["Phosani's Nightmare", "OSRS Phosani simulator", "Phosani's Nightmare simulator", "Phosani practice", "Nightmare simulator"],
+    },
     mapSquare: phosanisNightmareMapSquare,
     playerStart,
     loadsMapLocs: true,
