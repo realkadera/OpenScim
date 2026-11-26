@@ -442,6 +442,16 @@ Progress (2026-11-22):
       32,000 lines of the chunk, the list of presentations 661 and 41,000.
 - [ ] Split `application` (1.7 MB) and `grid` (1.5 MB) into one file per
       React component.
+- [ ] Names from the released Scim.GG source (github.com/scimgg/scimgg,
+      the code the bundles were compiled from; maps and plan in
+      `docs/upstream/`). Done: 393 methods and 85 classes of `rendering`;
+      538 top-level bindings of `grid` and `application` (the components
+      and hooks: `Grid`, `AppShell`, `useSimulationWiring`, `useReplay`,
+      `useEncounterManager`…), proposed by `tools/upstream-bindings.mjs`
+      and recorded with their evidence in `tools/names/*-upstream-*.json`.
+      Open: `CacheManager`'s methods, the rest of `rendering`, the engine,
+      combat, the encounters and the data, then the split above along
+      upstream's files.
 - [ ] Rename identifiers as files are touched (`vJ`, `wJ`, `SJ(bo)`), rather
       than in one pass. Rule for contributors: leave a file more readable
       than you found it.
