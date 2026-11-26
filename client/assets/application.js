@@ -20684,17 +20684,18 @@ function Vme(h2, h3, h4) {
 var Yme = [
   ...[
     Fme("section", ["Account"], {
-      description: "Log in or register, log out, or delete your account.",
+      description:
+        "Sign in with Discord or GitHub, log out, or delete your account.",
       keywords: [
         "login",
         "log in",
         "sign in",
-        "register",
+        "discord",
+        "github",
         "sign up",
         "log out",
         "logout",
         "delete account",
-        "password",
       ],
     }),
     {
@@ -32221,11 +32222,16 @@ function AuthProvider({ children: children }) {
       credentials: "same-origin",
       body: JSON.stringify({
         intent: "login",
-        return_to: location.pathname + location.search,
+        // Exactly one leading slash: "//host/x" would read as another site.
+        return_to: "/" + location.pathname.replace(/^[/\\]+/, "") + location.search,
       }),
     });
     const hf = await hd.json();
-    if (hd.ok && typeof hf.authorize_url === "string") {
+    if (
+      hd.ok &&
+      typeof hf.authorize_url === "string" &&
+      /^https?:\/\//i.test(hf.authorize_url)
+    ) {
       location.assign(hf.authorize_url);
       return {};
     } else {
@@ -32373,6 +32379,10 @@ function Dye({ panelVisible: h2 = true }) {
                   type: "text",
                   className: "login-input",
                   autoComplete: "off",
+                  autoCapitalize: "characters",
+                  autoCorrect: "off",
+                  spellCheck: false,
+                  placeholder: "DELETE",
                   value: h8,
                   disabled: hc,
                   onChange: (hj) => h9(hj.target.value),
@@ -32397,7 +32407,7 @@ function Dye({ panelVisible: h2 = true }) {
                 (0, jsxRuntime.jsx)(OsrsButton, {
                   variant: "danger",
                   type: "submit",
-                  disabled: hc || "DELETE" !== h8,
+                  disabled: hc || "DELETE" !== h8.trim(),
                   children: hc ? "Deleting…" : "Delete Permanently",
                 }),
               ],
@@ -32417,6 +32427,11 @@ function Oye({ panelVisible: h2 = true }) {
     logout: logout,
   } = Lye();
   const [hd, hf] = (0, React.useState)("");
+  // One start request at a time: a second would replace the first's state.
+  const [pending, setPending] = (0, React.useState)(false);
+  // The redirect's error shows until the next attempt.
+  const [tried, setTried] = (0, React.useState)(false);
+  const shownError = hd || (tried ? "" : authError);
   if (loading) {
     return null;
   }
@@ -32461,14 +32476,19 @@ function Oye({ panelVisible: h2 = true }) {
             OsrsButton,
             {
               fullWidth: true,
+              disabled: pending,
               onClick: async () => {
                 hf("");
+                setTried(true);
+                setPending(true);
                 try {
                   const hj = await signIn(hi);
                   if (hj.error) {
                     hf(hj.error);
+                    setPending(false);
                   }
                 } catch (hk) {
+                  setPending(false);
                   if (!(hk instanceof Error)) {
                     throw hk;
                   }
@@ -32481,10 +32501,10 @@ function Oye({ panelVisible: h2 = true }) {
             hi,
           ),
         ),
-        (hd || authError) &&
+        shownError &&
           (0, jsxRuntime.jsx)("span", {
             className: "login-error",
-            children: hd || authError,
+            children: shownError,
           }),
       ],
     });
