@@ -1,8 +1,9 @@
 // Renames top-level bindings of one client chunk, following scope, and keeps
 // the other chunks' imports in step. Edits text in place (no reformatting).
 //
-//   node tools/rename-bindings.mjs client/assets/player.js names.json [--dry]
+//   node tools/rename-bindings.mjs client/assets/player.js names.json [--dry] [--skip-refused]
 //   node tools/rename-bindings.mjs client/assets/player.js --adopt-imports
+//   node tools/rename-bindings.mjs client/assets/player.js --module-reads
 //   node tools/rename-bindings.mjs --self-test
 //
 // --adopt-imports needs no names file: every `import { longName as x }` makes
@@ -13,6 +14,18 @@
 // and `import { old as x }` from this file is rewritten in every module under
 // client/. An import binding can be renamed as well: `import { name as x }`
 // loses its alias when x is renamed to name.
+//
+// Code also reads an export through the module object, which no import
+// specifier shows: `import * as ns`, `(await import("./x.js")).name`,
+// `import("./x.js").then((module) => module.name)`, `const { name } = await
+// import(...)`. Every module under client/, test/ and tools/ is searched for
+// those. Where the module object is in plain sight the read is renamed with
+// the export (and `export { name } from` keeps the name it gives out). Where
+// it is not, the rename is refused, because `x.name` does not say what x is:
+// in a file that passes the module object on, that imports a path it
+// computes (the harness loads chunks by name), that names the chunk in a
+// string (a test patching the served source) or that does `export * from`
+// it. --skip-refused renames the rest and lists the refusals.
 //
 // Parameters and locals (every binding below the top level):
 //
@@ -27,15 +40,21 @@
 // one or two characters, or all of them) and what each is made from and used
 // for. After renaming, every identifier in the file must resolve to the same
 // declaration as before, or nothing is written.
+import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
-import { basename, dirname, join, resolve, sep } from "node:path";
+import { basename, join, posix, relative, resolve, sep } from "node:path";
 import { parse } from "@babel/parser";
 import traverseModule from "@babel/traverse";
 
 const traverse = traverseModule.default ?? traverseModule;
 
-/** Returns { code, exportRenames: {oldExported: newExported} }. Throws on any conflict. */
-export function renameBindings(code, names, { adoptImports = false } = {}) {
+/**
+ * Returns { code, exportRenames: {oldExported: newExported}, renamed, kept }.
+ * Throws on any conflict. keepExports: export names that must stay as they
+ * are; a binding exported under one keeps its name (listed in `kept`) and
+ * its export specifier is left alone.
+ */
+export function renameBindings(code, names, { adoptImports = false, keepExports = new Set() } = {}) {
   const ast = parse(code, { sourceType: "module" });
   const taken = new Set();
   let program;
@@ -65,11 +84,25 @@ export function renameBindings(code, names, { adoptImports = false } = {}) {
     }
   }
 
-  const problems = [];
+  // The names each top-level binding is exported under.
+  const exportedAs = new Map();
+  const exportAs = (local, exported) => exportedAs.set(local, [...(exportedAs.get(local) ?? []), exported]);
+  for (const statement of ast.program.body) {
+    if (statement.type !== "ExportNamedDeclaration" || statement.source) continue;
+    for (const specifier of statement.specifiers) exportAs(specifier.local.name, specifier.exported.name ?? specifier.exported.value);
+    if (statement.declaration?.id) exportAs(statement.declaration.id.name, statement.declaration.id.name);
+    for (const declarator of statement.declaration?.declarations ?? []) if (declarator.id.type === "Identifier") exportAs(declarator.id.name, declarator.id.name);
+  }
+
+  const problems = [], kept = [];
   const targets = new Map(); // Binding -> new name
   const wanted = new Set();
   for (const [oldName, newName] of Object.entries(names)) {
     const binding = program.scope.getOwnBinding(oldName);
+    if ((exportedAs.get(oldName) ?? []).some((exported) => keepExports.has(exported))) {
+      kept.push(oldName);
+      continue;
+    }
     if (!binding) problems.push(`${oldName}: not a top-level binding`);
     else if (!/^[A-Za-z_$][\w$]*$/.test(newName)) problems.push(`${oldName}: "${newName}" is not an identifier`);
     else if (taken.has(newName)) problems.push(`${oldName}: "${newName}" already exists in the file`);
@@ -78,11 +111,11 @@ export function renameBindings(code, names, { adoptImports = false } = {}) {
     wanted.add(newName);
   }
   if (problems.length) throw new Error("Cannot rename:\n  " + problems.join("\n  "));
-  return { ...rewrite(code, ast, program, targets), renamed: Object.keys(names).length };
+  return { ...rewrite(code, ast, program, targets, keepExports), renamed: targets.size, kept };
 }
 
 /** Applies `targets` (Binding -> new name) to the text. Returns { code, exportRenames }. */
-function rewrite(code, ast, program, targets) {
+function rewrite(code, ast, program, targets, keepExports = new Set()) {
   const edits = []; // [start, end, text]
   const exportRenames = {};
   traverse(ast, {
@@ -108,7 +141,7 @@ function rewrite(code, ast, program, targets) {
         edits.push([parent.start, parent.end, newName]); // `import { name as x }` -> `import { name }`
       } else if (parent.type === "ExportSpecifier") {
         // `export { old as x }` or `export { old }`: the export takes the new name.
-        exportRenames[parent.exported.name] = newName;
+        if (parent.exported.name !== newName) exportRenames[parent.exported.name] = newName;
         edits.push([parent.start, parent.end, newName]);
       } else {
         edits.push([node.start, node.end, newName]);
@@ -118,11 +151,17 @@ function rewrite(code, ast, program, targets) {
     ExportSpecifier(path) {
       const { local, exported } = path.node;
       if (path.parent.source || exported.name === local.name) return;
-      if (targets.has(path.scope.getBinding(local.name))) return;
+      if (targets.has(path.scope.getBinding(local.name)) || keepExports.has(exported.name)) return;
       exportRenames[exported.name] = local.name;
       edits.push([path.node.start, path.node.end, local.name]);
     },
   });
+  // `export function old() {}`, `export const old = ...`: the declaration is the export.
+  for (const [binding, newName] of targets) {
+    if (binding.scope !== program.scope) continue;
+    const statement = binding.path.find((at) => at.parentPath?.isProgram());
+    if (statement?.isExportNamedDeclaration() && statement.node.declaration) exportRenames[binding.identifier.name] = newName;
+  }
 
   const seen = new Set();
   let out = code;
@@ -334,13 +373,15 @@ export function listLocals(code, { all = false, from = 1, to = Infinity } = {}) 
 }
 
 /**
- * Rewrites `import { old as x } from "<chunk>"` specifiers. `chunk` is the
+ * Rewrites `import { old as x } from "<chunk>"` specifiers, and those of
+ * `export { old } from "<chunk>"`, which goes on giving out the name it gave
+ * out before (`export { renamed as old } from`). `chunk` is the
  * chunk's file name (then "./name" and "/assets/name" match), or a function
  * that says whether an import source is the chunk. Returns the new code.
  */
 export function renameImports(code, chunk, exportRenames) {
   const isChunk = typeof chunk === "function" ? chunk : (source) => source === "./" + chunk || source === "/assets/" + chunk;
-  return code.replace(/(import\s*\{)([^}]*)(\}\s*from\s*["']([^"']+)["'])/g, (all, head, body, tail, source) =>
+  return code.replace(/((?:import|export)\s*\{)([^}]*)(\}\s*from\s*["']([^"']+)["'])/g, (all, head, body, tail, source) =>
     !isChunk(source) ? all :
     head +
     body.replace(/([A-Za-z_$][\w$]*)(\s+as\s+[A-Za-z_$][\w$]*)?(?=\s*,|\s*$)/g, (spec, imported, alias) =>
@@ -350,6 +391,181 @@ export function renameImports(code, chunk, exportRenames) {
     ) +
     tail,
   );
+}
+
+/** The repository path an import source names, read in `file`: relative, or from the web root (client/). */
+function importTarget(file, source) {
+  const path = source.replace(/[?#].*$/, "");
+  if (path.startsWith("/")) return "client" + posix.normalize(path);
+  return path.startsWith(".") ? posix.normalize(posix.join(posix.dirname(file), path)) : undefined;
+}
+
+/**
+ * Where the modules in `sources` ({ path: code }, paths from the repository
+ * root) read one of `names`, exports of `chunk`, through the module object.
+ * Returns { sites: Map of file -> [{ name, start, end, shorthand, quoted }] }
+ * for the reads that can be renamed with the export, and { refusals: Map of
+ * name -> [reason] } for the names that cannot be renamed safely ("*": none).
+ */
+export function moduleReads(sources, chunk, names) {
+  names = new Set(names);
+  const sites = new Map(), refusals = new Map();
+  const refuse = (name, reason) => refusals.set(name, [...(refusals.get(name) ?? []), reason]);
+  const tail = chunk.split("/").slice(-2).join("/"), base = chunk.split("/").pop();
+  const inString = (name) => new RegExp(`(?<=\\.)${name.replace(/[$]/g, "\\$&")}(?![\\w$])`);
+  for (const [file, code] of Object.entries(sources)) {
+    if (file === chunk || !names.size || !(code.includes(base) || /\bimport\s*\(/.test(code))) continue;
+    let ast;
+    try {
+      ast = parse(code, { sourceType: "module" });
+    } catch {
+      for (const name of names) if (inString(name).test(code)) refuse(name, `${file} does not parse and contains .${name}`);
+      continue;
+    }
+    const found = [], mentions = [];
+    let unclear; // why an access x.name in this file may be to the module object
+    const escapes = (node, how) => void (unclear ??= `${how} on line ${node.loc.start.line}`);
+    const key = (node) => (node.type === "Identifier" ? node.name : node.type === "StringLiteral" ? node.value : undefined);
+    const readPattern = (pattern) => {
+      for (const property of pattern.properties) {
+        if (property.type !== "ObjectProperty" || property.computed) escapes(property, "takes the rest of the module object");
+        else if (names.has(key(property.key))) {
+          const local = property.value.type === "AssignmentPattern" ? property.value.left : property.value;
+          found.push({ name: key(property.key), start: property.key.start, end: property.key.end, shorthand: property.shorthand, quoted: property.key.type === "StringLiteral", local: local.name, localStart: local.start });
+        }
+      }
+    };
+    const bind = (scope, id) => {
+      const binding = scope.getBinding(id.name);
+      if (!binding || binding.constantViolations.length) return escapes(id, "reassigns the module object");
+      for (const reference of binding.referencePaths) use(reference);
+    };
+    // `path` is an expression whose value is the module object.
+    const use = (path) => {
+      const { node, parent } = path;
+      if (/MemberExpression$/.test(parent.type) && parent.object === node) {
+        if (parent.computed) escapes(node, "reads the module object by a computed key");
+        else if (names.has(parent.property.name)) found.push({ name: parent.property.name, start: parent.property.start, end: parent.property.end });
+      } else if (parent.type === "VariableDeclarator" && parent.init === node) {
+        if (parent.id.type === "Identifier") bind(path.scope, parent.id);
+        else if (parent.id.type === "ObjectPattern") readPattern(parent.id);
+        else escapes(node, "passes the module object on");
+      } else escapes(node, "passes the module object on");
+    };
+    // 1 when the import() argument is the chunk, 0 when it cannot be, undefined when it may be.
+    // The string an expression always is, where that can be read off: a
+    // literal, a constant holding one, ["a", "b"].join("/") (how a bundle
+    // hides a package path from its bundler).
+    const constant = (path) => {
+      const { node } = path;
+      if (node.type === "StringLiteral") return node.value;
+      if (node.type === "Identifier") {
+        const binding = path.scope.getBinding(node.name);
+        return binding?.constant && binding.path.isVariableDeclarator() && binding.path.node.init ? constant(binding.path.get("init")) : undefined;
+      }
+      const list = node.type === "CallExpression" && node.callee.type === "MemberExpression" && !node.callee.computed && node.callee.property.name === "join" ? node.callee.object : undefined;
+      if (list?.type === "ArrayExpression" && node.arguments[0]?.type === "StringLiteral" && list.elements.every((element) => element?.type === "StringLiteral")) return list.elements.map((element) => element.value).join(node.arguments[0].value);
+    };
+    const isChunk = (argumentPath) => {
+      const argument = argumentPath?.node, known = argumentPath && constant(argumentPath);
+      if (known !== undefined) return importTarget(file, known) === chunk ? 1 : 0;
+      if (argument?.type !== "TemplateLiteral") return undefined;
+      const [first, ...rest] = argument.quasis.map((quasi) => quasi.value.cooked ?? "");
+      if (!rest.length || first.includes("?")) return importTarget(file, first) === chunk ? 1 : 0; // only a query varies
+      const start = importTarget(file, first);
+      return start !== undefined && !chunk.startsWith(start) ? 0 : chunk.endsWith(rest.at(-1).replace(/[?#].*$/, "")) ? undefined : 0;
+    };
+    const ofImport = new Set();
+    traverse(ast, {
+      ImportDeclaration(path) {
+        if (importTarget(file, path.node.source.value) !== chunk) return;
+        for (const specifier of path.node.specifiers) if (specifier.type === "ImportNamespaceSpecifier") bind(path.scope, specifier.local);
+      },
+      "ExportAllDeclaration|ExportNamedDeclaration"(path) {
+        if (!path.node.source || importTarget(file, path.node.source.value) !== chunk) return;
+        if (path.node.type === "ExportAllDeclaration" || path.node.specifiers.some((specifier) => specifier.type !== "ExportSpecifier"))
+          refuse("*", `${file}:${path.node.loc.start.line} re-exports everything from this file`);
+      },
+      // import(): a call of `Import` or a node of its own, by the parser's version.
+      "CallExpression|ImportExpression"(path) {
+        if (path.node.type === "CallExpression" && path.node.callee.type !== "Import") return;
+        const argumentPath = path.node.type === "CallExpression" ? path.get("arguments.0") : path.get("source");
+        const argument = argumentPath?.node, is = isChunk(argument ? argumentPath : undefined);
+        if (argument) ofImport.add(argument);
+        for (const quasi of argument?.quasis ?? []) ofImport.add(quasi);
+        if (is === undefined) return escapes(path.node, "imports a path it computes");
+        if (!is) return;
+        const { parentPath } = path;
+        if (parentPath.isAwaitExpression()) return use(parentPath);
+        const then = parentPath.isMemberExpression() && parentPath.node.object === path.node && !parentPath.node.computed && parentPath.node.property.name === "then" ? parentPath.parentPath : undefined;
+        if (!then?.isCallExpression() || then.node.callee !== parentPath.node) return escapes(path.node, "passes the module's promise on");
+        const handler = then.get("arguments.0");
+        if (!handler?.isFunction()) return escapes(path.node, "passes the module object on");
+        const parameter = handler.node.params[0];
+        if (parameter?.type === "Identifier") bind(handler.scope, parameter);
+        else if (parameter?.type === "ObjectPattern") readPattern(parameter);
+        else if (parameter) escapes(path.node, "passes the module object on");
+      },
+      "StringLiteral|TemplateElement"(path) {
+        const { node, parent } = path;
+        if (/^(Import|Export\w+)Declaration$/.test(parent.type) || ofImport.has(node)) return;
+        const text = node.type === "StringLiteral" ? node.value : node.value.raw;
+        mentions.push({ text, line: node.loc.start.line });
+        if (text.includes(tail) || (text.endsWith(base) && importTarget(file, text) === chunk)) escapes(node, "names this file in a string");
+      },
+    });
+    if (found.length) sites.set(file, found);
+    if (!unclear) continue;
+    // Any other x.name here may be the module object's.
+    const known = new Set(found.map((site) => site.start));
+    traverse(ast, {
+      "MemberExpression|OptionalMemberExpression"(path) {
+        const { property, computed } = path.node;
+        if (!computed && names.has(property.name) && !known.has(property.start)) refuse(property.name, `${file}:${property.loc.start.line} reads .${property.name}, and ${file} ${unclear}`);
+      },
+    });
+    for (const name of names) for (const { text, line } of mentions) if (inString(name).test(text)) refuse(name, `${file}:${line} has .${name} inside a string, and ${file} ${unclear}`);
+  }
+  return { sites, refusals };
+}
+
+/** Applies the reads `moduleReads` found in one file. */
+export function renameModuleReads(code, found, exportRenames) {
+  for (const { name, start, end, shorthand, quoted, local, localStart } of [...found].sort((a, b) => b.start - a.start)) {
+    if (!(name in exportRenames)) continue;
+    const renamed = quoted ? JSON.stringify(exportRenames[name]) : exportRenames[name];
+    // `{ old: renamed }` becomes `{ renamed }`, `{ old }` becomes `{ renamed: old }`.
+    if (!shorthand && local === exportRenames[name]) code = code.slice(0, start) + code.slice(localStart);
+    else code = code.slice(0, start) + (shorthand ? `${renamed}: ${name}` : renamed) + code.slice(end);
+  }
+  return code;
+}
+
+/**
+ * Renames in `sources` ({ path: code }, all the modules that may use the
+ * chunk). Returns { sources (changed files only), renamed, exportRenames,
+ * refused: [reason] }; throws on a refusal unless skipRefused.
+ */
+export function renameInSources(sources, chunk, names, { adoptImports = false, skipRefused = false } = {}) {
+  let result = renameBindings(sources[chunk], names, { adoptImports });
+  const reads = moduleReads(sources, chunk, Object.keys(result.exportRenames));
+  const refused = [];
+  if (reads.refusals.size) {
+    const keep = new Set(reads.refusals.has("*") ? Object.keys(result.exportRenames) : reads.refusals.keys());
+    for (const name of keep) for (const reason of reads.refusals.get(name) ?? reads.refusals.get("*")) refused.push(`export ${name}: ${reason}`);
+    if (!skipRefused) throw new Error("Cannot rename, an export is read through a module object that cannot be followed:\n  " + refused.join("\n  "));
+    result = renameBindings(sources[chunk], names, { adoptImports, keepExports: keep });
+  }
+  const { exportRenames } = result, out = {};
+  if (result.code !== sources[chunk]) out[chunk] = result.code;
+  for (const [file, before] of Object.entries(sources)) {
+    if (file === chunk || !Object.keys(exportRenames).length) continue;
+    const after = renameImports(renameModuleReads(before, reads.sites.get(file) ?? [], exportRenames), (source) => importTarget(file, source) === chunk, exportRenames);
+    if (after === before) continue;
+    parse(after, { sourceType: "module" }); // must still parse
+    out[file] = after;
+  }
+  return { sources: out, renamed: result.renamed, exportRenames, refused };
 }
 
 function selfTest() {
@@ -384,6 +600,50 @@ function selfTest() {
     try { renameBindings(source, bad); } catch { threw = true; }
     if (!threw) throw new Error("expected a conflict for " + JSON.stringify(bad));
   }
+  // An export that is its own declaration is an export rename too.
+  const declared = renameBindings("export function a() {}\nexport const b = 1, keep = 2;\nfunction c() { let a; }", { a: "run", b: "count" });
+  if (declared.code !== "export function run() {}\nexport const count = 1, keep = 2;\nfunction c() { let a; }" || JSON.stringify(declared.exportRenames) !== '{"a":"run","b":"count"}') throw new Error("declared exports: " + JSON.stringify(declared));
+  // Exports read through the module object. Renamed where the object is in
+  // plain sight: a namespace import, an awaited import() (also inside a
+  // function a test hands to the page, by web path), .then, destructuring.
+  const chunkSource = "var a = 1, b = 2, c = 3, value = 4;\nexport { a as Z, b, c, value as v };";
+  const readers = {
+    "client/assets/chunk.js": chunkSource,
+    "client/assets/user.js": 'import * as chunk from "./chunk.js";\nimport { Z as q } from "/assets/chunk.js";\nexport { b, c as third } from "./chunk.js";\nconsole.log(chunk.Z, chunk?.b, other.Z, q);\nimport("./chunk.js").then((module) => module.b.Z);\nimport("./chunk.js").then(({ Z, b: second = 1, "c": third }) => Z + second + third);\nimport("./other.js").then((module) => module.Z);',
+    "test/t.mjs": 'import { b } from "../client/assets/chunk.js";\nconst { Z, b: second, v = 0 } = await import("../client/assets/chunk.js");\nconst all = await import(`../client/assets/chunk.js?visit=${Z}`);\nawait page.evaluate(async () => (await import("/assets/chunk.js")).Z + all.b + thing.Z);\nconst { Z: unrelated } = await import("../client/assets/other.js");',
+  };
+  const followed = renameInSources(readers, "client/assets/chunk.js", { a: "count", b: "second" });
+  const followedExpected = {
+    "client/assets/chunk.js": "var count = 1, second = 2, c = 3, value = 4;\nexport { count, second, c, value };",
+    "client/assets/user.js": 'import * as chunk from "./chunk.js";\nimport { count as q } from "/assets/chunk.js";\nexport { second as b, c as third } from "./chunk.js";\nconsole.log(chunk.count, chunk?.second, other.Z, q);\nimport("./chunk.js").then((module) => module.second.Z);\nimport("./chunk.js").then(({ count: Z, second = 1, "c": third }) => Z + second + third);\nimport("./other.js").then((module) => module.Z);',
+    "test/t.mjs": 'import { second as b } from "../client/assets/chunk.js";\nconst { count: Z, second, value: v = 0 } = await import("../client/assets/chunk.js");\nconst all = await import(`../client/assets/chunk.js?visit=${Z}`);\nawait page.evaluate(async () => (await import("/assets/chunk.js")).count + all.second + thing.Z);\nconst { Z: unrelated } = await import("../client/assets/other.js");',
+  };
+  if (JSON.stringify(followed.sources) !== JSON.stringify(followedExpected) || followed.refused.length || JSON.stringify(followed.exportRenames) !== '{"Z":"count","b":"second","v":"value"}') throw new Error("module reads:\n" + JSON.stringify(followed, null, 1));
+  // Refused where the module object goes out of sight: handed to a function,
+  // imported by a computed path (the harness loads chunks by name), a file
+  // that names the chunk in a string (a test patching the served source),
+  // `export *`. Each refusal names the export and the line.
+  const hidden = {
+    passed: ["test/p.mjs", 'import * as chunk from "../client/assets/chunk.js";\ncheck(chunk);\nresult.Z;', /export Z: test\/p\.mjs:3 reads \.Z, and test\/p\.mjs passes the module object on on line 2/],
+    computed: ["tools/h.mjs", "const load = (name) => import(root + name);\nconst chunk = await load('chunk');\nchunk.Z();", /export Z: tools\/h\.mjs:3 reads \.Z, and tools\/h\.mjs imports a path it computes on line 1/],
+    string: ["test/s.mjs", 'await page.route("**/assets/chunk.js", patch);\nawait page.evaluate("window.chunk.Z()");', /export Z: test\/s\.mjs:2 has \.Z inside a string, and test\/s\.mjs names this file in a string on line 1/],
+    star: ["client/assets/all.js", 'export * from "./chunk.js";', /export Z: client\/assets\/all\.js:1 re-exports everything/],
+  };
+  for (const [kind, [file, text, message]] of Object.entries(hidden)) {
+    const sources = { "client/assets/chunk.js": chunkSource, [file]: text };
+    let said = "";
+    try { renameInSources(sources, "client/assets/chunk.js", { a: "count" }); } catch (error) { said = error.message; }
+    if (!message.test(said)) throw new Error(`expected a refusal (${kind}), got: ${said}`);
+    // --skip-refused: the refused export keeps its letters and its binding, the rest is renamed.
+    const partial = renameInSources(sources, "client/assets/chunk.js", { a: "count", c: "third" }, { skipRefused: true });
+    const all = kind === "star";
+    const expectedChunk = all ? undefined : "var a = 1, b = 2, third = 3, value = 4;\nexport { a as Z, b, third, value };";
+    if (partial.sources["client/assets/chunk.js"] !== expectedChunk || partial.renamed !== (all ? 0 : 1) || !partial.refused.some((reason) => message.test(reason)) || file in partial.sources) throw new Error(`skip refused (${kind}):\n` + JSON.stringify(partial, null, 1));
+  }
+  // Not refused: the same letters on other objects in a file that has
+  // nothing to do with the chunk, or whose computed import cannot be it.
+  const apart = renameInSources({ "client/assets/chunk.js": chunkSource, "client/x.js": "thing.Z(); const o = { Z: 1 }; 'a.Z';", "client/w.js": 'const path = ["@scope", "package", "chunk.js"].join("/");\nconst loaded = await load(() => import(path));\nloaded.Z;',"tools/y.mjs": "const list = await import(`./scenarios/${name}.mjs`); list.Z;" }, "client/assets/chunk.js", { a: "count" });
+  if (apart.refused.length || Object.keys(apart.sources).join() !== "client/assets/chunk.js") throw new Error("unrelated accesses:\n" + JSON.stringify(apart, null, 1));
   const nested = [
     "var keep = 1;",
     "function f(a, { b, c: d = a }) { const e = [a, b].map((a) => a + d); return { e, b: e.b }; }",
@@ -420,6 +680,11 @@ function selfTest() {
 const [target, mapFile] = process.argv.slice(2).filter((arg) => !arg.startsWith("--"));
 const adoptImports = process.argv.includes("--adopt-imports");
 const dry = process.argv.includes("--dry");
+const skipRefused = process.argv.includes("--skip-refused");
+const fromRoot = (path) => relative(process.cwd(), resolve(path)).split(sep).join("/");
+// Every module that may use a chunk: tracked or new, not ignored; not the
+// rename tools, whose self-tests are made of other files' names.
+const modules = () => execFileSync("git", ["ls-files", "-co", "--exclude-standard", "client", "test", "tools"], { encoding: "utf8", maxBuffer: 1 << 26 }).split(/\r?\n/).filter((file) => /\.m?js$/.test(file) && !/^tools\/rename-(bindings|members)\.mjs$/.test(file) && existsSync(file));
 // A directory as target: the names file is keyed by module path relative to
 // it ({ "boss.js": {...}, "../../assets/rendering.js": {...} }), applied in
 // that order, and --adopt-imports takes every module in the directory.
@@ -432,6 +697,17 @@ const evidenceCount = (values) => {
 };
 if (process.argv.includes("--self-test")) {
   selfTest();
+} else if (target && process.argv.includes("--module-reads")) {
+  // What a rename of each export would meet: reads that follow it, and refusals.
+  const chunk = fromRoot(target);
+  const sources = Object.fromEntries(modules().map((file) => [file, readFileSync(file, "utf8")]));
+  const exported = parse(readFileSync(target, "utf8"), { sourceType: "module" }).program.body
+    .filter((statement) => statement.type === "ExportNamedDeclaration" && !statement.source)
+    .flatMap((statement) => [...statement.specifiers.map((specifier) => specifier.exported.name ?? specifier.exported.value), ...(statement.declaration?.id ? [statement.declaration.id.name] : []), ...(statement.declaration?.declarations ?? []).map((declarator) => declarator.id.name).filter(Boolean)]);
+  const { sites, refusals } = moduleReads(sources, chunk, exported);
+  for (const [file, found] of sites) console.log(`followed in ${file}: ${[...new Set(found.map((site) => site.name))].join(" ")}`);
+  for (const [name, reasons] of refusals) for (const reason of reasons) console.log(`refused: export ${name}: ${reason}`);
+  console.log(`${basename(target)}: ${exported.length} exports, ${new Set([...sites.values()].flat().map((site) => site.name)).size} read through a module object that is followed, ${refusals.has("*") ? exported.length : refusals.size} refused`);
 } else if (target && process.argv.includes("--list")) {
   const [from, to] = process.argv.includes("--lines") ? process.argv[process.argv.indexOf("--lines") + 1].split("-").map(Number) : [];
   console.log(listLocals(readFileSync(target, "utf8"), { all: process.argv.includes("--all"), from, to }));
@@ -447,29 +723,26 @@ if (process.argv.includes("--self-test")) {
     : [[target, {}]];
   for (const [path, raw] of jobs) {
     const names = Object.fromEntries(Object.entries(raw).map(([old, value]) => [old, typeof value === "string" ? value : Array.isArray(value) ? value[0] : value.name]));
-    const { code, exportRenames, renamed } = renameBindings(readFileSync(path, "utf8"), names, { adoptImports });
-    if (!dry) writeFileSync(path, code);
-    console.log(`${basename(path)}: ${renamed} bindings renamed${adoptImports ? "" : ` (${evidenceCount(Object.values(raw))})`}, ${Object.keys(exportRenames).length} export names changed`);
-    if (!Object.keys(exportRenames).length) continue;
-    // Every module of the client may import from this file: by a relative
-    // path, or by a path from the web root ("/toa/zebak/native.js").
-    const full = resolve(path), root = full.slice(0, full.lastIndexOf(sep + "client" + sep) + 7);
-    for (const file of readdirSync(root, { recursive: true }).filter((name) => name.endsWith(".js"))) {
-      const importer = join(root, file);
-      if (importer === full) continue;
-      const before = readFileSync(importer, "utf8");
-      const after = renameImports(before, (source) => (source.startsWith("/") ? join(root, source) : resolve(dirname(importer), source)) === full, exportRenames);
-      if (after !== before) {
-        if (!dry) writeFileSync(importer, after);
-        console.log(`  updated imports in ${file.split(sep).join("/")}`);
-      }
-      if (before.includes(`import("/assets/${basename(path)}")`) || before.includes(`import("./${basename(path)}")`))
-        console.log(`  check by hand: ${file} imports this chunk dynamically and may read exports by property`);
-      for (const [, source] of before.matchAll(/export\s*\{[^}]*\}\s*from\s*["']([^"']+)["']/g))
-        if (source.startsWith(".") && resolve(dirname(importer), source) === full) console.log(`  check by hand: ${file} re-exports from this file`);
+    // Every module of the client, the tests and the tools may use this file:
+    // by a relative path, or by a path from the web root ("/toa/zebak/native.js").
+    // Read again for each job: an earlier one may have changed them.
+    const chunk = fromRoot(path);
+    const sources = Object.fromEntries(modules().map((file) => [file, readFileSync(file, "utf8")]));
+    sources[chunk] ??= readFileSync(path, "utf8");
+    let result;
+    try {
+      result = renameInSources(sources, chunk, names, { adoptImports, skipRefused });
+    } catch (error) {
+      console.error(error.message); // a refusal, not a fault of the tool: no stack
+      process.exit(1);
     }
+    const { sources: out, renamed, exportRenames, refused } = result;
+    if (!dry) for (const [file, text] of Object.entries(out)) writeFileSync(file, text);
+    for (const reason of refused) console.log("refused: " + reason);
+    console.log(`${basename(path)}: ${renamed} bindings renamed${adoptImports ? "" : ` (${evidenceCount(Object.values(raw))})`}, ${Object.keys(exportRenames).length} export names changed`);
+    for (const file of Object.keys(out)) if (file !== chunk) console.log(`  updated ${file}`);
   }
 } else {
-  console.error("usage: node tools/rename-bindings.mjs <chunk.js | directory> (<names.json> [--locals] | --adopt-imports | --list [--lines a-b] [--all]) [--dry] | --self-test");
+  console.error("usage: node tools/rename-bindings.mjs <chunk.js | directory> (<names.json> [--locals] [--skip-refused] | --adopt-imports | --module-reads | --list [--lines a-b] [--all]) [--dry] | --self-test");
   process.exit(1);
 }

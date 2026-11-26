@@ -171,7 +171,8 @@ Progress (2026-11-22):
 
 - [x] `tools/rename-bindings.mjs`: scope-aware renaming of a chunk's
       top-level bindings; rewrites sibling chunks' imports; refuses any
-      rename that collides or changes what the file refers to.
+      rename that collides or changes what the file refers to, and any
+      export read through a module object it cannot follow.
 - [x] Chunks export under real names (no one-letter export aliases), and
       import locals take the exported name where it is free.
 - [x] All top-level bindings named in `fullscreen`, `packThemes`, `player`

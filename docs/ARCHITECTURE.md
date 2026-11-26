@@ -903,6 +903,9 @@ changed. Then the same tools as for the engine, applied to the directory:
 `replace-define-field.mjs` (and `replace-static-defines.mjs` for a class with
 static values), `rename-bindings.mjs` (with `--locals` for parameters and
 locals) and `rename-members.mjs`, each with a names file in `tools/names/`.
+A renamed export is followed where code reads it through the module object
+(`import * as`, `(await import(...)).name`, also in tests and tools), and
+refused where that object cannot be followed (`--module-reads` lists both).
 Last, `tools/repoint-imports.mjs` makes the other modules import the moved
 code from its module instead of through `rendering.js`.
 
