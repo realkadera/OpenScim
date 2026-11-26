@@ -24,7 +24,6 @@ export const definition = {
       blasphemy: 3,
     },
     loadsMapLocs: true,
-    isWorkInProgress: true,
     collision: {
       mode: "auto",
       seed: [...solPlayerStart],

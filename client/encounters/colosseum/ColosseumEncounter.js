@@ -717,7 +717,6 @@ export const colosseumDefinition = {
     mapSquare: colosseumMapSquare,
     playerStart: [...colosseumPlayerStart],
     loadsMapLocs: true,
-    isWorkInProgress: true,
     // The modifiers the set-up offers to start a run with.
     modifiers: colosseumModifiers,
     // The arena is every tile that can be walked to from the start tile.
