@@ -32171,6 +32171,28 @@ function AuthProvider({ children: children }) {
   // OAuth sign-in (docs/backend 01 §2.3 E1). The buttons show only when a
   // server answers /api/auth/providers with JSON; a static site shows none.
   const [providers, setProviders] = (0, React.useState)([]);
+  // A failed OAuth callback redirects back with #auth_error=<code> (01 §6).
+  const [authError, setAuthError] = (0, React.useState)("");
+  (0, React.useEffect)(() => {
+    const hc = new URLSearchParams(location.hash.slice(1)).get("auth_error");
+    if (hc === null) {
+      return;
+    }
+    setAuthError(
+      {
+        denied: "Sign-in was cancelled.",
+        expired: "Sign-in took too long. Please try again.",
+        identity_in_use: "That account is already linked to another player.",
+        provider_error: "The sign-in provider failed. Please try again.",
+        banned: "This account cannot sign in.",
+      }[hc] ?? "Sign-in failed. Please try again.",
+    );
+    history.replaceState(
+      history.state,
+      "",
+      location.pathname + location.search,
+    );
+  }, []);
   (0, React.useEffect)(() => {
     fetch("/api/auth/providers", {
       credentials: "same-origin",
@@ -32249,6 +32271,7 @@ function AuthProvider({ children: children }) {
       user: h4,
       loading: h6,
       providers: providers,
+      authError: authError,
       signIn: h8,
       logout: ha,
       deleteAccount: hb,
@@ -32389,6 +32412,7 @@ function Oye({ panelVisible: h2 = true }) {
     user: user,
     loading: loading,
     providers: providers,
+    authError: authError,
     signIn: signIn,
     logout: logout,
   } = Lye();
@@ -32457,10 +32481,10 @@ function Oye({ panelVisible: h2 = true }) {
             hi,
           ),
         ),
-        hd &&
+        (hd || authError) &&
           (0, jsxRuntime.jsx)("span", {
             className: "login-error",
-            children: hd,
+            children: hd || authError,
           }),
       ],
     });
