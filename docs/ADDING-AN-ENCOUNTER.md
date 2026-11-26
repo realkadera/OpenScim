@@ -352,7 +352,7 @@ fight exists. The engine reads none of it.
 | `isWorkInProgress` | no | a "Beta" badge in the menus |
 | `variants`, `variantLabel`, `modifiers`, `setupNotes` | no | Yama's contracts and Sol Heredit's modifiers; see their definitions |
 | `loadouts` | no | the default loadouts, by a key of your choosing: `{ max: { name: "Max (Scythe)", equipment: { head: 30750, weapon: 22325 }, inventory: [13652, 23685, null, 3024], supplies: { ... } } }`. `equipment` is item ids by slot (`head`, `cape`, `amulet`, `weapon`, `body`, `shield`, `legs`, `hands`, `boots`, `ring`), `inventory` up to 28 item ids with `null` for an empty slot, `supplies` the ammunition, rune pouch, blowpipe, spell and spellbook as `parseCombatSupplies` of `client/engine/supplies.js` reads them (rune ids are `RUNE_ITEM_IDS` of `client/engine/spells.js`). The first is what a player starts with; "No Equipment" is added. Without `loadouts` the player starts with nothing worn. When they grow, keep them in a `loadouts.js` beside the encounter |
-| `seo` | no | the route's texts for search engines: `{ title, description, h1?, intro?, keywords?, noindex? }`. With it the encounter is listed on the home page and its route indexed, unless it says `noindex: true`. Without it the page's title and description are the display name and the description, and the route is not indexed |
+| `seo` | no | the route's texts for search engines: `{ title, description, h1?, intro?, body?, keywords?, name?, summary?, breadcrumb?, noindex? }`. `title` is the page's title without the site's name ("OSRS Vardorvis Simulator"), `description` the one or two sentences a search result shows, `h1` the heading, `intro` and `body` (a list of further paragraphs) the text of the page that the build writes for the route (`tools/seo/prerender.mjs`); `name` and `summary` stand for the display name and the description in the home page's list. Write only what the fight has. With it the encounter is listed on the home page and in `sitemap.xml` and its route indexed, unless it says `noindex: true`; an encounter marked `isWorkInProgress` says "(Beta)" in its title and heading. Without it the page's title and description are the display name and the description, and the route is not indexed |
 | `tileMarkerPresets` | no | tile markers the player can switch on: `[{ id, name, description, link?, defaultActive?, markers: [[x, y, "#AARRGGBB", label?], ...] }]`. `id` is unique among all encounters; a marker's colour is RuneLite's, alpha first, as its ground marker plugin exports it |
 
 **`controls`** is what the menus offer:
@@ -391,7 +391,9 @@ encounter without a route (the lobby).
 That is all a route needs. The page's title is the descriptor's display
 name ("Training Ground | OpenScim.dev"), its description the descriptor's, and
 the page asks search engines not to index it. Texts written for search
-engines are the descriptor's `seo` (section 3).
+engines are the descriptor's `seo` (section 3): with them the build writes
+the route a page of its own, `dist/training-ground/index.html`, and lists
+it in `sitemap.xml`.
 
 Once a kind is in the registry it is offered in the encounter picker and
 the quick search, under its display name.

@@ -23,6 +23,15 @@ export const definition = {
     displayName: "The Inferno",
     description:
       "Start from any wave. Each cleared wave leads straight into the next, through to TzKal-Zuk at wave 69.",
+    // The texts of the page for search engines (client/seo/routes.js).
+    seo: {
+      summary: "Practice the Inferno, waves 1 to 68 and TzKal-Zuk.",
+      title: "OSRS Inferno Simulator",
+      description: "Practice the Inferno in your browser, from any wave through TzKal-Zuk on wave 69. Pick a start wave, choose your pillars and retry a wave as often as you need.",
+      h1: "Inferno Simulator",
+      intro: "The Inferno is a wave-based minigame in OSRS. This sim covers waves 1 to 68 and TzKal-Zuk on wave 69: pick a start wave, choose which pillars are still standing, and retry any wave with the same or a new spawn layout.",
+      keywords: ["OSRS Inferno", "Inferno simulator", "Inferno practice", "Inferno waves", "TzKal-Zuk simulator", "OSRS Zuk", "Inferno wave 69"],
+    },
     mapSquare: infernoMapSquare,
     mapSquareOffsets: infernoMapSquareOffsets,
     playerStart: [...infernoPlayerStart],

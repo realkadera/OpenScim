@@ -770,8 +770,9 @@ A new encounter needs: a directory under `client/encounters/` whose
 its `presentation`. The registry and `presentations.js` find both; neither
 is a chunk, and neither is edited. The
 route's title and description come from the descriptor when `application.js`
-has no search-engine entry for the kind (`Qfe`; `buildDescriptorSeoEntry`
-is the fallback, and it marks the page `noindex`). Default loadouts (`_le`
+has no `seo` (`client/seo/routes.js`, which marks such a page `noindex`;
+the build writes a page per route from the same list,
+`tools/seo/prerender.mjs`). Default loadouts (`_le`
 in `application.js`) are optional: a kind without them starts with nothing
 worn. `docs/ADDING-AN-ENCOUNTER.md` is the guide, with what still needs a
 chunk; `test/fixtures/training-ground/` is an encounter added that way,

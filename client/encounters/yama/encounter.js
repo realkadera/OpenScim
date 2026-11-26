@@ -21,6 +21,17 @@ export const definition = {
     kind: "yama_p3",
     displayName: "Yama - Phase 3",
     description: "The Yama boss encounter",
+    // The texts of the page for search engines (client/seo/routes.js).
+    seo: {
+      name: "Yama",
+      summary: "Practice the Yama Phase 3 fight and its contracts.",
+      breadcrumb: "Yama (P3)",
+      title: "OSRS Yama Simulator",
+      description: "Practice Yama in your browser, then take him on confidently in the real game. The base fight and five sigil contracts are live now.",
+      h1: "OSRS Yama Boss Simulator",
+      intro: "Yama is a demon boss in OSRS, found in his domain at the bottom of the Chasm of Fire. This sim covers the Phase 3 fight so you can learn it before doing it for real.",
+      keywords: ["OSRS Yama", "Yama P3", "Yama Phase 3", "OSRS Yama simulator", "Yama solver", "Yama practice", "OSRS Yama strategy", "Yama contracts"],
+    },
     mapSquare: {
       x: 23,
       y: 157,

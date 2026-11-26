@@ -16,6 +16,15 @@ export const definition = {
     kind: "sol_heredit",
     displayName: "Sol Heredit",
     description: "The final wave of the Fortis Colosseum.",
+    // The texts of the page for search engines (client/seo/routes.js).
+    seo: {
+      summary: "Practice the Fortis Colosseum final wave.",
+      title: "OSRS Sol Heredit Simulator",
+      description: "Practice Sol Heredit and the Fortis Colosseum final wave in your browser, before you risk a run on him for real.",
+      h1: "Sol Heredit Simulator",
+      intro: "Sol Heredit is the final wave of the Fortis Colosseum in OSRS. This sim covers his spear and shield ground attacks, the triple attack, the grapple parry, molten sand and the light beams.",
+      keywords: ["Sol Heredit", "OSRS Sol Heredit", "Sol Heredit simulator", "Sol Heredit practice", "Fortis Colosseum"],
+    },
     mapSquare: solMapSquare,
     playerStart: [...solPlayerStart],
     modifiers: solHereditModifiers,

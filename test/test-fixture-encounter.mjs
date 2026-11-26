@@ -45,7 +45,7 @@ try {
   }
 
   // The route: the kind with "-" for "_" (engine/encounterKinds.js), and a page title from
-  // the descriptor's `seo`: application.js has no entry for the kind.
+  // the descriptor's `seo` (client/seo/routes.js).
   await page.goto(origin + "/training-ground/");
   await page.waitForFunction(() => window.engine && window.scene, null, { timeout: 60000 });
   await page.locator(".loading-screen").waitFor({ state: "hidden", timeout: 60000 });
