@@ -29452,6 +29452,9 @@ function $fe({ isOpen: isOpen, onClose: onClose, onLoad: onLoad }) {
         () =>
           fetch("/api/replays/" + encodeURIComponent(hA), {
             method: "DELETE",
+            headers: {
+              "X-OpenScim-Client": "1",
+            },
             credentials: "same-origin",
           }),
         async () => {},
@@ -32212,6 +32215,9 @@ function AuthProvider({ children: children }) {
   const ha = (0, React.useCallback)(async () => {
     await fetch("/api/auth/logout", {
       method: "POST",
+      headers: {
+        "X-OpenScim-Client": "1",
+      },
       credentials: "same-origin",
     });
     h5(null);
@@ -32221,6 +32227,7 @@ function AuthProvider({ children: children }) {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
+        "X-OpenScim-Client": "1",
       },
       credentials: "same-origin",
       body: JSON.stringify({
@@ -33811,6 +33818,7 @@ function Gye({
             credentials: "same-origin",
             headers: {
               "Content-Type": "application/gzip",
+              "X-OpenScim-Client": "1",
             },
             body: new Blob([i5], {
               type: "application/gzip",
