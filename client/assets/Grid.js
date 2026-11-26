@@ -30192,7 +30192,7 @@ function nLe(ez, eA, eB, eC, eD, eE, eG) {
   }
   return eN >= Math.max(eM, 0);
 }
-function oLe(ez, eA) {
+function oLe(ez, eA, playerPosition) {
   for (const { location: location, locType: locType } of eA) {
     if (0 !== location.level) {
       continue;
@@ -30214,9 +30214,19 @@ function oLe(ez, eA) {
     const eK =
       1 === rotation2 || 3 === rotation2 ? locType.sizeX : locType.sizeY;
     if (nLe(ez, localX2, localY2, tLe, localX2 + eI, localY2 + eK, 2)) {
+      let coord = [localX2, localY2];
+      if (eI > 1 || eK > 1) {
+        if (Array.isArray(playerPosition) && playerPosition.length >= 2) {
+          const targetX = Math.min(Math.max(playerPosition[0], localX2), localX2 + eI - 1);
+          const targetY = Math.min(Math.max(playerPosition[1], localY2), localY2 + eK - 1);
+          coord = [targetX, targetY];
+        } else {
+          coord = [localX2 + (eI >> 1), localY2 + (eK >> 1)];
+        }
+      }
       return {
         locType: locType,
-        coord: [localX2, localY2],
+        coord: coord,
       };
     }
   }
@@ -30427,7 +30437,17 @@ function rLe(ez) {
             f6 = false;
           }
           if (f6) {
-            const f9 = [localX3, localY3];
+            let f9 = [localX3, localY3];
+            if (f4 > 1 || f5 > 1) {
+              const referencePos = eT ?? entityContext?.playerPosition;
+              if (Array.isArray(referencePos) && referencePos.length >= 2) {
+                const targetX = Math.min(Math.max(referencePos[0], localX3), localX3 + f4 - 1);
+                const targetY = Math.min(Math.max(referencePos[1], localY3), localY3 + f5 - 1);
+                f9 = [targetX, targetY];
+              } else {
+                f9 = [localX3 + (f4 >> 1), localY3 + (f5 >> 1)];
+              }
+            }
             eW.push(...dLe(locType, f9, eV));
           }
         }
@@ -55263,6 +55283,7 @@ var Grid = (ez) => {
   );
   const m5 = (0, pn.useMemo)(
     () => ({
+      playerPosition: simulationState.playerPosition,
       npcPosition: lS ? simulationState.primaryNpcPosition : undefined,
       npcSize: lS ? simulationState.primaryNpcSize : undefined,
       npcTypeLoader: npcTypeLoader,
@@ -55293,6 +55314,7 @@ var Grid = (ez) => {
       simulationState.attackTarget,
       lX,
       objTypeLoader,
+      simulationState.playerPosition,
       m1,
     ],
   );
@@ -55340,7 +55362,7 @@ var Grid = (ez) => {
         const n7 = onTakeGroundItem ? lY(n6 ? [n6.x, n6.y] : null, n2) : [];
         const n8 = iLe({
           tile: n6 ? [n6.x, n6.y] : null,
-          onTileClick: (n9) => m8(n9, n3),
+          onTileClick: (n9) => m8(n9, n3, null),
           entityContext: m5,
           ray: n4,
           screenPx: n2,
@@ -55412,9 +55434,9 @@ var Grid = (ez) => {
         }
       }
       if (m5.locs && m5.locs.length > 0) {
-        const nb = oLe(n4, m5.locs);
+        const nb = oLe(n4, m5.locs, simulationState.playerPosition);
         if (nb) {
-          m8(nb.coord, n3);
+          m8(nb.coord, n3, null);
           return true;
         }
       }
