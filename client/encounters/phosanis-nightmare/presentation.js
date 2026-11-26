@@ -65,8 +65,10 @@ const { husk, parasite_: parasite, sleepwalker } = seqIds;
 
 const renderConfig = {
   terrainMapSquare: phosanisNightmareMapSquare,
-  // CACHE: the dream's floor and its walls are on plane 3; the levels below are the void under it.
-  locRender: { bounds: null, levels: [plane] },
+  // CACHE: the player stands on plane 3, whose floor is a dark grey overlay (126) with holes (overlay 42) all round
+  // it. The floor's tiles and lines are objects of plane 2 at the same height, the totems' pillars stand on planes 0
+  // and 1, and the dream's rocks and ground are on plane 0, 1,240 below: every plane is drawn, each at its own height.
+  locRender: { bounds: null, levels: [0, 1, 2, 3] },
   primaryNpc: { actorId: bossActorId, npcTypeId: 11153, basePosition: bossStart, size: bossSize, deathSeqId: seqIds.death },
   preloadNpcTypes: [
     ...Object.entries(npcTypeIds.forms).flatMap(([shielded, weak]) => [form(Number(shielded)), form(weak)]),
@@ -86,7 +88,7 @@ export const phosanisNightmarePresentation = (BaseScene) => ({
   renderConfig,
   sceneBuilder(context) {
     class DreamScene extends BaseScene {
-      // CACHE: everything stands on plane 3, 1,240 above plane 0.
+      // CACHE: the player, the NPCs and her graphics stand on plane 3, 1,240 above plane 0.
       setTerrainHeightsAndBounds(map, bounds) {
         super.setTerrainHeightsAndBounds(map, bounds);
         const heights = map.tileHeights?.[plane];
