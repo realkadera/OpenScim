@@ -749,7 +749,7 @@ rules only through what `rendering.js` passes to `zebakDefinition`: `stats`,
    The scene state becomes
    `loading`, then `encounter` once the scene is ready.
 3. The same hook asks the cache for the arena
-   (`cacheManager.ld({ mapX, mapY, seedX, seedY, ... })`: flood fill from the
+   (`cacheManager.buildArenaConfig({ mapX, mapY, seedX, seedY, ... })`: flood fill from the
    seed tile over the map's collision), registers it for the kind (`oe`) and
    tells the engine to adopt it (`engine.reapplyArenaConfig()`).
 4. `Grid.js` builds the scene: `de.create(kind, { cacheManager,
