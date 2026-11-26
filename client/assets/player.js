@@ -1125,7 +1125,7 @@ var CacheManager = class {
       const index8 = this.cacheSystem.getIndex(8);
       this.textureLoader = j.load(index7, index8);
       try {
-        const am = O.$f(index8, 511);
+        const am = O.loadIntoIndexedSprite(index8, 511);
         if (am) {
           this.minimapNpcDotUrl = d(am);
         }
@@ -1530,7 +1530,7 @@ var CacheManager = class {
     }
     const T = this.mapLoader.tf(P, Q);
     f.trace("Cache", "Loc archive ID for " + P + "_" + Q + ": " + T);
-    const U = await this.mapLoader.gf(P, Q, R);
+    const U = await this.mapLoader.loadLocations(P, Q, R);
     if (!U) {
       f.warn(
         "Cache",
@@ -1568,9 +1568,9 @@ var CacheManager = class {
       f.warn("Cache", "MapLoader or NpcTypeLoader not available");
       return null;
     }
-    const T = this.mapLoader.sf(P, Q);
+    const T = this.mapLoader.getNpcSpawnArchiveId(P, Q);
     f.trace("Cache", "NPC spawn archive ID for " + P + "_" + Q + ": " + T);
-    const U = await this.mapLoader.cf(P, Q, R);
+    const U = await this.mapLoader.loadNpcSpawns(P, Q, R);
     if (!U) {
       f.debug(
         "Cache",
@@ -1704,7 +1704,7 @@ var CacheManager = class {
       const a3 = t(mapSquareOffsets);
       if (1 === a3.length && a3[0]?.dx === 0 && 0 === a3[0].dy) {
         const a6 = this.xC(mapX, mapY);
-        const a7 = await this.mapLoader.gf(mapX, mapY, a6);
+        const a7 = await this.mapLoader.loadLocations(mapX, mapY, a6);
         const ground = mapX === 61 && mapY === 84
           ? (await import("/toa/zebak/ground.js")).effectiveGround(Z, a7?.locations ?? [])
           : null;
@@ -1813,7 +1813,7 @@ var CacheManager = class {
               if (!ag) {
                 return null;
               }
-              const ai = await this.mapLoader?.gf(ae, af, this.xC(ae, af));
+              const ai = await this.mapLoader?.loadLocations(ae, af, this.xC(ae, af));
               return {
                 analysis: K(
                   ag,

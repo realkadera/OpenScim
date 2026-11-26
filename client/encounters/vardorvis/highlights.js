@@ -68,7 +68,7 @@ const hullZIndex = 1; // over the view's canvas, under the strangle's overlay (2
 export function drawHulls(scene, camera, npcs) {
   const viewport = gameView();
   const heads = (npcs ?? []).filter((npc) => npc.alive && hullNpcTypeIds.has(npc.npcTypeId));
-  if (!viewport || !camera?.Hb || heads.length === 0) {
+  if (!viewport || !camera?.getViewMatrix || heads.length === 0) {
     if (hullCanvas && hullCanvas.style.display !== "none") hullCanvas.style.display = "none";
     return;
   }
@@ -92,7 +92,7 @@ export function drawHulls(scene, camera, npcs) {
   const context = hullCanvas.getContext("2d");
   context.setTransform(dpr, 0, 0, dpr, 0, 0);
   context.clearRect(0, 0, width, height);
-  const view = camera.Hb(), projection = camera.jb();
+  const view = camera.getViewMatrix(), projection = camera.getProjectionMatrix();
   const byInstance = new Map(scene.getAllNpcHitTestData().map((entry) => [entry.actorId, entry.hitTestData]));
   for (const head of heads) {
     const data = byInstance.get(scene.getNpcRenderInstanceId(head.id)) ?? byInstance.get(head.id);

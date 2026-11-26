@@ -1516,7 +1516,7 @@ function ple({
   const h8 = animationSystem ? animationSystem.loadSeqType(seqId) : undefined;
   const h9 = h8?.frameLengths?.reduce((hc, hd) => hc + hd, 0) ?? 0;
   const ha = h8?.frameIds?.length ?? 0;
-  const hb = h8 ? (h8.Rg() ? "sk" : "fr") : "?";
+  const hb = h8 ? (h8.isSkeletalSeq() ? "sk" : "fr") : "?";
   return (0, jsxRuntime.jsxs)("div", {
     className: "seq-row",
     children: [
@@ -2061,7 +2061,7 @@ function gle({
     return {
       id: i4,
       name:
-        "skeletal=" + (i5.Rg() ? "yes" : "no") + " frames=" + i7 + " len=" + i8,
+        "skeletal=" + (i5.isSkeletalSeq() ? "yes" : "no") + " frames=" + i7 + " len=" + i8,
       data: i5,
     };
   }, []);
@@ -3437,7 +3437,7 @@ function gle({
                                             i4.frameLengths
                                               ?.slice(0, 10)
                                               .join(", ") || "-";
-                                          const i9 = i4.Rg();
+                                          const i9 = i4.isSkeletalSeq();
                                           return (0, jsxRuntime.jsxs)("div", {
                                             className: "details-grid",
                                             children: [
@@ -38752,7 +38752,7 @@ var kwe = class {
               for (let h8 = h7.lastFrame + 1; h8 <= h6.currentFrame; h8++) {
                 this.GC(h6, h8, h3);
               }
-            } else if (h6.seqType._g()) {
+            } else if (h6.seqType.isLooping()) {
               const h9 = h6.seqType.frameIds?.length ?? 0;
               if (h9 > 0) {
                 for (let hc = h7.lastFrame + 1; hc < h9; hc++) {

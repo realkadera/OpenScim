@@ -126,47 +126,47 @@ var rd = class {
       this._data = new Int8Array(e);
     }
   }
-  jd() {
+  readByte() {
     if (this.offset > this._data.length - 1) {
       throw new Error("Buffer overflow");
     }
     return this._data[this.offset++];
   }
-  Od() {
-    return this.jd() & 255;
+  readUnsignedByte() {
+    return this.readByte() & 255;
   }
-  $d() {
-    return (((this.Od() << 8) | this.Od()) << 16) >> 16;
+  readShort() {
+    return (((this.readUnsignedByte() << 8) | this.readUnsignedByte()) << 16) >> 16;
   }
-  Vd() {
-    return this.$d() & 65535;
+  readUnsignedShort() {
+    return this.readShort() & 65535;
   }
-  Kd() {
-    const e = this.Vd();
+  readSignedShort() {
+    const e = this.readUnsignedShort();
     if (e > 32767) {
       return e - 65536;
     } else {
       return e;
     }
   }
-  Zd() {
-    return (this.Od() << 16) | (this.Od() << 8) | this.Od();
+  readMedium() {
+    return (this.readUnsignedByte() << 16) | (this.readUnsignedByte() << 8) | this.readUnsignedByte();
   }
-  Yd() {
-    return this.Zd() & 16777215;
+  readUnsignedMedium() {
+    return this.readMedium() & 16777215;
   }
   readInt() {
-    return (this.Od() << 24) | (this.Od() << 16) | (this.Od() << 8) | this.Od();
+    return (this.readUnsignedByte() << 24) | (this.readUnsignedByte() << 16) | (this.readUnsignedByte() << 8) | this.readUnsignedByte();
   }
   Xd() {
     return sd.Fd(this.readInt());
   }
-  Jd() {
-    if (this.Qd(this.offset) < 0) {
+  readBigSmart() {
+    if (this.getByte(this.offset) < 0) {
       return this.readInt() & 2147483647;
     }
     {
-      const e = this.Vd();
+      const e = this.readUnsignedShort();
       if (e === 32767) {
         return -1;
       } else {
@@ -174,32 +174,32 @@ var rd = class {
       }
     }
   }
-  eg() {
-    if (this.ag(this.offset) < 128) {
-      return this.Od();
+  readUnsignedSmart() {
+    if (this.getUnsignedByte(this.offset) < 128) {
+      return this.readUnsignedByte();
     } else {
-      return this.Vd() - 32768;
+      return this.readUnsignedShort() - 32768;
     }
   }
-  tg() {
-    if (this.ag(this.offset) < 128) {
-      return this.Od() - 1;
+  readUnsignedSmartMin1() {
+    if (this.getUnsignedByte(this.offset) < 128) {
+      return this.readUnsignedByte() - 1;
     } else {
-      return this.Vd() - 32769;
+      return this.readUnsignedShort() - 32769;
     }
   }
   ng() {
-    if (this.Qd(this.offset) >= 0) {
-      return this.Od() - 64;
+    if (this.getByte(this.offset) >= 0) {
+      return this.readUnsignedByte() - 64;
     } else {
-      return this.Vd() - 49152;
+      return this.readUnsignedShort() - 49152;
     }
   }
   sg() {
     let e = 0;
-    let a = this.eg();
+    let a = this.readUnsignedSmart();
     while (a === 32767) {
-      a = this.eg();
+      a = this.readUnsignedSmart();
       e += 32767;
     }
     e += a;
@@ -207,51 +207,51 @@ var rd = class {
   }
   readString(e = 0) {
     let a = "";
-    while (this.Qd(this.offset) !== e) {
-      a += String.fromCharCode(this.Od());
+    while (this.getByte(this.offset) !== e) {
+      a += String.fromCharCode(this.readUnsignedByte());
     }
-    this.jd();
+    this.readByte();
     return a;
   }
-  rg() {
-    if (this.Qd(this.offset) === 0) {
+  readNullString() {
+    if (this.getByte(this.offset) === 0) {
       this.offset++;
       return;
     } else {
       return this.readString();
     }
   }
-  og() {
-    if (this.jd() === 0) {
+  readVerString() {
+    if (this.readByte() === 0) {
       return this.readString();
     }
   }
-  Qd(e) {
+  getByte(e) {
     return this._data[e];
   }
-  ag(e) {
-    return this.Qd(e) & 255;
+  getUnsignedByte(e) {
+    return this.getByte(e) & 255;
   }
-  dg(e) {
-    return (this.ag(e) << 8) | this.ag(e + 1);
+  getShort(e) {
+    return (this.getUnsignedByte(e) << 8) | this.getUnsignedByte(e + 1);
   }
   gg(e) {
-    return this.dg(e) & 65535;
+    return this.getShort(e) & 65535;
   }
   cg(e) {
     return (
-      (this.ag(e) << 24) |
-      (this.ag(e + 1) << 16) |
-      (this.ag(e + 2) << 8) |
-      this.ag(e + 3)
+      (this.getUnsignedByte(e) << 24) |
+      (this.getUnsignedByte(e + 1) << 16) |
+      (this.getUnsignedByte(e + 2) << 8) |
+      this.getUnsignedByte(e + 3)
     );
   }
-  mg(e) {
+  readBytes(e) {
     const a = this._data.subarray(this.offset, this.offset + e);
     this.offset += e;
     return a;
   }
-  hg(e) {
+  readUnsignedBytes(e) {
     const a = new Uint8Array(
       this._data.buffer,
       this._data.byteOffset + this.offset,
@@ -325,7 +325,7 @@ var fd = class {
     }
     const t = new this.typeConstructor(e, this.cacheInfo);
     try {
-      const a = this.kg(e);
+      const a = this.getDataBuffer(e);
       if (a) {
         t.decode(a);
         t.Sg();
@@ -350,7 +350,7 @@ var ud = class extends fd {
     this.cacheInfo = a;
     this.archive = t;
   }
-  kg(e) {
+  getDataBuffer(e) {
     const file = this.archive.getFile(e);
     if (!file) {
       if (e === 12140 || e === 12141 || e === 12142) {
@@ -398,9 +398,9 @@ var vd = class extends fd {
     this.index = t;
     this.fileIdBits = n;
     const s = 1 << n;
-    this.count = Math.max((t.zg() - 1) * s, 0) + t.wg(t.Ag());
+    this.count = Math.max((t.zg() - 1) * s, 0) + t.getFileCount(t.Ag());
   }
-  kg(e) {
+  getDataBuffer(e) {
     const a = e >> this.fileIdBits;
     const t = e & ld[this.fileIdBits - 1];
     let n = this.archives.get(a);
@@ -419,12 +419,12 @@ var vd = class extends fd {
   }
 };
 var pd = class {
-  static Dg(e, a) {
-    const t = e.Od();
+  static readParamsMap(e, a) {
+    const t = e.readUnsignedByte();
     a ||= new Map();
     for (let n = 0; n < t; n++) {
-      const t = e.Od() === 1;
-      const n = e.Zd();
+      const t = e.readUnsignedByte() === 1;
+      const n = e.readMedium();
       if (t) {
         a.set(n, e.readString());
       } else {
@@ -472,7 +472,7 @@ var pd = class {
       if (e.offset > e.length - 1) {
         throw new Error("Buffer overflow");
       }
-      const t = e.Od();
+      const t = e.readUnsignedByte();
       if (t === 0) {
         break;
       }
@@ -505,15 +505,15 @@ function Sd(e, a, t) {
   let r;
   let i = 0;
   if (a) {
-    n = e.Vd();
+    n = e.readUnsignedShort();
     if (t) {
-      e.Od();
+      e.readUnsignedByte();
     }
-    s = e.Od();
-    r = e.Od();
-    i = e.Od();
+    s = e.readUnsignedByte();
+    r = e.readUnsignedByte();
+    i = e.readUnsignedByte();
   } else {
-    const a = e.Yd();
+    const a = e.readUnsignedMedium();
     n = a >> 8;
     s = (a >> 4) & 7;
     r = a & 15;
@@ -562,15 +562,15 @@ var bd = class extends pd {
   }
   decode(e) {
     while (e.offset < e.length) {
-      const a = e.Od();
+      const a = e.readUnsignedByte();
       if (a === 0) {
         break;
       }
       this.Hg(a, e);
     }
-    this.Mg();
+    this.postDecode();
   }
-  Mg() {
+  postDecode() {
     if (this.precedenceAnimating === -1) {
       this.precedenceAnimating =
         this.masks == null && this.skeletalMasks == null ? 0 : 2;
@@ -579,7 +579,7 @@ var bd = class extends pd {
       this.priority = this.masks == null && this.skeletalMasks == null ? 0 : 2;
     }
   }
-  Tg(e, a) {
+  getFrameLength(e, a) {
     let t = this.frameLengths[a];
     if (this.cacheType === "legacy" || this.cacheType === "dat") {
       if (t === 0) {
@@ -594,15 +594,15 @@ var bd = class extends pd {
     }
     return t;
   }
-  Ig() {
+  isNewSoundEffects() {
     return (
       this.cacheInfo.game === "oldschool" && this.cacheInfo.revision >= 220
     );
   }
-  Cg(e) {
-    const a = e.Od();
+  decodeFrameSounds(e) {
+    const a = e.readUnsignedByte();
     this.frameSounds ||= new Map();
-    const t = this.Ig();
+    const t = this.isNewSoundEffects();
     for (let n = 0; n < a; n++) {
       const a = Sd(e, t, false);
       const s = this.frameSounds.get(n);
@@ -613,12 +613,12 @@ var bd = class extends pd {
       }
     }
   }
-  xg(e, a) {
-    const t = e.Vd();
+  decodeSparseFrameSounds(e, a) {
+    const t = e.readUnsignedShort();
     this.frameSounds ||= new Map();
-    const n = this.Ig();
+    const n = this.isNewSoundEffects();
     for (let s = 0; s < t; s++) {
-      const t = e.Vd();
+      const t = e.readUnsignedShort();
       const s = Sd(e, n, a);
       const r = this.frameSounds.get(t);
       if (r) {
@@ -628,12 +628,12 @@ var bd = class extends pd {
       }
     }
   }
-  Bg(e) {
+  decodeSkeletalId(e) {
     this.skeletalId = e.readInt();
   }
-  Wg(e) {
-    this.skeletalStart = e.Vd();
-    this.skeletalEnd = e.Vd();
+  decodeSkeletalDuration(e) {
+    this.skeletalStart = e.readUnsignedShort();
+    this.skeletalEnd = e.readUnsignedShort();
   }
   Hg(e, a) {
     if (this.id === 12140 || this.id === 12141 || this.id === 12142) {
@@ -646,8 +646,8 @@ var bd = class extends pd {
       let e = 0;
       e =
         this.cacheInfo.game === "runescape" && this.cacheInfo.revision < 456
-          ? a.Od()
-          : a.Vd();
+          ? a.readUnsignedByte()
+          : a.readUnsignedShort();
       if (this.id === 12140 || this.id === 12141 || this.id === 12142) {
         logger.trace(
           "Config",
@@ -661,28 +661,28 @@ var bd = class extends pd {
         this.cacheInfo.revision <= 377
       ) {
         for (let t = 0; t < e; t++) {
-          this.frameIds[t] = a.Vd();
-          a.Vd();
-          this.frameLengths[t] = a.Vd();
+          this.frameIds[t] = a.readUnsignedShort();
+          a.readUnsignedShort();
+          this.frameLengths[t] = a.readUnsignedShort();
         }
       } else {
         for (let t = 0; t < e; t++) {
-          this.frameLengths[t] = a.Vd();
+          this.frameLengths[t] = a.readUnsignedShort();
         }
         for (let t = 0; t < e; t++) {
-          this.frameIds[t] = a.Vd();
+          this.frameIds[t] = a.readUnsignedShort();
         }
         for (let t = 0; t < e; t++) {
-          this.frameIds[t] += a.Vd() << 16;
+          this.frameIds[t] += a.readUnsignedShort() << 16;
         }
       }
     } else if (e === 2) {
-      this.frameStep = a.Vd();
+      this.frameStep = a.readUnsignedShort();
     } else if (e === 3) {
-      const e = a.Od();
+      const e = a.readUnsignedByte();
       this.masks = new Array(e + 1);
       for (let t = 0; t < e; t++) {
-        this.masks[t] = a.Od();
+        this.masks[t] = a.readUnsignedByte();
       }
       this.masks[e] = 9999999;
     } else if (e === 4) {
@@ -690,25 +690,25 @@ var bd = class extends pd {
         this.cacheInfo.game === "runescape" &&
         this.cacheInfo.revision <= 194
       ) {
-        this.stretches = a.Vd() === 1;
+        this.stretches = a.readUnsignedShort() === 1;
       } else {
         this.stretches = true;
       }
     } else if (e === 5) {
-      this.forcedPriority = a.Od();
+      this.forcedPriority = a.readUnsignedByte();
     } else if (e === 6) {
-      this.leftHandItem = a.Vd();
+      this.leftHandItem = a.readUnsignedShort();
     } else if (e === 7) {
-      this.rightHandItem = a.Vd();
+      this.rightHandItem = a.readUnsignedShort();
     } else if (e === 8) {
-      this.maxLoops = a.Od();
+      this.maxLoops = a.readUnsignedByte();
       this.looping = true;
     } else if (e === 9) {
-      this.precedenceAnimating = a.Od();
+      this.precedenceAnimating = a.readUnsignedByte();
     } else if (e === 10) {
-      this.priority = a.Od();
+      this.priority = a.readUnsignedByte();
     } else if (e === 11) {
-      this.replyMode = a.Od();
+      this.replyMode = a.readUnsignedByte();
     } else if (e === 12) {
       if (
         this.cacheInfo.game === "runescape" &&
@@ -716,13 +716,13 @@ var bd = class extends pd {
       ) {
         a.readInt();
       } else {
-        const e = a.Od();
+        const e = a.readUnsignedByte();
         this.chatFrameIds = new Array(e);
         for (let t = 0; t < e; t++) {
-          this.chatFrameIds[t] = a.Vd();
+          this.chatFrameIds[t] = a.readUnsignedShort();
         }
         for (let t = 0; t < e; t++) {
-          this.chatFrameIds[t] += a.Vd() << 16;
+          this.chatFrameIds[t] += a.readUnsignedShort() << 16;
         }
       }
     } else if (e === 13) {
@@ -730,13 +730,13 @@ var bd = class extends pd {
         this.cacheInfo.game === "runescape" &&
         this.cacheInfo.revision >= 508
       ) {
-        const e = a.Vd();
+        const e = a.readUnsignedShort();
         for (let t = 0; t < e; t++) {
-          const e = a.Od();
+          const e = a.readUnsignedByte();
           if (e > 0) {
-            a.Zd();
+            a.readMedium();
             for (let t = 1; t < e; t++) {
-              a.Vd();
+              a.readUnsignedShort();
             }
           }
         }
@@ -744,16 +744,16 @@ var bd = class extends pd {
         this.cacheInfo.game === "oldschool" &&
         this.cacheInfo.revision >= 226
       ) {
-        this.Bg(a);
+        this.decodeSkeletalId(a);
       } else {
-        this.Cg(a);
+        this.decodeFrameSounds(a);
       }
     } else if (e === 14) {
       if (this.cacheInfo.game === "oldschool") {
         if (this.cacheInfo.revision >= 226) {
-          this.xg(a, true);
+          this.decodeSparseFrameSounds(a, true);
         } else {
-          this.Bg(a);
+          this.decodeSkeletalId(a);
         }
       } else {
         this.op14 = true;
@@ -761,28 +761,28 @@ var bd = class extends pd {
     } else if (e === 15) {
       if (this.cacheInfo.game === "oldschool") {
         if (this.cacheInfo.revision >= 226) {
-          this.Wg(a);
+          this.decodeSkeletalDuration(a);
         } else {
-          this.xg(a, false);
+          this.decodeSparseFrameSounds(a, false);
         }
       }
     } else if (e === 16) {
       if (this.cacheInfo.game === "oldschool") {
         if (this.cacheInfo.revision < 226) {
-          this.Wg(a);
+          this.decodeSkeletalDuration(a);
         } else {
-          this.heightOffset = a.jd();
+          this.heightOffset = a.readByte();
         }
       }
     } else if (e === 17) {
       if (this.cacheInfo.game === "oldschool") {
-        const e = a.Od();
+        const e = a.readUnsignedByte();
         this.skeletalMasks = new Array(256).fill(false);
         for (let t = 0; t < e; t++) {
-          this.skeletalMasks[a.Od()] = true;
+          this.skeletalMasks[a.readUnsignedByte()] = true;
         }
       } else {
-        a.Od();
+        a.readUnsignedByte();
       }
     } else if (e === 18) {
       if (
@@ -793,13 +793,13 @@ var bd = class extends pd {
       }
     } else if (e === 19) {
       if (this.cacheInfo.game !== "oldschool") {
-        a.Od();
-        a.Od();
+        a.readUnsignedByte();
+        a.readUnsignedByte();
       }
     } else if (e === 20) {
-      a.Od();
-      a.Vd();
-      a.Vd();
+      a.readUnsignedByte();
+      a.readUnsignedShort();
+      a.readUnsignedShort();
     } else {
       logger.warn(
         "Config",
@@ -808,20 +808,20 @@ var bd = class extends pd {
       a.offset = a.length;
     }
   }
-  Rg() {
+  isSkeletalSeq() {
     return this.skeletalId >= 0;
   }
-  Pg() {
+  getSkeletalDuration() {
     return this.skeletalEnd - this.skeletalStart;
   }
   getFrameCount() {
-    if (this.Rg()) {
-      return this.Pg();
+    if (this.isSkeletalSeq()) {
+      return this.getSkeletalDuration();
     } else {
       return this.frameIds?.length ?? 0;
     }
   }
-  _g() {
+  isLooping() {
     return this.frameStep !== -1;
   }
 };
@@ -856,7 +856,7 @@ ce(zd, "matrixPool", undefined);
 ce(zd, "IDENTITY", mat4Create());
 zd.init(100);
 var wd = class e {
-  static Fg(e, a) {
+  static readMat4(e, a) {
     if (a) {
       throw new Error("Not implemented");
     }
@@ -902,28 +902,28 @@ var wd = class e {
     ce(this, "rotations", undefined);
     ce(this, "translations", undefined);
     ce(this, "scalings", undefined);
-    this.parentId = t.$d();
+    this.parentId = t.readShort();
     this.localMatrices = new Array(a);
     this.modelMatrices = new Array(a);
     this.invertedModelMatrices = new Array(a);
     const s = new Array(a);
     for (let r = 0; r < a; r++) {
-      this.localMatrices[r] = e.Fg(t, n);
+      this.localMatrices[r] = e.readMat4(t, n);
       s[r] = new Array(3);
       s[r][0] = t.Xd();
       s[r][1] = t.Xd();
       s[r][2] = t.Xd();
     }
-    this.Eg();
+    this.extractTransformations();
   }
-  Eg() {
+  extractTransformations() {
     const length2 = this.localMatrices.length;
     this.rotations = new Array(length2);
     this.translations = new Array(length2);
     this.scalings = new Array(length2);
     const t = zd.get();
     for (let n = 0; n < length2; n++) {
-      const a = this.Ng(n);
+      const a = this.getLocalMatrix(n);
       mat4Invert(t, a);
       this.rotations[n] = vec3Create();
       this.translations[n] = vec3Create();
@@ -934,52 +934,52 @@ var wd = class e {
     }
     zd.release(t);
   }
-  Ng(e) {
+  getLocalMatrix(e) {
     return this.localMatrices[e];
   }
-  Gg(e) {
+  getModelMatrix(e) {
     if (this.modelMatrices[e] === undefined) {
       const a = mat4Create();
       if (this.parent) {
-        mat4Multiply(a, this.parent.Gg(e), this.Ng(e));
+        mat4Multiply(a, this.parent.getModelMatrix(e), this.getLocalMatrix(e));
       } else {
-        mat4Copy(a, this.Ng(e));
+        mat4Copy(a, this.getLocalMatrix(e));
       }
       this.modelMatrices[e] = a;
     }
     return this.modelMatrices[e];
   }
-  Ug(e) {
+  getInvertedModelMatrix(e) {
     if (this.invertedModelMatrices[e] === undefined) {
       const a = mat4Create();
-      mat4Invert(a, this.Gg(e));
+      mat4Invert(a, this.getModelMatrix(e));
       this.invertedModelMatrices[e] = a;
     }
     return this.invertedModelMatrices[e];
   }
-  jg(e) {
+  setAnimMatrix(e) {
     mat4Copy(this.animMatrix, e);
     this.updateAnimModelMatrix = true;
     this.updateFinalMatrix = true;
   }
-  Og() {
+  getAnimMatrix() {
     return this.animMatrix;
   }
-  $g() {
+  getAnimModelMatrix() {
     if (this.updateAnimModelMatrix) {
       this.updateAnimModelMatrix = false;
       if (this.parent) {
-        mat4Multiply(this.animModelMatrix, this.parent.$g(), this.Og());
+        mat4Multiply(this.animModelMatrix, this.parent.getAnimModelMatrix(), this.getAnimMatrix());
       } else {
-        mat4Copy(this.animModelMatrix, this.Og());
+        mat4Copy(this.animModelMatrix, this.getAnimMatrix());
       }
     }
     return this.animModelMatrix;
   }
-  Vg(e) {
+  getFinalMatrix(e) {
     if (this.updateFinalMatrix) {
       this.updateFinalMatrix = false;
-      mat4Multiply(this.finalMatrix, this.$g(), this.Ug(e));
+      mat4Multiply(this.finalMatrix, this.getAnimModelMatrix(), this.getInvertedModelMatrix(e));
     }
     return this.finalMatrix;
   }
@@ -998,7 +998,7 @@ var Ad = class {
     ce(this, "bones", undefined);
     ce(this, "poseCount", undefined);
     this.bones = new Array(a);
-    this.poseCount = e.Od();
+    this.poseCount = e.readUnsignedByte();
     for (let a = 0; a < this.bones.length; a++) {
       this.bones[a] = new wd(this.poseCount, e, false);
     }
@@ -1017,7 +1017,7 @@ var Ad = class {
     let r = 0;
     for (const i of this.bones) {
       if (t === undefined || t[r] === n) {
-        e.Zg(a, i, r, poseId2);
+        e.updateAnimMatrix(a, i, r, poseId2);
       }
       r++;
     }
@@ -1063,42 +1063,42 @@ var Dd = class {
 var Hd = class {
   static load(e, a, t) {
     const n = new rd(t);
-    const s = n.Od();
+    const s = n.readUnsignedByte();
     const r = new Array(s);
     const i = new Array(s).fill(false);
     const l = new Uint16Array(s);
     const o = new Array(s);
     for (let e = 0; e < s; e++) {
-      r[e] = n.Od();
+      r[e] = n.readUnsignedByte();
       if (r[e] === Ld.TYPE_6) {
         r[e] = Ld.ROTATE;
       }
     }
     if (e.game === "runescape" && e.revision >= 481) {
       for (let e = 0; e < s; e++) {
-        i[e] = n.Od() === 1;
+        i[e] = n.readUnsignedByte() === 1;
       }
     } else {
       i.fill(true);
     }
     if (e.game === "runescape" && e.revision >= 530) {
       for (let e = 0; e < s; e++) {
-        l[e] = n.Vd();
+        l[e] = n.readUnsignedShort();
       }
     } else {
       l.fill(-1);
     }
     for (let e = 0; e < s; e++) {
-      o[e] = new Array(n.Od());
+      o[e] = new Array(n.readUnsignedByte());
     }
     for (let e = 0; e < s; e++) {
       for (let a = 0; a < o[e].length; a++) {
-        o[e][a] = n.Od();
+        o[e][a] = n.readUnsignedByte();
       }
     }
     let d;
     if (n.remaining > 0) {
-      const e = n.Vd();
+      const e = n.readUnsignedShort();
       if (e > 0) {
         d = new Ad(n, e);
       }
@@ -1165,14 +1165,14 @@ var Id = class {
     const n = new rd(t);
     const s = new rd(t);
     if (e.game === "runescape" && e.revision >= 610) {
-      n.Od();
+      n.readUnsignedByte();
     }
-    const r = n.Vd();
+    const r = n.readUnsignedShort();
     const i = a.load(r);
     if (!i) {
       throw new Error(`Invalid frame base id: ${r}`);
     }
-    const l = n.Od();
+    const l = n.readUnsignedByte();
     s.offset = n.offset + l;
     let o = 0;
     let d = -1;
@@ -1184,7 +1184,7 @@ var Id = class {
       if (t === Ld.ORIGIN) {
         d = a;
       }
-      const r = n.Od();
+      const r = n.readUnsignedByte();
       if (r === 0) {
         continue;
       }
@@ -1319,7 +1319,7 @@ function Pd(e, a) {
   if (e.isSinglePoint) {
     return e.points[0].value;
   }
-  const t = e.Jg(a);
+  const t = e.getCurvePoint(a);
   if (!t) {
     return 0;
   }
@@ -1779,12 +1779,12 @@ var Ud = class {
     this.id = e;
   }
   decode(e, a) {
-    const t = e.Vd();
+    const t = e.readUnsignedShort();
     let n;
-    this.type = e.Od();
-    this.startInterpType = Wd(e.Od());
-    this.endInterpType = Wd(e.Od());
-    this.hasWeightedTangents = e.Od() !== 0;
+    this.type = e.readUnsignedByte();
+    this.startInterpType = Wd(e.readUnsignedByte());
+    this.endInterpType = Wd(e.readUnsignedByte());
+    this.hasWeightedTangents = e.readUnsignedByte() !== 0;
     this.points = new Array(t);
     for (let s = 0; s < t; s++) {
       const t = new jd();
@@ -1800,7 +1800,7 @@ var Ud = class {
     if (this.points) {
       this.startTick = this.points[0].tick;
       this.endTick = this.points[this.points.length - 1].tick;
-      this.values = new Float32Array(this.am() + 1);
+      this.values = new Float32Array(this.getTickDuration() + 1);
       for (let e = this.startTick; e <= this.endTick; e++) {
         this.values[e - this.startTick] = Pd(this, e);
       }
@@ -1821,7 +1821,7 @@ var Ud = class {
       return this.values[a];
     }
   }
-  tm(e) {
+  getPointIndex(e) {
     if (!this.points) {
       return this.pointIndex;
     }
@@ -1868,11 +1868,11 @@ var Ud = class {
     }
     return this.pointIndex;
   }
-  Jg(e) {
+  getCurvePoint(e) {
     if (!this.points) {
       return;
     }
-    const a = this.tm(e);
+    const a = this.getPointIndex(e);
     if (a < 0 || a >= this.points.length) {
       return undefined;
     } else {
@@ -1886,7 +1886,7 @@ var Ud = class {
       return 0;
     }
   }
-  am() {
+  getTickDuration() {
     return this.endTick - this.startTick;
   }
 };
@@ -1901,7 +1901,7 @@ var jd = class {
     ce(this, "next", undefined);
   }
   decode(e, a) {
-    this.tick = e.$d();
+    this.tick = e.readShort();
     this.value = e.Xd();
     this.inTangentDx = e.Xd();
     this.inTangentDy = e.Xd();
@@ -1969,8 +1969,8 @@ var Qd = vec3Create();
 var eg = class e {
   static load(a, t, n) {
     const s = new rd(n);
-    const r = s.Od();
-    const i = s.Vd();
+    const r = s.readUnsignedByte();
+    const i = s.readUnsignedShort();
     const l = a.load(i);
     if (!l) {
       throw new Error(`Invalid skeletal base id: ${i}`);
@@ -1995,16 +1995,16 @@ var eg = class e {
     this.version = a;
     this.base = t;
     this.skeletalBase = n;
-    s.Vd();
-    s.Vd();
-    this.poseId = s.Od();
-    this.curveCount = s.Vd();
+    s.readUnsignedShort();
+    s.readUnsignedShort();
+    this.poseId = s.readUnsignedByte();
+    this.curveCount = s.readUnsignedShort();
     this.boneCurves = new Array(n.bones.length);
     this.curves = new Array(t.count);
     for (let e = 0; e < this.curveCount; e++) {
-      const t = Zd(s.Od());
+      const t = Zd(s.readUnsignedByte());
       const n = s.ng();
-      const r = Od(s.Od());
+      const r = Od(s.readUnsignedByte());
       const i = new Ud(e);
       let l;
       i.decode(s, a);
@@ -2019,15 +2019,15 @@ var eg = class e {
       }
     }
   }
-  Zg(e, a, t, n) {
+  updateAnimMatrix(e, a, t, n) {
     const s = zd.get();
-    this.nm(s, t, a, e);
+    this.applyRotation(s, t, a, e);
     this.rm(s, t, a, e);
-    this.im(s, t, a, e);
-    a.jg(s);
+    this.applyTranslation(s, t, a, e);
+    a.setAnimMatrix(s);
     zd.release(s);
   }
-  nm(e, a, t, n) {
+  applyRotation(e, a, t, n) {
     const rotation2 = t.getRotation(this.poseId);
     let r = rotation2[0];
     let i = rotation2[1];
@@ -2093,7 +2093,7 @@ var eg = class e {
     mat4Multiply(e, o, e);
     zd.release(o);
   }
-  im(e, a, t, n) {
+  applyTranslation(e, a, t, n) {
     const translation = t.getTranslation(this.poseId);
     let r = translation[0];
     let i = translation[1];
@@ -2206,7 +2206,7 @@ var tg = class {
   getSeqFrameLoader() {
     return this.seqFrameLoader;
   }
-  lm() {
+  getSkeletalSeqLoader() {
     return this.skeletalSeqLoader;
   }
   getAnimIndex() {
@@ -2416,10 +2416,10 @@ var tg = class {
           break;
         }
         case Ld.TRANSLATE:
-          this.im(e, g, vertexLabels2, c, m, h);
+          this.applyTranslation(e, g, vertexLabels2, c, m, h);
           break;
         case Ld.ROTATE:
-          this.nm(e, g, vertexLabels2, c, m, h, n, s, r);
+          this.applyRotation(e, g, vertexLabels2, c, m, h, n, s, r);
           break;
         case Ld.SCALE:
           this.gm(e, g, vertexLabels2, c, m, h, n, s, r);
@@ -2455,7 +2455,7 @@ var tg = class {
       };
     }
   }
-  im(e, a, t, n, s, r) {
+  applyTranslation(e, a, t, n, s, r) {
     for (const i of a) {
       if (i < t.length) {
         for (const a of t[i]) {
@@ -2466,7 +2466,7 @@ var tg = class {
       }
     }
   }
-  nm(e, a, t, n, s, r, i, l, o) {
+  applyRotation(e, a, t, n, s, r, i, l, o) {
     const d = (n & 255) * 8;
     const g = (s & 255) * 8;
     const c = (r & 255) * 8;
@@ -2746,8 +2746,8 @@ var sg = new (class {
 })();
 var rg = class e {
   static decode(a) {
-    const t = a.Zd();
-    const n = a.Zd();
+    const t = a.readMedium();
+    const n = a.readMedium();
     return new e(t, n);
   }
   constructor(e, a) {
@@ -3263,20 +3263,20 @@ var Bg = class e {
     r.set(0, new xg(0, a, t));
     return new e(Ig.Dm, a, 0, 1, n, s, r);
   }
-  static Hm(a, t, n) {
+  static decodeOld(a, t, n) {
     const s = new rd(t);
     const r = new Map();
     let i;
     let l;
     let o;
     if (n) {
-      const e = s.Zd();
-      const n = s.Zd();
+      const e = s.readMedium();
+      const n = s.readMedium();
       const d = e !== n;
       let g;
       let c;
       if (d) {
-        const a = s.hg(n);
+        const a = s.readUnsignedBytes(n);
         const t = Bzip2Decoder.decompress(a, e);
         g = new rd(t);
         c = new rd(t);
@@ -3284,19 +3284,19 @@ var Bg = class e {
         g = new rd(t);
         c = s;
       }
-      i = c.Vd();
+      i = c.readUnsignedShort();
       g.offset = c.offset + i * 10;
       l = new Int32Array(i);
       o = new Int32Array(i);
       for (let e = 0; e < i; e++) {
         const t = c.readInt();
-        const n = c.Zd();
-        const s = c.Zd();
+        const n = c.readMedium();
+        const s = c.readMedium();
         let i;
         if (d) {
-          i = g.mg(s);
+          i = g.readBytes(s);
         } else {
-          const e = g.hg(s);
+          const e = g.readUnsignedBytes(s);
           i = Bzip2Decoder.decompress(e, n);
         }
         r.set(e, new xg(e, a, i));
@@ -3304,7 +3304,7 @@ var Bg = class e {
         o[e] = t;
       }
     } else {
-      const e = Cg.decompress(s.hg(s.remaining));
+      const e = Cg.decompress(s.readUnsignedBytes(s.remaining));
       i = 1;
       l = new Int32Array(i);
       o = new Int32Array(i);
@@ -3319,7 +3319,7 @@ var Bg = class e {
       l.set(t, new xg(t, a, i.data));
     } else {
       i.offset = i.length - 1;
-      const e = i.Od();
+      const e = i.readUnsignedByte();
       i.offset = i.length - 1 - e * (n * 4);
       const t = new Int32Array(e * n);
       const r = new Int32Array(n);
@@ -3339,7 +3339,7 @@ var Bg = class e {
       for (let a = 0; a < e; a++) {
         for (let e = 0; e < n; e++) {
           const s = t[a * n + e];
-          const r = i.mg(s);
+          const r = i.readBytes(s);
           o[e].ug(r);
         }
       }
@@ -3377,12 +3377,12 @@ var Bg = class e {
   getFile(e) {
     return this._files.get(e);
   }
-  Mm(e) {
+  getFileId(e) {
     const a = this._hashFunction(e);
     return this._fileNameHashIdMap.get(a) ?? -1;
   }
-  Tm(e) {
-    const a = this.Mm(e);
+  getFileNamed(e) {
+    const a = this.getFileId(e);
     if (a !== -1) {
       return this.getFile(a);
     }
@@ -3434,7 +3434,7 @@ var Pg = class e {
     if (a.remaining === 0) {
       throw new Error("Empty container");
     }
-    const n = a.Od();
+    const n = a.readUnsignedByte();
     const s = a.readInt();
     let r;
     if (Rg.Im(t)) {
@@ -3442,12 +3442,12 @@ var Pg = class e {
     }
     switch (n) {
       case Wg.None:
-        r = a.mg(s);
+        r = a.readBytes(s);
         break;
       case Wg.Bzip2:
       case Wg.Gzip: {
         const e = a.readInt() & 4294967295;
-        const t = a.hg(s);
+        const t = a.readUnsignedBytes(s);
         let i;
         i = n === Wg.Bzip2 ? Bzip2Decoder.decompress(t, e) : Cg.decompress(t);
         if (i.length !== e) {
@@ -3470,7 +3470,7 @@ var Pg = class e {
     if (a.remaining >= 4) {
       i = a.readInt();
     } else if (a.remaining >= 2) {
-      i = a.Vd();
+      i = a.readUnsignedShort();
     }
     return new e(n, r, i);
   }
@@ -3580,7 +3580,7 @@ var Eg = class {
       );
     }
   }
-  get xm() {
+  get fileReferences() {
     const e = new Array(this.fileIds.length);
     for (let a = 0; a < this.fileIds.length; a++) {
       const t = this.Cm(this.fileIds[a]);
@@ -3592,7 +3592,7 @@ var Eg = class {
   }
 };
 var Ng = class e {
-  static Bm(a) {
+  static fromArchiveCount(a) {
     const t = new Int32Array(a);
     const n = new Map();
     for (let e = 0; e < a; e++) {
@@ -3626,28 +3626,28 @@ var Ng = class e {
     );
   }
   static decode(a) {
-    const t = a.Od();
+    const t = a.readUnsignedByte();
     if (t < 5 || t > 7) {
       throw new Error(`Invalid protocol: ${t}`);
     }
     const n = t > 5 ? a.readInt() : 0;
-    const s = a.Od();
+    const s = a.readUnsignedByte();
     const r = !!(s & 1);
     const i = !!(s & 2);
     const l = !!(s & 4);
-    const o = t === 7 ? a.Jd() : a.Vd();
+    const o = t === 7 ? a.readBigSmart() : a.readUnsignedShort();
     let d = 0;
     const g = new Int32Array(o);
     const c = new Map();
     if (t === 7) {
       for (let e = 0; e < o; e++) {
-        d += a.Jd();
+        d += a.readBigSmart();
         g[e] = d;
         c.set(d, e);
       }
     } else {
       for (let e = 0; e < o; e++) {
-        d += a.Vd();
+        d += a.readUnsignedShort();
         g[e] = d;
         c.set(d, e);
       }
@@ -3661,7 +3661,7 @@ var Ng = class e {
     const h = new Array(o);
     if (i) {
       for (let e = 0; e < o; e++) {
-        h[e] = a.mg(64);
+        h[e] = a.readBytes(64);
       }
     }
     const f = new DataView(a.data.buffer, a.data.byteOffset + a.offset, o * 4);
@@ -3673,7 +3673,7 @@ var Ng = class e {
     a.offset += u.byteLength;
     const v = new Int32Array(o);
     for (let e = 0; e < o; e++) {
-      v[e] = t === 7 ? a.Jd() : a.Vd();
+      v[e] = t === 7 ? a.readBigSmart() : a.readUnsignedShort();
     }
     const p = new Array(o);
     const k = new Int32Array(o);
@@ -3683,7 +3683,7 @@ var Ng = class e {
     for (let e = 0; e < o; e++) {
       let n = 0;
       for (let s = 0; s < v[e]; s++) {
-        n += t === 7 ? a.Jd() : a.Vd();
+        n += t === 7 ? a.readBigSmart() : a.readUnsignedShort();
         p[e][s] = n;
       }
       k[e] = n;
@@ -3831,14 +3831,14 @@ var Gg = class {
   Rm(e) {
     return this.table.Rm(e);
   }
-  wg(e) {
+  getFileCount(e) {
     return this.table.Pm(e)?.fileCount ?? 0;
   }
   Nm(e, a) {
     if (this.zg() === 1) {
       return this.getFile(0, e, a);
     }
-    if (this.wg(e) === 1) {
+    if (this.getFileCount(e) === 1) {
       return this.getFile(e, 0, a);
     }
     throw new Error("Invalid archive");
@@ -3862,12 +3862,12 @@ var jg = class extends Ug {
 };
 var Og = class e extends jg {
   static Gm(a, t, n) {
-    const s = Ng.Bm(n.byteLength / rg.SIZE);
+    const s = Ng.fromArchiveCount(n.byteLength / rg.SIZE);
     return new e(a, s, t);
   }
   Lg(e, a) {
     const t = this.read(e);
-    return Bg.Hm(e, t, this.id === _g.DAT.configs);
+    return Bg.decodeOld(e, t, this.id === _g.DAT.configs);
   }
 };
 function $g(e, a, t) {
@@ -3936,19 +3936,19 @@ var qg = class e {
     return e.Om(new e(), a);
   }
   static decode(a, t, n = e.DATA_SIZE) {
-    a.archiveId = t.Vd();
-    a.chunk = t.Vd();
-    a.nextSector = t.Zd();
-    a.indexId = t.Od();
-    a.data = t.mg(n);
+    a.archiveId = t.readUnsignedShort();
+    a.chunk = t.readUnsignedShort();
+    a.nextSector = t.readMedium();
+    a.indexId = t.readUnsignedByte();
+    a.data = t.readBytes(n);
     return a;
   }
   static Om(a, t, n = e.EXTENDED_DATA_SIZE) {
     a.archiveId = t.readInt();
-    a.chunk = t.Vd();
-    a.nextSector = t.Zd();
-    a.indexId = t.Od();
-    a.data = t.mg(n);
+    a.chunk = t.readUnsignedShort();
+    a.nextSector = t.readMedium();
+    a.indexId = t.readUnsignedByte();
+    a.data = t.readBytes(n);
     return a;
   }
 };
@@ -3961,7 +3961,7 @@ ce(qg, "SIZE", Vg.HEADER_SIZE + Vg.DATA_SIZE);
 var Zg = typeof window != "undefined" && import.meta !== undefined && false;
 var Yg = new Set();
 var Jg = class e {
-  static $m(a, t = []) {
+  static fromFiles(a, t = []) {
     const n = [];
     const s = new Set(t);
     for (const [e, t] of a.entries()) {
@@ -3990,14 +3990,14 @@ var Jg = class e {
     this.indexFiles = a;
     this.metaFile = t;
   }
-  Vm(e) {
+  getIndexFile(e) {
     if (e === 255) {
       return this.metaFile;
     } else {
       return this.indexFiles[e];
     }
   }
-  Km(e) {
+  getSectorIndexId(e) {
     if (this.metaFile) {
       return e;
     } else {
@@ -4008,11 +4008,11 @@ var Jg = class e {
     if (e < 0) {
       throw new Error("Index id cannot be lower than 0");
     }
-    const t = this.Vm(e);
+    const t = this.getIndexFile(e);
     if (!t) {
       throw new Error(`Index ${e} not found`);
     }
-    const n = this.Km(e);
+    const n = this.getSectorIndexId(e);
     const s = a * rg.SIZE;
     if (s < 0 || s + rg.SIZE > t.byteLength) {
       throw new Error(
@@ -4076,7 +4076,7 @@ var Jg = class e {
   }
 };
 var Qg = class e {
-  static qm(e, a) {
+  static loadIndicesFromStore(e, a) {
     sg.start("CacheSystem.loadIndicesFromStore");
     const t = a.indexFiles.map((t, n) => {
       if (t) {
@@ -4090,7 +4090,7 @@ var Qg = class e {
     sg.end("CacheSystem.loadIndicesFromStore");
     return t;
   }
-  static $m(a, t, n = []) {
+  static fromFiles(a, t, n = []) {
     sg.start("CacheSystem.fromFiles");
     switch (a) {
       case "legacy":
@@ -4099,9 +4099,9 @@ var Qg = class e {
       case "dat":
       case "dat2": {
         sg.start("CacheSystem.MemoryStore.fromFiles");
-        const s = Jg.$m(t.files, n);
+        const s = Jg.fromFiles(t.files, n);
         sg.end("CacheSystem.MemoryStore.fromFiles");
-        const r = e.qm(a, s);
+        const r = e.loadIndicesFromStore(a, s);
         sg.end("CacheSystem.fromFiles");
         return new e(r);
       }
@@ -4112,7 +4112,7 @@ var Qg = class e {
   static bm(a, t, n = []) {
     sg.start("CacheSystem.fromMap");
     const s = dg.bm(t);
-    const r = e.$m(a, s, n);
+    const r = e.fromFiles(a, s, n);
     sg.end("CacheSystem.fromMap");
     return r;
   }
@@ -4120,7 +4120,7 @@ var Qg = class e {
     ce(this, "indices", undefined);
     this.indices = e;
   }
-  Zm(e) {
+  indexExists(e) {
     return !!this.indices[e];
   }
   getIndex(e) {
@@ -4130,7 +4130,7 @@ var Qg = class e {
     }
     return a;
   }
-  ym() {
+  getIndexCount() {
     return this.indices.filter(Boolean).length;
   }
 };
@@ -4606,15 +4606,15 @@ var cm = class extends pd {
   }
   Hg(e, a) {
     if (e === 1) {
-      this.inputType = String.fromCharCode(a.Od());
+      this.inputType = String.fromCharCode(a.readUnsignedByte());
     } else if (e === 2) {
-      this.outputType = String.fromCharCode(a.Od());
+      this.outputType = String.fromCharCode(a.readUnsignedByte());
     } else if (e === 3) {
       this.defaultString = a.readString();
     } else if (e === 4) {
       this.defaultInt = a.readInt();
     } else if (e === 5) {
-      this.outputCount = a.Vd();
+      this.outputCount = a.readUnsignedShort();
       this.keys = new Array(this.outputCount);
       this.stringValues = new Array(this.outputCount);
       for (let e = 0; e < this.outputCount; e++) {
@@ -4622,7 +4622,7 @@ var cm = class extends pd {
         this.stringValues[e] = a.readString();
       }
     } else if (e === 6) {
-      this.outputCount = a.Vd();
+      this.outputCount = a.readUnsignedShort();
       this.keys = new Array(this.outputCount);
       this.intValues = new Array(this.outputCount);
       for (let e = 0; e < this.outputCount; e++) {
@@ -4631,7 +4631,7 @@ var cm = class extends pd {
       }
     }
   }
-  Ym(e) {
+  getIntValue(e) {
     if (!this.keys || !this.intValues) {
       return this.defaultInt;
     }
@@ -4670,7 +4670,7 @@ var hm = class extends pd {
   }
   Hg(e, a) {
     if (e === 1) {
-      this.color = a.Yd();
+      this.color = a.readUnsignedMedium();
     }
   }
   Sg() {
@@ -4744,23 +4744,23 @@ var fm = class extends pd {
   }
   Hg(e, a) {
     if (e === 1) {
-      this.color = a.Yd();
+      this.color = a.readUnsignedMedium();
     } else if (e === 2) {
-      this.texture = a.Od();
+      this.texture = a.readUnsignedByte();
     } else if (e === 3) {
       if (this.cacheInfo.game === "runescape") {
-        this.texture = a.Vd();
+        this.texture = a.readUnsignedShort();
       }
     } else if (e === 5) {
       this.hideUnderlay = false;
     } else if (e === 7) {
-      this.secondaryColor = a.Yd();
+      this.secondaryColor = a.readUnsignedMedium();
     } else if (e !== 8) {
       if (e === 9) {
-        a.Vd();
+        a.readUnsignedShort();
       } else if (e !== 10) {
         if (e === 11) {
-          a.Od();
+          a.readUnsignedByte();
         }
       }
     }
@@ -4770,11 +4770,11 @@ var fm = class extends pd {
   }
   Xm() {
     if (this.secondaryColor !== -1) {
-      this.Jm(this.secondaryColor, true);
+      this.calculateHslFrom(this.secondaryColor, true);
     }
-    this.Jm(this.color, false);
+    this.calculateHslFrom(this.color, false);
   }
-  Jm(e, a) {
+  calculateHslFrom(e, a) {
     const t = ((e >> 16) & 255) / 256;
     const n = ((e >> 8) & 255) / 256;
     const s = (e & 255) / 256;
@@ -4844,39 +4844,39 @@ var pm = class extends pd {
   }
   Hg(e, a) {
     if (e === 1) {
-      this.bodyPartId = a.Od();
+      this.bodyPartId = a.readUnsignedByte();
     } else if (e === 2) {
-      const e = a.Od();
+      const e = a.readUnsignedByte();
       this.models = new Array(e);
       for (let t = 0; t < e; t++) {
-        this.models[t] = a.Vd();
+        this.models[t] = a.readUnsignedShort();
       }
     } else if (e === 3) {
       this.nonSelectable = true;
     } else if (e === 5) {
-      const e = a.Od();
+      const e = a.readUnsignedByte();
       this.models = new Array(e);
       for (let t = 0; t < e; t++) {
         this.models[t] = a.readInt();
       }
     } else if (e === 40) {
-      const e = a.Od();
+      const e = a.readUnsignedByte();
       this.recolorFrom = new Array(e);
       this.recolorTo = new Array(e);
       for (let t = 0; t < e; t++) {
-        this.recolorFrom[t] = a.$d();
-        this.recolorTo[t] = a.$d();
+        this.recolorFrom[t] = a.readShort();
+        this.recolorTo[t] = a.readShort();
       }
     } else if (e === 41) {
-      const e = a.Od();
+      const e = a.readUnsignedByte();
       this.retextureFrom = new Array(e);
       this.retextureTo = new Array(e);
       for (let t = 0; t < e; t++) {
-        this.retextureFrom[t] = a.$d();
-        this.retextureTo[t] = a.$d();
+        this.retextureFrom[t] = a.readShort();
+        this.retextureTo[t] = a.readShort();
       }
     } else if (e >= 60 && e < 70) {
-      this.chatheadModels[e - 60] = a.Vd();
+      this.chatheadModels[e - 60] = a.readUnsignedShort();
     } else if (e >= 70 && e < 80) {
       this.chatheadModels[e - 70] = a.readInt();
     } else {
@@ -4940,7 +4940,7 @@ var wm = class e extends Sm {
       a === e.FACE_ALPHA_SENTINEL_TYPE_2 || a === e.FACE_ALPHA_SENTINEL_TYPE_3
     );
   }
-  static nh(a) {
+  static clampAnimatedFaceAlpha(a) {
     if (a < 0) {
       return 0;
     } else if (a > e.MAX_ANIMATED_FACE_ALPHA) {
@@ -4964,7 +4964,7 @@ var wm = class e extends Sm {
     l.rh(a, t, n, s, r, i);
     return l;
   }
-  static ih(e, a) {
+  static adjustLightness(e, a) {
     if ((a = ((e & 127) * a) >> 7) < 2) {
       a = 2;
     } else if (a > 126) {
@@ -4972,7 +4972,7 @@ var wm = class e extends Sm {
     }
     return (e & 65408) + a;
   }
-  static oh(e) {
+  static clampLightness(e) {
     if (e < 2) {
       e = 2;
     } else if (e > 126) {
@@ -4980,15 +4980,15 @@ var wm = class e extends Sm {
     }
     return e | 0;
   }
-  static dh(e, a, t) {
+  static litBrightness(e, a, t) {
     return e + Math.trunc(a / t);
   }
-  static gh(e, a, t) {
+  static normalMergeVertexHash(e, a, t) {
     return (
       Math.imul(e, 73856093) ^ Math.imul(a, 19349663) ^ Math.imul(t, 83492791)
     );
   }
-  static mh(a, t) {
+  static getNormalMergeIndex(a, t) {
     if (a.normalMergeIndex) {
       return a.normalMergeIndex;
     }
@@ -4996,7 +4996,7 @@ var wm = class e extends Sm {
     const s = new Int32Array(usedVertexCount2);
     const r = new Int32Array(usedVertexCount2);
     for (let i = 0; i < usedVertexCount2; i++) {
-      s[i] = e.gh(a.verticesX[i], t[i], a.verticesZ[i]);
+      s[i] = e.normalMergeVertexHash(a.verticesX[i], t[i], a.verticesZ[i]);
       r[i] = i;
     }
     r.sort((e, a) => s[e] - s[a] || e - a);
@@ -5010,7 +5010,7 @@ var wm = class e extends Sm {
     };
     return a.normalMergeIndex;
   }
-  static hh(e, a, t, n) {
+  static addToMergedNormal(e, a, t, n) {
     const normals2 = e.normals;
     const mergedNormals2 = e.mergedNormals;
     let i = mergedNormals2.sums;
@@ -5029,10 +5029,10 @@ var wm = class e extends Sm {
     i[l + 3] = d;
   }
   static mergeNormals(a, t, n, s, r, i) {
-    a.fh();
-    a.uh();
-    t.fh();
-    t.uh();
+    a.calculateBounds();
+    a.calculateVertexNormals();
+    t.calculateBounds();
+    t.calculateVertexNormals();
     const normals3 = a.normals;
     const normals4 = t.normals;
     if (!normals3 || !normals4) {
@@ -5043,7 +5043,7 @@ var wm = class e extends Sm {
     const g = t.contourVerticesY || t.verticesY;
     const c =
       t.usedVertexCount >= 16 && a.usedVertexCount * t.usedVertexCount >= 1024
-        ? e.mh(t, g)
+        ? e.getNormalMergeIndex(t, g)
         : undefined;
     let m = 0;
     for (let i = 0; i < a.usedVertexCount; i++) {
@@ -5066,7 +5066,7 @@ var wm = class e extends Sm {
       let p = 0;
       let k = t.usedVertexCount;
       if (c) {
-        const a = e.gh(u, f, v);
+        const a = e.normalMergeVertexHash(u, f, v);
         p = zm(c.hashes, a);
         k = zm(c.hashes, a + 1);
       }
@@ -5085,8 +5085,8 @@ var wm = class e extends Sm {
           t.mergedNormals ??= {
             sums: new Int32Array(t.usedVertexCount * 4),
           };
-          e.hh(a, i, normals4, r);
-          e.hh(t, s, normals3, h);
+          e.addToMergedNormal(a, i, normals4, r);
+          e.addToMergedNormal(t, s, normals3, h);
           m++;
           e.mergedNormalsModel0Cache[i] = e.mergeModelNormalsCount;
           e.mergedNormalsModel1Cache[s] = e.mergeModelNormalsCount;
@@ -5328,24 +5328,24 @@ var wm = class e extends Sm {
             }
           }
           this.faceColors[this.faceCount] = a.faceColors[e];
-          this.indices1[this.faceCount] = this.ph(a, a.indices1[e]);
-          this.indices2[this.faceCount] = this.ph(a, a.indices2[e]);
-          this.indices3[this.faceCount] = this.ph(a, a.indices3[e]);
+          this.indices1[this.faceCount] = this.copyVertex(a, a.indices1[e]);
+          this.indices2[this.faceCount] = this.copyVertex(a, a.indices2[e]);
+          this.indices3[this.faceCount] = this.copyVertex(a, a.indices3[e]);
           this.faceCount++;
         }
         for (let e = 0; e < a.textureFaceCount; e++) {
           const t = a.textureRenderTypes[e];
           this.textureRenderTypes[this.textureFaceCount] = t;
           if (t === 0) {
-            this.textureMappingP[this.textureFaceCount] = this.ph(
+            this.textureMappingP[this.textureFaceCount] = this.copyVertex(
               a,
               a.textureMappingP[e],
             );
-            this.textureMappingM[this.textureFaceCount] = this.ph(
+            this.textureMappingM[this.textureFaceCount] = this.copyVertex(
               a,
               a.textureMappingM[e],
             );
-            this.textureMappingN[this.textureFaceCount] = this.ph(
+            this.textureMappingN[this.textureFaceCount] = this.copyVertex(
               a,
               a.textureMappingN[e],
             );
@@ -5378,7 +5378,7 @@ var wm = class e extends Sm {
   // for the position; a whole player took 50ms and more that way on each
   // change of equipment. Every position is added once, so the map gives the
   // index that search would find.
-  ph(e, a) {
+  copyVertex(e, a) {
     const n = e.verticesX[a];
     const s = e.verticesY[a];
     const r = e.verticesZ[a];
@@ -5404,18 +5404,18 @@ var wm = class e extends Sm {
   }
   decode(e) {
     if (e[e.length - 1] === -3 && e[e.length - 2] === -1) {
-      this.Sh(e);
+      this.decodeV3(e);
       this.usedVertexCount = this.verticesCount;
     } else if (e[e.length - 1] === -2 && e[e.length - 2] === -1) {
-      this.bh(e);
+      this.decodeV2(e);
       this.usedVertexCount = this.verticesCount;
     } else if (e[e.length - 1] === -1 && e[e.length - 2] === -1) {
-      this.yh(e);
+      this.decodeV1(e);
     } else {
-      this.Hm(e);
+      this.decodeOld(e);
     }
   }
-  Sh(e) {
+  decodeV3(e) {
     this.version = 3;
     const a = new rd(e);
     const t = new rd(e);
@@ -5426,26 +5426,26 @@ var wm = class e extends Sm {
     const l = new rd(e);
     const o = new rd(e);
     a.offset = e.length - 26;
-    const d = a.Vd();
-    const g = a.Vd();
-    const c = a.Od();
-    const m = a.Od();
-    const h = a.Od();
-    const f = a.Od();
-    const u = a.Od();
-    const v = a.Od();
-    const p = a.Od();
-    const k = a.Od();
+    const d = a.readUnsignedShort();
+    const g = a.readUnsignedShort();
+    const c = a.readUnsignedByte();
+    const m = a.readUnsignedByte();
+    const h = a.readUnsignedByte();
+    const f = a.readUnsignedByte();
+    const u = a.readUnsignedByte();
+    const v = a.readUnsignedByte();
+    const p = a.readUnsignedByte();
+    const k = a.readUnsignedByte();
     logger.trace(
       "ModelLoader",
       `decodeV3 hasMayaGroups=${k}, vertexCount=${d}, faceCount=${g}`,
     );
-    const S = a.Vd();
-    const b = a.Vd();
-    const y = a.Vd();
-    const z = a.Vd();
-    const w = a.Vd();
-    const A = a.Vd();
+    const S = a.readUnsignedShort();
+    const b = a.readUnsignedShort();
+    const y = a.readUnsignedShort();
+    const z = a.readUnsignedShort();
+    const w = a.readUnsignedShort();
+    const A = a.readUnsignedShort();
     let L = 0;
     let D = 0;
     let H = 0;
@@ -5453,7 +5453,7 @@ var wm = class e extends Sm {
       this.textureRenderTypes = new Int8Array(c);
       a.offset = 0;
       for (let e = 0; e < c; e++) {
-        const t = a.jd();
+        const t = a.readByte();
         this.textureRenderTypes[e] = t;
         if (t === 0) {
           L++;
@@ -5580,7 +5580,7 @@ var wm = class e extends Sm {
     let Z = 0;
     let Y = 0;
     for (let e = 0; e < d; e++) {
-      const i = a.Od();
+      const i = a.readUnsignedByte();
       let l = 0;
       if (i & 1) {
         l = t.ng();
@@ -5600,17 +5600,17 @@ var wm = class e extends Sm {
       Z = this.verticesY[e];
       Y = this.verticesZ[e];
       if (p === 1 && this.vertexSkins) {
-        this.vertexSkins[e] = r.Od();
+        this.vertexSkins[e] = r.readUnsignedByte();
       }
     }
     if (k === 1) {
       for (let e = 0; e < d; e++) {
-        const a = r.Od();
+        const a = r.readUnsignedByte();
         this.animMayaGroups[e] = new Int32Array(a);
         this.animMayaScales[e] = new Int32Array(a);
         for (let t = 0; t < a; t++) {
-          this.animMayaGroups[e][t] = r.Od();
-          this.animMayaScales[e][t] = r.Od();
+          this.animMayaGroups[e][t] = r.readUnsignedByte();
+          this.animMayaScales[e][t] = r.readUnsignedByte();
         }
       }
     }
@@ -5625,39 +5625,39 @@ var wm = class e extends Sm {
     // a bias for every face follows (all 35846 version 3 models of the cache
     // end exactly so).
     o.offset = M;
-    if (o.Od() !== 0) {
-      o.Vd();
-      o.Vd();
-      o.Vd();
+    if (o.readUnsignedByte() !== 0) {
+      o.readUnsignedShort();
+      o.readUnsignedShort();
+      o.readUnsignedShort();
       o.readInt();
     }
-    const hasFaceBias = o.Od() === 1;
+    const hasFaceBias = o.readUnsignedByte() === 1;
     for (let e = 0; e < g; e++) {
-      this.faceColors[e] = a.Vd();
+      this.faceColors[e] = a.readUnsignedShort();
       if (m === 1 && this.faceRenderTypes) {
-        this.faceRenderTypes[e] = t.jd();
+        this.faceRenderTypes[e] = t.readByte();
       }
       if (h === 255) {
-        this.faceRenderPriorities[e] = n.jd();
+        this.faceRenderPriorities[e] = n.readByte();
       }
       if (f === 1) {
-        this.faceAlphas[e] = s.jd();
+        this.faceAlphas[e] = s.readByte();
       }
       if (u === 1 && this.faceSkins) {
-        this.faceSkins[e] = r.Od();
+        this.faceSkins[e] = r.readUnsignedByte();
       }
       if (v === 1 && this.faceTextures) {
-        this.faceTextures[e] = i.Vd() - 1;
+        this.faceTextures[e] = i.readUnsignedShort() - 1;
       }
       if (
         this.textureCoords &&
         this.faceTextures &&
         this.faceTextures[e] !== -1
       ) {
-        this.textureCoords[e] = l.Od() - 1;
+        this.textureCoords[e] = l.readUnsignedByte() - 1;
       }
       if (this.faceBias && hasFaceBias) {
-        this.faceBias[e] = o.Od() - 1;
+        this.faceBias[e] = o.readUnsignedByte() - 1;
       }
     }
     a.offset = R;
@@ -5667,7 +5667,7 @@ var wm = class e extends Sm {
     let Q = 0;
     let ee = 0;
     for (let e = 0; e < g; e++) {
-      const n = t.Od();
+      const n = t.readUnsignedByte();
       if (n === 1) {
         X = a.ng() + ee;
         J = a.ng() + X;
@@ -5712,13 +5712,13 @@ var wm = class e extends Sm {
     i.offset = K;
     for (let e = 0; e < c; e++) {
       if (!(this.textureRenderTypes[e] & 255)) {
-        this.textureMappingP[e] = a.Vd();
-        this.textureMappingM[e] = a.Vd();
-        this.textureMappingN[e] = a.Vd();
+        this.textureMappingP[e] = a.readUnsignedShort();
+        this.textureMappingM[e] = a.readUnsignedShort();
+        this.textureMappingN[e] = a.readUnsignedShort();
       }
     }
   }
-  bh(e) {
+  decodeV2(e) {
     this.version = 2;
     let a = false;
     let t = false;
@@ -5728,23 +5728,23 @@ var wm = class e extends Sm {
     const i = new rd(e);
     const l = new rd(e);
     n.offset = e.length - 23;
-    const o = n.Vd();
-    const d = n.Vd();
-    const g = n.Od();
-    const c = n.Od();
-    const m = n.Od();
-    const h = n.Od();
-    const f = n.Od();
-    const u = n.Od();
-    const v = n.Od();
+    const o = n.readUnsignedShort();
+    const d = n.readUnsignedShort();
+    const g = n.readUnsignedByte();
+    const c = n.readUnsignedByte();
+    const m = n.readUnsignedByte();
+    const h = n.readUnsignedByte();
+    const f = n.readUnsignedByte();
+    const u = n.readUnsignedByte();
+    const v = n.readUnsignedByte();
     logger.trace(
       "ModelLoader",
       `decodeV2 hasVertexSkins=${u}, hasMayaGroups=${v}, vertexCount=${o}, faceCount=${d}`,
     );
-    const p = n.Vd();
-    const k = n.Vd();
-    n.Vd();
-    const S = n.Vd();
+    const p = n.readUnsignedShort();
+    const k = n.readUnsignedShort();
+    n.readUnsignedShort();
+    const S = n.readUnsignedShort();
     let b = 0 + o;
     const y = b;
     b += d;
@@ -5761,7 +5761,7 @@ var wm = class e extends Sm {
       b += d;
     }
     const L = b;
-    b += n.Vd();
+    b += n.readUnsignedShort();
     const D = b;
     if (h === 1) {
       b += d;
@@ -5825,7 +5825,7 @@ var wm = class e extends Sm {
     let B = 0;
     let W = 0;
     for (let e = 0; e < o; e++) {
-      const a = n.Od();
+      const a = n.readUnsignedByte();
       let t = 0;
       if (a & 1) {
         t = s.ng();
@@ -5845,17 +5845,17 @@ var wm = class e extends Sm {
       B = this.verticesY[e];
       W = this.verticesZ[e];
       if (u === 1 && this.vertexSkins) {
-        this.vertexSkins[e] = l.Od();
+        this.vertexSkins[e] = l.readUnsignedByte();
       }
     }
     if (v === 1) {
       for (let e = 0; e < o; e++) {
-        const a = l.Od();
+        const a = l.readUnsignedByte();
         this.animMayaGroups[e] = new Int32Array(a);
         this.animMayaScales[e] = new Int32Array(a);
         for (let t = 0; t < a; t++) {
-          this.animMayaGroups[e][t] = l.Od();
-          this.animMayaScales[e][t] = l.Od();
+          this.animMayaGroups[e][t] = l.readUnsignedByte();
+          this.animMayaScales[e][t] = l.readUnsignedByte();
         }
       }
     }
@@ -5865,14 +5865,14 @@ var wm = class e extends Sm {
     i.offset = D;
     l.offset = w;
     for (let e = 0; e < d; e++) {
-      this.faceColors[e] = n.Vd();
+      this.faceColors[e] = n.readUnsignedShort();
       if (
         c === 1 &&
         this.faceRenderTypes &&
         this.textureCoords &&
         this.faceTextures
       ) {
-        const n = s.Od();
+        const n = s.readUnsignedByte();
         if (~n & 1) {
           this.faceRenderTypes[e] = 0;
         } else {
@@ -5898,13 +5898,13 @@ var wm = class e extends Sm {
         }
       }
       if (m === 255) {
-        this.faceRenderPriorities[e] = r.jd();
+        this.faceRenderPriorities[e] = r.readByte();
       }
       if (h === 1) {
-        this.faceAlphas[e] = i.jd();
+        this.faceAlphas[e] = i.readByte();
       }
       if (f === 1 && this.faceSkins) {
-        this.faceSkins[e] = l.Od();
+        this.faceSkins[e] = l.readUnsignedByte();
       }
     }
     n.offset = H;
@@ -5914,7 +5914,7 @@ var wm = class e extends Sm {
     let _ = 0;
     let F = 0;
     for (let e = 0; e < d; e++) {
-      const a = s.Od();
+      const a = s.readUnsignedByte();
       if (a === 1) {
         R = n.ng() + F;
         P = n.ng() + R;
@@ -5954,9 +5954,9 @@ var wm = class e extends Sm {
     n.offset = T;
     for (let e = 0; e < g; e++) {
       this.textureRenderTypes[e] = 0;
-      this.textureMappingP[e] = n.Vd();
-      this.textureMappingM[e] = n.Vd();
-      this.textureMappingN[e] = n.Vd();
+      this.textureMappingP[e] = n.readUnsignedShort();
+      this.textureMappingM[e] = n.readUnsignedShort();
+      this.textureMappingN[e] = n.readUnsignedShort();
     }
     if (this.textureCoords) {
       let e = false;
@@ -5985,7 +5985,7 @@ var wm = class e extends Sm {
       this.faceRenderTypes = undefined;
     }
   }
-  zh(e) {
+  scaleDown(e) {
     for (let a = 0; a < this.verticesCount; a++) {
       this.verticesX[a] >>= e;
       this.verticesY[a] >>= e;
@@ -6001,7 +6001,7 @@ var wm = class e extends Sm {
       }
     }
   }
-  yh(e) {
+  decodeV1(e) {
     this.version = 1;
     const a = new rd(e);
     const t = new rd(e);
@@ -6011,26 +6011,26 @@ var wm = class e extends Sm {
     const i = new rd(e);
     const l = new rd(e);
     a.offset = e.length - 23;
-    const o = a.Vd();
-    const d = a.Vd();
-    const g = a.Od();
-    const c = a.Od();
+    const o = a.readUnsignedShort();
+    const d = a.readUnsignedShort();
+    const g = a.readUnsignedByte();
+    const c = a.readUnsignedByte();
     const m = !(~c & 1);
     if (!(~c & 8)) {
       a.offset -= 7;
-      this.version = a.Od();
+      this.version = a.readUnsignedByte();
       a.offset += 6;
     }
-    const h = a.Od();
-    const f = a.Od();
-    const u = a.Od();
-    const v = a.Od();
-    const p = a.Od();
-    const k = a.Vd();
-    const S = a.Vd();
-    const b = a.Vd();
-    const y = a.Vd();
-    const z = a.Vd();
+    const h = a.readUnsignedByte();
+    const f = a.readUnsignedByte();
+    const u = a.readUnsignedByte();
+    const v = a.readUnsignedByte();
+    const p = a.readUnsignedByte();
+    const k = a.readUnsignedShort();
+    const S = a.readUnsignedShort();
+    const b = a.readUnsignedShort();
+    const y = a.readUnsignedShort();
+    const z = a.readUnsignedShort();
     let w = 0;
     let A = 0;
     let L = 0;
@@ -6038,7 +6038,7 @@ var wm = class e extends Sm {
       this.textureRenderTypes = new Int8Array(g);
       a.offset = 0;
       for (let e = 0; e < g; e++) {
-        const t = a.jd();
+        const t = a.readByte();
         this.textureRenderTypes[e] = t;
         if (t === 0) {
           w++;
@@ -6167,7 +6167,7 @@ var wm = class e extends Sm {
     let q = 0;
     let Z = 0;
     for (let e = 0; e < o; e++) {
-      const i = a.Od();
+      const i = a.readUnsignedByte();
       let l = 0;
       if (i & 1) {
         l = t.ng();
@@ -6187,7 +6187,7 @@ var wm = class e extends Sm {
       q = this.verticesY[e];
       Z = this.verticesZ[e];
       if (p === 1 && this.vertexSkins) {
-        this.vertexSkins[e] = r.Od();
+        this.vertexSkins[e] = r.readUnsignedByte();
       }
     }
     a.offset = P;
@@ -6198,25 +6198,25 @@ var wm = class e extends Sm {
     i.offset = W;
     l.offset = R;
     for (let e = 0; e < d; e++) {
-      this.faceColors[e] = a.Vd();
+      this.faceColors[e] = a.readUnsignedShort();
       if (m && this.faceRenderTypes) {
-        this.faceRenderTypes[e] = t.jd();
+        this.faceRenderTypes[e] = t.readByte();
       }
       if (h === 255) {
-        this.faceRenderPriorities[e] = n.jd();
+        this.faceRenderPriorities[e] = n.readByte();
       }
       if (f === 1) {
-        this.faceAlphas[e] = s.jd();
+        this.faceAlphas[e] = s.readByte();
       }
       if (u === 1 && this.faceSkins) {
-        this.faceSkins[e] = r.Od();
+        this.faceSkins[e] = r.readUnsignedByte();
       }
       if (v === 1 && this.faceTextures) {
-        this.faceTextures[e] = i.Vd() - 1;
+        this.faceTextures[e] = i.readUnsignedShort() - 1;
       }
       if (this.textureCoords) {
         if (this.faceTextures && this.faceTextures[e] !== -1) {
-          this.textureCoords[e] = l.Od() - 1;
+          this.textureCoords[e] = l.readUnsignedByte() - 1;
         } else {
           this.textureCoords[e] = -1;
         }
@@ -6230,7 +6230,7 @@ var wm = class e extends Sm {
     let Q = 0;
     this.usedVertexCount = -1;
     for (let e = 0; e < d; e++) {
-      const n = t.Od();
+      const n = t.readUnsignedByte();
       if (n === 1) {
         Y = a.ng() + Q;
         X = a.ng() + Y;
@@ -6292,88 +6292,88 @@ var wm = class e extends Sm {
     s.offset = O;
     r.offset = $;
     i.offset = V;
-    this.wh(a, t, n, s, r, i);
+    this.decodeTextureMapping(a, t, n, s, r, i);
     a.offset = D;
     if (this.version >= 13) {
-      this.zh(2);
+      this.scaleDown(2);
     }
   }
-  wh(e, a, t, n, s, r) {
+  decodeTextureMapping(e, a, t, n, s, r) {
     for (let i = 0; i < this.textureFaceCount; i++) {
       const l = this.textureRenderTypes[i] & 255;
       if (l === 0) {
-        this.textureMappingP[i] = e.Vd();
-        this.textureMappingM[i] = e.Vd();
-        this.textureMappingN[i] = e.Vd();
+        this.textureMappingP[i] = e.readUnsignedShort();
+        this.textureMappingM[i] = e.readUnsignedShort();
+        this.textureMappingN[i] = e.readUnsignedShort();
       }
       if (l === 1) {
-        this.textureMappingP[i] = a.Vd();
-        this.textureMappingM[i] = a.Vd();
-        this.textureMappingN[i] = a.Vd();
+        this.textureMappingP[i] = a.readUnsignedShort();
+        this.textureMappingM[i] = a.readUnsignedShort();
+        this.textureMappingN[i] = a.readUnsignedShort();
         if (this.version < 15) {
-          this.textureScaleX[i] = t.Vd();
+          this.textureScaleX[i] = t.readUnsignedShort();
           if (this.version >= 14) {
-            this.textureScaleY[i] = t.Zd();
+            this.textureScaleY[i] = t.readMedium();
           } else {
-            this.textureScaleY[i] = t.Vd();
+            this.textureScaleY[i] = t.readUnsignedShort();
           }
-          this.textureScaleZ[i] = t.Vd();
+          this.textureScaleZ[i] = t.readUnsignedShort();
         } else {
-          this.textureScaleX[i] = t.Zd();
-          this.textureScaleY[i] = t.Zd();
-          this.textureScaleZ[i] = t.Zd();
+          this.textureScaleX[i] = t.readMedium();
+          this.textureScaleY[i] = t.readMedium();
+          this.textureScaleZ[i] = t.readMedium();
         }
-        this.textureRotation[i] = n.jd();
-        this.textureDirection[i] = s.jd();
-        this.textureSpeed[i] = r.jd();
+        this.textureRotation[i] = n.readByte();
+        this.textureDirection[i] = s.readByte();
+        this.textureSpeed[i] = r.readByte();
       }
       if (l === 2) {
-        this.textureMappingP[i] = a.Vd();
-        this.textureMappingM[i] = a.Vd();
-        this.textureMappingN[i] = a.Vd();
+        this.textureMappingP[i] = a.readUnsignedShort();
+        this.textureMappingM[i] = a.readUnsignedShort();
+        this.textureMappingN[i] = a.readUnsignedShort();
         if (this.version < 15) {
-          this.textureScaleX[i] = t.Vd();
+          this.textureScaleX[i] = t.readUnsignedShort();
           if (this.version >= 14) {
-            this.textureScaleY[i] = t.Zd();
+            this.textureScaleY[i] = t.readMedium();
           } else {
-            this.textureScaleY[i] = t.Vd();
+            this.textureScaleY[i] = t.readUnsignedShort();
           }
-          this.textureScaleZ[i] = t.Vd();
+          this.textureScaleZ[i] = t.readUnsignedShort();
         } else {
-          this.textureScaleX[i] = t.Zd();
-          this.textureScaleY[i] = t.Zd();
-          this.textureScaleZ[i] = t.Zd();
+          this.textureScaleX[i] = t.readMedium();
+          this.textureScaleY[i] = t.readMedium();
+          this.textureScaleZ[i] = t.readMedium();
         }
-        this.textureRotation[i] = n.jd();
-        this.textureDirection[i] = s.jd();
-        this.textureSpeed[i] = r.jd();
-        this.textureTransU[i] = r.jd();
-        this.textureTransV[i] = r.jd();
+        this.textureRotation[i] = n.readByte();
+        this.textureDirection[i] = s.readByte();
+        this.textureSpeed[i] = r.readByte();
+        this.textureTransU[i] = r.readByte();
+        this.textureTransV[i] = r.readByte();
       }
       if (l === 3) {
-        this.textureMappingP[i] = a.Vd();
-        this.textureMappingM[i] = a.Vd();
-        this.textureMappingN[i] = a.Vd();
+        this.textureMappingP[i] = a.readUnsignedShort();
+        this.textureMappingM[i] = a.readUnsignedShort();
+        this.textureMappingN[i] = a.readUnsignedShort();
         if (this.version < 15) {
-          this.textureScaleX[i] = t.Vd();
+          this.textureScaleX[i] = t.readUnsignedShort();
           if (this.version >= 14) {
-            this.textureScaleY[i] = t.Zd();
+            this.textureScaleY[i] = t.readMedium();
           } else {
-            this.textureScaleY[i] = t.Vd();
+            this.textureScaleY[i] = t.readUnsignedShort();
           }
-          this.textureScaleZ[i] = t.Vd();
+          this.textureScaleZ[i] = t.readUnsignedShort();
         } else {
-          this.textureScaleX[i] = t.Zd();
-          this.textureScaleY[i] = t.Zd();
-          this.textureScaleZ[i] = t.Zd();
+          this.textureScaleX[i] = t.readMedium();
+          this.textureScaleY[i] = t.readMedium();
+          this.textureScaleZ[i] = t.readMedium();
         }
-        this.textureRotation[i] = n.jd();
-        this.textureDirection[i] = s.jd();
-        this.textureSpeed[i] = r.jd();
+        this.textureRotation[i] = n.readByte();
+        this.textureDirection[i] = s.readByte();
+        this.textureSpeed[i] = r.readByte();
       }
     }
   }
-  Hm(e) {
+  decodeOld(e) {
     this.version = 0;
     let a = false;
     let t = false;
@@ -6383,17 +6383,17 @@ var wm = class e extends Sm {
     const i = new rd(e);
     const l = new rd(e);
     n.offset = e.length - 18;
-    const o = n.Vd();
-    const d = n.Vd();
-    const g = n.Od();
-    const c = n.Od();
-    const m = n.Od();
-    const h = n.Od();
-    const f = n.Od();
-    const u = n.Od();
-    const v = n.Vd();
-    const p = n.Vd();
-    n.Vd();
+    const o = n.readUnsignedShort();
+    const d = n.readUnsignedShort();
+    const g = n.readUnsignedByte();
+    const c = n.readUnsignedByte();
+    const m = n.readUnsignedByte();
+    const h = n.readUnsignedByte();
+    const f = n.readUnsignedByte();
+    const u = n.readUnsignedByte();
+    const v = n.readUnsignedShort();
+    const p = n.readUnsignedShort();
+    n.readUnsignedShort();
     let k = 0 + o;
     const S = k;
     k += d;
@@ -6418,7 +6418,7 @@ var wm = class e extends Sm {
       k += d;
     }
     const L = k;
-    k += n.Vd();
+    k += n.readUnsignedShort();
     const D = k;
     k += d * 2;
     const H = k;
@@ -6472,7 +6472,7 @@ var wm = class e extends Sm {
     let C = 0;
     let x = 0;
     for (let e = 0; e < o; e++) {
-      const a = n.Od();
+      const a = n.readUnsignedByte();
       let t = 0;
       if (a & 1) {
         t = s.ng();
@@ -6492,7 +6492,7 @@ var wm = class e extends Sm {
       C = this.verticesY[e];
       x = this.verticesZ[e];
       if (u === 1 && this.vertexSkins) {
-        this.vertexSkins[e] = l.Od();
+        this.vertexSkins[e] = l.readUnsignedByte();
       }
     }
     n.offset = D;
@@ -6501,14 +6501,14 @@ var wm = class e extends Sm {
     i.offset = A;
     l.offset = y;
     for (let e = 0; e < d; e++) {
-      this.faceColors[e] = n.Vd();
+      this.faceColors[e] = n.readUnsignedShort();
       if (
         c === 1 &&
         this.faceRenderTypes &&
         this.textureCoords &&
         this.faceTextures
       ) {
-        const n = s.Od();
+        const n = s.readUnsignedByte();
         if (~n & 1) {
           this.faceRenderTypes[e] = 0;
         } else {
@@ -6534,13 +6534,13 @@ var wm = class e extends Sm {
         }
       }
       if (m === 255) {
-        this.faceRenderPriorities[e] = r.jd();
+        this.faceRenderPriorities[e] = r.readByte();
       }
       if (h === 1) {
-        this.faceAlphas[e] = i.jd();
+        this.faceAlphas[e] = i.readByte();
       }
       if (f === 1 && this.faceSkins) {
-        this.faceSkins[e] = l.Od();
+        this.faceSkins[e] = l.readUnsignedByte();
       }
     }
     n.offset = L;
@@ -6551,7 +6551,7 @@ var wm = class e extends Sm {
     let P = 0;
     this.usedVertexCount = -1;
     for (let e = 0; e < d; e++) {
-      const a = s.Od();
+      const a = s.readUnsignedByte();
       if (a === 1) {
         B = n.ng() + P;
         W = n.ng() + B;
@@ -6610,9 +6610,9 @@ var wm = class e extends Sm {
     n.offset = H;
     for (let e = 0; e < g; e++) {
       this.textureRenderTypes[e] = 0;
-      this.textureMappingP[e] = n.Vd();
-      this.textureMappingM[e] = n.Vd();
-      this.textureMappingN[e] = n.Vd();
+      this.textureMappingP[e] = n.readUnsignedShort();
+      this.textureMappingM[e] = n.readUnsignedShort();
+      this.textureMappingN[e] = n.readUnsignedShort();
     }
     if (this.textureCoords) {
       let e = false;
@@ -6741,7 +6741,7 @@ var wm = class e extends Sm {
     }
     this.Ah();
   }
-  Lh() {
+  rotate90() {
     for (let e = 0; e < this.verticesCount; e++) {
       const a = this.verticesX[e];
       this.verticesX[e] = this.verticesZ[e];
@@ -6749,14 +6749,14 @@ var wm = class e extends Sm {
     }
     this.Ah();
   }
-  Dh() {
+  rotate180() {
     for (let e = 0; e < this.verticesCount; e++) {
       this.verticesX[e] = -this.verticesX[e];
       this.verticesZ[e] = -this.verticesZ[e];
     }
     this.Ah();
   }
-  Hh() {
+  rotate270() {
     for (let e = 0; e < this.verticesCount; e++) {
       const a = this.verticesZ[e];
       this.verticesZ[e] = this.verticesX[e];
@@ -6783,7 +6783,7 @@ var wm = class e extends Sm {
     }
     this.Ah();
   }
-  Mh(e, a) {
+  recolor(e, a) {
     for (let t = 0; t < this.faceCount; t++) {
       if (this.faceColors[t] === e) {
         this.faceColors[t] = a;
@@ -6807,7 +6807,7 @@ var wm = class e extends Sm {
     }
     this.Ah();
   }
-  uh() {
+  calculateVertexNormals() {
     if (!this.normals) {
       const usedVertexCount3 = this.usedVertexCount;
       const a = (function (e, a) {
@@ -6899,7 +6899,7 @@ var wm = class e extends Sm {
     this.normalMergeIndex = undefined;
     this.isBoundsCalculated = false;
   }
-  fh() {
+  calculateBounds() {
     if (!this.isBoundsCalculated) {
       this.height = 0;
       this.minHeight = 0;
@@ -7007,9 +7007,9 @@ var wm = class e extends Sm {
       const s = base3.types[n];
       const r = a.resetOriginGroups[e];
       if (r !== -1) {
-        this.Ch(Ld.ORIGIN, base3.labels[r], 0, 0, 0);
+        this.applyTransform(Ld.ORIGIN, base3.labels[r], 0, 0, 0);
       }
-      this.Ch(
+      this.applyTransform(
         s,
         base3.labels[n],
         a.transformX[e],
@@ -7018,7 +7018,7 @@ var wm = class e extends Sm {
       );
     }
   }
-  xh(a, t, n) {
+  animateInterleaved(a, t, n) {
     if (!this.vertexLabels) {
       return;
     }
@@ -7034,10 +7034,10 @@ var wm = class e extends Sm {
       }
       const o = a.resetOriginGroups[e];
       if (o !== -1) {
-        this.Ch(Ld.ORIGIN, base4.labels[o], 0, 0, 0);
+        this.applyTransform(Ld.ORIGIN, base4.labels[o], 0, 0, 0);
       }
       if (t !== i || l === Ld.ORIGIN) {
-        this.Ch(
+        this.applyTransform(
           l,
           base4.labels[t],
           a.transformX[e],
@@ -7060,10 +7060,10 @@ var wm = class e extends Sm {
       }
       const o = t.resetOriginGroups[e];
       if (o !== -1) {
-        this.Ch(Ld.ORIGIN, base4.labels[o], 0, 0, 0);
+        this.applyTransform(Ld.ORIGIN, base4.labels[o], 0, 0, 0);
       }
       if (a === i || l === Ld.ORIGIN) {
-        this.Ch(
+        this.applyTransform(
           l,
           base4.labels[a],
           t.transformX[e],
@@ -7073,7 +7073,7 @@ var wm = class e extends Sm {
       }
     }
   }
-  Ch(a, t, n, s, r) {
+  applyTransform(a, t, n, s, r) {
     const vertexLabels3 = this.vertexLabels;
     if (!vertexLabels3) {
       return;
@@ -7206,7 +7206,7 @@ var wm = class e extends Sm {
                 const r = t[a];
                 const i = faceAlphas2[r];
                 if (!e.ah(i)) {
-                  faceAlphas2[r] = e.nh((i & 255) + n * 8);
+                  faceAlphas2[r] = e.clampAnimatedFaceAlpha((i & 255) + n * 8);
                 }
               }
             }
@@ -7216,18 +7216,18 @@ var wm = class e extends Sm {
       }
     }
   }
-  Bh(a, t, n, s, r, i) {
+  vertexBrightness(a, t, n, s, r, i) {
     const l = a * 4;
     const o = this.mergedNormals?.sums;
     const d = o !== undefined && o[l + 3] !== 0 ? o : this.normals;
-    return e.dh(t, s * d[l + 1] + r * d[l + 2] + n * d[l], i * d[l + 3]);
+    return e.litBrightness(t, s * d[l + 1] + r * d[l + 2] + n * d[l], i * d[l + 3]);
   }
-  Wh(a, t, n, s, r, i, l) {
+  faceBrightness(a, t, n, s, r, i, l) {
     const o = t * 3;
-    return e.dh(n, r * a[o + 1] + i * a[o + 2] + s * a[o], (l >> 1) + l);
+    return e.litBrightness(n, r * a[o + 1] + i * a[o + 2] + s * a[o], (l >> 1) + l);
   }
   Rh(a, t, n, s, r) {
-    this.uh();
+    this.calculateVertexNormals();
     if (!this.normals) {
       throw new Error("Failed to calculate normals");
     }
@@ -7251,15 +7251,15 @@ var wm = class e extends Sm {
       if (m === -1) {
         if (g === 0) {
           const g = this.faceColors[t] & 65535;
-          let c = this.Bh(this.indices1[t], a, n, s, r, i) << 17;
-          l[t] = c | e.ih(g, c >> 17);
-          c = this.Bh(this.indices2[t], a, n, s, r, i) << 17;
-          o[t] = c | e.ih(g, c >> 17);
-          c = this.Bh(this.indices3[t], a, n, s, r, i) << 17;
-          d[t] = c | e.ih(g, c >> 17);
+          let c = this.vertexBrightness(this.indices1[t], a, n, s, r, i) << 17;
+          l[t] = c | e.adjustLightness(g, c >> 17);
+          c = this.vertexBrightness(this.indices2[t], a, n, s, r, i) << 17;
+          o[t] = c | e.adjustLightness(g, c >> 17);
+          c = this.vertexBrightness(this.indices3[t], a, n, s, r, i) << 17;
+          d[t] = c | e.adjustLightness(g, c >> 17);
         } else if (g === 1 && this.faceNormals) {
-          const o = this.Wh(this.faceNormals, t, a, n, s, r, i) << 17;
-          l[t] = o | e.ih(this.faceColors[t] & 65535, o >> 17);
+          const o = this.faceBrightness(this.faceNormals, t, a, n, s, r, i) << 17;
+          l[t] = o | e.adjustLightness(this.faceColors[t] & 65535, o >> 17);
           d[t] = -1;
         } else if (g === 3) {
           l[t] = 128;
@@ -7268,11 +7268,11 @@ var wm = class e extends Sm {
           d[t] = -2;
         }
       } else if (g === 0) {
-        l[t] = e.oh(this.Bh(this.indices1[t], a, n, s, r, i));
-        o[t] = e.oh(this.Bh(this.indices2[t], a, n, s, r, i));
-        d[t] = e.oh(this.Bh(this.indices3[t], a, n, s, r, i));
+        l[t] = e.clampLightness(this.vertexBrightness(this.indices1[t], a, n, s, r, i));
+        o[t] = e.clampLightness(this.vertexBrightness(this.indices2[t], a, n, s, r, i));
+        d[t] = e.clampLightness(this.vertexBrightness(this.indices3[t], a, n, s, r, i));
       } else if (g === 1 && this.faceNormals) {
-        l[t] = e.oh(this.Wh(this.faceNormals, t, a, n, s, r, i));
+        l[t] = e.clampLightness(this.faceBrightness(this.faceNormals, t, a, n, s, r, i));
         d[t] = -1;
       } else {
         d[t] = -2;
@@ -7284,18 +7284,18 @@ var wm = class e extends Sm {
       faceColors3: d,
     };
   }
-  Ph(e, a) {
+  animateSkeletal(e, a) {
     const skeletalBase3 = e.skeletalBase;
     if (skeletalBase3) {
       skeletalBase3.qg(e, a);
-      this._h(skeletalBase3, e.poseId);
+      this.transformSkeletal(skeletalBase3, e.poseId);
     }
     if (e.hasAlphaTransform) {
       this.Fh(e, a);
     }
     this.Ah();
   }
-  Eh(e) {
+  debugSkeletalInfo(e) {
     const skeletalBase4 = e.skeletalBase;
     if (!skeletalBase4) {
       logger.trace("ModelLoader", "debugSkeletalInfo: No skeletal base");
@@ -7323,7 +7323,7 @@ var wm = class e extends Sm {
       `debugSkeletalInfo: verticesWithBones=${t}/${this.verticesCount}, avgBonesPerVertex=${(n / t).toFixed(2)}`,
     );
   }
-  _h(a, t) {
+  transformSkeletal(a, t) {
     if (this.animMayaGroups) {
       for (let n = 0; n < this.verticesCount; n++) {
         const s = this.animMayaGroups[n];
@@ -7339,7 +7339,7 @@ var wm = class e extends Sm {
               const a = r[n] / 255;
               vec3Set(ym, a, a, a);
               mat4FromScaling(e.skeletalScalingMatrix, ym);
-              mat4Multiply(e.skeletalBoneMatrix, e.skeletalScalingMatrix, l.Vg(t));
+              mat4Multiply(e.skeletalBoneMatrix, e.skeletalScalingMatrix, l.getFinalMatrix(t));
               mat4Add(
                 e.skeletalTransformMatrix,
                 e.skeletalTransformMatrix,
@@ -7382,7 +7382,7 @@ var wm = class e extends Sm {
               if (e.ah(a)) {
                 continue;
               }
-              const s = e.nh((a & 255) + r.getValue(t) * 255);
+              const s = e.clampAnimatedFaceAlpha((a & 255) + r.getValue(t) * 255);
               this.faceAlphas[n] = s;
             }
           }
@@ -7661,17 +7661,17 @@ var Im = class e extends pd {
     }
   }
   Uh(e) {
-    const a = e.Od();
+    const a = e.readUnsignedByte();
     for (let t = 0; t < a; t++) {
-      e.jd();
-      const a = e.Od();
-      if (this.jh()) {
+      e.readByte();
+      const a = e.readUnsignedByte();
+      if (this.isLargeModelId()) {
         for (let t = 0; t < a; t++) {
-          e.Jd();
+          e.readBigSmart();
         }
       } else {
         for (let t = 0; t < a; t++) {
-          e.Vd();
+          e.readUnsignedShort();
         }
       }
     }
@@ -7681,7 +7681,7 @@ var Im = class e extends pd {
       this.cacheInfo.game === "runescape" && this.cacheInfo.revision >= 582
     );
   }
-  jh() {
+  isLargeModelId() {
     return (
       this.cacheInfo.game === "runescape" && this.cacheInfo.revision >= 670
     );
@@ -7689,7 +7689,7 @@ var Im = class e extends pd {
   Hg(e, a) {
     if (!this.Oh() || (e !== 1 && e !== 5)) {
       if (e === 1) {
-        const e = a.Od();
+        const e = a.readUnsignedByte();
         if (e > 0) {
           if (this.models && !this.lowDetail) {
             a.offset += e * 3;
@@ -7698,8 +7698,8 @@ var Im = class e extends pd {
             this.types = new Array(e);
             for (let t = 0; t < e; t++) {
               this.models[t] = new Array(1);
-              this.models[t][0] = a.Vd();
-              this.types[t] = a.Od();
+              this.models[t][0] = a.readUnsignedShort();
+              this.types[t] = a.readUnsignedByte();
             }
           }
         }
@@ -7708,7 +7708,7 @@ var Im = class e extends pd {
       } else if (e === 3) {
         this.desc = this.readString(a);
       } else if (e === 5) {
-        const e = a.Od();
+        const e = a.readUnsignedByte();
         if (e > 0) {
           if (this.models && !this.lowDetail) {
             a.offset += e * 2;
@@ -7717,23 +7717,23 @@ var Im = class e extends pd {
             this.models = new Array(1);
             this.models[0] = new Array(e);
             for (let t = 0; t < e; t++) {
-              this.models[0][t] = a.Vd();
+              this.models[0][t] = a.readUnsignedShort();
             }
           }
         }
       } else if (e === 6) {
-        const e = a.Od();
+        const e = a.readUnsignedByte();
         if (e > 0) {
           this.models = new Array(e);
           this.types = new Array(e);
           for (let t = 0; t < e; t++) {
             this.models[t] = new Array(1);
             this.models[t][0] = a.readInt();
-            this.types[t] = a.Od();
+            this.types[t] = a.readUnsignedByte();
           }
         }
       } else if (e === 7) {
-        const e = a.Od();
+        const e = a.readUnsignedByte();
         if (e > 0) {
           this.types = undefined;
           this.models = new Array(1);
@@ -7743,16 +7743,16 @@ var Im = class e extends pd {
           }
         }
       } else if (e === 14) {
-        this.sizeX = a.Od();
+        this.sizeX = a.readUnsignedByte();
       } else if (e === 15) {
-        this.sizeY = a.Od();
+        this.sizeY = a.readUnsignedByte();
       } else if (e === 17) {
         this.clipType = 0;
         this.blocksProjectile = false;
       } else if (e === 18) {
         this.blocksProjectile = false;
       } else if (e === 19) {
-        this.isInteractive = a.Od();
+        this.isInteractive = a.readUnsignedByte();
       } else if (e === 21) {
         this.contouredGround = 0;
         this.contourGroundType = 1;
@@ -7761,7 +7761,7 @@ var Im = class e extends pd {
       } else if (e === 23) {
         this.modelClipped = true;
       } else if (e === 24) {
-        this.seqId = this.jh() ? a.Jd() : a.Vd();
+        this.seqId = this.isLargeModelId() ? a.readBigSmart() : a.readUnsignedShort();
         if (this.seqId === 65535) {
           this.seqId = -1;
         }
@@ -7769,64 +7769,64 @@ var Im = class e extends pd {
       else if (e === 27) {
         this.clipType = 1;
       } else if (e === 28) {
-        this.decorDisplacement = a.Od();
+        this.decorDisplacement = a.readUnsignedByte();
       } else if (e === 29) {
-        this.ambient = a.jd();
+        this.ambient = a.readByte();
       } else if (e === 39) {
-        this.contrast = a.jd() * 25;
+        this.contrast = a.readByte() * 25;
       } else if (e >= 30 && e < 39) {
         this.actions[e - 30] = this.readString(a);
         if (this.actions[e - 30].toLowerCase() === "hidden") {
           delete this.actions[e - 30];
         }
       } else if (e === 40) {
-        const e = a.Od();
+        const e = a.readUnsignedByte();
         this.recolorFrom = new Array(e);
         this.recolorTo = new Array(e);
         for (let t = 0; t < e; t++) {
-          this.recolorFrom[t] = a.Vd();
-          this.recolorTo[t] = a.Vd();
+          this.recolorFrom[t] = a.readUnsignedShort();
+          this.recolorTo[t] = a.readUnsignedShort();
         }
       } else if (e === 41) {
-        const e = a.Od();
+        const e = a.readUnsignedByte();
         this.retextureFrom = new Array(e);
         this.retextureTo = new Array(e);
         for (let t = 0; t < e; t++) {
-          this.retextureFrom[t] = a.Vd();
-          this.retextureTo[t] = a.Vd();
+          this.retextureFrom[t] = a.readUnsignedShort();
+          this.retextureTo[t] = a.readUnsignedShort();
         }
       } else if (e === 44 || e === 45) {
-        a.Vd();
+        a.readUnsignedShort();
       } else if (e === 60) {
-        this.mapFunctionId = a.Vd();
+        this.mapFunctionId = a.readUnsignedShort();
       } else if (e === 61) {
-        a.Vd();
+        a.readUnsignedShort();
       } else if (e === 62) {
         this.isRotated = true;
       } else if (e === 64) {
         this.clipped = false;
       } else if (e === 65) {
-        this.modelSizeX = a.Vd();
+        this.modelSizeX = a.readUnsignedShort();
       } else if (e === 66) {
-        this.modelSizeHeight = a.Vd();
+        this.modelSizeHeight = a.readUnsignedShort();
       } else if (e === 67) {
-        this.modelSizeY = a.Vd();
+        this.modelSizeY = a.readUnsignedShort();
       } else if (e === 68) {
-        this.mapSceneId = a.Vd();
+        this.mapSceneId = a.readUnsignedShort();
       } else if (e === 69) {
-        a.Od();
+        a.readUnsignedByte();
       } else if (e === 70) {
-        this.offsetX = a.$d();
+        this.offsetX = a.readShort();
       } else if (e === 71) {
-        this.offsetHeight = a.$d();
+        this.offsetHeight = a.readShort();
       } else if (e === 72) {
-        this.offsetY = a.$d();
+        this.offsetY = a.readShort();
       } else if (e === 73) {
         this.obstructsGround = true;
       } else if (e === 74) {
         this.isHollow = true;
       } else if (e === 75) {
-        this.supportItems = a.Od();
+        this.supportItems = a.readUnsignedByte();
       } else if (
         e === 77 ||
         e === 92 ||
@@ -7835,149 +7835,149 @@ var Im = class e extends pd {
         const t = e === 97 || e === 98;
         const n = () => {
           if (t) {
-            const e = a.Yd();
+            const e = a.readUnsignedMedium();
             if (e > 8388607) {
               return e - 16777216;
             } else {
               return e;
             }
           }
-          const e = this.jh() ? a.Jd() : a.Vd();
+          const e = this.isLargeModelId() ? a.readBigSmart() : a.readUnsignedShort();
           if (e === 65535) {
             return -1;
           } else {
             return e;
           }
         };
-        this.transformVarbit = a.Vd();
+        this.transformVarbit = a.readUnsignedShort();
         if (this.transformVarbit === 65535) {
           this.transformVarbit = -1;
         }
-        this.transformVarp = a.Vd();
+        this.transformVarp = a.readUnsignedShort();
         if (this.transformVarp === 65535) {
           this.transformVarp = -1;
         }
         const s = e === 92 || e === 98 ? n() : -1;
-        const r = a.Od();
+        const r = a.readUnsignedByte();
         this.transforms = new Array(r + 2);
         for (let e = 0; e <= r; e++) {
           this.transforms[e] = n();
         }
         this.transforms[r + 1] = s;
       } else if (e === 78) {
-        this.ambientSoundId = a.Vd();
-        this.ambientSoundDistance = a.Od();
+        this.ambientSoundId = a.readUnsignedShort();
+        this.ambientSoundDistance = a.readUnsignedByte();
         if (
           this.cacheInfo.game === "oldschool" &&
           this.cacheInfo.revision >= 220
         ) {
-          this.ambientSoundRetain = a.Od();
+          this.ambientSoundRetain = a.readUnsignedByte();
         }
       } else if (e === 79) {
-        this.ambientSoundChangeTicksMin = a.Vd();
-        this.ambientSoundChangeTicksMax = a.Vd();
-        this.ambientSoundDistance = a.Od();
+        this.ambientSoundChangeTicksMin = a.readUnsignedShort();
+        this.ambientSoundChangeTicksMax = a.readUnsignedShort();
+        this.ambientSoundDistance = a.readUnsignedByte();
         if (
           this.cacheInfo.game === "oldschool" &&
           this.cacheInfo.revision >= 220
         ) {
-          this.ambientSoundRetain = a.Od();
+          this.ambientSoundRetain = a.readUnsignedByte();
         }
-        const e = a.Od();
+        const e = a.readUnsignedByte();
         this.ambientSoundIds = new Array(e);
         for (let t = 0; t < e; t++) {
-          this.ambientSoundIds[t] = a.Vd();
+          this.ambientSoundIds[t] = a.readUnsignedShort();
         }
       } else if (e === 81) {
-        this.contouredGround = a.Od() * 256;
+        this.contouredGround = a.readUnsignedByte() * 256;
         this.contourGroundType = 2;
         this.contourGroundParam = this.Gh(this.contouredGround);
       } else if (e === 82) {
         if (this.cacheInfo.game === "oldschool") {
-          this.mapFunctionId = a.Vd();
+          this.mapFunctionId = a.readUnsignedShort();
         }
       } else if (e === 88);
       else if (e === 89) {
         this.seqRandomStart = false;
       } else if (e === 90);
       else if (e === 91) {
-        a.Od();
+        a.readUnsignedByte();
       } else if (e === 93) {
-        a.Od();
-        a.Vd();
-        a.Od();
-        a.Vd();
+        a.readUnsignedByte();
+        a.readUnsignedShort();
+        a.readUnsignedByte();
+        a.readUnsignedShort();
       } else if (e === 94);
       else if (e === 95) {
-        a.Od();
+        a.readUnsignedByte();
       } else if (e === 96) {
-        this.raise = a.Od();
+        this.raise = a.readUnsignedByte();
       } else if (e === 97);
       else if (e === 98);
       else if (e === 100) {
-        a.Od();
-        a.Od();
+        a.readUnsignedByte();
+        a.readUnsignedByte();
         this.readString(a);
       } else if (e === 101) {
-        a.Od();
-        a.Vd();
-        a.Vd();
+        a.readUnsignedByte();
+        a.readUnsignedShort();
+        a.readUnsignedShort();
         a.readInt();
         a.readInt();
         this.readString(a);
       } else if (e === 102) {
-        a.Od();
-        a.Vd();
-        a.Vd();
-        a.Vd();
+        a.readUnsignedByte();
+        a.readUnsignedShort();
+        a.readUnsignedShort();
+        a.readUnsignedShort();
         a.readInt();
         a.readInt();
         this.readString(a);
       } else if (e === 103);
       else if (e === 104) {
-        a.Od();
+        a.readUnsignedByte();
       } else if (e === 105) {
         this.flipMapSceneSprite = true;
       } else if (e === 106) {
-        const e = a.Od();
+        const e = a.readUnsignedByte();
         this.randomSeqIds = new Array(e);
         this.randomSeqDelays = new Array(e);
         for (let t = 0; t < e; t++) {
-          this.randomSeqIds[t] = this.jh() ? a.Jd() : a.Vd();
-          const e = a.Od();
+          this.randomSeqIds[t] = this.isLargeModelId() ? a.readBigSmart() : a.readUnsignedShort();
+          const e = a.readUnsignedByte();
           this.randomSeqDelays[t] = e;
         }
       } else if (e === 107) {
-        this.mapFunctionId = a.Vd();
+        this.mapFunctionId = a.readUnsignedShort();
       } else if (e >= 150 && e < 155) {
         this.actions[e - 150] = this.readString(a);
         if (this.actions[e - 150].toLowerCase() === "hidden") {
           delete this.actions[e - 150];
         }
       } else if (e === 160) {
-        const e = a.Od();
+        const e = a.readUnsignedByte();
         for (let t = 0; t < e; t++) {
-          a.Vd();
+          a.readUnsignedShort();
         }
       } else if (e === 163) {
-        a.jd();
-        a.jd();
-        a.jd();
-        a.jd();
+        a.readByte();
+        a.readByte();
+        a.readByte();
+        a.readByte();
       } else if (e === 167) {
-        a.Vd();
+        a.readUnsignedShort();
       } else if (e !== 168 && e !== 169) {
         if (e === 170 || e === 171) {
-          a.eg();
+          a.readUnsignedSmart();
         } else if (e === 173) {
-          a.Vd();
-          a.Vd();
+          a.readUnsignedShort();
+          a.readUnsignedShort();
         } else if (e !== 177) {
           if (e === 178) {
-            a.Od();
+            a.readUnsignedByte();
           } else if (e !== 189 && e !== 190 && e !== 191) {
             if (e === 249) {
-              this.params = pd.Dg(a, this.params);
+              this.params = pd.readParamsMap(a, this.params);
             } else {
               logger.warn("Config", `LocType: Unknown opcode ${e}. id: ${this.id}`);
             }
@@ -7985,20 +7985,20 @@ var Im = class e extends pd {
         }
       }
     } else {
-      const t = a.Od();
+      const t = a.readUnsignedByte();
       this.types = new Array(t);
       this.models = new Array(t);
       for (let e = 0; e < t; e++) {
-        this.types[e] = a.jd();
-        const t = a.Od();
+        this.types[e] = a.readByte();
+        const t = a.readUnsignedByte();
         this.models[e] = new Array(t);
-        if (this.jh()) {
+        if (this.isLargeModelId()) {
           for (let n = 0; n < t; n++) {
-            this.models[e][n] = a.Jd();
+            this.models[e][n] = a.readBigSmart();
           }
         } else {
           for (let n = 0; n < t; n++) {
-            this.models[e][n] = a.Vd();
+            this.models[e][n] = a.readUnsignedShort();
           }
         }
       }
@@ -8050,9 +8050,9 @@ function Bm(e, a, t, n) {
   const faceCount2 = e.faceCount;
   const r = n?.normals !== false;
   if (r) {
-    e.uh();
+    e.calculateVertexNormals();
   }
-  e.fh();
+  e.calculateBounds();
   let i = 0;
   for (let e = 0; e < faceCount2; e++) {
     if (a.faceColors3[e] !== -2) {
@@ -8178,7 +8178,7 @@ var Rm = class {
       this.seqFrameLoader = new xd(e, s, a);
     }
   }
-  Kh(e) {
+  setTextureLayerResolver(e) {
     this.resolveTextureLayer = e;
   }
   qh() {
@@ -8195,7 +8195,7 @@ var Rm = class {
       return;
     }
   }
-  Zh(e, a) {
+  getModelData(e, a) {
     let t = e;
     if (a) {
       t += 65536;
@@ -8242,7 +8242,7 @@ var Rm = class {
     }
     const r = [];
     for (const e of n) {
-      const a = this.Zh(e, s);
+      const a = this.getModelData(e, s);
       if (!a) {
         return;
       }
@@ -8255,7 +8255,7 @@ var Rm = class {
         : wm.merge(r, r.length);
     if (e.recolorFrom && e.recolorTo) {
       for (let a = 0; a < e.recolorFrom.length; a++) {
-        i.Mh(e.recolorFrom[a], e.recolorTo[a]);
+        i.recolor(e.recolorFrom[a], e.recolorTo[a]);
       }
     }
     if (e.retextureFrom && e.retextureTo) {
@@ -8269,11 +8269,11 @@ var Rm = class {
     }
     const l = t & 3;
     if (l === 1) {
-      i.Lh();
+      i.rotate90();
     } else if (l === 2) {
-      i.Dh();
+      i.rotate180();
     } else if (l === 3) {
-      i.Hh();
+      i.rotate270();
     }
     if (
       e.modelSizeX !== 128 ||
@@ -8395,19 +8395,19 @@ var Rm = class {
       if (s) {
         const e = t & 3;
         if (e === 1) {
-          m.Hh();
+          m.rotate270();
         } else if (e === 2) {
-          m.Dh();
+          m.rotate180();
         } else if (e === 3) {
-          m.Lh();
+          m.rotate90();
         }
         m.animate(s);
         if (e === 1) {
-          m.Lh();
+          m.rotate90();
         } else if (e === 2) {
-          m.Dh();
+          m.rotate180();
         } else if (e === 3) {
-          m.Hh();
+          m.rotate270();
         }
         g++;
       }
@@ -8517,22 +8517,22 @@ var Pm = class extends pd {
     this.spawnDirection = 6;
     this.basTypeId = -1;
   }
-  jh() {
+  isLargeModelId() {
     return (
       this.cacheInfo.game === "runescape" && this.cacheInfo.revision >= 670
     );
   }
   Hg(e, a) {
     if (e === 1) {
-      const e = a.Od();
+      const e = a.readUnsignedByte();
       this.modelIds = new Array(e);
-      if (this.jh()) {
+      if (this.isLargeModelId()) {
         for (let t = 0; t < e; t++) {
-          this.modelIds[t] = a.Jd();
+          this.modelIds[t] = a.readBigSmart();
         }
       } else {
         for (let t = 0; t < e; t++) {
-          this.modelIds[t] = a.Vd();
+          this.modelIds[t] = a.readUnsignedShort();
         }
       }
     } else if (e === 2) {
@@ -8540,99 +8540,99 @@ var Pm = class extends pd {
     } else if (e === 3) {
       this.readString(a);
     } else if (e === 12) {
-      this.size = a.Od();
+      this.size = a.readUnsignedByte();
     } else if (e === 13) {
-      this.idleSeqId = a.Vd();
+      this.idleSeqId = a.readUnsignedShort();
     } else if (e === 14) {
-      this.walkSeqId = a.Vd();
+      this.walkSeqId = a.readUnsignedShort();
     } else if (e === 15) {
-      this.turnLeftSeqId = a.Vd();
+      this.turnLeftSeqId = a.readUnsignedShort();
     } else if (e === 16) {
       if (
         this.cacheInfo.game !== "runescape" ||
         !(this.cacheInfo.revision < 254)
       ) {
-        this.turnRightSeqId = a.Vd();
+        this.turnRightSeqId = a.readUnsignedShort();
       }
     } else if (e === 17) {
-      this.walkSeqId = a.Vd();
-      this.walkBackSeqId = a.Vd();
-      this.walkLeftSeqId = a.Vd();
-      this.walkRightSeqId = a.Vd();
+      this.walkSeqId = a.readUnsignedShort();
+      this.walkBackSeqId = a.readUnsignedShort();
+      this.walkLeftSeqId = a.readUnsignedShort();
+      this.walkRightSeqId = a.readUnsignedShort();
     } else if (e === 18) {
-      this.category = a.Vd();
+      this.category = a.readUnsignedShort();
     } else if (e >= 30 && e < 35) {
       this.actions[e - 30] = this.readString(a);
       if (this.actions[e - 30].toLowerCase() === "hidden") {
         delete this.actions[e - 30];
       }
     } else if (e === 40) {
-      const e = a.Od();
+      const e = a.readUnsignedByte();
       this.recolorFrom = new Array(e);
       this.recolorTo = new Array(e);
       for (let t = 0; t < e; t++) {
-        this.recolorFrom[t] = a.Vd();
-        this.recolorTo[t] = a.Vd();
+        this.recolorFrom[t] = a.readUnsignedShort();
+        this.recolorTo[t] = a.readUnsignedShort();
       }
     } else if (e === 41) {
-      const e = a.Od();
+      const e = a.readUnsignedByte();
       this.retextureFrom = new Array(e);
       this.retextureTo = new Array(e);
       for (let t = 0; t < e; t++) {
-        this.retextureFrom[t] = a.Vd();
-        this.retextureTo[t] = a.Vd();
+        this.retextureFrom[t] = a.readUnsignedShort();
+        this.retextureTo[t] = a.readUnsignedShort();
       }
     } else if (e === 44 || e === 45) {
-      a.Vd();
+      a.readUnsignedShort();
     } else if (e === 60) {
-      const e = a.Od();
+      const e = a.readUnsignedByte();
       this.chatheadModelIds = new Array(e);
-      if (this.jh()) {
+      if (this.isLargeModelId()) {
         for (let t = 0; t < e; t++) {
-          this.chatheadModelIds[t] = a.Jd();
+          this.chatheadModelIds[t] = a.readBigSmart();
         }
       } else {
         for (let t = 0; t < e; t++) {
-          this.chatheadModelIds[t] = a.Vd();
+          this.chatheadModelIds[t] = a.readUnsignedShort();
         }
       }
     } else if (e === 61) {
-      const e = a.Od();
+      const e = a.readUnsignedByte();
       this.modelIds = new Array(e);
       for (let t = 0; t < e; t++) {
         this.modelIds[t] = a.readInt();
       }
     } else if (e === 62) {
-      const e = a.Od();
+      const e = a.readUnsignedByte();
       this.chatheadModelIds = new Array(e);
       for (let t = 0; t < e; t++) {
         this.chatheadModelIds[t] = a.readInt();
       }
     } else if (e >= 74 && e <= 79) {
-      a.Vd();
+      a.readUnsignedShort();
     } else if (e === 93) {
       this.drawMapDot = false;
     } else if (e === 95) {
-      this.combatLevel = a.Vd();
+      this.combatLevel = a.readUnsignedShort();
     } else if (e === 97) {
-      this.widthScale = a.Vd();
+      this.widthScale = a.readUnsignedShort();
     } else if (e === 98) {
-      this.heightScale = a.Vd();
+      this.heightScale = a.readUnsignedShort();
     } else if (e === 99) {
       this.isVisible = true;
     } else if (e === 100) {
-      this.ambient = a.jd();
+      this.ambient = a.readByte();
     } else if (e === 101) {
-      this.contrast = a.jd();
+      this.contrast = a.readByte();
     } else if (e === 102) {
       if (
         (this.cacheInfo.game === "oldschool" &&
           this.cacheInfo.revision < 210) ||
         this.cacheInfo.game === "runescape"
       ) {
-        this.headIconPrayer = a.Vd();
+        this.headIconPrayer = a.readUnsignedShort();
       } else {
-        const e = a.Od();
+        const e = a.readUnsignedByte();
         let t = 0;
         for (let a = e; a !== 0; a >>= 1) {
           t++;
@@ -8641,8 +8641,8 @@ var Pm = class extends pd {
         this.headIconSpriteIndices = new Array(t);
         for (let n = 0; n < t; n++) {
           if ((e & 1) << n) {
-            this.headIconSpriteIds[n] = a.Jd();
-            this.headIconSpriteIndices[n] = a.tg();
+            this.headIconSpriteIds[n] = a.readBigSmart();
+            this.headIconSpriteIndices[n] = a.readUnsignedSmartMin1();
           } else {
             this.headIconSpriteIds[n] = -1;
             this.headIconSpriteIndices[n] = -1;
@@ -8650,27 +8650,27 @@ var Pm = class extends pd {
         }
       }
     } else if (e === 103) {
-      this.rotationSpeed = a.Vd();
+      this.rotationSpeed = a.readUnsignedShort();
     } else if (e === 106 || e === 118) {
-      this.transformVarbit = a.Vd();
+      this.transformVarbit = a.readUnsignedShort();
       if (this.transformVarbit === 65535) {
         this.transformVarbit = -1;
       }
-      this.transformVarp = a.Vd();
+      this.transformVarp = a.readUnsignedShort();
       if (this.transformVarp === 65535) {
         this.transformVarp = -1;
       }
       let t = -1;
       if (e === 118) {
-        t = a.Vd();
+        t = a.readUnsignedShort();
         if (t === 65535) {
           t = -1;
         }
       }
-      const n = a.Od();
+      const n = a.readUnsignedByte();
       this.transforms = new Array(n + 2);
       for (let e = 0; e <= n; e++) {
-        this.transforms[e] = a.Vd();
+        this.transforms[e] = a.readUnsignedShort();
         if (this.transforms[e] === 65535) {
           this.transforms[e] = -1;
         }
@@ -8686,128 +8686,128 @@ var Pm = class extends pd {
       }
     } else if (e === 112);
     else if (e === 113) {
-      a.Vd();
-      a.Vd();
+      a.readUnsignedShort();
+      a.readUnsignedShort();
     } else if (e === 114) {
       if (this.cacheInfo.game === "oldschool") {
-        this.runSeqId = a.Vd();
+        this.runSeqId = a.readUnsignedShort();
       } else {
-        a.jd();
-        a.jd();
+        a.readByte();
+        a.readByte();
       }
     } else if (e === 115) {
       if (this.cacheInfo.game === "oldschool") {
-        this.runSeqId = a.Vd();
-        this.runBackSeqId = a.Vd();
-        this.runLeftSeqId = a.Vd();
-        this.runRightSeqId = a.Vd();
+        this.runSeqId = a.readUnsignedShort();
+        this.runBackSeqId = a.readUnsignedShort();
+        this.runLeftSeqId = a.readUnsignedShort();
+        this.runRightSeqId = a.readUnsignedShort();
       } else {
-        a.Od();
-        a.Od();
+        a.readUnsignedByte();
+        a.readUnsignedByte();
       }
     } else if (e === 116) {
-      this.crawlSeqId = a.Vd();
+      this.crawlSeqId = a.readUnsignedShort();
     } else if (e === 117) {
-      this.crawlSeqId = a.Vd();
-      this.crawlBackSeqId = a.Vd();
-      this.crawlLeftSeqId = a.Vd();
-      this.crawlRightSeqId = a.Vd();
+      this.crawlSeqId = a.readUnsignedShort();
+      this.crawlBackSeqId = a.readUnsignedShort();
+      this.crawlLeftSeqId = a.readUnsignedShort();
+      this.crawlRightSeqId = a.readUnsignedShort();
     } else if (e === 119) {
-      this.loginScreenProps = a.jd();
+      this.loginScreenProps = a.readByte();
     } else if (e === 121) {
-      const e = a.Od();
+      const e = a.readUnsignedByte();
       for (let t = 0; t < e; t++) {
-        a.Od();
-        a.jd();
-        a.jd();
-        a.jd();
+        a.readUnsignedByte();
+        a.readByte();
+        a.readByte();
+        a.readByte();
       }
     } else if (e === 122) {
       if (this.cacheInfo.game === "oldschool") {
         this.isFollower = true;
-      } else if (this.jh()) {
-        a.Jd();
+      } else if (this.isLargeModelId()) {
+        a.readBigSmart();
       } else {
-        a.Vd();
+        a.readUnsignedShort();
       }
     } else if (e === 123) {
       if (this.cacheInfo.game !== "oldschool") {
-        a.Vd();
+        a.readUnsignedShort();
       }
     } else if (e === 124) {
-      this.height = a.Vd();
+      this.height = a.readUnsignedShort();
     } else if (e === 125) {
-      this.spawnDirection = a.jd();
+      this.spawnDirection = a.readByte();
     } else if (e === 127) {
-      this.basTypeId = a.Vd();
+      this.basTypeId = a.readUnsignedShort();
     } else if (e === 128) {
-      a.Od();
+      a.readUnsignedByte();
     } else if (e === 134) {
-      a.Vd();
-      a.Vd();
-      a.Vd();
-      a.Vd();
-      a.Od();
+      a.readUnsignedShort();
+      a.readUnsignedShort();
+      a.readUnsignedShort();
+      a.readUnsignedShort();
+      a.readUnsignedByte();
     } else if (e === 135) {
-      a.Od();
-      a.Vd();
+      a.readUnsignedByte();
+      a.readUnsignedShort();
     } else if (e === 136) {
-      a.Od();
-      a.Vd();
+      a.readUnsignedByte();
+      a.readUnsignedShort();
     } else if (e === 137) {
-      a.Vd();
+      a.readUnsignedShort();
     } else if (e === 138) {
-      if (this.jh()) {
-        a.Jd();
+      if (this.isLargeModelId()) {
+        a.readBigSmart();
       } else {
-        a.Vd();
+        a.readUnsignedShort();
       }
     } else if (e === 139) {
-      if (this.jh()) {
-        a.Jd();
+      if (this.isLargeModelId()) {
+        a.readBigSmart();
       } else {
-        a.Vd();
+        a.readUnsignedShort();
       }
     } else if (e === 140) {
-      a.Od();
+      a.readUnsignedByte();
     } else if (e === 141);
     else if (e === 142) {
-      a.Vd();
+      a.readUnsignedShort();
     } else if (e === 143);
     else if (e === 144) {
-      a.Vd();
+      a.readUnsignedShort();
     } else if (e === 145);
     else if (e === 146) {
-      a.Vd();
+      a.readUnsignedShort();
     } else if (e >= 150 && e < 155) {
       this.actions[e - 150] = this.readString(a);
       if (this.actions[e - 150].toLowerCase() === "hidden") {
         delete this.actions[e - 150];
       }
     } else if (e === 155) {
-      a.jd();
-      a.jd();
-      a.jd();
-      a.jd();
+      a.readByte();
+      a.readByte();
+      a.readByte();
+      a.readByte();
     } else if (e === 158);
     else if (e === 159);
     else if (e === 160) {
-      const e = a.Od();
+      const e = a.readUnsignedByte();
       for (let t = 0; t < e; t++) {
-        a.Vd();
+        a.readUnsignedShort();
       }
     } else if (e !== 161 && e !== 162) {
       if (e === 163) {
-        a.Od();
+        a.readUnsignedByte();
       } else if (e === 164) {
-        a.Vd();
-        a.Vd();
+        a.readUnsignedShort();
+        a.readUnsignedShort();
       } else if (e === 165 || e === 168) {
-        a.Od();
+        a.readUnsignedByte();
       } else if (e >= 170 && e < 176) {
-        a.Vd();
+        a.readUnsignedShort();
       } else if (e === 249) {
-        this.params = pd.Dg(a, this.params);
+        this.params = pd.readParamsMap(a, this.params);
       } else {
         logger.warn("Config", `NpcType: Unknown opcode ${e}. ID: ${this.id}`);
       }
@@ -8934,7 +8934,7 @@ var Em = class extends pd {
       return this.maleModel2;
     }
   }
-  Qh(e) {
+  getWornOffset(e) {
     if (e === 1) {
       return this.femaleOffset;
     } else {
@@ -8943,53 +8943,53 @@ var Em = class extends pd {
   }
   Hg(e, a) {
     if (e === 1) {
-      this.inventoryModel = a.Vd();
+      this.inventoryModel = a.readUnsignedShort();
     } else if (e === 2) {
       this.name = this.readString(a);
     } else if (e === 3) {
       this.readString(a);
     } else if (e === 4) {
-      this.zoom2d = a.Vd();
+      this.zoom2d = a.readUnsignedShort();
     } else if (e === 5) {
-      this.xan2d = a.Vd();
+      this.xan2d = a.readUnsignedShort();
     } else if (e === 6) {
-      this.yan2d = a.Vd();
+      this.yan2d = a.readUnsignedShort();
     } else if (e === 7) {
-      this.offsetX2d = a.Vd();
+      this.offsetX2d = a.readUnsignedShort();
       if (this.offsetX2d > 32767) {
         this.offsetX2d -= 65536;
       }
     } else if (e === 8) {
-      this.offsetY2d = a.Vd();
+      this.offsetY2d = a.readUnsignedShort();
       if (this.offsetY2d > 32767) {
         this.offsetY2d -= 65536;
       }
     } else if (e === 9) {
       this.readString(a);
     } else if (e === 10) {
-      a.Vd();
+      a.readUnsignedShort();
     } else if (e === 11) {
       this.stackable = true;
     } else if (e === 12) {
       this.cost = a.readInt();
     } else if (e === 13) {
-      this.wearPos1 = a.jd();
+      this.wearPos1 = a.readByte();
     } else if (e === 14) {
-      this.wearPos2 = a.jd();
+      this.wearPos2 = a.readByte();
     } else if (e === 16) {
       this.members = true;
     } else if (e === 23) {
-      this.maleModel0 = a.Vd();
-      this.maleOffset = a.Od();
+      this.maleModel0 = a.readUnsignedShort();
+      this.maleOffset = a.readUnsignedByte();
     } else if (e === 24) {
-      this.maleModel1 = a.Vd();
+      this.maleModel1 = a.readUnsignedShort();
     } else if (e === 25) {
-      this.femaleModel0 = a.Vd();
-      this.femaleOffset = a.Od();
+      this.femaleModel0 = a.readUnsignedShort();
+      this.femaleOffset = a.readUnsignedByte();
     } else if (e === 26) {
-      this.femaleModel1 = a.Vd();
+      this.femaleModel1 = a.readUnsignedShort();
     } else if (e === 27) {
-      this.wearPos3 = a.jd();
+      this.wearPos3 = a.readByte();
     } else if (e >= 30 && e < 35) {
       this.groundActions[e - 30] = this.readString(a);
       if (this.groundActions[e - 30]?.toLowerCase() === "hidden") {
@@ -8998,39 +8998,39 @@ var Em = class extends pd {
     } else if (e >= 35 && e < 40) {
       this.inventoryActions[e - 35] = this.readString(a);
     } else if (e === 40) {
-      const e = a.Od();
+      const e = a.readUnsignedByte();
       this.recolorFrom = new Array(e);
       this.recolorTo = new Array(e);
       for (let t = 0; t < e; t++) {
-        this.recolorFrom[t] = a.Vd();
-        this.recolorTo[t] = a.Vd();
+        this.recolorFrom[t] = a.readUnsignedShort();
+        this.recolorTo[t] = a.readUnsignedShort();
       }
     } else if (e === 41) {
-      const e = a.Od();
+      const e = a.readUnsignedByte();
       this.retextureFrom = new Array(e);
       this.retextureTo = new Array(e);
       for (let t = 0; t < e; t++) {
-        this.retextureFrom[t] = a.Vd();
-        this.retextureTo[t] = a.Vd();
+        this.retextureFrom[t] = a.readUnsignedShort();
+        this.retextureTo[t] = a.readUnsignedShort();
       }
     } else if (e === 42) {
-      this.shiftClickDropIndex = a.jd();
+      this.shiftClickDropIndex = a.readByte();
     } else if (e === 43) {
-      for (a.Od(); a.Od() !== 0;) {
+      for (a.readUnsignedByte(); a.readUnsignedByte() !== 0;) {
         this.readString(a);
       }
     } else if (e === 44) {
       this.inventoryModel = a.readInt();
     } else if (e === 45) {
       this.maleModel0 = a.readInt();
-      this.maleOffset = a.Od();
+      this.maleOffset = a.readUnsignedByte();
     } else if (e === 46) {
       this.maleModel1 = a.readInt();
     } else if (e === 47) {
       this.maleModel2 = a.readInt();
     } else if (e === 48) {
       this.femaleModel0 = a.readInt();
-      this.femaleOffset = a.Od();
+      this.femaleOffset = a.readUnsignedByte();
     } else if (e === 49) {
       this.femaleModel1 = a.readInt();
     } else if (e === 50) {
@@ -9045,93 +9045,93 @@ var Em = class extends pd {
       this.femaleHeadModel2 = a.readInt();
     } else if (e === 65);
     else if (e === 75) {
-      this.weight = a.$d();
+      this.weight = a.readShort();
     } else if (e === 78) {
-      this.maleModel2 = a.Vd();
+      this.maleModel2 = a.readUnsignedShort();
     } else if (e === 79) {
-      this.femaleModel2 = a.Vd();
+      this.femaleModel2 = a.readUnsignedShort();
     } else if (e === 84 || e === 99) {
-      a.Vd();
+      a.readUnsignedShort();
     } else if (e === 90) {
-      this.maleHeadModel = a.Vd();
+      this.maleHeadModel = a.readUnsignedShort();
     } else if (e === 91) {
-      this.femaleHeadModel = a.Vd();
+      this.femaleHeadModel = a.readUnsignedShort();
     } else if (e === 92) {
-      this.maleHeadModel2 = a.Vd();
+      this.maleHeadModel2 = a.readUnsignedShort();
     } else if (e === 93) {
-      this.femaleHeadModel2 = a.Vd();
+      this.femaleHeadModel2 = a.readUnsignedShort();
     } else if (e === 94) {
-      a.Vd();
+      a.readUnsignedShort();
     } else if (e === 95) {
-      this.zan2d = a.Vd();
+      this.zan2d = a.readUnsignedShort();
     } else if (e === 96) {
-      a.Od();
+      a.readUnsignedByte();
     } else if (e === 97) {
-      this.note = a.Vd();
+      this.note = a.readUnsignedShort();
     } else if (e === 98) {
-      this.noteTemplate = a.Vd();
+      this.noteTemplate = a.readUnsignedShort();
     } else if (e >= 100 && e < 110) {
       if (!this.countItem) {
         this.countItem = new Array(10);
         this.countCo = new Array(10);
       }
-      this.countItem[e - 100] = a.Vd();
-      this.countCo[e - 100] = a.Vd();
+      this.countItem[e - 100] = a.readUnsignedShort();
+      this.countCo[e - 100] = a.readUnsignedShort();
     } else if (e === 110 || e === 111 || e === 112) {
-      a.Vd();
+      a.readUnsignedShort();
     } else if (e === 113 || e === 114) {
-      a.jd();
+      a.readByte();
     } else if (e === 115) {
-      this.team = a.Od();
+      this.team = a.readUnsignedByte();
     } else if (e === 116 || e === 117) {
-      a.Vd();
+      a.readUnsignedShort();
     } else if (e === 121 || e === 122) {
-      a.Vd();
+      a.readUnsignedShort();
     } else if (e === 125 || e === 126) {
-      a.jd();
-      a.jd();
-      a.jd();
+      a.readByte();
+      a.readByte();
+      a.readByte();
     } else if (e >= 127 && e <= 130) {
-      a.Od();
-      a.Vd();
+      a.readUnsignedByte();
+      a.readUnsignedShort();
     } else if (e === 132) {
-      const e = a.Od();
+      const e = a.readUnsignedByte();
       for (let t = 0; t < e; t++) {
-        a.Vd();
+        a.readUnsignedShort();
       }
     } else if (e === 139) {
-      this.bought = a.Vd();
+      this.bought = a.readUnsignedShort();
     } else if (e === 140) {
-      this.boughtTemplate = a.Vd();
+      this.boughtTemplate = a.readUnsignedShort();
     } else if (e >= 142 && e < 147) {
-      a.Vd();
+      a.readUnsignedShort();
     } else if (e === 148) {
-      this.placeholder = a.Vd();
+      this.placeholder = a.readUnsignedShort();
     } else if (e === 149) {
-      this.placeholderTemplate = a.Vd();
+      this.placeholderTemplate = a.readUnsignedShort();
     } else if (e >= 150 && e < 155) {
-      a.Vd();
+      a.readUnsignedShort();
     } else if (e === 200) {
-      a.Od();
-      a.Od();
+      a.readUnsignedByte();
+      a.readUnsignedByte();
       this.readString(a);
     } else if (e === 201) {
-      a.Od();
-      a.Vd();
-      a.Vd();
+      a.readUnsignedByte();
+      a.readUnsignedShort();
+      a.readUnsignedShort();
       a.readInt();
       a.readInt();
       this.readString(a);
     } else if (e === 202) {
-      a.Od();
-      a.Vd();
-      a.Vd();
-      a.Vd();
+      a.readUnsignedByte();
+      a.readUnsignedShort();
+      a.readUnsignedShort();
+      a.readUnsignedShort();
       a.readInt();
       a.readInt();
       this.readString(a);
     } else if (e === 249) {
-      this.params = pd.Dg(a, this.params);
+      this.params = pd.readParamsMap(a, this.params);
     } else {
       logger.trace("Config", `Unknown opcode ${e} for item ${this.id}`);
     }
@@ -9166,40 +9166,40 @@ var Gm = class extends pd {
   }
   Hg(e, a) {
     if (e === 1) {
-      this.modelId = a.Vd();
+      this.modelId = a.readUnsignedShort();
     } else if (e === 2) {
-      this.sequenceId = a.Vd();
+      this.sequenceId = a.readUnsignedShort();
     } else if (e === 3) {
       this.modelId = a.readInt();
     } else if (e === 4) {
-      this.widthScale = a.Vd();
+      this.widthScale = a.readUnsignedShort();
     } else if (e === 5) {
-      this.heightScale = a.Vd();
+      this.heightScale = a.readUnsignedShort();
     } else if (e === 6) {
-      this.orientation = a.Vd();
+      this.orientation = a.readUnsignedShort();
     } else if (e === 7) {
-      this.ambient = a.Od();
+      this.ambient = a.readUnsignedByte();
     } else if (e === 8) {
-      this.contrast = a.Od();
+      this.contrast = a.readUnsignedByte();
     } else if (e === 9) {
       a.readString();
     } else if (e === 10) {
       // not clickable: no payload (RuneLite's SpotAnimLoader)
     } else if (e === 40) {
-      const e = a.Od();
+      const e = a.readUnsignedByte();
       this.recolorFrom = new Array(e);
       this.recolorTo = new Array(e);
       for (let t = 0; t < e; t++) {
-        this.recolorFrom[t] = a.Vd();
-        this.recolorTo[t] = a.Vd();
+        this.recolorFrom[t] = a.readUnsignedShort();
+        this.recolorTo[t] = a.readUnsignedShort();
       }
     } else if (e === 41) {
-      const e = a.Od();
+      const e = a.readUnsignedByte();
       this.retextureFrom = new Array(e);
       this.retextureTo = new Array(e);
       for (let t = 0; t < e; t++) {
-        this.retextureFrom[t] = a.Vd();
-        this.retextureTo[t] = a.Vd();
+        this.retextureFrom[t] = a.readUnsignedShort();
+        this.retextureTo[t] = a.readUnsignedShort();
       }
     } else {
       logger.warn("Config", `SpotAnimType: Unknown opcode ${e}. ID: ${this.id}`);
@@ -9218,7 +9218,7 @@ var jm = class extends pd {
   }
   Hg(e, a) {
     if (e === 249) {
-      this.params = pd.Dg(a, this.params);
+      this.params = pd.readParamsMap(a, this.params);
     }
   }
 };
@@ -9274,9 +9274,9 @@ function Zm(e, a) {
 }
 function Ym(e, a) {
   if (a) {
-    return e.Vd();
+    return e.readUnsignedShort();
   } else {
-    return e.Od();
+    return e.readUnsignedByte();
   }
 }
 var Xm = class e {
@@ -9314,7 +9314,7 @@ var Xm = class e {
       return -1;
     }
   }
-  sf(a, t) {
+  getNpcSpawnArchiveId(a, t) {
     if (this.namedIndex) {
       return this.mapIndex.Wm(`n${a}_${t}`);
     }
@@ -9332,7 +9332,7 @@ var Xm = class e {
       return s;
     }
     let r;
-    r = this.rf(e, a).catch((e) => {
+    r = this.decodeMapSquare(e, a).catch((e) => {
       if (this.mapSquareCache.get(n) === r) {
         this.mapSquareCache.delete(n);
       }
@@ -9341,10 +9341,10 @@ var Xm = class e {
     this.mapSquareCache.set(n, r);
     return r;
   }
-  lf() {
+  clearMapSquareCache() {
     this.mapSquareCache.clear();
   }
-  async rf(e, a) {
+  async decodeMapSquare(e, a) {
     sg.start(`MapLoader.loadMapSquare(${e},${a})`);
     const t = this.af(e, a);
     if (t === -1) {
@@ -9400,7 +9400,7 @@ var Xm = class e {
     for (let e = 0; e < 4; e++) {
       for (let a = 0; a < 64; a++) {
         for (let t = 0; t < 64; t++) {
-          this.df(r, s, e, a, t, i, l);
+          this.decodeTerrainTile(r, s, e, a, t, i, l);
         }
       }
     }
@@ -9411,7 +9411,7 @@ var Xm = class e {
       ...s,
     };
   }
-  df(e, a, t, n, s, r, i) {
+  decodeTerrainTile(e, a, t, n, s, r, i) {
     const {
       tileHeights: tileHeights,
       tileUnderlays: tileUnderlays,
@@ -9433,7 +9433,7 @@ var Xm = class e {
         break;
       }
       if (a === 1) {
-        let a = e.Od();
+        let a = e.readUnsignedByte();
         if (a === 1) {
           a = 0;
         }
@@ -9455,7 +9455,7 @@ var Xm = class e {
       }
     }
   }
-  async gf(e, a, t) {
+  async loadLocations(e, a, t) {
     sg.start(`MapLoader.loadLocations(${e},${a})`);
     const n = this.tf(e, a);
     if (n === -1) {
@@ -9475,13 +9475,13 @@ var Xm = class e {
     while (d !== 0) {
       o += d;
       let e = 0;
-      let a = i.eg();
+      let a = i.readUnsignedSmart();
       while (a !== 0) {
         e += a - 1;
         const t = (e >> 6) & 63;
         const n = e & 63;
         const s = e >> 12;
-        const r = i.Od();
+        const r = i.readUnsignedByte();
         const d = r >> 2;
         const g = r & 3;
         l.push({
@@ -9492,7 +9492,7 @@ var Xm = class e {
           type: d,
           rotation: g,
         });
-        a = i.eg();
+        a = i.readUnsignedSmart();
       }
       d = i.sg();
     }
@@ -9503,9 +9503,9 @@ var Xm = class e {
       locations: l,
     };
   }
-  async cf(e, a, t) {
+  async loadNpcSpawns(e, a, t) {
     sg.start(`MapLoader.loadNpcSpawns(${e},${a})`);
-    const n = this.sf(e, a);
+    const n = this.getNpcSpawnArchiveId(e, a);
     if (n === -1) {
       sg.end(`MapLoader.loadNpcSpawns(${e},${a})`);
       return null;
@@ -9521,11 +9521,11 @@ var Xm = class e {
     const o = e * 64;
     const d = a * 64;
     while (i.remaining > 0) {
-      const e = i.Vd();
+      const e = i.readUnsignedShort();
       const a = e >> 14;
       const t = (e >> 7) & 63;
       const n = e & 63;
-      const s = i.Vd();
+      const s = i.readUnsignedShort();
       l.push({
         id: s,
         x: o + t,
@@ -9729,7 +9729,7 @@ function Th(e, a, t) {
   const faceCount3 = e.faceCount;
   const s = t?.normals !== false;
   if (s) {
-    e.uh();
+    e.calculateVertexNormals();
   }
   const r = t?.sortedFaceOrder;
   const i = r ? r.length : faceCount3;
@@ -9859,7 +9859,7 @@ var Ih = class e {
           `model ${s} loaded, vertexSkins: ${!!model2.vertexSkins}, faceSkins: ${!!model2.faceSkins}, animMayaGroups: ${!!model2.animMayaGroups}, mayaGroupCount: ${model2.animMayaGroups?.filter((e) => e && e.length > 0).length ?? 0}`,
         );
         if (a.recolorFrom && a.recolorTo) {
-          this.ff(model2, a.recolorFrom, a.recolorTo);
+          this.applyRecoloring(model2, a.recolorFrom, a.recolorTo);
         }
         if (a.retextureFrom && a.retextureTo) {
           for (let e = 0; e < a.retextureFrom.length; e++) {
@@ -9911,7 +9911,7 @@ var Ih = class e {
       turnRightSeqId: a.turnRightSeqId,
     };
   }
-  ff(e, a, t) {
+  applyRecoloring(e, a, t) {
     for (let n = 0; n < e.faceCount; n++) {
       const s = e.faceColors[n];
       const r = a.indexOf(s);
@@ -9920,7 +9920,7 @@ var Ih = class e {
       }
     }
   }
-  uf(e, a, t, n) {
+  loadNpcMesh(e, a, t, n) {
     const s = this.hf(e);
     if (s && s.mergedModel) {
       return {
@@ -9933,7 +9933,7 @@ var Ih = class e {
     }
   }
   vf() {
-    return this.uf(Ah, Lh, Dh, Hh);
+    return this.loadNpcMesh(Ah, Lh, Dh, Hh);
   }
 };
 var Wh = {
@@ -9961,14 +9961,14 @@ var Rh = class e {
     this.identKitLoader = a;
     this.modelLoader = t;
   }
-  pf(e, a) {
+  loadPlayerModel(e, a) {
     logger.trace("PlayerModel", "Loading player model", {
       appearance: e,
       equipment: a,
     });
-    const t = this.kf(e, a);
+    const t = this.buildComposition(e, a);
     logger.trace("PlayerModel", "Composition built", t);
-    const { models: models, slots: slots } = this.Sf(t, e.gender);
+    const { models: models, slots: slots } = this.loadCompositionModels(t, e.gender);
     logger.debug("PlayerModel", "Models loaded", models.length);
     if (models.length === 0) {
       logger.warn("PlayerModel", "No models loaded for player");
@@ -10003,7 +10003,7 @@ var Rh = class e {
       subModelFaceCounts: models.map((e) => e.faceCount),
     };
   }
-  kf(e, a) {
+  buildComposition(e, a) {
     const t = new Array(12).fill(undefined);
     t[8] = e.hairKit >= 0 ? 256 + e.hairKit : undefined;
     t[11] = e.jawKit >= 0 ? 256 + e.jawKit : undefined;
@@ -10012,23 +10012,23 @@ var Rh = class e {
     t[9] = e.handsKit >= 0 ? 256 + e.handsKit : undefined;
     t[7] = e.legsKit >= 0 ? 256 + e.legsKit : undefined;
     t[10] = e.feetKit >= 0 ? 256 + e.feetKit : undefined;
-    this.bf(t, a, e.gender);
+    this.applyEquipmentToComposition(t, a, e.gender);
     return t;
   }
-  yf(e, a) {
+  loadWornObj(e, a) {
     const t = this.objTypeLoader.load(e);
     const n = getBaseItemId(e);
-    if (n === e || this.zf(t, a)) {
+    if (n === e || this.hasCompleteWornModels(t, a)) {
       return t;
     }
     const s = this.objTypeLoader.load(n);
-    if (this.zf(s, a)) {
+    if (this.hasCompleteWornModels(s, a)) {
       return s;
     } else {
       return t;
     }
   }
-  zf(e, a) {
+  hasCompleteWornModels(e, a) {
     if (e.Jh(a, 0) < 0) {
       return false;
     }
@@ -10044,45 +10044,45 @@ var Rh = class e {
     }
     return true;
   }
-  bf(e, a, t) {
+  applyEquipmentToComposition(e, a, t) {
     if (a.head !== undefined) {
-      const n = this.yf(a.head, t);
-      this.wf(e, n, 0);
+      const n = this.loadWornObj(a.head, t);
+      this.applyItemToComposition(e, n, 0);
     }
     if (a.cape !== undefined) {
-      const n = this.yf(a.cape, t);
-      this.wf(e, n, 1);
+      const n = this.loadWornObj(a.cape, t);
+      this.applyItemToComposition(e, n, 1);
     }
     if (a.amulet !== undefined) {
-      const n = this.yf(a.amulet, t);
-      this.wf(e, n, 2);
+      const n = this.loadWornObj(a.amulet, t);
+      this.applyItemToComposition(e, n, 2);
     }
     if (a.weapon !== undefined) {
-      const n = this.yf(a.weapon, t);
-      this.wf(e, n, 3);
+      const n = this.loadWornObj(a.weapon, t);
+      this.applyItemToComposition(e, n, 3);
     }
     if (a.body !== undefined) {
-      const n = this.yf(a.body, t);
-      this.wf(e, n, 4);
+      const n = this.loadWornObj(a.body, t);
+      this.applyItemToComposition(e, n, 4);
     }
     if (a.shield !== undefined) {
-      const n = this.yf(a.shield, t);
-      this.wf(e, n, 5);
+      const n = this.loadWornObj(a.shield, t);
+      this.applyItemToComposition(e, n, 5);
     }
     if (a.legs !== undefined) {
-      const n = this.yf(a.legs, t);
-      this.wf(e, n, 7);
+      const n = this.loadWornObj(a.legs, t);
+      this.applyItemToComposition(e, n, 7);
     }
     if (a.hands !== undefined) {
-      const n = this.yf(a.hands, t);
-      this.wf(e, n, 9);
+      const n = this.loadWornObj(a.hands, t);
+      this.applyItemToComposition(e, n, 9);
     }
     if (a.boots !== undefined) {
-      const n = this.yf(a.boots, t);
-      this.wf(e, n, 10);
+      const n = this.loadWornObj(a.boots, t);
+      this.applyItemToComposition(e, n, 10);
     }
   }
-  wf(e, a, t) {
+  applyItemToComposition(e, a, t) {
     const n = a.id;
     if (a.wearPos1 !== -1) {
       e[a.wearPos1] = 512 + n;
@@ -10096,7 +10096,7 @@ var Rh = class e {
       e[a.wearPos3] = 512 + n;
     }
   }
-  Sf(e, a) {
+  loadCompositionModels(e, a) {
     const t = [];
     const n = [];
     for (let s = 0; s < 12; s++) {
@@ -10104,14 +10104,14 @@ var Rh = class e {
       if (r !== undefined) {
         if (r >= 512) {
           const e = r - 512;
-          const i = this.Af(e, a, s);
+          const i = this.loadEquipmentModel(e, a, s);
           if (i) {
             t.push(i);
             n.push(s);
           }
         } else if (r >= 256) {
           const e = r - 256;
-          const a = this.Lf(e);
+          const a = this.loadKitModels(e);
           for (const e of a) {
             t.push(e);
             n.push(s);
@@ -10124,7 +10124,7 @@ var Rh = class e {
       slots: n,
     };
   }
-  Af(e, a, t) {
+  loadEquipmentModel(e, a, t) {
     const n = this.objTypeLoader.load(e);
     let s;
     s = n.wearPos1 === t ? 0 : n.wearPos2 === t ? 1 : n.wearPos3 === t ? 2 : 0;
@@ -10157,7 +10157,7 @@ var Rh = class e {
         }
       }
       this.modelCache.set(i, o);
-      this.Df();
+      this.evictOldestCacheEntries();
     }
     if (o) {
       return wm.rh(o, false, false, true, true);
@@ -10165,7 +10165,7 @@ var Rh = class e {
       return undefined;
     }
   }
-  Lf(e) {
+  loadKitModels(e) {
     const a = this.identKitLoader.load(e);
     if (!a || !a.models || a.models.length === 0) {
       return [];
@@ -10201,7 +10201,7 @@ var Rh = class e {
           }
         }
         this.modelCache.set(s, i);
-        this.Df();
+        this.evictOldestCacheEntries();
       }
       if (i) {
         t.push(wm.rh(i, false, false, true, true));
@@ -10212,7 +10212,7 @@ var Rh = class e {
   clearCache() {
     this.modelCache.clear();
   }
-  Df() {
+  evictOldestCacheEntries() {
     while (this.modelCache.size > e.MODEL_CACHE_LIMIT) {
       const value4 = this.modelCache.keys().next().value;
       if (value4 === undefined) {
@@ -10243,7 +10243,7 @@ var Fh = class e {
     this.seqTypeLoader = t ?? null;
     this.seqFrameLoader = n ?? null;
   }
-  Hf(e) {
+  loadSpotAnimType(e) {
     try {
       return this.spotAnimTypeLoader.load(e);
     } catch (a) {
@@ -10251,16 +10251,16 @@ var Fh = class e {
       return;
     }
   }
-  Mf(e) {
+  loadSpotAnimModelData(e) {
     const a = this.modelCache.get(e);
     if (a !== undefined) {
       this.modelCache.delete(e);
       this.modelCache.set(e, a);
       return a;
     }
-    const t = this.Hf(e);
+    const t = this.loadSpotAnimType(e);
     if (!t) {
-      return this.Tf(e);
+      return this.cacheMissingModel(e);
     }
     const modelId2 = t.modelId;
     if (modelId2 < 0) {
@@ -10268,7 +10268,7 @@ var Fh = class e {
         "SpotAnimLoader",
         `SpotAnim ${e} has no model (modelId: ${modelId2})`,
       );
-      return this.Tf(e);
+      return this.cacheMissingModel(e);
     }
     const model3 = this.modelLoader.getModel(modelId2);
     if (!model3) {
@@ -10276,7 +10276,7 @@ var Fh = class e {
         "SpotAnimLoader",
         `Failed to load model ${modelId2} for SpotAnim ${e}`,
       );
-      return this.Tf(e);
+      return this.cacheMissingModel(e);
     }
     const r = t.recolorFrom !== undefined && t.recolorTo !== undefined;
     const i = t.retextureFrom !== undefined && t.retextureTo !== undefined;
@@ -10285,14 +10285,14 @@ var Fh = class e {
     const d =
       r || i || l || o ? wm.rh(model3, true, false, !r, !i, true) : model3;
     if (r) {
-      this.ff(d, t.recolorFrom, t.recolorTo);
+      this.applyRecoloring(d, t.recolorFrom, t.recolorTo);
     }
     if (l) {
       d.resize(t.widthScale, t.heightScale, t.widthScale);
     }
     this.If(d, t.orientation);
     if (i) {
-      this.Cf(d, t.retextureFrom, t.retextureTo);
+      this.applyRetexturing(d, t.retextureFrom, t.retextureTo);
     }
     const g = t.ambient + 64;
     const c = t.contrast + 850;
@@ -10311,32 +10311,32 @@ var Fh = class e {
     this.xf();
     return h;
   }
-  Bf(e) {
-    const a = this.Mf(e);
+  loadSpotAnimMesh(e) {
+    const a = this.loadSpotAnimModelData(e);
     if (a) {
       return _h(a.model, a.litColors ?? undefined);
     } else {
       return null;
     }
   }
-  Wf(e) {
-    return this.Hf(e)?.sequenceId ?? -1;
+  getSequenceId(e) {
+    return this.loadSpotAnimType(e)?.sequenceId ?? -1;
   }
-  Rf(e) {
-    const a = this.Hf(e);
+  isSkeletalOnly(e) {
+    const a = this.loadSpotAnimType(e);
     if (!a || a.sequenceId < 0 || !this.seqTypeLoader) {
       return false;
     }
     const t = this.seqTypeLoader.load(a.sequenceId);
-    return !!t?.Rg() && (!t.frameIds || t.frameIds.length === 0);
+    return !!t?.isSkeletalSeq() && (!t.frameIds || t.frameIds.length === 0);
   }
-  Pf(e) {
-    const a = this.Hf(e);
+  loadSkeletalSpotAnimModel(e) {
+    const a = this.loadSpotAnimType(e);
     if (!a || a.sequenceId < 0 || !this.seqTypeLoader) {
       return null;
     }
     const t = this.seqTypeLoader.load(a.sequenceId);
-    if (!t?.Rg()) {
+    if (!t?.isSkeletalSeq()) {
       return null;
     }
     const model4 = this.modelLoader.getModel(a.modelId);
@@ -10351,10 +10351,10 @@ var Fh = class e {
     const r = a.retextureFrom !== undefined && a.retextureTo !== undefined;
     const i = wm.rh(model4, true, false, !s, !r, false);
     if (s) {
-      this.ff(i, a.recolorFrom, a.recolorTo);
+      this.applyRecoloring(i, a.recolorFrom, a.recolorTo);
     }
     if (r) {
-      this.Cf(i, a.retextureFrom, a.retextureTo);
+      this.applyRetexturing(i, a.retextureFrom, a.retextureTo);
     }
     i.Ih();
     return {
@@ -10372,7 +10372,7 @@ var Fh = class e {
       contrast: a.contrast + 850,
     };
   }
-  _f(e, a, t) {
+  poseSkeletalSpotAnimMesh(e, a, t) {
     const model5 = e.model;
     model5.verticesX.set(e.restVerticesX);
     model5.verticesY.set(e.restVerticesY);
@@ -10380,7 +10380,7 @@ var Fh = class e {
     if (e.restFaceAlphas && model5.faceAlphas) {
       model5.faceAlphas.set(e.restFaceAlphas);
     }
-    model5.Ph(a, t);
+    model5.animateSkeletal(a, t);
     if (e.widthScale !== 128 || e.heightScale !== 128) {
       model5.resize(e.widthScale, e.heightScale, e.widthScale);
     }
@@ -10388,9 +10388,9 @@ var Fh = class e {
     return _h(model5, model5.Rh(e.ambient, e.contrast, -30, -50, -30));
   }
   Ff(e) {
-    return this.Hf(e)?.modelId ?? -1;
+    return this.loadSpotAnimType(e)?.modelId ?? -1;
   }
-  ff(e, a, t) {
+  applyRecoloring(e, a, t) {
     for (let n = 0; n < e.faceCount; n++) {
       const s = e.faceColors[n];
       const r = a.indexOf(s);
@@ -10399,7 +10399,7 @@ var Fh = class e {
       }
     }
   }
-  Cf(e, a, t) {
+  applyRetexturing(e, a, t) {
     for (let n = 0; n < a.length; n++) {
       const s = a[n];
       const r = t[n];
@@ -10410,15 +10410,15 @@ var Fh = class e {
   }
   If(e, a) {
     if (a === 90) {
-      e.Lh();
+      e.rotate90();
     } else if (a === 180) {
-      e.Dh();
+      e.rotate180();
     } else if (a === 270) {
-      e.Hh();
+      e.rotate270();
     }
   }
-  Ef(e) {
-    const a = this.Hf(e);
+  loadAnimatedSpotAnim(e) {
+    const a = this.loadSpotAnimType(e);
     if (!a || a.sequenceId < 0 || !this.seqTypeLoader) {
       return null;
     }
@@ -10428,7 +10428,7 @@ var Fh = class e {
       return null;
     }
     if (!this.seqFrameLoader || !t.frameIds || t.frameIds.length === 0) {
-      return this.Nf(e, t);
+      return this.loadStaticAnimatedFallback(e, t);
     }
     const model6 = this.modelLoader.getModel(a.modelId);
     if (!model6) {
@@ -10448,7 +10448,7 @@ var Fh = class e {
       const h = !m || !m.hasAlphaTransform;
       const f = wm.rh(model6, true, false, !i, !l, h);
       if (i) {
-        this.ff(f, a.recolorFrom, a.recolorTo);
+        this.applyRecoloring(f, a.recolorFrom, a.recolorTo);
       }
       if (m) {
         f.animate(m);
@@ -10458,7 +10458,7 @@ var Fh = class e {
       }
       this.If(f, a.orientation);
       if (l) {
-        this.Cf(f, a.retextureFrom, a.retextureTo);
+        this.applyRetexturing(f, a.retextureFrom, a.retextureTo);
       }
       const u = _h(f, f.Rh(s, r, -30, -50, -30));
       d.push(u);
@@ -10475,15 +10475,15 @@ var Fh = class e {
       frameLengths: g,
     };
   }
-  Nf(e, a) {
-    const t = this.Bf(e);
+  loadStaticAnimatedFallback(e, a) {
+    const t = this.loadSpotAnimMesh(e);
     if (!t) {
       return null;
     }
     const n =
       a.frameLengths && a.frameLengths.length > 0
         ? [...a.frameLengths]
-        : [Math.max(a.Pg(), 1)];
+        : [Math.max(a.getSkeletalDuration(), 1)];
     return {
       spotAnimId: e,
       frames: [t],
@@ -10491,14 +10491,14 @@ var Fh = class e {
       frameLengths: n,
     };
   }
-  get Gf() {
+  get cacheGeneration() {
     return this.generation;
   }
   clearCache() {
     this.modelCache.clear();
     this.generation++;
   }
-  Tf(e) {
+  cacheMissingModel(e) {
     this.modelCache.set(e, null);
     this.xf();
     return null;
@@ -10542,7 +10542,7 @@ var Eh = class {
       this.yOffset = 0;
     }
   }
-  Uf() {
+  flipHorizontally() {
     const e = new Uint8Array(this.pixels.length);
     let a = 0;
     for (let t = 0; t < this.subHeight; t++) {
@@ -10553,7 +10553,7 @@ var Eh = class {
     this.pixels = e;
     this.xOffset = this.width - this.subWidth - this.xOffset;
   }
-  jf() {
+  flipVertically() {
     const e = new Uint8Array(this.pixels.length);
     let a = 0;
     for (let t = this.subHeight - 1; t >= 0; t--) {
@@ -10606,32 +10606,32 @@ var Gh = class e {
   static load(a) {
     const t = new rd(a);
     t.offset = a.length - 2;
-    e.spriteCount = t.Vd();
+    e.spriteCount = t.readUnsignedShort();
     e.xOffsets = new Int32Array(e.spriteCount);
     e.yOffsets = new Int32Array(e.spriteCount);
     e.widths = new Int32Array(e.spriteCount);
     e.heights = new Int32Array(e.spriteCount);
     e.pixels = new Array(e.spriteCount);
     t.offset = a.length - 7 - e.spriteCount * 8;
-    e.width = t.Vd();
-    e.height = t.Vd();
-    const n = 1 + (t.Od() & 255);
+    e.width = t.readUnsignedShort();
+    e.height = t.readUnsignedShort();
+    const n = 1 + (t.readUnsignedByte() & 255);
     for (let a = 0; a < e.spriteCount; a++) {
-      e.xOffsets[a] = t.Vd();
+      e.xOffsets[a] = t.readUnsignedShort();
     }
     for (let a = 0; a < e.spriteCount; a++) {
-      e.yOffsets[a] = t.Vd();
+      e.yOffsets[a] = t.readUnsignedShort();
     }
     for (let a = 0; a < e.spriteCount; a++) {
-      e.widths[a] = t.Vd();
+      e.widths[a] = t.readUnsignedShort();
     }
     for (let a = 0; a < e.spriteCount; a++) {
-      e.heights[a] = t.Vd();
+      e.heights[a] = t.readUnsignedShort();
     }
     t.offset = a.length - 7 - e.spriteCount * 8 - (n - 1) * 3;
     e.palette = new Int32Array(n);
     for (let a = 1; a < n; a++) {
-      e.palette[a] = t.Zd();
+      e.palette[a] = t.readMedium();
       if (e.palette[a] === 0) {
         e.palette[a] = 1;
       }
@@ -10643,15 +10643,15 @@ var Gh = class e {
       const r = n * s;
       const i = new Uint8Array(r);
       e.pixels[a] = i;
-      const l = t.Od();
+      const l = t.readUnsignedByte();
       if (l === 0) {
         for (let e = 0; e < r; e++) {
-          i[e] = t.jd();
+          i[e] = t.readByte();
         }
       } else if (l === 1) {
         for (let e = 0; e < n; e++) {
           for (let a = 0; a < s; a++) {
-            i[e + a * n] = t.jd();
+            i[e + a * n] = t.readByte();
           }
         }
       }
@@ -10665,13 +10665,13 @@ var Gh = class e {
     e.palette = undefined;
     e.pixels = undefined;
   }
-  static Of(a, t) {
+  static loadFromIndex(a, t) {
     const file5 = a.getFile(t, 0);
     return !!file5 && (e.load(file5.data), true);
   }
-  static $f(a, t) {
+  static loadIntoIndexedSprite(a, t) {
     if (
-      e.Of(a, t) &&
+      e.loadFromIndex(a, t) &&
       e.xOffsets &&
       e.yOffsets &&
       e.widths &&
@@ -10692,9 +10692,9 @@ var Gh = class e {
       return a;
     }
   }
-  static Vf(a, t) {
+  static loadIntoIndexedSprites(a, t) {
     if (
-      e.Of(a, t) &&
+      e.loadFromIndex(a, t) &&
       e.xOffsets &&
       e.yOffsets &&
       e.widths &&
@@ -10719,16 +10719,16 @@ var Gh = class e {
       return a;
     }
   }
-  static Kf(a, t, n) {
-    const s = a.Mm(`${t}.dat`);
+  static loadIndexedSpriteDat(a, t, n) {
+    const s = a.getFileId(`${t}.dat`);
     if (s === -1) {
       throw new Error(`Sprite ${t}.dat not found in archive`);
     }
-    return e.qf(a, s, n);
+    return e.loadIndexedSpriteDatId(a, s, n);
   }
-  static qf(e, a, t) {
+  static loadIndexedSpriteDatId(e, a, t) {
     const file6 = e.getFile(a);
-    const s = e.Tm("index.dat");
+    const s = e.getFileNamed("index.dat");
     if (!file6) {
       throw new Error(`Sprite file ${a} not found`);
     }
@@ -10737,35 +10737,35 @@ var Gh = class e {
     }
     const r = new rd(file6.data);
     const i = new rd(s.data);
-    i.offset = r.Vd();
+    i.offset = r.readUnsignedShort();
     const l = new Eh();
-    l.width = i.Vd();
-    l.height = i.Vd();
-    const o = i.Od();
+    l.width = i.readUnsignedShort();
+    l.height = i.readUnsignedShort();
+    const o = i.readUnsignedByte();
     l.palette = new Int32Array(o);
     for (let e = 0; e < o - 1; e++) {
-      l.palette[e + 1] = i.Zd();
+      l.palette[e + 1] = i.readMedium();
     }
     for (let e = 0; e < t; e++) {
       i.offset += 2;
-      r.offset += i.Vd() * i.Vd();
+      r.offset += i.readUnsignedShort() * i.readUnsignedShort();
       i.offset++;
     }
-    l.xOffset = i.Od();
-    l.yOffset = i.Od();
-    l.subWidth = i.Vd();
-    l.subHeight = i.Vd();
+    l.xOffset = i.readUnsignedByte();
+    l.yOffset = i.readUnsignedByte();
+    l.subWidth = i.readUnsignedShort();
+    l.subHeight = i.readUnsignedShort();
     const d = l.subWidth * l.subHeight;
     l.pixels = new Uint8Array(d);
-    const g = i.Od();
+    const g = i.readUnsignedByte();
     if (g === 0) {
       for (let e = 0; e < d; e++) {
-        l.pixels[e] = r.jd();
+        l.pixels[e] = r.readByte();
       }
     } else if (g === 1) {
       for (let e = 0; e < l.subWidth; e++) {
         for (let a = 0; a < l.subHeight; a++) {
-          l.pixels[e + a * l.subWidth] = r.jd();
+          l.pixels[e + a * l.subWidth] = r.readByte();
         }
       }
     }
@@ -10964,44 +10964,44 @@ var Zh = class e {
     this.unused = d;
   }
   static decode(a, t) {
-    const n = t.Vd();
-    const s = t.Od() === 1;
-    const r = t.Od();
+    const n = t.readUnsignedShort();
+    const s = t.readUnsignedByte() === 1;
+    const r = t.readUnsignedByte();
     if (r < 1 || r > 4) {
       throw new Error(`Invalid sprite count for texture: ${r}`);
     }
     const i = new Array(r);
     for (let e = 0; e < r; e++) {
-      i[e] = t.Vd();
+      i[e] = t.readUnsignedShort();
     }
     let l;
     let o;
     if (r > 1) {
       l = new Array(r - 1);
       for (let e = 0; e < r - 1; e++) {
-        l[e] = t.Od();
+        l[e] = t.readUnsignedByte();
       }
     }
     if (r > 1) {
       o = new Array(r - 1);
       for (let e = 0; e < r - 1; e++) {
-        o[e] = t.Od();
+        o[e] = t.readUnsignedByte();
       }
     }
     const d = new Array(r);
     for (let e = 0; e < r; e++) {
       d[e] = t.readInt();
     }
-    const g = t.Od();
-    const c = t.Od();
+    const g = t.readUnsignedByte();
+    const c = t.readUnsignedByte();
     return new e(a, n, s, r, i, d, g, c, l, o);
   }
   static Zf(a, t) {
-    const n = t.Vd();
-    const s = t.Vd();
-    const r = t.Od() === 1;
-    const i = t.Od();
-    const l = t.Od();
+    const n = t.readUnsignedShort();
+    const s = t.readUnsignedShort();
+    const r = t.readUnsignedByte() === 1;
+    const i = t.readUnsignedByte();
+    const l = t.readUnsignedByte();
     return new e(a, s, r, 1, [n], [0], i, l);
   }
 };
@@ -11046,7 +11046,7 @@ var Yh = class e {
   }
   isSmall(e) {
     try {
-      return this.Yf(e).subWidth === 64;
+      return this.loadTextureSprite(e).subWidth === 64;
     } catch {
       return false;
     }
@@ -11080,7 +11080,7 @@ var Yh = class e {
       animationV: t,
     };
   }
-  Yf(e) {
+  loadTextureSprite(e) {
     const a = this.definitions.get(e);
     if (!a) {
       throw new Error(`Texture definition not found: ${e}`);
@@ -11089,7 +11089,7 @@ var Yh = class e {
     if (t === undefined) {
       throw new Error("Texture has no sprites");
     }
-    const n = Gh.$f(this.spriteIndex, t);
+    const n = Gh.loadIntoIndexedSprite(this.spriteIndex, t);
     if (!n) {
       throw new Error("Texture references invalid sprite");
     }
@@ -11104,7 +11104,7 @@ var Yh = class e {
     const r = a * a;
     const i = new Int32Array(r);
     for (let e = 0; e < s.spriteIds.length; e++) {
-      const t = Gh.$f(this.spriteIndex, s.spriteIds[e]);
+      const t = Gh.loadIntoIndexedSprite(this.spriteIndex, s.spriteIds[e]);
       if (!t) {
         throw new Error("Texture references invalid sprite");
       }
@@ -13780,13 +13780,13 @@ var fe = class {
     this.use = n.use ?? "mesh";
     this.isRetiredCheck = n.isRetired;
   }
-  get Qf() {
+  get holdsFirstBuild() {
     return this.initial !== null;
   }
   get retired() {
     return !!this.isRetiredCheck?.() && ((this.initial = null), true);
   }
-  qd() {
+  materialize() {
     if (this.retired) {
       throw new QS(this.id);
     }
@@ -14972,18 +14972,18 @@ var Qb = class {
       this.data.seqType.skeletalEnd - this.data.seqType.skeletalStart,
     );
   }
-  Av(e) {
+  frameAt(e) {
     const durationClientTicks2 = this.durationClientTicks;
     const t = Math.floor(Math.max(0, Math.min(1, e)) * durationClientTicks2);
     return (
       this.data.seqType.skeletalStart + Math.min(t, durationClientTicks2 - 1)
     );
   }
-  Lv(e) {
+  partsFor(e) {
     if (this.lastFrame === e) {
       return this.lastParts;
     }
-    const a = this.loader._f(this.data, this.skeletalSeq, e);
+    const a = this.loader.poseSkeletalSpotAnimMesh(this.data, this.skeletalSeq, e);
     const t = Xb(`spotanim-${this.data.spotAnimId}-skeletal`, a, true);
     this.lastFrame = e;
     this.lastParts = t;
@@ -14995,14 +14995,14 @@ var ay = 128;
 var ty = 0.000001;
 var ny = 0;
 function sy(e, a) {
-  const t = e.Ef(a);
+  const t = e.loadAnimatedSpotAnim(a);
   if (t && t.frames.length > 0) {
     return {
       animation: t,
       meshes: t.frames,
     };
   }
-  const n = e.Bf(a);
+  const n = e.loadSpotAnimMesh(a);
   return {
     animation: null,
     meshes: n ? [n] : [],
@@ -15037,7 +15037,7 @@ function iy(e) {
 function ly(e, a) {
   const t = {
     loader: e,
-    generation: e.Gf,
+    generation: e.cacheGeneration,
     holders: new Set(),
     released: false,
   };
@@ -15071,7 +15071,7 @@ function ly(e, a) {
             return {
               scope: "loader",
               owner: loader,
-              isRetired: () => e.released || loader.Gf !== generation,
+              isRetired: () => e.released || loader.cacheGeneration !== generation,
             };
           })(t),
         )
@@ -15249,13 +15249,13 @@ var gy = class e {
   static Dv(a, t) {
     let n = e.sharedBaked.get(a);
     if (n) {
-      if (n.generation !== a.Gf) {
+      if (n.generation !== a.cacheGeneration) {
         n.entries.clear();
-        n.generation = a.Gf;
+        n.generation = a.cacheGeneration;
       }
     } else {
       n = {
-        generation: a.Gf,
+        generation: a.cacheGeneration,
         entries: new Map(),
       };
       e.sharedBaked.set(a, n);
@@ -15313,7 +15313,7 @@ var gy = class e {
     this.batchParts.clear();
     this.zeroAreaSkipIds = new Set();
   }
-  Mv() {
+  clearActiveInstances() {
     this.activeInstances.clear();
     this.groups.clear();
     this.commandPool.length = 0;
@@ -15347,10 +15347,10 @@ var gy = class e {
         return true;
       })(e, this.viewRejection);
   }
-  Iv(e) {
+  setHideProjectiles(e) {
     this.hideProjectiles = e;
   }
-  Cv(e) {
+  setSorterProjection(e) {
     if (e) {
       if (
         !this.hasSorterProjection ||
@@ -15377,10 +15377,10 @@ var gy = class e {
   }
   preload(e, a) {
     for (const t of a) {
-      this.xv(e, t);
+      this.loadById(e, t);
     }
   }
-  Bv(e) {
+  setAnimationSystem(e) {
     this.animationSystem = e;
     if (!e) {
       return;
@@ -15388,15 +15388,15 @@ var gy = class e {
     const a = Array.from(this.pendingSkeletal);
     this.pendingSkeletal.clear();
     for (const [e, t] of a) {
-      this.Wv(t, e);
+      this.loadSkeletalById(t, e);
     }
   }
-  Wv(e, a) {
+  loadSkeletalById(e, a) {
     if (!this.animationSystem) {
       this.pendingSkeletal.set(a, e);
       return;
     }
-    const t = e.Pf(a);
+    const t = e.loadSkeletalSpotAnimModel(a);
     const n = t
       ? this.animationSystem.loadSkeletalSeq(t.seqType.skeletalId)
       : undefined;
@@ -15425,40 +15425,40 @@ var gy = class e {
       seqType: t.seqType,
     });
   }
-  Rv(a) {
+  bindLoader(a) {
     if (this.boundLoader !== a) {
       this.boundLoader = a;
       for (const [t, n] of [...this.meshCache]) {
         if (n.bakedFrom && n.bakedFrom.loader !== a) {
-          this.Pv(t, e.Dv(a, t));
+          this.holdShared(t, e.Dv(a, t));
         }
       }
       for (const e of [...this.skeletalPosers.keys()]) {
         this.skeletalPosers.delete(e);
         this.meshCache.delete(e);
-        this.Wv(a, e);
+        this.loadSkeletalById(a, e);
       }
       for (const e of [...this.pendingSkeletal.keys()]) {
         this.pendingSkeletal.set(e, a);
       }
     }
   }
-  _v(e) {
+  isBoundTo(e) {
     return this.boundLoader === e;
   }
-  xv(a, t) {
+  loadById(a, t) {
     if (!(t < 0)) {
-      this.Rv(a);
+      this.bindLoader(a);
       if (!this.entry(t)) {
-        if (a.Rf(t)) {
-          this.Wv(a, t);
+        if (a.isSkeletalOnly(t)) {
+          this.loadSkeletalById(a, t);
         } else {
-          this.Pv(t, e.Dv(a, t));
+          this.holdShared(t, e.Dv(a, t));
         }
       }
     }
   }
-  Pv(e, a) {
+  holdShared(e, a) {
     const t = this.meshCache.get(e);
     if (t !== a) {
       t?.bakedFrom?.holders.delete(this.holder);
@@ -15473,13 +15473,13 @@ var gy = class e {
   entry(a) {
     const t = this.meshCache.get(a);
     const n = t?.bakedFrom;
-    if (n && n.generation !== n.loader.Gf) {
-      return this.Pv(a, e.Dv(n.loader, a));
+    if (n && n.generation !== n.loader.cacheGeneration) {
+      return this.holdShared(a, e.Dv(n.loader, a));
     } else {
       return t;
     }
   }
-  Fv(e) {
+  setBatchableSpotAnimFamilies(e) {
     const a = e
       .filter((e) => e.length > 0)
       .map((e) => [...e].sort((e, a) => e - a));
@@ -15516,18 +15516,18 @@ var gy = class e {
     for (const e of n.values()) {
       iy(e);
     }
-    this.Ev();
-    this.Nv();
+    this.syncFamilyEntries();
+    this.admitBatchFamilies();
   }
-  Gv(e) {
+  setZeroAreaPartSkip(e) {
     this.zeroAreaSkipIds = new Set(e);
   }
-  Uv() {
-    if (this.Ev()) {
-      this.Nv();
+  refreshBatchFamilies() {
+    if (this.syncFamilyEntries()) {
+      this.admitBatchFamilies();
     }
   }
-  Ev() {
+  syncFamilyEntries() {
     let e = false;
     for (const a of this.batchFamilies) {
       for (let t = 0; t < a.ids.length; t++) {
@@ -15544,12 +15544,12 @@ var gy = class e {
     }
     return e;
   }
-  Nv() {
+  admitBatchFamilies() {
     let e = 1048576;
     this.batchParts.clear();
     for (const a of this.batchFamilies) {
       if (a.status === "pending") {
-        a.boundBytes = this.jv(a);
+        a.boundBytes = this.familyBoundBytes(a);
       }
       if (!(a.boundBytes <= e)) {
         if (a.atlas) {
@@ -15560,7 +15560,7 @@ var gy = class e {
       }
       if (!a.built) {
         a.built = true;
-        a.atlas = this.Ov(a);
+        a.atlas = this.buildFamilyAtlas(a);
       }
       if (!a.atlas) {
         a.status = "unbuildable";
@@ -15574,7 +15574,7 @@ var gy = class e {
       }
     }
   }
-  jv(e) {
+  familyBoundBytes(e) {
     const a = [];
     for (const t of e.entries) {
       if (!t?.bakedFrom) {
@@ -15592,7 +15592,7 @@ var gy = class e {
     }
     return XS(a);
   }
-  Ov(e) {
+  buildFamilyAtlas(e) {
     const { ids: a, lease: lease } = e;
     const entries3 = e.entries;
     const s = entries3.map((e) => e.bakedFrom);
@@ -15629,7 +15629,7 @@ var gy = class e {
           owner: loader,
           isRetired: () =>
             !lease.live ||
-            loader.Gf !== generation ||
+            loader.cacheGeneration !== generation ||
             s.some((e) => e.released),
           use: "instanceAtlas",
         }),
@@ -15645,7 +15645,7 @@ var gy = class e {
         e.push(t);
       }
     }
-    this.Uv();
+    this.refreshBatchFamilies();
     for (const a of this.batchFamilies) {
       if (a.status === "admitted" && a.atlas) {
         e.push(a.atlas.source);
@@ -15656,33 +15656,33 @@ var gy = class e {
   getFrameLengths(e) {
     return this.entry(e)?.frameLengths;
   }
-  $v(e) {
+  getBakedBounds(e) {
     return this.entry(e)?.bounds ?? null;
   }
   getFrameStep(e) {
     return this.entry(e)?.frameStep;
   }
-  Vv() {
+  getFrameStates() {
     const e = [];
     this.activeInstances.forEach((a, t) => {
       const n = this.entry(a.spotAnimId);
       if (!n?.seqType?.frameSounds?.size) {
         return;
       }
-      const s = this.Kv(a, n.frameLengths);
+      const s = this.resolveFrameProgress(a, n.frameLengths);
       e.push({
         actorId: `spotanim:${t}`,
         seqId: n.seqType.id,
-        currentFrame: this.Zv(n, s),
+        currentFrame: this.resolveFrameIndex(n, s),
         seqType: n.seqType,
         position: a.hasRenderCenter
           ? [a.renderCenter[0], a.renderCenter[1]]
-          : this.Yv(a),
+          : this.staticCenterOf(a),
       });
     });
     return e;
   }
-  Yv(e) {
+  staticCenterOf(e) {
     if (e.transform.kind === "static") {
       return [e.transform.value.position[0], e.transform.value.position[1]];
     } else {
@@ -15691,10 +15691,10 @@ var gy = class e {
   }
   spawn(e) {
     const a = e.instanceId ?? "spotanim-" + ny++;
-    this.Xv(a, e);
+    this.insertInstance(a, e);
     return a;
   }
-  Jv(e) {
+  spawnBatch(e) {
     const a = [];
     for (const t of e) {
       a.push(this.spawn(t));
@@ -15706,8 +15706,8 @@ var gy = class e {
     const t = this.activeInstances.get(a);
     if (t) {
       if (t.groupId !== e.groupId) {
-        this.Qv(a);
-        this.ek(a, e.groupId);
+        this.removeFromGroups(a);
+        this.addToGroup(a, e.groupId);
       }
       if (t.spotAnimId !== e.spotAnimId) {
         t.permuteBuffers = undefined;
@@ -15715,17 +15715,17 @@ var gy = class e {
       cy(t, e);
       return a;
     } else {
-      this.Xv(a, e);
+      this.insertInstance(a, e);
       return a;
     }
   }
   despawn(e) {
     if (this.activeInstances.has(e)) {
       this.activeInstances.delete(e);
-      this.Qv(e);
+      this.removeFromGroups(e);
     }
   }
-  ak(e) {
+  despawnGroup(e) {
     const a = this.groups.get(e);
     if (a) {
       for (const e of a) {
@@ -15747,7 +15747,7 @@ var gy = class e {
     this.commandPoolSize = 0;
     this.residentPoolSize = 0;
     this.renderFrame++;
-    this.Uv();
+    this.refreshBatchFamilies();
     this.activeInstances.forEach((a) => {
       this.nk(e, a);
     });
@@ -15768,7 +15768,7 @@ var gy = class e {
     if (!n) {
       return;
     }
-    const s = this.rk(a.transform);
+    const s = this.resolveTransform(a.transform);
     if (!s) {
       return;
     }
@@ -15779,14 +15779,14 @@ var gy = class e {
       return;
     }
     const r = a.heightOffsetMode === "sequence" ? n.heightOffset : 0;
-    const i = r === 0 ? s : this.ik(s, r * ey);
-    const l = this.Kv(a, n.frameLengths);
+    const i = r === 0 ? s : this.withHeightOffset(s, r * ey);
+    const l = this.resolveFrameProgress(a, n.frameLengths);
     const o = this.skeletalPosers.get(a.spotAnimId);
     if (
       this.hasViewRejection &&
       a.style?.cullOutsideView === true &&
       !o &&
-      (this.lk(this.rejectionModelMatrix, i),
+      (this.fillModelMatrix(this.rejectionModelMatrix, i),
       (function (e, a, t) {
         if (!t) {
           return false;
@@ -15828,7 +15828,7 @@ var gy = class e {
     ) {
       return;
     }
-    const d = o ? o.Lv(o.Av(l)) : this.dk(n, l);
+    const d = o ? o.partsFor(o.frameAt(l)) : this.resolveMeshParts(n, l);
     if (!d || d.length === 0) {
       return;
     }
@@ -15839,7 +15839,7 @@ var gy = class e {
         continue;
       }
       if (n.resident) {
-        this.gk(e, n, n.resident, i, a.style);
+        this.pushResidentCommand(e, n, n.resident, i, a.style);
         continue;
       }
       const positions2 = n.positions;
@@ -15847,7 +15847,7 @@ var gy = class e {
         if (n.blend === "normal") {
           const t = a.style?.cullFace ?? n.cullFace;
           if (ab.skipTransparentSort && !a.style?.requireTransparentSort) {
-            if ((t === undefined || t === "back") && !this.ck(n, i)) {
+            if ((t === undefined || t === "back") && !this.isTransparentPartVisible(n, i)) {
               continue;
             }
             this.hk(e, n, positions2, i, a.style, t ?? "back");
@@ -15861,7 +15861,7 @@ var gy = class e {
               r.perVertexAlphas = l.alphas;
               r.perVertexFaceBias = l.faceBias;
             }
-            this.vk(r, null);
+            this.setInstanceAtlas(r, null);
             r.meshId = `${n.meshId}-sorted`;
             r.animated = true;
             tb.kv();
@@ -15872,7 +15872,7 @@ var gy = class e {
       }
     }
   }
-  gk(e, a, t, n, s) {
+  pushResidentCommand(e, a, t, n, s) {
     let r = this.residentPool[this.residentPoolSize];
     if (!r) {
       r = {
@@ -15895,11 +15895,11 @@ var gy = class e {
     r.zIndex = s?.zIndex ?? a.zIndex;
     r.depthBias = s?.depthBias ?? a.depthBias;
     r.cullFace = s?.cullFace ?? a.cullFace ?? "back";
-    this.vk(r, a);
-    this.lk(r.modelMatrix, n);
+    this.setInstanceAtlas(r, a);
+    this.fillModelMatrix(r.modelMatrix, n);
     e.commands.push(r);
   }
-  vk(e, a) {
+  setInstanceAtlas(e, a) {
     const t = a ? this.batchParts.get(a) : undefined;
     if (t !== undefined || e.instanceAtlas !== undefined) {
       e.instanceAtlas = t?.[0];
@@ -15907,7 +15907,7 @@ var gy = class e {
     }
   }
   hk(e, a, t, n, s, r) {
-    const i = this.pk(this.commandPoolSize++);
+    const i = this.getOrCreateCommand(this.commandPoolSize++);
     i.meshId = a.meshId;
     i.animated = a.animated ?? false;
     i.materialId = a.materialId;
@@ -15920,12 +15920,12 @@ var gy = class e {
     i.zIndex = s?.zIndex ?? a.zIndex;
     i.depthBias = s?.depthBias ?? a.depthBias;
     i.cullFace = r ?? s?.cullFace ?? a.cullFace ?? "back";
-    this.vk(i, a);
-    this.lk(i.modelMatrix, n);
+    this.setInstanceAtlas(i, a);
+    this.fillModelMatrix(i.modelMatrix, n);
     e.commands.push(i);
     return i;
   }
-  ik(e, a) {
+  withHeightOffset(e, a) {
     const offsetTransform2 = this.offsetTransform;
     offsetTransform2.position[0] = e.position[0];
     offsetTransform2.position[1] = e.position[1];
@@ -15935,7 +15935,7 @@ var gy = class e {
     offsetTransform2.scale = e.scale;
     return offsetTransform2;
   }
-  Xv(e, a) {
+  insertInstance(e, a) {
     const t = {
       instanceId: e,
       spotAnimId: a.spotAnimId,
@@ -15948,9 +15948,9 @@ var gy = class e {
     };
     cy(t, a);
     this.activeInstances.set(e, t);
-    this.ek(e, a.groupId);
+    this.addToGroup(e, a.groupId);
   }
-  ek(e, a) {
+  addToGroup(e, a) {
     if (!a) {
       return;
     }
@@ -15961,7 +15961,7 @@ var gy = class e {
     }
     t.add(e);
   }
-  Qv(e) {
+  removeFromGroups(e) {
     for (const [a, t] of this.groups) {
       if (t.delete(e) && t.size === 0) {
         this.groups.delete(a);
@@ -15985,7 +15985,7 @@ var gy = class e {
   kk(e) {
     return this.Sk(this.entry(e)?.frameLengths ?? []);
   }
-  rk(e) {
+  resolveTransform(e) {
     if (e.kind === "static") {
       return e.value;
     } else {
@@ -15996,7 +15996,7 @@ var gy = class e {
       );
     }
   }
-  Kv(e, a) {
+  resolveFrameProgress(e, a) {
     const frameProgress2 = e.frameProgress;
     if (typeof frameProgress2 == "number") {
       return Math.max(0, Math.min(1, frameProgress2));
@@ -16012,7 +16012,7 @@ var gy = class e {
       return 0;
     }
     if (lifecycle4.kind === "persistent") {
-      return this.bk(lifecycle4.startTick, a, e.spotAnimId);
+      return this.resolvePersistentFrameProgress(lifecycle4.startTick, a, e.spotAnimId);
     }
     const s = this.interpolatedTick - lifecycle4.startTick;
     if (s <= 0) {
@@ -16038,7 +16038,7 @@ var gy = class e {
       return 3;
     }
   }
-  bk(e, a, t) {
+  resolvePersistentFrameProgress(e, a, t) {
     const n = this.interpolatedTick - e;
     if (n <= 0) {
       return 0;
@@ -16050,7 +16050,7 @@ var gy = class e {
     }
     return Math.max(0, Math.min(1, n / s));
   }
-  Zv(e, a) {
+  resolveFrameIndex(e, a) {
     if (e.frames.length <= 1) {
       return 0;
     }
@@ -16073,14 +16073,14 @@ var gy = class e {
       return a.length - 1;
     })(a, e.frameLengths, t);
   }
-  dk(e, a) {
+  resolveMeshParts(e, a) {
     if (e.frames.length === 0) {
       return e.static;
     } else {
-      return e.frames[this.Zv(e, a)] ?? [];
+      return e.frames[this.resolveFrameIndex(e, a)] ?? [];
     }
   }
-  pk(e) {
+  getOrCreateCommand(e) {
     if (e < this.commandPool.length) {
       return this.commandPool[e];
     }
@@ -16109,7 +16109,7 @@ var gy = class e {
     if (!transparentSort2) {
       return null;
     }
-    const o = this.yk(t[12], t[13], t[14]);
+    const o = this.buildSorterProjection(t[12], t[13], t[14]);
     const transparentFaces2 = Tb(
       this.zk(transparentSort2, a, t),
       o,
@@ -16159,7 +16159,7 @@ var gy = class e {
       permuteBuffers2,
     );
   }
-  ck(e, a) {
+  isTransparentPartVisible(e, a) {
     if (!this.hasSorterProjection) {
       return true;
     }
@@ -16170,7 +16170,7 @@ var gy = class e {
     const i = Math.floor(s / 4096);
     const l = a.pitchRad ?? 0;
     const o = a.scale ?? 1;
-    if (!e.animated && this.wk(e.meshId, t, l, o, r, i)) {
+    if (!e.animated && this.recordVisible(e.meshId, t, l, o, r, i)) {
       tb.Sv();
       return true;
     }
@@ -16197,8 +16197,8 @@ var gy = class e {
       }
       return cachedVisible;
     }
-    const h = this.yk(a.position[0], a.position[1], a.position[2]);
-    this.lk(this.sortModelMatrix, a);
+    const h = this.buildSorterProjection(a.position[0], a.position[1], a.position[2]);
+    this.fillModelMatrix(this.sortModelMatrix, a);
     const f = this.zk(transparentSort3, positions3, this.sortModelMatrix);
     const u =
       (function (e, a, t) {
@@ -16487,7 +16487,7 @@ var gy = class e {
     i.visible = l;
     records.push(i);
   }
-  wk(e, a, t, n, s, r) {
+  recordVisible(e, a, t, n, s, r) {
     const i = this.visibleParts.get(e);
     if (!i || i.frame !== this.renderFrame) {
       return false;
@@ -16539,7 +16539,7 @@ var gy = class e {
     l.regionX = s;
     l.regionZ = r;
   }
-  yk(e, a, t) {
+  buildSorterProjection(e, a, t) {
     const sorterProjection2 = this.sorterProjection;
     sorterProjection2.cameraX = this.sorterCameraX;
     sorterProjection2.cameraY = this.sorterCameraY;
@@ -16583,7 +16583,7 @@ var gy = class e {
     sortInput2.faceColors3 = model7.faceColors3;
     return sortInput2;
   }
-  lk(e, a) {
+  fillModelMatrix(e, a) {
     const t = a.yaw2048 ?? 0;
     const n = a.pitchRad ?? 0;
     const s = a.scale ?? 1;
@@ -17217,10 +17217,10 @@ var Vy = class {
     ce(this, "windowStartRow", 0);
     this.sizes = e;
     const n = 2 ** Math.ceil(Math.log2(Math.min(a, 24576) * 1.25 + 1));
-    this.table = t ? t.Hk(n) : new Uint32Array(n);
+    this.table = t ? t.clearedTable(n) : new Uint32Array(n);
     this.mask = n - 1;
   }
-  get Mk() {
+  get windowStart() {
     return this.windowStartRow;
   }
   begin(e) {
@@ -17279,7 +17279,7 @@ var Ky = class {
     ce(this, "shortIndices", new Uint16Array(0));
     ce(this, "floats", new Float32Array(0));
   }
-  Hk(e) {
+  clearedTable(e) {
     if (this.table.length < e) {
       this.table = new Uint32Array(e);
     }
@@ -17293,7 +17293,7 @@ var Ky = class {
     }
     return this.remap.subarray(0, e);
   }
-  Tk(e) {
+  shortCorners(e) {
     if (this.shortIndices.length < e) {
       this.shortIndices = new Uint16Array(e);
     }
@@ -17327,13 +17327,13 @@ var qy = class {
     const t = Math.min(a, 24576);
     this.window = e.map((e) => new Uint32Array(t * e));
   }
-  get Ik() {
+  get distinct() {
     return this.distinctCount;
   }
   add(e, a) {
     const matcher2 = this.matcher;
     matcher2.begin(this.distinctCount);
-    const n = matcher2.Mk;
+    const n = matcher2.windowStart;
     let s = matcher2.match(e, a, this.window, n, this.distinctCount);
     if (s < 0) {
       s = this.distinctCount++;
@@ -17557,7 +17557,7 @@ var nz = class {
       sg.end("TextureArrayManager.loadTextures");
       throw new Error("No texture IDs provided");
     }
-    const s = this.xk(e.gl) - 1;
+    const s = this.getMaxTextureArrayLayers(e.gl) - 1;
     if (a.length > s) {
       sg.end("TextureArrayManager.loadTextures");
       throw new Error(`Too many textures: ${a.length} (max ${s})`);
@@ -17615,7 +17615,7 @@ var nz = class {
     sg.end("TextureArrayManager.loadTextures");
     return this.textureArray;
   }
-  Bk(e, a, t) {
+  reupload(e, a, t) {
     this.textureArray = null;
     if (this.loadedTextureIds.length === 0) {
       return null;
@@ -17629,13 +17629,13 @@ var nz = class {
   Wk(e) {
     return this.textureIdToIndex.has(e);
   }
-  Rk() {
+  getLoadedTextureIds() {
     return [...this.loadedTextureIds];
   }
-  Bd() {
+  getTextureArray() {
     return this.textureArray;
   }
-  xk(e) {
+  getMaxTextureArrayLayers(e) {
     const parameter2 = e.getParameter(e.MAX_ARRAY_TEXTURE_LAYERS);
     if (typeof parameter2 == "number" && Number.isFinite(parameter2)) {
       return Math.max(1, Math.floor(parameter2));
@@ -17706,7 +17706,7 @@ var iz = class {
   Pk(e) {
     this.app = e;
   }
-  _k() {
+  releaseContextHandles() {
     this.textures.clear();
     this.meshes.clear();
   }
@@ -17932,7 +17932,7 @@ function uz(e, a, t) {
     }
     let c = l;
     if (o <= 65535) {
-      c = t ? t.Tk(a) : Oy(o, a);
+      c = t ? t.shortCorners(a) : Oy(o, a);
       c.set(l);
     }
     return {
@@ -18093,7 +18093,7 @@ var ea = class {
   supports(e) {
     return e === "2d" || e === "3d";
   }
-  Ek() {
+  getFeatures() {
     return this.features;
   }
   getViewport() {
@@ -18315,7 +18315,7 @@ var ea = class {
       e.retryFrame = 0;
     }
     this.sortedVaos.length = 0;
-    this.assetManager._k();
+    this.assetManager.releaseContextHandles();
     this.programs.clear();
     this.textureArray = null;
     this.hasTextures = false;
@@ -18394,7 +18394,7 @@ var ea = class {
         this.Ok(this.app, context5);
         if (this.textureArrayManager) {
           try {
-            this.textureArray = this.textureArrayManager.Bk(this.app, 128, 1);
+            this.textureArray = this.textureArrayManager.reupload(this.app, 128, 1);
           } catch (a) {
             if (context5.isContextLost()) {
               throw a;
@@ -18572,7 +18572,7 @@ var ea = class {
           );
         }
       }
-      this.nS();
+      this.uploadTextureAnimations();
     } finally {
       sg.end("PicoGLRenderer.compileShaders");
     }
@@ -18640,7 +18640,7 @@ var ea = class {
       sg.end("PicoGLRenderer.textureArrayManager.loadTextures");
       this.hasTextures = true;
       this.textureLayers = textureIds2.length + 1;
-      this.sS(e, textureIds2);
+      this.buildTextureAnimations(e, textureIds2);
       this.Vk(Fy);
       logger.info("Renderer", `Loaded ${textureIds2.length} textures successfully`);
       sg.end("PicoGLRenderer.loadTextures");
@@ -18655,7 +18655,7 @@ var ea = class {
       this.hasTextures = false;
     }
   }
-  sS(e, a) {
+  buildTextureAnimations(e, a) {
     this.textureAnimations.fill(0);
     const t = Math.min(a.length, 255);
     if (a.length > t) {
@@ -18674,9 +18674,9 @@ var ea = class {
       this.textureAnimations[i] = t;
       this.textureAnimations[i + 1] = s;
     }
-    this.nS();
+    this.uploadTextureAnimations();
   }
-  nS() {
+  uploadTextureAnimations() {
     const e = this.gl;
     if (!e) {
       return;
@@ -18697,7 +18697,7 @@ var ea = class {
   getTextureArrayManager() {
     return this.textureArrayManager;
   }
-  rS() {
+  evictStaleCacheEntries() {
     if (!this.gl || this.frameCounter % this.CACHE_EVICTION_INTERVAL !== 0) {
       return;
     }
@@ -18725,10 +18725,10 @@ var ea = class {
     }
   }
   iS(e, a) {
-    this.lS(a);
+    this.deleteVaoHandles(a);
     this.meshVaoCache.delete(e);
   }
-  lS(e) {
+  deleteVaoHandles(e) {
     if (this.gl) {
       this.Fk(-1, -e.slots.length, 0);
       for (const a of e.slots) {
@@ -18752,10 +18752,10 @@ var ea = class {
     let n = t?.arrays ?? null;
     if (!n) {
       try {
-        n = e.qd();
+        n = e.materialize();
       } catch (a) {
         if (a instanceof QS) {
-          this.dS(e);
+          this.forgetSource(e);
         } else {
           this.gS(e, null, a);
         }
@@ -18788,7 +18788,7 @@ var ea = class {
     if (i) {
       for (const e of s) {
         if (e) {
-          this.lS(e);
+          this.deleteVaoHandles(e);
         }
       }
       this.gS(e, n, i);
@@ -18839,29 +18839,29 @@ var ea = class {
     this.pendingSources.set(e.id, a);
     return a;
   }
-  hS(e) {
+  claimId(e) {
     const a = this.residentSources.get(e.id);
     if (a && a.source !== e) {
-      this.fS(a);
+      this.releaseResidentSource(a);
     }
     const t = this.pendingSources.get(e.id);
     if (t && t.source !== e) {
       this.pendingSources.delete(e.id);
     }
   }
-  fS(e) {
+  releaseResidentSource(e) {
     for (const a of e.parts) {
       if (a) {
-        this.lS(a);
+        this.deleteVaoHandles(a);
       }
     }
     this.residentSources.delete(e.source.id);
     this.residentSourceBytes -= e.bytes;
   }
-  uS(e) {
+  releaseSources(e) {
     for (const a of [...this.residentSources.values()]) {
       if (e(a.source)) {
-        this.fS(a);
+        this.releaseResidentSource(a);
       }
     }
     for (const [a, t] of this.pendingSources) {
@@ -18888,7 +18888,7 @@ var ea = class {
   }
   vS(e) {
     if (e.retired) {
-      this.dS(e);
+      this.forgetSource(e);
       return null;
     }
     const a = this.atlases.get(e.id);
@@ -18896,14 +18896,14 @@ var ea = class {
       return a.atlas;
     }
     if (a) {
-      this.uS((e) => e === a.source);
+      this.releaseSources((e) => e === a.source);
     }
     const t = this.gl;
     if (!t) {
       return null;
     }
     let n = null;
-    this.uS((e) => e.use === "instanceAtlas" && e.retired);
+    this.releaseSources((e) => e.use === "instanceAtlas" && e.retired);
     let s = 1048576;
     for (const e of this.atlases.values()) {
       s -= e.atlas?.bytes ?? 0;
@@ -19087,7 +19087,7 @@ var ea = class {
         })(
           t,
           e,
-          e.qd(),
+          e.materialize(),
           (e) => uz(e, false, this.indexingScratch),
           this.features?.maxTextureSize ?? 0,
           s,
@@ -19117,7 +19117,7 @@ var ea = class {
     });
     return n;
   }
-  pS(e, a, t, n) {
+  uploadInstances(e, a, t, n) {
     const s = t * 17;
     const r = s * 4;
     if (r > kz) {
@@ -19188,18 +19188,18 @@ var ea = class {
     }
     return true;
   }
-  dS(e) {
-    this.uS((a) => a === e);
+  forgetSource(e) {
+    this.releaseSources((a) => a === e);
   }
   retireResidentSources(e) {
-    this.uS((a) => a.owner === e);
+    this.releaseSources((a) => a.owner === e);
   }
   SS(e) {
     if (e.retired) {
-      this.dS(e);
+      this.forgetSource(e);
       return null;
     }
-    this.hS(e);
+    this.claimId(e);
     const a = this.residentSources.get(e.id);
     if (a) {
       return {
@@ -19217,7 +19217,7 @@ var ea = class {
       return null;
     }
   }
-  bS(e) {
+  residentPart(e) {
     const a = this.SS(e.meshSource);
     if (a) {
       if (a.uploaded) {
@@ -19233,9 +19233,9 @@ var ea = class {
   }
   prepareResidentSources(e) {
     for (const a of e) {
-      if (a.Qf && !a.retired) {
+      if (a.holdsFirstBuild && !a.retired) {
         if (a.use !== "instanceAtlas") {
-          this.hS(a);
+          this.claimId(a);
           (this.pendingSources.get(a.id) ?? this.mS(a)).queued = true;
         } else {
           this.queuedAtlases.add(a);
@@ -19243,7 +19243,7 @@ var ea = class {
       }
     }
   }
-  yS() {
+  uploadQueuedSources() {
     for (const e of this.queuedAtlases) {
       this.queuedAtlases.delete(e);
       if (this.vS(e)) {
@@ -19261,8 +19261,8 @@ var ea = class {
       }
     }
   }
-  zS() {
-    this.uS((e) => e.retired);
+  evictResidentSources() {
+    this.releaseSources((e) => e.retired);
     if (this.residentSourceBytes <= this.residentSourceBudgetBytes) {
       return;
     }
@@ -19273,18 +19273,18 @@ var ea = class {
       if (this.residentSourceBytes <= this.residentSourceBudgetBytes) {
         break;
       }
-      this.fS(a);
+      this.releaseResidentSource(a);
     }
   }
   releaseSceneMeshes() {
-    this.wS("scene");
+    this.deleteMeshCache("scene");
   }
-  wS(e) {
+  deleteMeshCache(e) {
     for (const e of this.meshVaoCache.values()) {
-      this.lS(e);
+      this.deleteVaoHandles(e);
     }
     this.meshVaoCache.clear();
-    this.uS((a) => e === "all" || a.scope === e);
+    this.releaseSources((a) => e === "all" || a.scope === e);
     this.sortedVaos.length = 0;
     this.sortedMvpPoolSize = 0;
   }
@@ -19328,9 +19328,9 @@ var ea = class {
       return;
     }
     this.frameCounter++;
-    this.rS();
+    this.evictStaleCacheEntries();
     tb.tv();
-    this.yS();
+    this.uploadQueuedSources();
     if (this.crashDiagnostics) {
       pk(yf);
     }
@@ -19361,7 +19361,7 @@ var ea = class {
       this.gl.vertexAttrib1f(6, 1);
       this.LS(queue.commands, viewProjMatrix2, n, s, r, i, d, g, c);
     }
-    this.zS();
+    this.evictResidentSources();
     if (tb.isEnabled()) {
       this.AS();
     }
@@ -19567,7 +19567,7 @@ var ea = class {
     if (
       !!(M > 0) &&
       (!T ||
-        !this.pS(
+        !this.uploadInstances(
           e,
           [
             [opaque, opaqueRuns2],
@@ -19635,7 +19635,7 @@ var ea = class {
       }
     };
     const C = (a, n) => {
-      const s = pe(a) ? this.bS(a) : undefined;
+      const s = pe(a) ? this.residentPart(a) : undefined;
       const r =
         s === undefined &&
         (function (e) {
@@ -20065,7 +20065,7 @@ var ea = class {
     }
     this.bindVertexArray(n, null);
     if (i) {
-      this.lS(l);
+      this.deleteVaoHandles(l);
       return null;
     } else {
       return l;
@@ -20090,7 +20090,7 @@ var ea = class {
     this.Jk();
     const e = this.gl;
     const canvas2 = this.canvas;
-    this.wS("all");
+    this.deleteMeshCache("all");
     this.assetManager.clear();
     if (e && this.instanceBuffer) {
       e.deleteBuffer(this.instanceBuffer);
@@ -20166,7 +20166,7 @@ function Hz(e, a) {
 }
 var Mz = class {
   CS() {
-    const e = Math.abs(this.xS()) * yz;
+    const e = Math.abs(this.getViewPitch()) * yz;
     const a = this.yaw * yz;
     const t = Math.cos(e);
     const n = Math.sin(e);
@@ -20242,7 +20242,7 @@ var Mz = class {
         pitchCos: a,
       };
     }
-    const a = this.cameraMode === "freeform" ? this.freeformPitch : this.xS();
+    const a = this.cameraMode === "freeform" ? this.freeformPitch : this.getViewPitch();
     const t = this.cameraMode === "freeform" ? this.freeformYaw : this.yaw;
     const n = (this.cameraMode === "freeform" ? -a : Math.abs(a)) * yz;
     const s = t * yz;
@@ -20319,13 +20319,13 @@ var Mz = class {
       d + (o + ((this.terrainHeights[t + 1]?.[n + 1] ?? 0) - o) * s - d) * r
     );
   }
-  Cd(e, a) {
+  getPlayerCenterZ(e, a) {
     return -this.ES(e, a) / 128 + this._S();
   }
   _S() {
     return Math.max(0, 25 + Math.trunc((this.fovScale * 25) / 256)) / 128;
   }
-  Md(e) {
+  updateCamera(e) {
     if (this.scriptedCamera) {
       const { targetX: targetX, targetY: targetY, targetZ: targetZ } = e;
       this.NS({
@@ -20365,7 +20365,7 @@ var Mz = class {
     if (e.targetZ !== undefined) {
       this.targetZ = e.targetZ;
     }
-    this.jS();
+    this.invalidateMatrixCache();
   }
   $S(e) {
     this.pitch = e.pitch;
@@ -20377,9 +20377,9 @@ var Mz = class {
     this.targetX = e.targetX;
     this.targetY = e.targetY;
     this.targetZ = e.targetZ;
-    this.jS();
+    this.invalidateMatrixCache();
   }
-  xS() {
+  getViewPitch() {
     return Math.min(this.pitch, ((-this.terrainPitchFloor / 256) * 360) / 2048);
   }
   VS(e) {
@@ -20396,7 +20396,7 @@ var Mz = class {
     if (!this.distanceOverride) {
       this.distance = this.PS();
     }
-    this.jS();
+    this.invalidateMatrixCache();
   }
   KS() {
     const terrainHeights2 = this.terrainHeights;
@@ -20425,7 +20425,7 @@ var Mz = class {
       pitch: this.pitch,
       fovScale: this.fovScale,
     });
-    this.jS();
+    this.invalidateMatrixCache();
   }
   GS() {
     return 128 - this.outerZoomAdjust;
@@ -20434,9 +20434,9 @@ var Mz = class {
     return this.innerZoomLimit;
   }
   PS() {
-    return Hz(this.xS(), this.viewport.logicalHeight ?? this.viewport.height);
+    return Hz(this.getViewPitch(), this.viewport.logicalHeight ?? this.viewport.height);
   }
-  jS() {
+  invalidateMatrixCache() {
     this.cachedViewMatrix = null;
     this.cachedProjMatrix = null;
     this.cachedInvViewMatrix = null;
@@ -20471,7 +20471,7 @@ var Mz = class {
         this.freeformPosX = e.x;
         this.freeformPosY = e.y;
         this.freeformPosZ = e.z;
-        this.freeformPitch = this.xS();
+        this.freeformPitch = this.getViewPitch();
         this.freeformYaw = this.yaw;
       }
       this.cameraMode = e;
@@ -20509,7 +20509,7 @@ var Mz = class {
       this.cachedInvViewMatrix = null;
     }
   }
-  zb(e, a, t) {
+  moveFreeform(e, a, t) {
     if (this.scriptedCamera) {
       return;
     }
@@ -20525,14 +20525,14 @@ var Mz = class {
     this.cachedInvViewMatrix = null;
   }
   viewMatrix() {
-    return new Float32Array(this.Hb());
+    return new Float32Array(this.getViewMatrix());
   }
   projectionMatrix() {
-    return new Float32Array(this.jb());
+    return new Float32Array(this.getProjectionMatrix());
   }
   tileToScreen(e) {
     const a = this.tileToWorld(e);
-    return this.$b(a);
+    return this.projectToScreenOrNull(a);
   }
   tileDeltaToScreen(e) {
     const a = {
@@ -20545,8 +20545,8 @@ var Mz = class {
       y: this.targetY + e.y,
       z: this.targetZ,
     };
-    const n = this.$b(a);
-    const s = this.$b(t);
+    const n = this.projectToScreenOrNull(a);
+    const s = this.projectToScreenOrNull(t);
     if (n && s) {
       return {
         x: s.x - n.x,
@@ -20557,7 +20557,7 @@ var Mz = class {
     }
   }
   screenToTile(e) {
-    const a = this.Kb(e);
+    const a = this.screenToRay(e);
     if (!a) {
       return null;
     }
@@ -20604,7 +20604,7 @@ var Mz = class {
     }
     return null;
   }
-  Zb(e) {
+  screenToTileEdge(e) {
     const a = this.screenToTile(e);
     if (!a) {
       return null;
@@ -20612,7 +20612,7 @@ var Mz = class {
     const { x: t, y: n } = a;
     const s = (e, a) => {
       const t = -this.ES(e, a) / 128;
-      return this.$b({
+      return this.projectToScreenOrNull({
         x: e,
         y: a,
         z: t,
@@ -20671,28 +20671,28 @@ var Mz = class {
     const a = e.x;
     const t = e.y;
     const level2 = e.level;
-    const s = this.Xb(a - 0.5, t - 0.5, level2);
+    const s = this.projectWorldToScreenOrNull(a - 0.5, t - 0.5, level2);
     if (!s) {
       return [];
     }
-    const r = this.Xb(a + 0.5, t - 0.5, level2);
+    const r = this.projectWorldToScreenOrNull(a + 0.5, t - 0.5, level2);
     if (!r) {
       return [];
     }
-    const i = this.Xb(a + 0.5, t + 0.5, level2);
+    const i = this.projectWorldToScreenOrNull(a + 0.5, t + 0.5, level2);
     if (!i) {
       return [];
     }
-    const l = this.Xb(a - 0.5, t + 0.5, level2);
+    const l = this.projectWorldToScreenOrNull(a - 0.5, t + 0.5, level2);
     if (l) {
       return [s, r, i, l];
     } else {
       return [];
     }
   }
-  Xb(e, a, t) {
+  projectWorldToScreenOrNull(e, a, t) {
     const n = t ?? -this.ES(e, a) / 128;
-    return this.Jb(e, a, n);
+    return this.projectScreenFromWorld(e, a, n);
   }
   tileToWorld(e) {
     return {
@@ -20701,12 +20701,12 @@ var Mz = class {
       z: e.level ?? -this.ES(e.x, e.y) / 128,
     };
   }
-  $b(e) {
-    return this.Jb(e.x, e.y, e.z);
+  projectToScreenOrNull(e) {
+    return this.projectScreenFromWorld(e.x, e.y, e.z);
   }
-  Jb(e, a, t) {
-    const n = this.Hb();
-    const s = this.jb();
+  projectScreenFromWorld(e, a, t) {
+    const n = this.getViewMatrix();
+    const s = this.getProjectionMatrix();
     const r = n[0] * e + n[4] * a + n[8] * t + n[12];
     const i = n[1] * e + n[5] * a + n[9] * t + n[13];
     const l = n[2] * e + n[6] * a + n[10] * t + n[14];
@@ -20726,19 +20726,19 @@ var Mz = class {
       y: (1 - m) * 0.5 * this.viewport.height,
     };
   }
-  Qb() {
-    this.cachedInvViewMatrix ||= this.ey(this.Hb());
+  getInverseViewMatrix() {
+    this.cachedInvViewMatrix ||= this.invertMatrix(this.getViewMatrix());
     return this.cachedInvViewMatrix;
   }
-  iy() {
-    this.cachedInvProjMatrix ||= this.ey(this.jb());
+  getInverseProjectionMatrix() {
+    this.cachedInvProjMatrix ||= this.invertMatrix(this.getProjectionMatrix());
     return this.cachedInvProjMatrix;
   }
-  Kb(e) {
+  screenToRay(e) {
     const a = (e.x / this.viewport.width) * 2 - 1;
     const t = 1 - (e.y / this.viewport.height) * 2;
-    const n = this.iy();
-    const s = this.Qb();
+    const n = this.getInverseProjectionMatrix();
+    const s = this.getInverseViewMatrix();
     if (!n || !s) {
       return null;
     }
@@ -20785,7 +20785,7 @@ var Mz = class {
       },
     };
   }
-  Hb() {
+  getViewMatrix() {
     if (this.cachedViewMatrix) {
       return this.cachedViewMatrix;
     }
@@ -20810,7 +20810,7 @@ var Mz = class {
       r = Math.cos(o);
       i = Math.sin(o);
     } else {
-      const l = Math.abs(this.xS()) * yz;
+      const l = Math.abs(this.getViewPitch()) * yz;
       const o = this.yaw * yz;
       n = Math.cos(l);
       s = Math.sin(l);
@@ -20849,7 +20849,7 @@ var Mz = class {
     ];
     return this.cachedViewMatrix;
   }
-  jb() {
+  getProjectionMatrix() {
     if (this.cachedProjMatrix) {
       return this.cachedProjMatrix;
     }
@@ -20878,7 +20878,7 @@ var Mz = class {
     ];
     return this.cachedProjMatrix;
   }
-  ey(e) {
+  invertMatrix(e) {
     const a = new Array(16);
     a[0] =
       e[5] * e[10] * e[15] -
@@ -21167,9 +21167,9 @@ var Vz = ({
     c(true);
     d(null);
     current3.despawn("preview");
-    current3.Bv(animationSystem ?? null);
+    current3.setAnimationSystem(animationSystem ?? null);
     try {
-      current3.xv(spotAnimModelLoader, spotAnimId);
+      current3.loadById(spotAnimModelLoader, spotAnimId);
     } catch (a) {
       d(
         a instanceof Error
@@ -21212,11 +21212,11 @@ var Vz = ({
       k = Math.max(k, -e.minY * $z);
       S = true;
     };
-    const T = current3.$v(spotAnimId);
+    const T = current3.getBakedBounds(spotAnimId);
     if (T) {
       D(T);
     } else {
-      const t = spotAnimModelLoader.Bf(spotAnimId);
+      const t = spotAnimModelLoader.loadSpotAnimMesh(spotAnimId);
       const n = t ? YS(t.positions) : null;
       if (n) {
         D(n);
@@ -21300,7 +21300,7 @@ var Vz = ({
       }
       const current6 = z.current;
       u((e) => (e === current6 ? e : current6));
-      current4.Cv(a.projection.getOsrsCameraProjection());
+      current4.setSorterProjection(a.projection.getOsrsCameraProjection());
       let d = 0;
       for (let e = 0; e < current6; e++) {
         d += current5[e];
@@ -21402,7 +21402,7 @@ var Vz = ({
         relaxPitch: true,
       });
       if (camera) {
-        t.Md(camera);
+        t.updateCamera(camera);
       }
       I.current = t;
       B.current = e;
@@ -21422,7 +21422,7 @@ var Vz = ({
     }, []);
     const P = (0, pn.useCallback)(
       (e) => {
-        W().Md(R(e));
+        W().updateCamera(R(e));
       },
       [W, R],
     );
@@ -21512,7 +21512,7 @@ var Vz = ({
         }
         const cameraState = current13.getCameraState();
         const o = Nz(cameraState.pitch + r * 0.3, A.current, L.current);
-        current13.Md({
+        current13.updateCamera({
           yaw: cameraState.yaw + a * 0.5,
           pitch: o,
         });
@@ -21530,7 +21530,7 @@ var Vz = ({
         const cameraState2 = current14.getCameraState();
         const n = 1 + e.deltaY * M.current;
         const s = Nz(cameraState2.distance * n, D.current, H.current);
-        current14.Md({
+        current14.updateCamera({
           distance: s,
         });
       };
@@ -33406,7 +33406,7 @@ var bx = class {
       }
     }
   }
-  py(e, a = false) {
+  updateReplayClock(e, a = false) {
     this.replayTimeMs = e;
     if (e !== null) {
       if (!a) {
@@ -33423,7 +33423,7 @@ var bx = class {
       this.pendingReplaySounds.length = 0;
     }
   }
-  ky(e) {
+  finishReplay(e) {
     const replayTimeMs2 = this.replayTimeMs;
     if (replayTimeMs2 !== null) {
       for (
@@ -33514,7 +33514,7 @@ var bx = class {
       }
     }
   }
-  My() {
+  getAllSoundIds() {
     const e = new Set();
     for (const a of Object.values(this.ruleChains)) {
       for (const t of a) {
@@ -33537,7 +33537,7 @@ var bx = class {
     return [...e];
   }
   async preload() {
-    await this.engine.Ty(this.My());
+    await this.engine.Ty(this.getAllSoundIds());
   }
   reset() {
     this.pendingReplaySounds.length = 0;
@@ -34804,20 +34804,20 @@ function pW(e, a, t, n, s, r) {
   return e[s * a + r] - e[t * a + r] - e[s * a + n] + e[t * a + n];
 }
 var kW = class {
-  Iy(e, a, t, n, s, r, i) {
+  buildMesh(e, a, t, n, s, r, i) {
     sg.start("TerrainBuilder.buildMesh");
     const l = new Float32Array(s * r * 18 * 12);
     sg.start("TerrainBuilder.blendUnderlays");
-    const o = this.Cy(e, a, t, n, s, r, i?.underlayLoader);
+    const o = this.blendUnderlays(e, a, t, n, s, r, i?.underlayLoader);
     sg.end("TerrainBuilder.blendUnderlays");
     sg.start("TerrainBuilder.calculateTileLights");
-    const d = this.By(e, a, t, n, s, r);
+    const d = this.calculateTileLights(e, a, t, n, s, r);
     sg.end("TerrainBuilder.calculateTileLights");
     let g = 0;
     sg.start("TerrainBuilder.buildTiles");
     for (let c = n; c < n + r; c++) {
       for (let r = t; r < t + s; r++) {
-        g = this.Wy(e, a, r, c, l, g, o, d, t, n, i);
+        g = this.buildTile(e, a, r, c, l, g, o, d, t, n, i);
       }
     }
     sg.end("TerrainBuilder.buildTiles");
@@ -34829,7 +34829,7 @@ var kW = class {
       stride: 12,
     };
   }
-  Cy(e, a, t, n, s, r, i) {
+  blendUnderlays(e, a, t, n, s, r, i) {
     const { tileUnderlays: tileUnderlays } = e;
     const o = s + 1;
     const d = r + 1;
@@ -34893,7 +34893,7 @@ var kW = class {
     }
     return g;
   }
-  By(e, a, t, n, s, r) {
+  calculateTileLights(e, a, t, n, s, r) {
     const i = ((Math.sqrt(5100) | 0) * 768) >> 8;
     const l = s + 1;
     const o = r + 1;
@@ -34930,7 +34930,7 @@ var kW = class {
     }
     return d;
   }
-  Wy(e, a, t, n, s, r, i, l, o, d, g) {
+  buildTile(e, a, t, n, s, r, i, l, o, d, g) {
     const {
       tileHeights: tileHeights,
       tileOverlays: tileOverlays,
@@ -35082,14 +35082,14 @@ var kW = class {
         const l = n + M;
         const o = t + T;
         const d = n + I;
-        C = this.Ry(e, a, Math.round(s), Math.round(r));
-        B = this.Ry(e, a, Math.round(i), Math.round(l));
-        W = this.Ry(e, a, Math.round(o), Math.round(d));
+        C = this.computeSmoothNormal(e, a, Math.round(s), Math.round(r));
+        B = this.computeSmoothNormal(e, a, Math.round(i), Math.round(l));
+        W = this.computeSmoothNormal(e, a, Math.round(o), Math.round(d));
       } else {
         C =
           B =
           W =
-            this.Py(
+            this.computeFaceNormal(
               {
                 x: f,
                 y: height2,
@@ -35113,7 +35113,7 @@ var kW = class {
     }
     return r;
   }
-  Ry(e, a, t, n) {
+  computeSmoothNormal(e, a, t, n) {
     const { tileHeights: tileHeights } = e;
     const r = Math.max(1, Math.min(tileHeights[a].length - 2, t));
     const i = Math.max(1, Math.min(tileHeights[a][r].length - 2, n));
@@ -35134,7 +35134,7 @@ var kW = class {
       };
     }
   }
-  Py(e, a, t) {
+  computeFaceNormal(e, a, t) {
     const n = a.x - e.x;
     const s = a.y - e.y;
     const r = a.z - e.z;
@@ -35183,7 +35183,7 @@ var kW = class {
     const c = l + (o - l) * s;
     return c + (g + (d - g) * s - c) * r;
   }
-  Ey(e, a) {
+  uploadToGPU(e, a) {
     const t = e.createInterleavedBuffer(a.stride * 4, a.vertices);
     return {
       vertexArray: e
@@ -35228,7 +35228,7 @@ var kW = class {
       vertexCount: a.vertexCount,
     };
   }
-  Ny(e) {
+  disposeGLMesh(e) {
     e.vertexArray.delete();
     e.vertexBuffer.delete();
   }
@@ -35273,15 +35273,15 @@ var AW = class {
     this._targetAngle = a;
     this._renderAngle = a;
   }
-  Gy(e) {
+  setTargetAngle(e) {
     if (!(this.pathLength > 0)) {
       this._targetAngle = e & zW;
     }
   }
-  Uy(e) {
+  setForcedFacingAngle(e) {
     this._forcedFacingAngle = e !== null ? e & zW : null;
   }
-  jy(e) {
+  setInteracting(e) {
     if (e) {
       this._isInteracting = true;
       this._pendingInteractionClear = false;
@@ -35289,7 +35289,7 @@ var AW = class {
       this._pendingInteractionClear = true;
     }
   }
-  Oy() {
+  isEffectivelyInteracting() {
     return this._isInteracting && !this._pendingInteractionClear;
   }
   constructor(e, a) {
@@ -35331,17 +35331,17 @@ var AW = class {
     this._primaryAnimBlocksWalking = false;
     this.turnRemainderMs = 0;
   }
-  $y(e, a) {
+  setPrimaryAnimBlocking(e, a) {
     this._primaryAnimBlocksRunning = e;
     this._primaryAnimBlocksWalking = a;
   }
-  Vy(e, a = [], t) {
+  enqueueTickMovement(e, a = [], t) {
     if (e !== this.lastProcessedTick) {
       this.lastProcessedTick = e;
-      this.Ky(a, t);
+      this.enqueueSteps(a, t);
     }
   }
-  Ky(e, a) {
+  enqueueSteps(e, a) {
     for (const [t, n] of e) {
       this.pathQueue.push({
         x: t,
@@ -35349,10 +35349,10 @@ var AW = class {
         isRunning: a,
       });
     }
-    this.Zy();
+    this.retargetToPathHead();
   }
-  Yy([e, a], t) {
-    if (this.Xy([e, a])) {
+  snapToUnwalkedPlacement([e, a], t) {
+    if (this.routeEndsOn([e, a])) {
       return false;
     }
     const lastProcessedTick2 = this.lastProcessedTick;
@@ -35361,7 +35361,7 @@ var AW = class {
     this.facingAngle = t;
     return true;
   }
-  Xy([e, a]) {
+  routeEndsOn([e, a]) {
     const t =
       this.pathLength > 0 ? this.pathQueue[this.pathQueue.length - 1] : null;
     const n = t ? t.x * bW : this.worldXFloat;
@@ -35371,14 +35371,14 @@ var AW = class {
   get pathLength() {
     return this.pathQueue.length - this.pathHead;
   }
-  Jy() {
+  consumePathHead() {
     this.pathHead++;
     if (this.pathHead * 2 >= this.pathQueue.length) {
       this.pathQueue = this.pathQueue.slice(this.pathHead);
       this.pathHead = 0;
     }
   }
-  Zy() {
+  retargetToPathHead() {
     while (this.pathLength > 0) {
       const e = this.pathQueue[this.pathHead];
       const a = e.x * bW;
@@ -35386,25 +35386,25 @@ var AW = class {
       const n = a - this.worldXFloat;
       const s = t - this.worldYFloat;
       this._targetAngle = SW(n, s, this._targetAngle);
-      this._isRunning = this.Qy(e) >= 8;
+      this._isRunning = this.computeMovementSpeed(e) >= 8;
       if (Math.max(Math.abs(n), Math.abs(s)) > 288) {
         this.worldX = a;
         this.worldY = t;
         this.worldXFloat = a;
         this.worldYFloat = t;
-        this.Jy();
+        this.consumePathHead();
       } else {
         if (a !== this.worldX || t !== this.worldY) {
           return;
         }
-        this.Jy();
+        this.consumePathHead();
       }
     }
     this.movementDelay = 0;
   }
   advance(e, a) {
     if (!Number.isFinite(e) || e <= 0) {
-      return this.ez();
+      return this.buildState();
     }
     const t = e * (Number.isFinite(a) && a > 0 ? a : 1);
     const n = t / 20;
@@ -35412,28 +35412,28 @@ var AW = class {
     const s = Math.floor(this.turnRemainderMs / 20);
     this.turnRemainderMs -= s * 20;
     for (let e = 0; e < s; e++) {
-      if (this.rz()) {
+      if (this.isMovementBlockedByAnim()) {
         this.movementDelay++;
       } else if (this.movementDelay > 0 && this.pathLength > 1) {
         this.movementDelay--;
       }
-      const e = this.iz();
-      this.lz(e);
+      const e = this.currentTurnTarget();
+      this.stepRenderAngleSingle(e);
       if (this._pendingInteractionClear && this._renderAngle === e) {
         this._pendingInteractionClear = false;
         this._isInteracting = false;
       }
     }
-    if (!this.rz()) {
-      this.dz(n);
+    if (!this.isMovementBlockedByAnim()) {
+      this.interpolateAlongPath(n);
     }
     this._isMoving = this.pathLength > 0;
     if (!this._isMoving) {
       this._isRunning = false;
     }
-    return this.ez();
+    return this.buildState();
   }
-  rz() {
+  isMovementBlockedByAnim() {
     if (this.pathLength === 0) {
       return false;
     }
@@ -35443,7 +35443,7 @@ var AW = class {
       (!e.isRunning && !!this._primaryAnimBlocksWalking)
     );
   }
-  lz(e) {
+  stepRenderAngleSingle(e) {
     const a = (e - this._renderAngle) & zW;
     if (a === 0) {
       return;
@@ -35454,7 +35454,7 @@ var AW = class {
       this._renderAngle = e;
     }
   }
-  dz(e) {
+  interpolateAlongPath(e) {
     while (this.pathLength > 0 && e > 0) {
       const a = e;
       const t = this.pathQueue[this.pathHead];
@@ -35464,7 +35464,7 @@ var AW = class {
       const i = t.y * bW;
       const l = r - worldXFloat2;
       const o = i - worldYFloat2;
-      const d = this.Qy(t);
+      const d = this.computeMovementSpeed(t);
       const g = d * a;
       let c = 0;
       if (worldXFloat2 < r) {
@@ -35502,7 +35502,7 @@ var AW = class {
       if (r === this.worldX && i === this.worldY) {
         this.worldXFloat = r;
         this.worldYFloat = i;
-        this.Jy();
+        this.consumePathHead();
         const e = this.pathQueue[this.pathHead];
         if (e) {
           this._targetAngle = SW(e.x * bW - r, e.y * bW - i, this._targetAngle);
@@ -35510,9 +35510,9 @@ var AW = class {
       }
     }
   }
-  Qy(e) {
+  computeMovementSpeed(e) {
     let a = 4;
-    if (this.iz() !== this._renderAngle && this.turnSpeed !== 0 && !this.Oy()) {
+    if (this.currentTurnTarget() !== this._renderAngle && this.turnSpeed !== 0 && !this.isEffectivelyInteracting()) {
       a = 2;
     }
     if (this.pathLength > 2) {
@@ -35549,8 +35549,8 @@ var AW = class {
     this._primaryAnimBlocksWalking = false;
     this.turnRemainderMs = 0;
   }
-  ez() {
-    const e = this.iz();
+  buildState() {
+    const e = this.currentTurnTarget();
     return {
       position: [this.worldXFloat / bW, this.worldYFloat / bW],
       isVisuallyMoving: this._isMoving,
@@ -35562,14 +35562,14 @@ var AW = class {
       isTurning: this._renderAngle !== e,
     };
   }
-  iz() {
+  currentTurnTarget() {
     return this._forcedFacingAngle ?? this._targetAngle;
   }
   gz() {
     if (this.pathLength === 0) {
       return null;
     }
-    const e = (this.iz() - this._renderAngle) & zW;
+    const e = (this.currentTurnTarget() - this._renderAngle) & zW;
     const a = e > wW ? e - yW : e;
     if (a >= -256 && a <= 256) {
       return "walk";
@@ -35596,10 +35596,10 @@ var LW = class e {
     this._targetAngle = t;
     this.turnSpeed = a;
   }
-  mz(e) {
+  setTurnSpeed(e) {
     this.turnSpeed = e;
   }
-  hz(e) {
+  setTarget(e) {
     this._targetAngle = e & zW;
   }
   snap(e) {
@@ -35614,18 +35614,18 @@ var LW = class e {
   }
   advance(e) {
     if (!Number.isFinite(e) || e <= 0) {
-      return this.ez();
+      return this.buildState();
     }
     this._remainderMs += e;
     let a = Math.floor(this._remainderMs / 20);
     this._remainderMs -= a * 20;
     a = Math.min(a, 50);
     for (let e = 0; e < a; e++) {
-      this.fz();
+      this.stepVisualAngle();
     }
-    return this.ez();
+    return this.buildState();
   }
-  fz() {
+  stepVisualAngle() {
     const a = (this._targetAngle - this._visualAngle) & zW;
     if (a === 0) {
       this._consecutiveTurnTicks = 0;
@@ -35644,7 +35644,7 @@ var LW = class e {
     this._isTurning =
       !n || this._consecutiveTurnTicks > e.SUSTAINED_TURN_THRESHOLD;
   }
-  ez() {
+  buildState() {
     return {
       facingAngle: this._visualAngle,
       targetAngle: this._targetAngle,
@@ -35857,8 +35857,8 @@ var VW = class {
   setTerrainHeights(e) {
     this.terrainHeights = e;
   }
-  kz(e, a) {
-    this.Sz(a);
+  reconstruct(e, a) {
+    this.clearActive(a);
     this.consumeEvents(e);
   }
   consumeEvents(e) {
@@ -35940,7 +35940,7 @@ var VW = class {
           );
         } else {
           e.despawn(t);
-          this.Lz(n, s, a.position, Math.max(0, d - i) / g);
+          this.buildExplosion2D(n, s, a.position, Math.max(0, d - i) / g);
         }
         return true;
       } else {
@@ -35949,7 +35949,7 @@ var VW = class {
       }
     });
   }
-  Sz(e) {
+  clearActive(e) {
     for (const a of this.explodingFlares) {
       e.despawn(`voidflare-explode-${a.flareId}`);
     }
@@ -36015,7 +36015,7 @@ var VW = class {
       });
     }
   }
-  Lz(e, a, t, n) {
+  buildExplosion2D(e, a, t, n) {
     const s = MW(0.8, 0.2, 1, (1 - n) * 0.6);
     for (let n = 0; n < 2; n++) {
       for (let r = 0; r < 2; r++) {
@@ -36091,11 +36091,11 @@ var ZW = class {
     for (const a of e) {
       const e = KW(a);
       if (e) {
-        this.Dz(e);
+        this.consumeDescriptor(e);
       }
     }
   }
-  Dz(e) {
+  consumeDescriptor(e) {
     this.activeNpcCastEffect = e.npcCast;
     this.activePlayerImpactEffect = e.playerImpact;
   }
@@ -36105,7 +36105,7 @@ var ZW = class {
     const c = n[1] + 0.5;
     const m = -Nb(this.terrainHeights, n[0], n[1]) / 128;
     if (
-      !this.Mz(
+      !this.renderEffect(
         e,
         this.activeNpcCastEffect,
         t,
@@ -36119,7 +36119,7 @@ var ZW = class {
       e.despawn("attack-npc-cast");
     }
     if (
-      !this.Mz(
+      !this.renderEffect(
         e,
         this.activePlayerImpactEffect,
         t,
@@ -36133,13 +36133,13 @@ var ZW = class {
       e.despawn("attack-player-impact");
     }
   }
-  Sz(e) {
+  clearActive(e) {
     this.activeNpcCastEffect = null;
     this.activePlayerImpactEffect = null;
     e.despawn("attack-npc-cast");
     e.despawn("attack-player-impact");
   }
-  Mz(e, a, t, n, s, r, i) {
+  renderEffect(e, a, t, n, s, r, i) {
     if (!a) {
       return false;
     }
@@ -36514,9 +36514,9 @@ var bR = class {
     this.maximumLifetimeCycles = Math.max(this.maximumLifetimeCycles, a);
   }
   pending(e, a) {
-    return this.Tz(e, a);
+    return this.unexpired(e, a);
   }
-  Tz(e, a, t = 0) {
+  unexpired(e, a, t = 0) {
     const n = e.cycle - this.maximumLifetimeCycles - t;
     return this.entries
       .slice(
@@ -36587,7 +36587,7 @@ var wR = class {
         continue;
       }
       const r = this.accepted.at(-1);
-      const i = r && this.Iz(r, n) ? r.value : undefined;
+      const i = r && this.sampleEntry(r, n) ? r.value : undefined;
       if (s.replaces || yR(i?.priority, s.priority)) {
         this.accepted.push({
           ...a,
@@ -36611,12 +36611,12 @@ var wR = class {
     }
     const i = this.accepted[s - 1];
     return {
-      primary: i ? this.Iz(i, e.cycle) : null,
+      primary: i ? this.sampleEntry(i, e.cycle) : null,
       rebuilt: n,
       pending: this.pending,
     };
   }
-  Iz(e, a) {
+  sampleEntry(e, a) {
     const { clip: clip, duration: duration, delay: delay } = e.value;
     const r = zR(delay, a - (e.cycle ?? e.tick * 30));
     if (r.delayClientTicks === 0 && r.elapsedTicks >= duration) {
@@ -36841,17 +36841,17 @@ var DR = class {
     }
   }
   projectiles(e) {
-    return this.flights.Tz(e, (e) => e.endDelayCycles);
+    return this.flights.unexpired(e, (e) => e.endDelayCycles);
   }
-  Cz(e, a) {
+  activeGraphics(e, a) {
     const t = [];
     for (const [n, s] of this.graphics) {
       const r = a(n);
-      t.push(...s.Tz(e, (e) => e.delayCycles + r, r));
+      t.push(...s.unexpired(e, (e) => e.delayCycles + r, r));
     }
     return t.sort((e, a) => e.order - a.order);
   }
-  Bz(e) {
+  pendingAnimations(e) {
     return this.animations
       .pending(e, (e) => e.delayCycles)
       .map((e) => ({
@@ -36953,7 +36953,7 @@ var IR = class {
   sampler(e, a = "since-cycle") {
     return (t, n) => {
       const s = (a, n) => a <= e.throughFrameIndex && n * 30 <= t;
-      const r = this.Rz(this.states, (e) =>
+      const r = this.latest(this.states, (e) =>
         s(e.frameIndex, e.state.currentTick),
       );
       return (e) => {
@@ -36971,7 +36971,7 @@ var IR = class {
           }
         }
         const i = a === "snapshot" ? this.snapshotActors : this.actors;
-        const l = this.Rz(i.get(e) ?? [], (e) => s(e.frameIndex, e.tick));
+        const l = this.latest(i.get(e) ?? [], (e) => s(e.frameIndex, e.tick));
         if (
           !l ||
           (a === "snapshot"
@@ -36989,7 +36989,7 @@ var IR = class {
       };
     };
   }
-  Rz(e, a) {
+  latest(e, a) {
     let t = 0;
     let n = e.length;
     while (t < n) {
@@ -37360,7 +37360,7 @@ var PR = class {
       }
     }
   }
-  Pz(e, a) {
+  playerEffects(e, a) {
     const t = [];
     const n = [];
     const s = this.graphics[RR(this.graphics, e) - 1]?.value;
@@ -37401,10 +37401,10 @@ var PR = class {
     n.sort((e, a) => e.frameIndex - a.frameIndex || e.ordinal - a.ordinal);
     return [...t, ...n.map((e) => e.value)];
   }
-  _z(e) {
+  latestYamaAttack(e) {
     return this.yamaAttacks[RR(this.yamaAttacks, e) - 1]?.value;
   }
-  Fz(e) {
+  recentFlareEvents(e) {
     const a = RR(this.flareEvents, e);
     const t = RR(
       this.flareEvents,
@@ -37416,7 +37416,7 @@ var PR = class {
     );
     return this.flareEvents.slice(t, a).map((e) => e.value);
   }
-  Ez(e, a) {
+  deathPresentations(e, a) {
     const t = e.cycle - a / 20;
     const n = [];
     for (let s = this.deathRecords.length - 1; s >= 0; s--) {
@@ -37503,7 +37503,7 @@ var jR = class {
     this.pendingLoadIds.clear();
     this.lastObservedTick = Number.NEGATIVE_INFINITY;
   }
-  Nz(e, a, t = 0) {
+  triggerGraphic(e, a, t = 0) {
     this.activeGraphic = {
       spotAnimId: e,
       startTime: a,
@@ -37513,16 +37513,16 @@ var jR = class {
       this.pendingLoadIds.add(e);
     }
   }
-  Dz(e) {
+  consumeDescriptor(e) {
     return (
       this.descriptor !== e &&
-      ((this.descriptor = e), this.Nz(e.spotAnimId, e.tick, e.height), true)
+      ((this.descriptor = e), this.triggerGraphic(e.spotAnimId, e.tick, e.height), true)
     );
   }
   consumeEvents(e) {
     for (const a of e) {
       if (mB(a, "player_graphic_applied")) {
-        this.Nz(a.spotAnimId, a.tick);
+        this.triggerGraphic(a.spotAnimId, a.tick);
       }
     }
   }
@@ -37534,7 +37534,7 @@ var jR = class {
     this.lastObservedTick = a.currentTick;
     if (a.spotAnimModelLoader) {
       for (const t of this.pendingLoadIds) {
-        e.xv(a.spotAnimModelLoader, t);
+        e.loadById(a.spotAnimModelLoader, t);
         if (e.isLoaded(t)) {
           this.pendingLoadIds.delete(t);
         }
@@ -37761,7 +37761,7 @@ var sP = class {
         // An override is not among the fight's spot animations: it is loaded
         // the first time it flies, from the loader the renderer was given.
         if (this.config.overridden && !e.isLoaded(spotAnimId) && e.boundLoader) {
-          e.xv(e.boundLoader, spotAnimId);
+          e.loadById(e.boundLoader, spotAnimId);
         }
         if (!e.isLoaded(spotAnimId)) {
           e.despawn(instanceId);
@@ -37808,7 +37808,7 @@ var sP = class {
     }
     var d;
   }
-  Gz(e, a, t, n = new nP()) {
+  updateReplay(e, a, t, n = new nP()) {
     const { startCycle: startCycle, endCycleExclusive: endCycleExclusive } =
       this.config;
     if (
@@ -37911,7 +37911,7 @@ var rP = class e {
   static jz(a) {
     return new e(null, a);
   }
-  get Oz() {
+  get isHoming() {
     return this.actorId !== null;
   }
   resolve(e) {
@@ -37968,14 +37968,14 @@ var oP = class {
   setTerrainHeights(e) {
     this.terrainHeights = e;
   }
-  $z(e) {
+  setSurfaceHeightResolver(e) {
     this.surfaceHeightResolver = e;
   }
   consumeEvents(e) {}
   Vz(e) {
     this.replaySampler = e;
   }
-  Dz(e, a) {
+  consumeDescriptor(e, a) {
     if (this.consumedDescriptors.has(e)) {
       return false;
     }
@@ -37983,7 +37983,7 @@ var oP = class {
     const target2 = e.target;
     switch (e.kind) {
       case "projectile":
-        this.Kz(
+        this.launchProjectile(
           e.visuals,
           e.weaponId,
           [...e.source],
@@ -37998,7 +37998,7 @@ var oP = class {
         );
         break;
       case "impact":
-        this.Zz(
+        this.scheduleImpactSpotanim(
           e.spotAnimId,
           e.height,
           e.startTick,
@@ -38015,7 +38015,7 @@ var oP = class {
     }
     return true;
   }
-  Kz(e, a, t, n, s, r, i, l, o, d, g) {
+  launchProjectile(e, a, t, n, s, r, i, l, o, d, g) {
     const projectileId2 = e.projectileId;
     if (projectileId2 < 0) {
       return;
@@ -38073,7 +38073,7 @@ var oP = class {
       });
     }
   }
-  Zz(e, a, t, n, s, r, i, l = "sequence", o) {
+  scheduleImpactSpotanim(e, a, t, n, s, r, i, l = "sequence", o) {
     if (!(e < 0)) {
       this.pendingLoadIds.add(e);
       this.activeImpacts.set(
@@ -38106,7 +38106,7 @@ var oP = class {
     this.lastObservedTick = a;
     if (n) {
       for (const a of this.pendingLoadIds) {
-        e.xv(n, a);
+        e.loadById(n, a);
         if (e.isLoaded(a)) {
           this.pendingLoadIds.delete(a);
         }
@@ -38142,7 +38142,7 @@ var oP = class {
       const d = t * iP;
       if (
         (this.replaySampler
-          ? n.flight.Gz(e, d, o, i)
+          ? n.flight.updateReplay(e, d, o, i)
           : n.flight.update(e, o(d))) === "expired"
       ) {
         this.activeProjectiles.delete(a);
@@ -38216,8 +38216,8 @@ var dP = class {
     this.seqType = t;
     this.cycleStart = n - 1;
     if (s && t.frameStep !== -1) {
-      if (t.Rg()) {
-        this.frame = Math.floor(Math.random() * t.Pg());
+      if (t.isSkeletalSeq()) {
+        this.frame = Math.floor(Math.random() * t.getSkeletalDuration());
       } else if (t.frameIds) {
         this.frame = Math.floor(Math.random() * t.frameIds.length);
         this.cycleStart -= Math.floor(
@@ -38234,8 +38234,8 @@ var dP = class {
     if (t > 100 && this.seqType.frameStep > 0) {
       t = 100;
     }
-    if (this.seqType.Rg()) {
-      const e = this.seqType.Pg();
+    if (this.seqType.isSkeletalSeq()) {
+      const e = this.seqType.getSkeletalDuration();
       this.frame += t;
       t = 0;
       if (
@@ -38248,8 +38248,8 @@ var dP = class {
         return 0;
       }
     } else {
-      while (t > this.seqType.Tg(e, this.frame)) {
-        t -= this.seqType.Tg(e, this.frame);
+      while (t > this.seqType.getFrameLength(e, this.frame)) {
+        t -= this.seqType.getFrameLength(e, this.frame);
         this.frame++;
         if (
           this.frame >= this.seqType.frameLengths.length &&
@@ -39125,7 +39125,7 @@ function VP(e) {
   const h = o.map((e, a) => {
     const t = e.faces * 3;
     const n = m[a];
-    const s = n.Ik;
+    const s = n.distinct;
     const r =
       e.sizes.reduce((e, a) => e + a, 0) -
       (e.scratch.faceBias && !e.nonZeroFaceBias ? 1 : 0);
@@ -39235,8 +39235,8 @@ function QP(e, a, t, n) {
   );
 }
 function e_(e, a, t, n) {
-  e.model.fh();
-  a.model.fh();
+  e.model.calculateBounds();
+  a.model.calculateBounds();
   const s = YP(a) - YP(e);
   const r = XP(a) - XP(e);
   if (
@@ -39260,7 +39260,7 @@ function a_(e) {
   if (e.contouredGround < 0 || !e.terrainHeights) {
     return a;
   }
-  e.model.fh();
+  e.model.calculateBounds();
   const t = new Float32Array(e.model.usedVertexCount * 3);
   for (let a = 0; a < e.model.usedVertexCount; a++) {
     t[a * 3] = e.model.verticesX[a];
@@ -39439,7 +39439,7 @@ var r_ = class {
           terrainHeights: this.terrainHeights,
           animatedFallbacks: n,
         };
-        const r = i_(s, this.Jz(e, n));
+        const r = i_(s, this.createAnimatedLocPlacer(e, n));
         this.recipe = s;
         this.stagedLocIds = new Set(r.map((e) => e.locId));
         this.footprintsByIds.clear();
@@ -39454,7 +39454,7 @@ var r_ = class {
       }
     }
   }
-  tw(e) {
+  setHiddenLocIds(e) {
     if (e === this.requestedHiddenLocIds) {
       return;
     }
@@ -39586,7 +39586,7 @@ var r_ = class {
     })(n);
     this.excludedLocIds = a;
   }
-  Jz(e, a) {
+  createAnimatedLocPlacer(e, a) {
     const t = new Map();
     const n = performance.now() / 20;
     return ({
@@ -39675,9 +39675,9 @@ var r_ = class {
     for (const a of this.cachedLocMeshes) {
       e.commands.push(a);
     }
-    this.iw(e);
+    this.renderAnimatedLocs(e);
   }
-  iw(e) {
+  renderAnimatedLocs(e) {
     if (this.animatedLocs.size === 0) {
       return;
     }
@@ -39913,7 +39913,7 @@ var d_ = class {
     this.sharedGeometry.clear();
     this.geometryReleasePending = false;
   }
-  lw() {
+  resetTimeline() {
     this.reanchorOnNextSync = true;
   }
   sync(e, a) {
@@ -39926,7 +39926,7 @@ var d_ = class {
       const s =
         e?.spec === n && e.bakeTerrainRevision === this.terrainRevision
           ? e.bakeKey
-          : this.ow(n);
+          : this.buildBakeKey(n);
       const r = n.data?.animationStartTick;
       if (e?.bakeKey === s) {
         e.spec = n;
@@ -39937,7 +39937,7 @@ var d_ = class {
       if (e) {
         this.geometryReleasePending = true;
       }
-      const i = this.dw(n);
+      const i = this.bakeSpec(n);
       if (i.frameCommands.length > 0) {
         this.objects.set(n.id, {
           spec: n,
@@ -40087,7 +40087,7 @@ var d_ = class {
       if (!data4 || !e.has(data4.locId)) {
         return;
       }
-      const { sizeX: sizeX, sizeY: sizeY } = this.cw(data4);
+      const { sizeX: sizeX, sizeY: sizeY } = this.resolveLoc(data4);
       const { sceneFootprint: sceneFootprint } = MP({
         type: data4.modelType,
         rotation: uP(data4.rotation),
@@ -40105,7 +40105,7 @@ var d_ = class {
     });
     return a;
   }
-  dw(e) {
+  bakeSpec(e) {
     const data5 = e.data;
     if (!data5) {
       return m_;
@@ -40116,7 +40116,7 @@ var d_ = class {
       sizeY: sizeY,
       contouredGround: contouredGround,
       seqId: seqId,
-    } = this.cw(data5);
+    } = this.resolveLoc(data5);
     if (drawnLocId < 0) {
       return m_;
     }
@@ -40145,7 +40145,7 @@ var d_ = class {
         })(data5, drawnLocId, seqId, o);
     let c = g ? this.sharedGeometry.get(g) : undefined;
     if (!c) {
-      c = this.mw(data5, drawnLocId, seqId, g ?? c_(e.meshId, o), d, o);
+      c = this.loadGeometry(data5, drawnLocId, seqId, g ?? c_(e.meshId, o), d, o);
       if (!c) {
         return m_;
       }
@@ -40184,7 +40184,7 @@ var d_ = class {
         : {}),
     };
   }
-  mw(e, a, t, n, s, r) {
+  loadGeometry(e, a, t, n, s, r) {
     const i = (e, a) => ({
       frames: WP({
         frames: e,
@@ -40281,7 +40281,7 @@ var d_ = class {
       }
     }
   }
-  cw(e) {
+  resolveLoc(e) {
     const a = this.locModelLoader.loadLocType?.(e.locId);
     const t = (function (e, a, t) {
       if (!a || a.length === 0) {
@@ -40301,7 +40301,7 @@ var d_ = class {
     var s;
     var r;
   }
-  ow(e) {
+  buildBakeKey(e) {
     const data6 = e.data;
     if (!data6) {
       return `${e.id}:missing-loc-data`;
@@ -40312,7 +40312,7 @@ var d_ = class {
       sizeY: sizeY,
       contouredGround: contouredGround,
       seqId: seqId,
-    } = this.cw(data6);
+    } = this.resolveLoc(data6);
     const l = l_(e).depthBias ?? "none";
     return [
       data6.locId,
@@ -40494,12 +40494,12 @@ var A_ = class e {
     ce(this, "_turnReleaseCount", 0);
     this.animationSet = e.animationSet;
     this.modelAdapter = e.modelAdapter;
-    this.baseTrack = this.hw();
+    this.baseTrack = this.makeIdleTrack();
   }
-  hw() {
+  makeIdleTrack() {
     const idle2 = this.animationSet.idle;
     if (idle2) {
-      return this.fw("idle", idle2, this.uw("idle"));
+      return this.makeTrack("idle", idle2, this.baseModeFor("idle"));
     } else {
       return null;
     }
@@ -40511,10 +40511,10 @@ var A_ = class e {
     this.primaryTrack = null;
     this.restoredRemainderMs = undefined;
     if (this.baseTrack?.state !== "idle") {
-      this.baseTrack = this.hw();
+      this.baseTrack = this.makeIdleTrack();
     }
   }
-  fw(e, a, t) {
+  makeTrack(e, a, t) {
     return {
       state: e,
       clip: a,
@@ -40524,7 +40524,7 @@ var A_ = class e {
       delayClientTicks: 0,
     };
   }
-  kw(e) {
+  restorePrimaryAt(e) {
     this.signalQueue.length = 0;
     this.primaryTrack = e
       ? {
@@ -40539,11 +40539,11 @@ var A_ = class e {
     this.restoredRemainderMs = e?.remainderMs ?? 0;
     this._turnReleaseCount = 0;
   }
-  Sw(e, a, t = 0) {
-    const n = a ? this.yw() : this.zw();
+  restoreBaseAt(e, a, t = 0) {
+    const n = a ? this.resolveWalkOrIdle() : this.zw();
     this.baseTrack = null;
     if (n) {
-      this.baseTrack = this.fw(n.state, n.clip, this.uw(n.state));
+      this.baseTrack = this.makeTrack(n.state, n.clip, this.baseModeFor(n.state));
       this.baseTrack.elapsedTicks = Math.max(
         0,
         Math.floor(e) - (n.state === "walk" ? Math.floor(t) : 0),
@@ -40553,13 +40553,13 @@ var A_ = class e {
     this.restoredRemainderMs = this.tickRemainderMs;
     this._turnReleaseCount = 0;
   }
-  ww(e, a) {
-    this.kw(null);
-    this.Aw(a);
+  restoreDeathAt(e, a) {
+    this.restorePrimaryAt(null);
+    this.triggerDeath(a);
     if (this.primaryTrack) {
       this.primaryTrack.elapsedTicks = Math.floor(e);
     }
-    this.Sw(e, false);
+    this.restoreBaseAt(e, false);
   }
   update(e) {
     const a = Math.max(0, e.deltaMs) * Math.max(0, e.speedMultiplier);
@@ -40570,7 +40570,7 @@ var A_ = class e {
       this.baseTrack.elapsedTicks += t;
     }
     if (this.restoredRemainderMs === undefined) {
-      this.Lw(t);
+      this.advancePrimary(t);
     } else {
       this.tickRemainderMs = this.restoredRemainderMs;
       this.restoredRemainderMs = undefined;
@@ -40584,29 +40584,29 @@ var A_ = class e {
       ) {
         this.primaryTrack = null;
       }
-      this.Dw();
-      this.Hw(e, t);
+      this.consumeSignalQueue();
+      this.updateBaseTrack(e, t);
     }
-    this.Mw();
+    this.applyPose();
   }
-  Hw(a, t) {
-    const n = this.Tw(a);
+  updateBaseTrack(a, t) {
+    const n = this.resolveBaseAnimation(a);
     let s = true;
-    if (this.baseTrack && this.Iw(this.baseTrack.state) && !this.Iw(n?.state)) {
+    if (this.baseTrack && this.isTurnState(this.baseTrack.state) && !this.isTurnState(n?.state)) {
       this._turnReleaseCount += t;
       s = t > 0 && this._turnReleaseCount >= e.TURN_RELEASE_TICKS;
     } else {
       this._turnReleaseCount = 0;
     }
     if (s) {
-      this.Cw(n);
+      this.setBase(n);
     }
   }
-  xw(e) {
+  enqueueSignal(e) {
     this.signalQueue.push(e);
   }
-  Bw(e) {
-    this.xw({
+  triggerAttack(e) {
+    this.enqueueSignal({
       type: "attack",
       clip: e?.clip,
       durationClientTicks: e?.durationClientTicks,
@@ -40614,12 +40614,12 @@ var A_ = class e {
       source: e?.source,
     });
   }
-  Aw(e = this.animationSet.death) {
+  triggerDeath(e = this.animationSet.death) {
     if (e) {
-      this.Ww("death", e, "oneshot", this.pw(e));
+      this.setPrimary("death", e, "oneshot", this.pw(e));
     }
   }
-  Rw() {
+  getActiveState() {
     return this.Pw()?.state ?? this.baseTrack?.state ?? "idle";
   }
   _w() {
@@ -40664,7 +40664,7 @@ var A_ = class e {
       currentFrameIndex: n >= 0 ? n : 0,
     };
   }
-  Dw() {
+  consumeSignalQueue() {
     while (this.signalQueue.length > 0) {
       const e = this.signalQueue.shift();
       if (e) {
@@ -40684,7 +40684,7 @@ var A_ = class e {
     }
     const t = y_(a, e);
     this._turnReleaseCount = 0;
-    this.Ww("attack", a, "oneshot", t.duration, t.delay);
+    this.setPrimary("attack", a, "oneshot", t.duration, t.delay);
   }
   Uw(e) {
     const primaryTrack2 = this.primaryTrack;
@@ -40702,7 +40702,7 @@ var A_ = class e {
       return null;
     }
   }
-  Lw(e) {
+  advancePrimary(e) {
     const primaryTrack4 = this.primaryTrack;
     if (!primaryTrack4 || e <= 0) {
       return;
@@ -40711,7 +40711,7 @@ var A_ = class e {
     primaryTrack4.delayClientTicks = t.delayClientTicks;
     primaryTrack4.elapsedTicks += t.elapsedTicks;
   }
-  Tw(e) {
+  resolveBaseAnimation(e) {
     const { turn: turn, movement: movement } = e;
     if (turn.isTurning) {
       if (turn.turnDeltaSigned < 0 && this.animationSet.turnLeft) {
@@ -40734,12 +40734,12 @@ var A_ = class e {
       }
     }
     if (movement.isMoving) {
-      return this.yw();
+      return this.resolveWalkOrIdle();
     } else {
       return this.zw();
     }
   }
-  yw() {
+  resolveWalkOrIdle() {
     if (this.animationSet.walk) {
       return {
         state: "walk",
@@ -40760,30 +40760,30 @@ var A_ = class e {
       return null;
     }
   }
-  Iw(e) {
+  isTurnState(e) {
     return e === "turnLeft" || e === "turnRight";
   }
-  Cw(e) {
+  setBase(e) {
     if (!e) {
       this.baseTrack = null;
       return;
     }
     const { state: state, clip: clip } = e;
     if (!this.baseTrack) {
-      this.baseTrack = this.fw(state, clip, this.uw(state));
+      this.baseTrack = this.makeTrack(state, clip, this.baseModeFor(state));
       return;
     }
     const n =
       this.baseTrack.state !== state || this.baseTrack.clip.id !== clip.id;
     this.baseTrack.state = state;
     this.baseTrack.clip = clip;
-    this.baseTrack.mode = this.uw(state);
+    this.baseTrack.mode = this.baseModeFor(state);
     this.baseTrack.durationClientTicks = this.jw(this.pw(clip));
     if (n) {
       this.baseTrack.elapsedTicks = 0;
     }
   }
-  Ww(e, a, t, n, s = 0) {
+  setPrimary(e, a, t, n, s = 0) {
     this.primaryTrack = {
       state: e,
       clip: a,
@@ -40793,7 +40793,7 @@ var A_ = class e {
       delayClientTicks: Math.max(0, Math.floor(s)),
     };
   }
-  Mw() {
+  applyPose() {
     const e = this.Pw();
     const baseTrack3 = this.baseTrack;
     if (e && e.state === "death") {
@@ -40923,10 +40923,10 @@ var A_ = class e {
     if (e.frameIds.length === 0) {
       return null;
     }
-    const n = this.Kw(e);
+    const n = this.getFrameDurationTicks(e);
     const s =
       t === "loopFrameStep"
-        ? this.Zw(e, a, n)
+        ? this.frameStepLocalTick(e, a, n)
         : t === "loop"
           ? a % n
           : Math.min(a, n - 1);
@@ -40939,14 +40939,14 @@ var A_ = class e {
     }
     return e.frameIds[e.frameIds.length - 1];
   }
-  uw(e) {
+  baseModeFor(e) {
     if (e === "idle") {
       return this.animationSet.idlePlayMode ?? "loop";
     } else {
       return "loop";
     }
   }
-  Zw(e, a, t) {
+  frameStepLocalTick(e, a, t) {
     const frameStep3 = e.seqType.frameStep;
     if (frameStep3 < 0) {
       return Math.min(a, t - 1);
@@ -40972,7 +40972,7 @@ var A_ = class e {
   Vw(e) {
     return Math.max(1, e.skeletalEnd - e.skeletalStart);
   }
-  Kw(e) {
+  getFrameDurationTicks(e) {
     let a = 0;
     for (let t = 0; t < e.frameIds.length; t++) {
       a += this.Yw(e, t);
@@ -41003,18 +41003,18 @@ var L_ = class {
       this.trackers.set(e, n);
     }
     if (t !== undefined) {
-      n.mz(t);
+      n.setTurnSpeed(t);
     }
     return n;
   }
-  Jw(e) {
+  snapTo(e) {
     const a = this.Xw(e.actorId, e.seedAngle, e.turnSpeed);
     a.snap(e.targetAngle);
     return a.advance(0).facingAngle;
   }
   Qw(e) {
     const a = this.Xw(e.actorId, e.seedAngle, e.turnSpeed);
-    a.hz(e.targetAngle);
+    a.setTarget(e.targetAngle);
     return a.advance(e.deltaMs).facingAngle;
   }
   drop(e) {
@@ -41121,7 +41121,7 @@ var R_ = class {
     }
   }
   applySkeletal(e, a) {
-    this.model?.Ph(e, a);
+    this.model?.animateSkeletal(e, a);
   }
   applyFrame(e) {
     if (!this.model) {
@@ -41139,7 +41139,7 @@ var R_ = class {
     const n = this.animationSystem.loadFrame(e);
     const s = this.animationSystem.loadFrame(a);
     if (n && s) {
-      this.model.xh(n, s, t);
+      this.model.animateInterleaved(n, s, t);
     } else if (n) {
       this.model.animate(n);
     } else if (s) {
@@ -41249,7 +41249,7 @@ var NpcInstanceManager = class {
       mergedModel2.Ih();
       v = s.createAnimatedModel(mergedModel2);
       const t = a.loadNpcType(e);
-      y = t ? this.tA(s, t, n) : null;
+      y = t ? this.loadAnimationSet(s, t, n) : null;
       if (y) {
         p = new Int32Array(mergedModel2.verticesX);
         k = new Int32Array(mergedModel2.verticesY);
@@ -41291,7 +41291,7 @@ var NpcInstanceManager = class {
     }
     const { position: position, size: size } = this.rA(e, r.size);
     const L = new Float32Array(16);
-    this.iA(L, position, size, 0);
+    this.computeModelMatrixInto(L, position, size, 0);
     const {
       commands: commands,
       faceSplitMap: faceSplitMap,
@@ -41306,7 +41306,7 @@ var NpcInstanceManager = class {
     for (const e of commands) {
       e.depthBias = e.depth === "read" ? C : n?.depthBias;
     }
-    z = this.oA(y, s);
+    z = this.isAnimationSetAlphaAnimated(y, s);
     Rb(
       faceSplitMap,
       o.positions,
@@ -41345,7 +41345,7 @@ var NpcInstanceManager = class {
       healthBarWidth: n?.healthBarWidth,
     };
     this.typeRegistry.set(e, x);
-    if (this.dA(e)) {
+    if (this.isPrimaryNpcType(e)) {
       const a = {
         actorId: M_,
         npcTypeId: e,
@@ -41364,7 +41364,7 @@ var NpcInstanceManager = class {
         posedVerticesY: null,
         posedVerticesZ: null,
         instanceFaceSplitMap: faceSplitMap,
-        instanceSplitBuffers: this.gA(x),
+        instanceSplitBuffers: this.seedSplitBuffers(x),
         alphaAnimated: z,
         dynamicTransparentFaceMap: transparentFaceMap,
         dynamicTransparentStatic: unsortedTransparentStatic,
@@ -41403,7 +41403,7 @@ var NpcInstanceManager = class {
         continue;
       }
       if (i && this.dyingInstances.delete(r.id)) {
-        this.mA();
+        this.markDyingActorIdsCacheDirty();
       }
       if (!e) {
         continue;
@@ -41417,13 +41417,13 @@ var NpcInstanceManager = class {
               r.previousPosition[1] !== r.position[1],
       );
       const o = this.instanceRegistry.get(r.id);
-      const d = o ?? this.hA(r, e);
+      const d = o ?? this.createInstance(r, e);
       if (!o) {
         this.instanceRegistry.set(r.id, d);
       }
       d.spawnTick = r.spawnTick;
       if (t !== undefined) {
-        this.fA(d, t);
+        this.settleSpawnClip(d, t);
       }
       const currentModelMatrix2 = d.currentModelMatrix;
       const c = currentModelMatrix2[0];
@@ -41434,7 +41434,7 @@ var NpcInstanceManager = class {
       const v = currentModelMatrix2[13];
       const p = currentModelMatrix2[14];
       const k = MR(r, a, n);
-      this.iA(
+      this.computeModelMatrixInto(
         currentModelMatrix2,
         k,
         e.size,
@@ -41472,23 +41472,23 @@ var NpcInstanceManager = class {
     }
     this.snapshotActorIds = s;
     for (const [e, a] of this.dyingInstances) {
-      if (this.uA(a.instance.npcTypeId) && !s.has(e)) {
+      if (this.holdsDeathUntilRemoved(a.instance.npcTypeId) && !s.has(e)) {
         this.dyingInstances.delete(e);
-        this.mA();
+        this.markDyingActorIdsCacheDirty();
       }
     }
   }
   removeInstance(e) {
     this.instanceRegistry.delete(e);
     if (this.dyingInstances.delete(e)) {
-      this.mA();
+      this.markDyingActorIdsCacheDirty();
     }
     this.pendingAttackTriggersByActor.delete(e);
     this.movementByActorId.delete(e);
     this.facingController.drop(e);
     this.pA(e);
   }
-  kA(e) {
+  removePresentationsByNpcType(e) {
     for (const [a, t] of this.instanceRegistry) {
       if (e.includes(t.npcTypeId)) {
         this.removeInstance(a);
@@ -41520,7 +41520,7 @@ var NpcInstanceManager = class {
     ) {
       this.instanceRegistry.delete(e.id);
       if (this.dyingInstances.delete(e.id)) {
-        this.mA();
+        this.markDyingActorIdsCacheDirty();
       }
       this.pendingAttackTriggersByActor.delete(e.id);
       this.movementByActorId.delete(e.id);
@@ -41539,13 +41539,13 @@ var NpcInstanceManager = class {
       if (r) {
         this.dyingInstances.delete(e.id);
       }
-      const a = this.hA(e, t);
+      const a = this.createInstance(e, t);
       this.instanceRegistry.set(e.id, a);
       r = this.cA(e.id, a, t, e.deathCause);
     }
     const animController2 = r.instance.animController;
     if (animController2) {
-      animController2.ww(s / 20, r.deathClip);
+      animController2.restoreDeathAt(s / 20, r.deathClip);
       animController2.update({
         deltaMs: 0,
         speedMultiplier: 1,
@@ -41574,7 +41574,7 @@ var NpcInstanceManager = class {
     const g = currentModelMatrix3[12];
     const c = currentModelMatrix3[13];
     const m = currentModelMatrix3[14];
-    this.iA(currentModelMatrix3, a, t, n, B_(s.animController?._w()));
+    this.computeModelMatrixInto(currentModelMatrix3, a, t, n, B_(s.animController?._w()));
     if (
       i !== currentModelMatrix3[0] ||
       l !== currentModelMatrix3[1] ||
@@ -41642,7 +41642,7 @@ var NpcInstanceManager = class {
     };
     const i =
       s.mode === "fixed" || a.snap
-        ? this.facingController.Jw(r)
+        ? this.facingController.snapTo(r)
         : this.facingController.Qw(r);
     this.setInstancePositionAndFacing(e.actorId, [n.position[0], n.position[1]], n.size, i);
     return i;
@@ -41722,7 +41722,7 @@ var NpcInstanceManager = class {
       size: e.lastRenderSize ?? a?.size ?? 1,
     };
   }
-  xA() {
+  getPrimaryNpcSmoothedFacingAngle() {
     return this.primaryNpcSmoothedFacingAngle;
   }
   pA(e) {
@@ -41740,7 +41740,7 @@ var NpcInstanceManager = class {
       }
     }
   }
-  Cv(e) {
+  setSorterProjection(e) {
     if (e) {
       if (
         !this.hasSorterProjection ||
@@ -41849,10 +41849,10 @@ var NpcInstanceManager = class {
       }
       if (
         n.deathTimerMs >= n.deathDurationMs &&
-        !this.uA(n.instance.npcTypeId)
+        !this.holdsDeathUntilRemoved(n.instance.npcTypeId)
       ) {
         this.dyingInstances.delete(t);
-        this.mA();
+        this.markDyingActorIdsCacheDirty();
       }
     }
   }
@@ -41878,7 +41878,7 @@ var NpcInstanceManager = class {
       }
     });
     this.pendingAttackTriggersByActor.delete(e);
-    r.kw(i.primary ?? this.EA(n, t.cycle));
+    r.restorePrimaryAt(i.primary ?? this.EA(n, t.cycle));
     const l = i.rebuilt || !this.replayPrimaryControllers.has(r);
     this.replayPrimaryControllers.add(r);
     return l;
@@ -41901,14 +41901,14 @@ var NpcInstanceManager = class {
     const l = this.EA(n, t.cycle);
     if (i.firstCycle === undefined) {
       if (this.replayPrimaryControllers.has(r)) {
-        r.kw(l);
+        r.restorePrimaryAt(l);
       }
       return i.rebuilt;
     }
     this.pendingAttackTriggersByActor.delete(e);
-    r.kw(i.primary ?? l);
+    r.restorePrimaryAt(i.primary ?? l);
     const o = t.spawnTick * 30;
-    r.Sw(
+    r.restoreBaseAt(
       Math.max(0, t.cycle - o),
       this.movementByActorId.get(e) === true,
       Math.min(50, Math.max(0, i.firstCycle - o)),
@@ -41917,7 +41917,7 @@ var NpcInstanceManager = class {
     this.replayPrimaryControllers.add(r);
     return d;
   }
-  fA(e, a) {
+  settleSpawnClip(e, a) {
     if (this.spawnClipSettled.has(e)) {
       return;
     }
@@ -41934,7 +41934,7 @@ var NpcInstanceManager = class {
     this.spawnClipSettled.add(e);
     const s = this.EA(e, a);
     if (s) {
-      animController3.kw(s);
+      animController3.restorePrimaryAt(s);
     }
   }
   EA(e, a) {
@@ -41985,13 +41985,13 @@ var NpcInstanceManager = class {
       t.durationGameTicks !== undefined ? t.durationGameTicks * 30 : undefined;
     const delayClientTicks2 = t.delayClientTicks;
     if (clipId2 && a?.[clipId2]) {
-      e.animController.Bw({
+      e.animController.triggerAttack({
         clip: a[clipId2],
         durationClientTicks: r,
         delayClientTicks: delayClientTicks2,
       });
     } else {
-      e.animController.Bw({
+      e.animController.triggerAttack({
         durationClientTicks: r,
         delayClientTicks: delayClientTicks2,
       });
@@ -42007,7 +42007,7 @@ var NpcInstanceManager = class {
   UA() {
     if (this.dyingInstances.size > 0) {
       this.dyingInstances.clear();
-      this.mA();
+      this.markDyingActorIdsCacheDirty();
     }
     this.GA();
     for (const e of this.instanceRegistry.values()) {
@@ -42017,7 +42017,7 @@ var NpcInstanceManager = class {
     this.facingController.reset();
     this.facingSnapPending = true;
   }
-  jA(e, a) {
+  renderAll(e, a) {
     for (const [t, n] of this.instanceRegistry) {
       if (!a?.(t, n.npcTypeId, false)) {
         for (const a of n.instanceMeshCommands) {
@@ -42063,7 +42063,7 @@ var NpcInstanceManager = class {
     };
     var s;
   }
-  $A() {
+  getAllHitTestData() {
     const e = [];
     for (const [a] of this.instanceRegistry) {
       const t = this.OA(a);
@@ -42076,7 +42076,7 @@ var NpcInstanceManager = class {
     }
     return e;
   }
-  Gg(e) {
+  getModelMatrix(e) {
     return (
       this.instanceRegistry.get(e)?.currentModelMatrix ??
       this.dyingInstances.get(e)?.instance.currentModelMatrix ??
@@ -42094,7 +42094,7 @@ var NpcInstanceManager = class {
   KA(e) {
     return this.typeRegistry.get(e)?.modelData ?? null;
   }
-  qA(e) {
+  getNpcTypeModelBounds(e) {
     return this.typeRegistry.get(e)?.modelBounds ?? null;
   }
   getNpcTypeSize(e) {
@@ -42153,7 +42153,7 @@ var NpcInstanceManager = class {
       t.splitBuffers = a;
     }
   }
-  eL(e) {
+  getPrimaryNpcMeshCommands(e) {
     const a = this.instanceRegistry.get(M_);
     if (a && a.npcTypeId === e) {
       return a.instanceMeshCommands;
@@ -42170,14 +42170,14 @@ var NpcInstanceManager = class {
   getTerrainHeights() {
     return this.terrainHeights;
   }
-  aL() {
+  getDyingActorIds() {
     if (!!this.dyingActorIdsCacheDirty || !this.dyingActorIdsCache) {
       this.dyingActorIdsCache = new Set(this.dyingInstances.keys());
       this.dyingActorIdsCacheDirty = false;
     }
     return this.dyingActorIdsCache;
   }
-  tL() {
+  getInstanceFrameStates() {
     const e = [];
     for (const [a, t] of this.instanceRegistry) {
       e.push({
@@ -42198,7 +42198,7 @@ var NpcInstanceManager = class {
   isNpcTypeLoaded(e) {
     return this.typeRegistry.has(e);
   }
-  nL() {
+  getMaximumLoadedDeathDurationMs() {
     let e = 0;
     for (const a of this.typeRegistry.values()) {
       e = Math.max(e, this.bA(a));
@@ -42214,7 +42214,7 @@ var NpcInstanceManager = class {
     this.dyingInstances.clear();
     this.snapshotActorIds = new Set();
     this.pendingAttackTriggersByActor.clear();
-    this.mA();
+    this.markDyingActorIdsCacheDirty();
     this.dyingActorIdsCache = null;
     this.animSystem = null;
     this.terrainHeights = null;
@@ -42227,10 +42227,10 @@ var NpcInstanceManager = class {
     this.facingSnapPending = false;
     this.primaryNpcSmoothedFacingAngle = undefined;
   }
-  mA() {
+  markDyingActorIdsCacheDirty() {
     this.dyingActorIdsCacheDirty = true;
   }
-  sL(e, a) {
+  resolveDeath(e, a) {
     const t = e?.animationSet?.deathClips;
     if (a !== undefined && t !== undefined && Object.hasOwn(t, a)) {
       const n = e?.deathClipDurationsMs;
@@ -42245,11 +42245,11 @@ var NpcInstanceManager = class {
       configuredDurationMs: e?.deathDurationMs,
     };
   }
-  uA(e) {
+  holdsDeathUntilRemoved(e) {
     return this.typeRegistry.get(e)?.holdDeathUntilRemoved === true;
   }
   bA(e, a) {
-    const { clip: clip, configuredDurationMs: configuredDurationMs } = this.sL(
+    const { clip: clip, configuredDurationMs: configuredDurationMs } = this.resolveDeath(
       e,
       a,
     );
@@ -42268,21 +42268,21 @@ var NpcInstanceManager = class {
       instance: a,
       deathTimerMs: 0,
       deathDurationMs: this.bA(t, n),
-      deathClip: this.sL(t, n).clip,
+      deathClip: this.resolveDeath(t, n).clip,
     };
     this.dyingInstances.set(e, s);
-    this.mA();
+    this.markDyingActorIdsCacheDirty();
     this.instanceRegistry.delete(e);
     this.pendingAttackTriggersByActor.delete(e);
     this.facingController.drop(e);
     this.pA(e);
     if (!a.animController && t) {
-      a.animController = this.rL(a, t);
+      a.animController = this.createDyingAnimController(a, t);
     }
-    a.animController?.Aw(s.deathClip);
+    a.animController?.triggerDeath(s.deathClip);
     return s;
   }
-  rL(e, a) {
+  createDyingAnimController(e, a) {
     if (!a.animationSet || !a.modelData?.mergedModel || !this.animSystem) {
       return null;
     }
@@ -42318,7 +42318,7 @@ var NpcInstanceManager = class {
       modelAdapter: n,
     });
   }
-  iA(e, a, t, n, s = 0) {
+  computeModelMatrixInto(e, a, t, n, s = 0) {
     const r = 1 / 128;
     const i = a[0] + t / 2;
     const l = a[1] + t / 2;
@@ -42350,7 +42350,7 @@ var NpcInstanceManager = class {
       e.lastRenderSize !== undefined &&
       e.lastRenderFacingAngle !== undefined
     ) {
-      this.iA(
+      this.computeModelMatrixInto(
         e.currentModelMatrix,
         e.lastRenderPosition,
         e.lastRenderSize,
@@ -42362,9 +42362,9 @@ var NpcInstanceManager = class {
       }
     }
   }
-  hA(e, a) {
+  createInstance(e, a) {
     const t = new Float32Array(16);
-    this.iA(t, e.position, a.size, e.facingAngle);
+    this.computeModelMatrixInto(t, e.position, a.size, e.facingAngle);
     const n = a.baseMeshCommands.map((a) => ({
       ...a,
       meshId: `${a.meshId}-${e.id}`,
@@ -42390,7 +42390,7 @@ var NpcInstanceManager = class {
       posedVerticesY: null,
       posedVerticesZ: null,
       instanceFaceSplitMap: a.faceSplitMap,
-      instanceSplitBuffers: a.faceSplitMap ? this.gA(a) : null,
+      instanceSplitBuffers: a.faceSplitMap ? this.seedSplitBuffers(a) : null,
       alphaAnimated: a.alphaAnimated,
       dynamicTransparentFaceMap: a.transparentFaceMap,
       dynamicTransparentStatic: a.unsortedTransparentStatic,
@@ -42447,7 +42447,7 @@ var NpcInstanceManager = class {
     }
     return o;
   }
-  oA(e, a) {
+  isAnimationSetAlphaAnimated(e, a) {
     if (!e || !a) {
       return false;
     }
@@ -42473,7 +42473,7 @@ var NpcInstanceManager = class {
     }
     return false;
   }
-  iL(e, a) {
+  applySplitBuffersToCommands(e, a) {
     for (const t of e) {
       t.uploadVersion = ++meshUploadVersion;
       if (t.meshId.includes("-opaque")) {
@@ -42497,7 +42497,7 @@ var NpcInstanceManager = class {
       }
     }
   }
-  lL(e, a, t) {
+  resolveTransparentFaceMap(e, a, t) {
     const length14 = a.length;
     let s = this.transparentFaceIndexScratch;
     if (!s || s.length < length14) {
@@ -42532,7 +42532,7 @@ var NpcInstanceManager = class {
             }
           : undefined;
       const s = Bb(t.alphas, t.positions.length / 3);
-      const r = this.oL(s, e.instanceSplitBuffers, n !== undefined);
+      const r = this.ensureSplitBuffersCapacity(s, e.instanceSplitBuffers, n !== undefined);
       Rb(s, t.positions, t.normals, t.hslColors, t.alphas, t.faceBias, r, n);
       e.instanceFaceSplitMap = s;
       e.instanceSplitBuffers = r;
@@ -42541,7 +42541,7 @@ var NpcInstanceManager = class {
       const modelFaceIndices2 = t.modelFaceIndices;
       e.dynamicTransparentFaceMap =
         length15 > 0 && modelFaceIndices2
-          ? this.lL(
+          ? this.resolveTransparentFaceMap(
               e.dynamicTransparentFaceMap,
               transparentTriIndices2,
               modelFaceIndices2,
@@ -42631,7 +42631,7 @@ var NpcInstanceManager = class {
         e.dynamicFaceColors3 = new Int32Array(t.faceColors3.length);
       }
       e.dynamicFaceColors3.set(t.faceColors3);
-      this.iL(e.instanceMeshCommands, r);
+      this.applySplitBuffersToCommands(e.instanceMeshCommands, r);
       e.transparentSortDirty = true;
       return;
     }
@@ -42655,7 +42655,7 @@ var NpcInstanceManager = class {
         : undefined,
     );
     e.instanceSplitBuffers = s;
-    this.iL(e.instanceMeshCommands, s);
+    this.applySplitBuffersToCommands(e.instanceMeshCommands, s);
     if (a.transparentFaceMap) {
       e.dynamicTransparentFaceMap = a.transparentFaceMap;
     }
@@ -42677,7 +42677,7 @@ var NpcInstanceManager = class {
     e.dynamicFaceColors3 = null;
     e.transparentSortDirty = true;
   }
-  oL(e, a, t = false) {
+  ensureSplitBuffersCapacity(e, a, t = false) {
     const opaqueVertCount2 = e.opaqueVertCount;
     const transparentVertCount2 = e.transparentVertCount;
     if (a) {
@@ -42795,7 +42795,7 @@ var NpcInstanceManager = class {
     };
   }
   rA(e, a) {
-    if (this.dA(e) && this.primaryNpcRenderConfig) {
+    if (this.isPrimaryNpcType(e) && this.primaryNpcRenderConfig) {
       return {
         position: this.primaryNpcRenderConfig.basePosition,
         size: this.primaryNpcRenderConfig.size,
@@ -42807,7 +42807,7 @@ var NpcInstanceManager = class {
       };
     }
   }
-  dA(e) {
+  isPrimaryNpcType(e) {
     return this.primaryNpcRenderConfig?.npcTypeId === e;
   }
   aA(e) {
@@ -42864,7 +42864,7 @@ var NpcInstanceManager = class {
       maxZ: g + h,
     };
   }
-  gA(e) {
+  seedSplitBuffers(e) {
     if (!e.faceSplitMap) {
       return null;
     }
@@ -43060,19 +43060,19 @@ var NpcInstanceManager = class {
     }
     return h;
   }
-  tA(e, a, t) {
+  loadAnimationSet(e, a, t) {
     const n = t?.idleSeqId ?? a.idleSeqId;
     const s = t?.walkSeqId ?? a.walkSeqId;
     if (n === -1) {
       const a = {};
       if (s !== -1) {
-        const t = this.dL(e, s, "walk");
+        const t = this.loadAnimClip(e, s, "walk");
         if (t) {
           a.walk = t;
         }
       }
-      this.gL(e, t, a);
-      this.cL(e, t, a);
+      this.loadAttackClips(e, t, a);
+      this.loadLifecycleClips(e, t, a);
       const {
         walk: walk,
         attackClips: attackClips,
@@ -43090,7 +43090,7 @@ var NpcInstanceManager = class {
     if (!r) {
       return null;
     }
-    if (r.Rg()) {
+    if (r.isSkeletalSeq()) {
       const a = e.loadSkeletalSeq(r.skeletalId);
       if (!a) {
         return null;
@@ -43101,7 +43101,7 @@ var NpcInstanceManager = class {
           if (s < 0) {
             continue;
           }
-          const clip = this.dL(e, s, a);
+          const clip = this.loadAnimClip(e, s, a);
           if (clip?.kind === "skeletal") n[a] = clip;
         }
       }
@@ -43119,7 +43119,7 @@ var NpcInstanceManager = class {
       i.idlePlayMode = t?.idlePlayMode;
       if (s !== -1) {
         const a = e.loadSeqType(s);
-        const t = a?.Rg() ? e.loadSkeletalSeq(a.skeletalId) : null;
+        const t = a?.isSkeletalSeq() ? e.loadSkeletalSeq(a.skeletalId) : null;
         if (a && t) {
           i.walk = {
             kind: "skeletal",
@@ -43136,7 +43136,7 @@ var NpcInstanceManager = class {
         i.attackClips = n;
         i.attack = n.default;
       }
-      this.cL(e, t, i);
+      this.loadLifecycleClips(e, t, i);
       return i;
     }
     if (!(r.frameIds?.length > 0)) {
@@ -43154,22 +43154,22 @@ var NpcInstanceManager = class {
     };
     i.idlePlayMode = t?.idlePlayMode;
     if (s !== -1) {
-      const a = this.dL(e, s, "walk");
+      const a = this.loadAnimClip(e, s, "walk");
       if (a) {
         i.walk = a;
       }
     }
-    this.cL(e, t, i);
-    this.gL(e, t, i);
+    this.loadLifecycleClips(e, t, i);
+    this.loadAttackClips(e, t, i);
     return i;
   }
-  gL(e, a, t) {
+  loadAttackClips(e, a, t) {
     const n = {};
     for (const [t, s] of Object.entries(a?.attackClips ?? {})) {
       if (s < 0) {
         continue;
       }
-      const a = this.dL(e, s, t);
+      const a = this.loadAnimClip(e, s, t);
       if (a) {
         n[t] = a;
       }
@@ -43179,22 +43179,22 @@ var NpcInstanceManager = class {
       t.attack = n.default;
     }
   }
-  cL(e, a, t) {
+  loadLifecycleClips(e, a, t) {
     if (a?.deathSeqId !== undefined && a.deathSeqId >= 0) {
-      const n = this.dL(e, a.deathSeqId, "death");
+      const n = this.loadAnimClip(e, a.deathSeqId, "death");
       if (n) {
         t.death = n;
       }
     }
     if (a?.spawnSeqId !== undefined && a.spawnSeqId >= 0) {
-      const n = this.dL(e, a.spawnSeqId, "spawn");
+      const n = this.loadAnimClip(e, a.spawnSeqId, "spawn");
       if (n) {
         t.spawn = n;
       }
     }
     const n = {};
     for (const [t, { seqId: seqId }] of Object.entries(a?.deathClips ?? {})) {
-      const a = seqId >= 0 ? this.dL(e, seqId, `death:${t}`) : null;
+      const a = seqId >= 0 ? this.loadAnimClip(e, seqId, `death:${t}`) : null;
       if (a) {
         n[t] = a;
       }
@@ -43203,13 +43203,13 @@ var NpcInstanceManager = class {
       t.deathClips = n;
     }
   }
-  dL(e, a, t) {
+  loadAnimClip(e, a, t) {
     const seqId = typeof a === "object" ? a.seqId : a;
     const n = e.loadSeqType(seqId);
     if (!n) {
       return null;
     }
-    if (n.Rg()) {
+    if (n.isSkeletalSeq()) {
       const s = e.loadSkeletalSeq(n.skeletalId);
       if (s) {
         return {
@@ -43506,7 +43506,7 @@ var X_ = class e {
   setTerrainHeights(e) {
     this.terrainHeights = e;
   }
-  mL(e) {
+  setNpcOverlayHeights(e) {
     this.npcOverlayHeights = e;
   }
   update(e, a) {
@@ -43527,7 +43527,7 @@ var X_ = class e {
     this.npcOverlayHeights = new Map();
     this.lastObservedTick = Number.NEGATIVE_INFINITY;
   }
-  pL(a, t, n, s, r = 0) {
+  buildOverheadTexts(a, t, n, s, r = 0) {
     if (this.overheadTextState.size !== 0) {
       for (const [i, l] of this.overheadTextState) {
         if (s >= l.expiryTick) {
@@ -44304,7 +44304,7 @@ var Q_ = class {
     }
     return null;
   }
-  jL() {
+  refreshCurrentPoseSequence() {
     const e = this.EL(this.playerMovementState);
     if (e && e !== this.currentPlayerSequence) {
       this.currentPlayerSequence = e;
@@ -44320,7 +44320,7 @@ var Q_ = class {
     this.animationSet = e.animationSet;
     this.modelAdapter = e.modelAdapter;
     this._L();
-    this.jL();
+    this.refreshCurrentPoseSequence();
     this.lastPoseKey = null;
   }
   _L() {
@@ -44373,10 +44373,10 @@ var Q_ = class {
     }
     this.poseRebuildPending = this.poseRebuildPending || e || a || t;
   }
-  xw(e) {
+  enqueueSignal(e) {
     this.signalQueue.push(e);
   }
-  kw(e) {
+  restorePrimaryAt(e) {
     this.signalQueue.length = 0;
     this.primarySequence = e?.clip.sequence ?? null;
     this.primaryAnimFrame = 0;
@@ -44400,39 +44400,39 @@ var Q_ = class {
         this.primaryAnimFrame++;
       }
     }
-    this.jL();
+    this.refreshCurrentPoseSequence();
     this.primaryRestored = true;
     this.poseRebuildPending = true;
   }
-  Bw() {
-    this.xw({
+  triggerAttack() {
+    this.enqueueSignal({
       type: "attack",
     });
   }
-  $L(e) {
-    this.xw({
+  triggerAttackWithSequence(e) {
+    this.enqueueSignal({
       type: "attack",
       overrideSequence: e,
     });
   }
   VL() {
-    this.xw({
+    this.enqueueSignal({
       type: "consume",
     });
   }
   KL() {
-    this.xw({
+    this.enqueueSignal({
       type: "block",
     });
   }
-  qL(e) {
+  canReplacePrimaryWith(e) {
     return (
       !!this.primaryAnimCompleted ||
       !this.primarySequence ||
       yR(this.primarySequence.forcedPriority, e.forcedPriority)
     );
   }
-  Cv(e) {
+  setSorterProjection(e) {
     const sorterProjection3 = this.sorterProjection;
     if (sorterProjection3 !== null || e !== null) {
       if (sorterProjection3 === null || e === null) {
@@ -44462,7 +44462,7 @@ var Q_ = class {
   }
   ZL(e) {
     if (this.sorterProjection !== null && this.sorterProjection.modelY !== e) {
-      this.Cv({
+      this.setSorterProjection({
         ...this.sorterProjection,
         modelY: e,
       });
@@ -44541,7 +44541,7 @@ var Q_ = class {
       };
     }
   }
-  eD(e) {
+  restoreConsumeAnim(e) {
     const a = this.animationSet.eat;
     if (a) {
       if (!(e.primaryAnimFrame >= a.frameIds.length)) {
@@ -44552,11 +44552,11 @@ var Q_ = class {
         this.primaryAnimCompleted = false;
         this.primaryIsConsume = true;
         this.primaryIsIntro = false;
-        this.jL();
+        this.refreshCurrentPoseSequence();
       }
     }
   }
-  aD() {
+  applyInitialAnimationFrame() {
     if (!this.playerModelData?.mergedModel) {
       return;
     }
@@ -44590,7 +44590,7 @@ var Q_ = class {
     this.lastPoseKey = t;
     this.projectionDirty = false;
   }
-  tD(e) {
+  updatePlayerAnimation(e) {
     if (!this.playerModelData?.mergedModel) {
       return;
     }
@@ -44607,7 +44607,7 @@ var Q_ = class {
             this.primaryAnimCompleted = false;
             this.primaryIsConsume = true;
             this.primaryIsIntro = false;
-            this.jL();
+            this.refreshCurrentPoseSequence();
           }
         } else if (e.type === "attack") {
           const a = e.overrideSequence ?? this.animationSet.attack;
@@ -44619,7 +44619,7 @@ var Q_ = class {
             this.primaryAnimCompleted = false;
             this.primaryIsConsume = false;
             this.primaryIsIntro = false;
-            this.jL();
+            this.refreshCurrentPoseSequence();
           }
         } else if (e.type === "intro") {
           this.primarySequence = e.overrideSequence;
@@ -44631,10 +44631,10 @@ var Q_ = class {
           this.primaryIsIntro = true;
           this.introAnimStarted = true;
           this.introAnimCompleted = false;
-          this.jL();
+          this.refreshCurrentPoseSequence();
         } else if (e.type === "block") {
           const block2 = this.animationSet.block;
-          if (block2 && this.qL(block2)) {
+          if (block2 && this.canReplacePrimaryWith(block2)) {
             this.primarySequence = block2;
             this.primaryAnimFrame = 0;
             this.primaryAnimFrameTick = 0;
@@ -44642,7 +44642,7 @@ var Q_ = class {
             this.primaryAnimCompleted = false;
             this.primaryIsConsume = false;
             this.primaryIsIntro = false;
-            this.jL();
+            this.refreshCurrentPoseSequence();
           }
         }
       }
@@ -44696,11 +44696,11 @@ var Q_ = class {
         this.primaryAnimCompleted = true;
         this.primaryIsConsume = false;
         this.primaryIsIntro = false;
-        this.jL();
+        this.refreshCurrentPoseSequence();
       }
     }
     if (e.simIsMoving) {
-      let a = this.nD(e);
+      let a = this.resolveDirectionalState(e);
       if (e.isRunning && a === "walk") {
         a = "run";
       }
@@ -44820,7 +44820,7 @@ var Q_ = class {
     this.lastPoseKey = l;
     this.projectionDirty = false;
   }
-  nD(e) {
+  resolveDirectionalState(e) {
     if (e.locomotionState) {
       return e.locomotionState;
     }
@@ -44837,13 +44837,13 @@ var Q_ = class {
     }
   }
   YL() {
-    const e = this.sD();
+    const e = this.buildPlayerAnimatedMesh();
     if (e) {
       this.modelAdapter.applyMesh(e);
     }
     this.projectionDirty = false;
   }
-  sD() {
+  buildPlayerAnimatedMesh() {
     if (!this.playerModelData?.mergedModel || !this.playerModelData.litColors) {
       return null;
     }
@@ -44851,7 +44851,7 @@ var Q_ = class {
     const litColors3 = this.playerModelData.litColors;
     const t = !this.primaryAnimCompleted && this.primaryIsConsume;
     const weaponShieldFaceMask2 = this.playerModelData.weaponShieldFaceMask;
-    mergedModel8.uh();
+    mergedModel8.calculateVertexNormals();
     // The height of the model as it is posed now: the game puts the
     // player's health bar 15 above it (the scene's overlays read it).
     let posedHeight = 0;
@@ -44880,7 +44880,7 @@ var Q_ = class {
       return null;
     } else {
       return {
-        opaque: this.rD(
+        opaque: this.buildMeshFromFaces(
           s.opaqueFaces,
           mergedModel8,
           litColors3,
@@ -44888,7 +44888,7 @@ var Q_ = class {
           weaponShieldFaceMask2,
           "opaque",
         ),
-        transparent: this.rD(
+        transparent: this.buildMeshFromFaces(
           s.transparentFaces,
           mergedModel8,
           litColors3,
@@ -44899,7 +44899,7 @@ var Q_ = class {
       };
     }
   }
-  rD(e, a, t, n, s, r) {
+  buildMeshFromFaces(e, a, t, n, s, r) {
     if (e.length === 0) {
       return null;
     }
@@ -45107,7 +45107,7 @@ var rF = class {
     ce(this, "modelCache", new Map());
     ce(this, "instances", new Map());
   }
-  iD(e, a) {
+  setLoaders(e, a) {
     if (this.objTypeLoader !== e || this.modelLoader !== a) {
       this.objTypeLoader = e;
       this.modelLoader = a;
@@ -45144,7 +45144,7 @@ var rF = class {
         if (!r) {
           continue;
         }
-        const i = this.oD(r.itemId);
+        const i = this.getOrBakeModel(r.itemId);
         if (!i) {
           this.instances.delete(r.id);
           continue;
@@ -45162,7 +45162,7 @@ var rF = class {
             e.modelMatrix = o;
           }
         } else {
-          d = this.hA(r.id, r.itemId, i, o);
+          d = this.createInstance(r.id, r.itemId, i, o);
           this.instances.set(r.id, d);
         }
         d.drawOrder = n;
@@ -45199,7 +45199,7 @@ var rF = class {
       e.commands.push(...t.commands);
     }
   }
-  $A() {
+  getAllHitTestData() {
     const e = [];
     for (const a of this.instances.values()) {
       const { model: model } = a.model;
@@ -45228,16 +45228,16 @@ var rF = class {
     this.objTypeLoader = null;
     this.modelLoader = null;
   }
-  oD(e) {
+  getOrBakeModel(e) {
     const a = this.modelCache.get(e);
     if (a !== undefined) {
       return a;
     }
-    const t = this.dD(e);
+    const t = this.bakeModel(e);
     this.modelCache.set(e, t);
     return t;
   }
-  dD(e) {
+  bakeModel(e) {
     try {
       const a = this.objTypeLoader?.load(e);
       const t = a && this.modelLoader?.getModel(a.inventoryModel);
@@ -45250,7 +45250,7 @@ var rF = class {
       const n = wm.rh(t, false, false, false, false);
       if (a.recolorFrom && a.recolorTo) {
         for (let e = 0; e < a.recolorFrom.length; e++) {
-          n.Mh(a.recolorFrom[e], a.recolorTo[e]);
+          n.recolor(a.recolorFrom[e], a.recolorTo[e]);
         }
       }
       if (a.retextureFrom && a.retextureTo) {
@@ -45279,11 +45279,11 @@ var rF = class {
       });
       const l = [];
       if (i.opaque) {
-        l.push(this.gD(`ground-item-model-${e}-opaque`, i.opaque, false));
+        l.push(this.createCommand(`ground-item-model-${e}-opaque`, i.opaque, false));
       }
       if (i.transparent) {
         l.push(
-          this.gD(`ground-item-model-${e}-transparent`, i.transparent, true),
+          this.createCommand(`ground-item-model-${e}-transparent`, i.transparent, true),
         );
       }
       if (l.length > 0) {
@@ -45303,7 +45303,7 @@ var rF = class {
       return null;
     }
   }
-  gD(e, a, t) {
+  createCommand(e, a, t) {
     return {
       kind: "mesh3d",
       meshId: e,
@@ -45336,7 +45336,7 @@ var rF = class {
       zIndex: 35,
     };
   }
-  hA(e, a, t, n) {
+  createInstance(e, a, t, n) {
     return {
       itemId: a,
       model: t,
@@ -45441,7 +45441,7 @@ var hF = class {
       tiles: new Map(),
     }));
   }
-  hD(e) {
+  setGroundDecorations(e) {
     this.raises.clear();
     for (const { x: a, y: t, plane: plane, raise: raise } of e) {
       this.raises.set(`${plane},${a},${t}`, raise);
@@ -45654,7 +45654,7 @@ var WF = class {
     const n = this.animationSystem.loadFrame(e);
     const s = this.animationSystem.loadFrame(a);
     if (n && s) {
-      this.model.xh(n, s, t);
+      this.model.animateInterleaved(n, s, t);
     } else if (n) {
       this.model.animate(n);
     } else if (s) {
@@ -45759,7 +45759,7 @@ var SceneCompositor = class e {
       if (!this.spotAnimModelLoader) {
         return;
       }
-      const t = this.spotAnimModelLoader.Wf(e);
+      const t = this.spotAnimModelLoader.getSequenceId(e);
       if (t < 0) {
         return 90;
       }
@@ -45768,7 +45768,7 @@ var SceneCompositor = class e {
       }
       const n = this.playerAnimationSystem.loadSeqType(t);
       if (n) {
-        if (n.Rg()) {
+        if (n.isSkeletalSeq()) {
           return Math.max(1, n.skeletalEnd - n.skeletalStart);
         } else {
           return n.frameLengths?.reduce((e, a) => e + a, 0) || 90;
@@ -45794,18 +45794,18 @@ var SceneCompositor = class e {
           ju = null;
         }
       });
-    this.fD("base-encounter-visuals", (e) => this.uD(e));
-    this.fD("event-audio", () => this.eventAudioPlayer?.reset());
-    this.fD("npc-animation-clock", () => {
+    this.registerTransientReset("base-encounter-visuals", (e) => this.clearEncounterVisuals(e));
+    this.registerTransientReset("event-audio", () => this.eventAudioPlayer?.reset());
+    this.registerTransientReset("npc-animation-clock", () => {
       this.npcAnimationCycle = null;
     });
-    this.fD("primary-npc-death-spotanim", () => {
-      this.spotAnimRenderer.ak(zF);
+    this.registerTransientReset("primary-npc-death-spotanim", () => {
+      this.spotAnimRenderer.despawnGroup(zF);
       this.emittedDeathSpotAnimTick = null;
       this.latestSimulationState = null;
     });
   }
-  vD(e, a) {
+  renderPrimaryNpcDeathSpotAnim(e, a) {
     this.latestSimulationState = a;
     const t = this.encounterRenderConfig?.primaryNpc;
     const n = t?.deathSpotAnimId;
@@ -45830,7 +45830,7 @@ var SceneCompositor = class e {
           ((r = {
             getState: () => {
               const e = this.latestSimulationState ?? a;
-              const t = this.npcInstanceManager.Gg(M_);
+              const t = this.npcInstanceManager.getModelMatrix(M_);
               return {
                 swX: t ? t[12] - e.primaryNpcSize / 2 : e.primaryNpcPosition[0],
                 swY: t ? t[13] - e.primaryNpcSize / 2 : e.primaryNpcPosition[1],
@@ -45877,13 +45877,13 @@ var SceneCompositor = class e {
       });
     }
   }
-  pD(e) {
+  loadPrimaryNpcDeathSpotAnim(e) {
     const a = this.encounterRenderConfig?.primaryNpc?.deathSpotAnimId;
     if (a !== undefined) {
-      this.spotAnimRenderer.xv(e, a);
+      this.spotAnimRenderer.loadById(e, a);
     }
   }
-  kD() {
+  isPrimaryNpcDeathSpotAnimLoaded() {
     const e = this.encounterRenderConfig?.primaryNpc?.deathSpotAnimId;
     return e === undefined || this.spotAnimRenderer.isLoaded(e);
   }
@@ -45891,7 +45891,7 @@ var SceneCompositor = class e {
     this.npcAnimationCycle ??= Math.floor(e);
     return this.npcAnimationCycle;
   }
-  bD(e) {
+  advanceNpcAnimationClock(e) {
     const a = this.SD(e);
     let t = Math.min(Math.max(0, e - a), 3000);
     while (t > 0) {
@@ -45901,7 +45901,7 @@ var SceneCompositor = class e {
     }
     this.npcAnimationCycle = Math.max(a, e);
   }
-  fD(e, a) {
+  registerTransientReset(e, a) {
     this.transientResets.push({
       name: e,
       reset: a,
@@ -45915,13 +45915,13 @@ var SceneCompositor = class e {
   setEncounterRenderConfig(e) {
     this.encounterRenderConfig = withThrallRenderConfig(e);
     this.npcInstanceManager.eA(e?.primaryNpc ?? null);
-    this.zD(e?.createSceneObjectController?.() ?? null);
+    this.setSceneObjectController(e?.createSceneObjectController?.() ?? null);
   }
-  wD(e) {
+  setSceneObjectLocModelLoader(e) {
     this.sceneObjectRenderer = new d_(e);
     this.sceneObjectRenderer.setTerrainHeights(this.terrainHeights);
   }
-  zD(e) {
+  setSceneObjectController(e) {
     this.sceneObjectController = e;
   }
   AD() {
@@ -46003,20 +46003,20 @@ var SceneCompositor = class e {
     if (!this._disposed) {
       this.npcLoadStarted = true;
       if (a) {
-        this.Bv(a);
+        this.setAnimationSystem(a);
       }
       await this.HD(e, a);
     }
   }
-  Bv(e) {
+  setAnimationSystem(e) {
     this.playerAnimationSystem = e;
-    this.spotAnimRenderer.Bv(e);
+    this.spotAnimRenderer.setAnimationSystem(e);
   }
   isNpcLoaded() {
     return this.npcLoadStarted && this.MD();
   }
   getAllNpcHitTestData() {
-    const e = this.npcInstanceManager.$A();
+    const e = this.npcInstanceManager.getAllHitTestData();
     const hiddenNpcRenderIds2 = this.hiddenNpcRenderIds;
     if (hiddenNpcRenderIds2.size === 0) {
       return e;
@@ -46027,7 +46027,7 @@ var SceneCompositor = class e {
     }
   }
   getAllGroundItemHitTestData() {
-    return this.groundItemRenderer.$A();
+    return this.groundItemRenderer.getAllHitTestData();
   }
   setGroundItemLoaderSource(e) {
     this.groundItemLoaderSource = e;
@@ -46080,16 +46080,16 @@ var SceneCompositor = class e {
     this.playerLoading = true;
     const i = FD(s.weapon);
     if (this.spotAnimModelLoader && i && i.castSpotanim >= 0) {
-      this.spotAnimRenderer.xv(this.spotAnimModelLoader, i.castSpotanim);
+      this.spotAnimRenderer.loadById(this.spotAnimModelLoader, i.castSpotanim);
     }
     if (this.spotAnimModelLoader && i && i.projectileId >= 0) {
-      this.spotAnimRenderer.xv(this.spotAnimModelLoader, i.projectileId);
+      this.spotAnimRenderer.loadById(this.spotAnimModelLoader, i.projectileId);
     }
     try {
-      const a = e.pf(n, s);
+      const a = e.loadPlayerModel(n, s);
       const t = this.playerAnimController?.QL() ?? null;
       if (a) {
-        a.mergedModel.fh();
+        a.mergedModel.calculateBounds();
         const minHeight2 = a.mergedModel.minHeight;
         let r = null;
         if (this.playerAnimationSystem) {
@@ -46101,28 +46101,28 @@ var SceneCompositor = class e {
             : null;
           const o = lD(s.weapon);
           const d = {
-            idle: this.xD(o, "idle"),
-            walk: this.xD(o, "walk"),
-            run: this.xD(o, "run"),
-            turnLeft: this.xD(o, "turnLeft"),
-            turnRight: this.xD(o, "turnRight"),
-            walkBack: this.xD(o, "turn180"),
-            idleTurnLeft: this.xD(o, "standTurn"),
-            idleTurnRight: this.xD(o, "standTurn"),
+            idle: this.loadFrameBasedSeq(o, "idle"),
+            walk: this.loadFrameBasedSeq(o, "walk"),
+            run: this.loadFrameBasedSeq(o, "run"),
+            turnLeft: this.loadFrameBasedSeq(o, "turnLeft"),
+            turnRight: this.loadFrameBasedSeq(o, "turnRight"),
+            walkBack: this.loadFrameBasedSeq(o, "turn180"),
+            idleTurnLeft: this.loadFrameBasedSeq(o, "standTurn"),
+            idleTurnRight: this.loadFrameBasedSeq(o, "standTurn"),
           };
           d.eat = this.BD(829);
-          d.attack = this.xD(o, "attack");
+          d.attack = this.loadFrameBasedSeq(o, "attack");
           d.block = this.createFirstAvailableSequence(cD(s.weapon, s.shield));
           const g = [ZL];
           d.unarmed = {
-            idle: this.xD(g, "idle"),
-            walk: this.xD(g, "walk"),
-            run: this.xD(g, "run"),
-            turnLeft: this.xD(g, "turnLeft"),
-            turnRight: this.xD(g, "turnRight"),
-            walkBack: this.xD(g, "turn180"),
-            idleTurnLeft: this.xD(g, "standTurn"),
-            idleTurnRight: this.xD(g, "standTurn"),
+            idle: this.loadFrameBasedSeq(g, "idle"),
+            walk: this.loadFrameBasedSeq(g, "walk"),
+            run: this.loadFrameBasedSeq(g, "run"),
+            turnLeft: this.loadFrameBasedSeq(g, "turnLeft"),
+            turnRight: this.loadFrameBasedSeq(g, "turnRight"),
+            walkBack: this.loadFrameBasedSeq(g, "turn180"),
+            idleTurnLeft: this.loadFrameBasedSeq(g, "standTurn"),
+            idleTurnRight: this.loadFrameBasedSeq(g, "standTurn"),
           };
           // Optional: the other stances an encounter's render config names (`playerStances`: a name to the
           // sequence of each slot). Its state's `playerStance` picks one each frame; no fight without the
@@ -46143,7 +46143,7 @@ var SceneCompositor = class e {
             i,
             l,
             this.playerAnimationSystem,
-            () => this.playerAnimController?.sD() ?? null,
+            () => this.playerAnimController?.buildPlayerAnimatedMesh() ?? null,
             (e) => this.RD(e),
           );
           if (this.playerAnimController) {
@@ -46162,7 +46162,7 @@ var SceneCompositor = class e {
             });
             if (t) {
               try {
-                r.eD(t);
+                r.restoreConsumeAnim(t);
               } catch (e) {
                 logger.warn(
                   "SceneBuilder",
@@ -46185,7 +46185,7 @@ var SceneCompositor = class e {
           const d = [];
           const g = [];
           const c = [];
-          mergedModel9.uh();
+          mergedModel9.calculateVertexNormals();
           const m = a;
           const h = m ? m.length : mergedModel9.faceCount;
           const f =
@@ -46265,7 +46265,7 @@ var SceneCompositor = class e {
         this.playerAnimController = r;
         this.cachedPlayerMeshes = l;
         if (this.playerAnimController) {
-          this.playerAnimController.aD();
+          this.playerAnimController.applyInitialAnimationFrame();
         }
         logger.info("SceneBuilder", "Player mesh loaded successfully");
       } else {
@@ -46280,7 +46280,7 @@ var SceneCompositor = class e {
       this.playerLoading = false;
     }
   }
-  xD(e, a) {
+  loadFrameBasedSeq(e, a) {
     if (!this.playerAnimationSystem) {
       return null;
     }
@@ -46290,7 +46290,7 @@ var SceneCompositor = class e {
         continue;
       }
       const n = this.playerAnimationSystem.loadSeqType(e);
-      if (n && !n.Rg()) {
+      if (n && !n.isSkeletalSeq()) {
         return this.playerAnimationSystem.createSequenceFromSeqType(n) ?? null;
       }
     }
@@ -46301,7 +46301,7 @@ var SceneCompositor = class e {
       return null;
     }
     const a = this.playerAnimationSystem.loadSeqType(e);
-    if (!a || a.Rg()) {
+    if (!a || a.isSkeletalSeq()) {
       return null;
     } else {
       return this.playerAnimationSystem.createSequenceFromSeqType(a) ?? null;
@@ -46324,9 +46324,9 @@ var SceneCompositor = class e {
     this.pendingPlayerAttack = null;
     const a = this.createFirstAvailableSequence(CR(pendingPlayerAttack2));
     if (a) {
-      this.playerAnimController.$L(a);
+      this.playerAnimController.triggerAttackWithSequence(a);
     } else if (pendingPlayerAttack2.kind === "weapon") {
-      this.playerAnimController.Bw();
+      this.playerAnimController.triggerAttack();
     }
   }
   FD() {
@@ -46353,7 +46353,7 @@ var SceneCompositor = class e {
       actorId: actorId,
       animController: animController,
       center: center,
-    } of this.npcInstanceManager.tL()) {
+    } of this.npcInstanceManager.getInstanceFrameStates()) {
       const s = animController?.Fw();
       if (s) {
         e.push({
@@ -46375,7 +46375,7 @@ var SceneCompositor = class e {
         position: this.GD(),
       });
     }
-    e.push(...this.spotAnimRenderer.Vv());
+    e.push(...this.spotAnimRenderer.getFrameStates());
     return e;
   }
   GD() {
@@ -46406,34 +46406,34 @@ var SceneCompositor = class e {
   }
   async loadSpotAnims(e) {
     if (!this._disposed) {
-      this.spotAnimRenderer.Rv(e);
+      this.spotAnimRenderer.bindLoader(e);
       await this.UD(e);
-      this.pD(e);
-      await this.jD(e);
+      this.loadPrimaryNpcDeathSpotAnim(e);
+      await this.loadPlayerGraphicSpotAnims(e);
     }
   }
   isSpotAnimsLoaded(e) {
     return (
-      (!e || this.spotAnimRenderer._v(e)) && this.OD() && this.$D() && this.kD()
+      (!e || this.spotAnimRenderer.isBoundTo(e)) && this.OD() && this.isPlayerGraphicSpotAnimsLoaded() && this.isPrimaryNpcDeathSpotAnimLoaded()
     );
   }
   getResidentMeshSources() {
     return this.spotAnimRenderer.getResidentMeshSources();
   }
-  async jD(e) {
+  async loadPlayerGraphicSpotAnims(e) {
     this.spotAnimModelLoader = e;
-    this.spotAnimRenderer.Rv(e);
+    this.spotAnimRenderer.bindLoader(e);
     this.spotAnimRenderer.preload(e, UR);
   }
-  $D(e) {
+  isPlayerGraphicSpotAnimsLoaded(e) {
     return (
-      (!e || this.spotAnimRenderer._v(e)) &&
+      (!e || this.spotAnimRenderer.isBoundTo(e)) &&
       UR.every((e) => this.spotAnimRenderer.isLoaded(e))
     );
   }
   VD(e, a) {}
   KD(e) {}
-  qD(e) {
+  restoreEncounterPrimaries(e) {
     return false;
   }
   ZD(e) {
@@ -46463,7 +46463,7 @@ var SceneCompositor = class e {
           if (!t) {
             continue;
           }
-          if (t.Rg()) {
+          if (t.isSkeletalSeq()) {
             continue;
           }
           const n = playerAnimationSystem2.createSequenceFromSeqType(t);
@@ -46474,7 +46474,7 @@ var SceneCompositor = class e {
         return null;
       },
     );
-    playerAnimController2.kw(i.primary);
+    playerAnimController2.restorePrimaryAt(i.primary);
     if (i.rebuilt || this.replayPlayerController !== playerAnimController2) {
       this.reconstructedVisuals = true;
     }
@@ -46483,7 +46483,7 @@ var SceneCompositor = class e {
   YD(e) {
     if (!(e < 0)) {
       if (this.spotAnimModelLoader) {
-        this.spotAnimRenderer.xv(this.spotAnimModelLoader, e);
+        this.spotAnimRenderer.loadById(this.spotAnimModelLoader, e);
       }
       if (this.spotAnimRenderer.isLoaded(e)) {
         if (this.pendingReplaySpotAnims.delete(e)) {
@@ -46561,23 +46561,23 @@ var SceneCompositor = class e {
     const d = Math.max(0, t.currentTick - encounterOutcome3.decisiveTick) * 600;
     this.npcInstanceManager.SA(o, d);
   }
-  aH(e) {
+  createActorVisualPositionResolver(e) {
     return (a) => (a === "player" ? e : this.npcInstanceManager.VA(this.getNpcRenderInstanceId(a)));
   }
   eH(e, a) {
     return e;
   }
-  tH(e, a, t, n, s) {}
-  nH(e, a, t, n, s, r, i, l) {}
-  sH(e, a, t, n, s, r) {}
-  rH(e, a, t) {}
-  iH(e, a) {
+  renderEncounterEffectsEarly(e, a, t, n, s) {}
+  renderEncounterEffectsLate(e, a, t, n, s, r, i, l) {}
+  renderEncounterDebugOverlays(e, a, t, n, s, r) {}
+  renderEncounterNpc2D(e, a, t) {}
+  updateEncounterNpcFacing(e, a) {
     return this.npcInstanceManager.LA(e, a) ?? 0;
   }
-  lH(e, a) {
+  getEncounterAttackTriggers(e, a) {
     return [];
   }
-  oH(e, a, t, n, s, r, i, l) {}
+  renderEncounterAttackEffects(e, a, t, n, s, r, i, l) {}
   async UD(e) {
     const a = this.encounterRenderConfig?.spotAnimIds;
     if (a?.length) {
@@ -46599,10 +46599,10 @@ var SceneCompositor = class e {
     );
     await this.loadNpcType(t.npcTypeId, e, a, {
       ...n,
-      ...this.dH(),
+      ...this.getPrimaryNpcDeathLoadConfig(),
     });
   }
-  dH(e = this.encounterRenderConfig?.primaryNpc) {
+  getPrimaryNpcDeathLoadConfig(e = this.encounterRenderConfig?.primaryNpc) {
     if (e) {
       return {
         deathSeqId: e.deathSeqId,
@@ -46621,10 +46621,10 @@ var SceneCompositor = class e {
     const e = this.encounterRenderConfig?.primaryNpc;
     return e === undefined || this.isNpcTypeLoaded(e.npcTypeId);
   }
-  gH() {
-    return this.npcInstanceManager.xA();
+  getEncounterNpcFacingAngle() {
+    return this.npcInstanceManager.getPrimaryNpcSmoothedFacingAngle();
   }
-  cH() {
+  getTerrainMapSquare() {
     const e = this.encounterRenderConfig?.terrainMapSquare;
     if (!e) {
       throw new Error(
@@ -46633,10 +46633,10 @@ var SceneCompositor = class e {
     }
     return e;
   }
-  mH() {
+  getGridBounds() {
     return getArenaBounds() ?? this.terrainBounds;
   }
-  hH() {
+  getArenaWalkabilityChecker() {
     const e = getArenaWalkableTiles();
     if (!e) {
       this.arenaWalkabilityChecker = null;
@@ -46657,9 +46657,9 @@ var SceneCompositor = class e {
     if (this._disposed) {
       return;
     }
-    const t = this.fH();
+    const t = this.getLocRenderOptions();
     const n = FP(t);
-    this.surfaceHeightResolver.hD(
+    this.surfaceHeightResolver.setGroundDecorations(
       a.flatMap((a) => {
         const t = EP(a, n, e);
         if (!t || t.location.type !== em.FLOOR_DECORATION) {
@@ -46677,11 +46677,11 @@ var SceneCompositor = class e {
       }),
     );
     this.locRenderer.setTerrainHeights(this.terrainHeights);
-    e.Kh(re.resolve);
-    this.wD(e);
+    e.setTextureLayerResolver(re.resolve);
+    this.setSceneObjectLocModelLoader(e);
     await this.locRenderer.load(e, a, t);
   }
-  fH() {
+  getLocRenderOptions() {
     return eF(this.encounterRenderConfig);
   }
   isLocsLoaded() {
@@ -46709,7 +46709,7 @@ var SceneCompositor = class e {
   resetIntroState() {
     this.UA("timeline-change");
   }
-  uD(e = "timeline-change") {
+  clearEncounterVisuals(e = "timeline-change") {
     this.pendingReplaySpotAnims.clear();
     this.previousEffectFrame = undefined;
     this.needsDeathReconciliation = true;
@@ -46727,17 +46727,17 @@ var SceneCompositor = class e {
     this.projectileController.dispose();
     this.npcInstanceManager.UA();
     this.playerAnimController?.reset();
-    this.spotAnimRenderer.Mv();
+    this.spotAnimRenderer.clearActiveInstances();
     if (e === "timeline-change") {
-      this.uH();
+      this.clearSceneObjects();
     } else {
-      this.sceneObjectRenderer?.lw();
+      this.sceneObjectRenderer?.resetTimeline();
     }
   }
-  uH() {
+  clearSceneObjects() {
     this.sceneObjectRenderer?.clear();
   }
-  vH(e, a, t, n, s, r, i) {
+  syncAndRenderSceneObjects(e, a, t, n, s, r, i) {
     const sceneObjectRenderer2 = this.sceneObjectRenderer;
     if (!sceneObjectRenderer2) {
       return;
@@ -46805,7 +46805,7 @@ var SceneCompositor = class e {
     this.playerGraphicController.dispose();
     this.projectileController.dispose();
   }
-  pH(e) {
+  getNpcVisualDeltaMs(e) {
     const a = qS.clock.now();
     if (this.lastNpcVisualUpdateTime === 0) {
       this.lastNpcVisualUpdateTime = a;
@@ -46821,7 +46821,7 @@ var SceneCompositor = class e {
       return t;
     }
   }
-  kH(e) {
+  getUnprocessedEvents(e) {
     if (e.length === 0) {
       return [];
     }
@@ -46919,7 +46919,7 @@ var SceneCompositor = class e {
     }
     return r;
   }
-  bH(e, a, t, n, s) {
+  createPlayerModelMatrix(e, a, t, n, s) {
     const r = e;
     const i = (s / 2048) * 2 * Math.PI;
     const l = Math.cos(i);
@@ -46979,7 +46979,7 @@ var SceneCompositor = class e {
     this.replayThroughFrameIndex = e.replayHistory?.throughFrameIndex;
     try {
       const s = this.buildScene(e, a, t);
-      if (e.replayHistory && !this.yH(e)) {
+      if (e.replayHistory && !this.isEncounterReplayPresentationReady(e)) {
         s.replayPresentationReady = false;
       }
       if (restoredPresentation2 && r) {
@@ -46996,7 +46996,7 @@ var SceneCompositor = class e {
       this.replayThroughFrameIndex = undefined;
     }
   }
-  yH(e) {
+  isEncounterReplayPresentationReady(e) {
     return true;
   }
   buildScene(e, a, t) {
@@ -47096,16 +47096,16 @@ var SceneCompositor = class e {
     this.lastDisplayedTick = currentTick;
     this.lastTimelineKey = u;
     const w = e.timeline?.paused ?? e.replayPaused ?? false;
-    const A = this.kH(events);
+    const A = this.getUnprocessedEvents(events);
     for (const e of A) {
       const a = e;
       if (!replayHistory3 && e.type === "player_special_animation") {
         const sequence = this.createFirstAvailableSequence([e.sequenceId]);
-        if (sequence) this.playerAnimController?.$L(sequence);
+        if (sequence) this.playerAnimController?.triggerAttackWithSequence(sequence);
       }
       if (!replayHistory3 && e.type === "player_jug_action") {
         const sequence = this.createFirstAvailableSequence(jugActionSequences(e));
-        if (sequence) this.playerAnimController?.$L(sequence);
+        if (sequence) this.playerAnimController?.triggerAttackWithSequence(sequence);
       }
       const animationSeqId2 = a.animationSeqId;
       if (e.type === "intro_started" && typeof animationSeqId2 == "number") {
@@ -47139,7 +47139,7 @@ var SceneCompositor = class e {
       ) {
         const e = this.BD(animationId2);
         if (e) {
-          this.playerAnimController?.$L(e);
+          this.playerAnimController?.triggerAttackWithSequence(e);
         }
       }
       if (mB(e, "attack_started") && e.sourceId === "player") {
@@ -47190,7 +47190,7 @@ var SceneCompositor = class e {
     ) {
       const e = this.BD(this.pendingIntroSeqId);
       if (e) {
-        this.playerAnimController.xw({
+        this.playerAnimController.enqueueSignal({
           type: "intro",
           overrideSequence: e,
         });
@@ -47202,7 +47202,7 @@ var SceneCompositor = class e {
       this._D();
     }
     this.VD(A, e);
-    this.eventAudioPlayer?.py(
+    this.eventAudioPlayer?.updateReplayClock(
       e.replayHistory && !e.restoredPresentation
         ? (e.timeline?.timeMs ?? interpolatedTick * 600)
         : null,
@@ -47221,7 +47221,7 @@ var SceneCompositor = class e {
       throughFrameIndex: replayHistory3?.throughFrameIndex ?? 0,
     };
     const D = this.replayEffectIndex
-      ? this.replayEffectIndex.Pz(L, this.effectDuration)
+      ? this.replayEffectIndex.playerEffects(L, this.effectDuration)
       : SR({
           state: simulationState,
           events: A,
@@ -47233,7 +47233,7 @@ var SceneCompositor = class e {
             this.YD(e.spotAnimId);
           }
           if (
-            this.playerGraphicController.Dz(e) &&
+            this.playerGraphicController.consumeDescriptor(e) &&
             replayHistory3 &&
             e.tick < currentTick
           ) {
@@ -47263,7 +47263,7 @@ var SceneCompositor = class e {
             }
           }
           if (
-            this.projectileController.Dz(
+            this.projectileController.consumeDescriptor(
               e,
               this.npcInstanceManager.YA(e.target.npcTypeId)?.hitsplatHeight ??
                 0,
@@ -47303,8 +47303,8 @@ var SceneCompositor = class e {
     };
     const T = M.entityHider?.hideLocalPlayer === true;
     const I = M.entityHider?.hideLocalPlayer2D === true;
-    this.spotAnimRenderer.Iv(M.entityHider?.hideProjectiles === true);
-    this.isNpcRenderInstanceHidden = this.zH(simulationState.npcs, M);
+    this.spotAnimRenderer.setHideProjectiles(M.entityHider?.hideProjectiles === true);
+    this.isNpcRenderInstanceHidden = this.resolveHiddenNpcModels(simulationState.npcs, M);
     const C = (function (e) {
       const a = [];
       if (e?.inferno) {
@@ -47326,7 +47326,7 @@ var SceneCompositor = class e {
     n.brightness = options.brightness;
     n.contrast = options.contrast;
     n.saturation = options.saturation;
-    const B = this.pH(p ? (frameDeltaMs ?? 0) : undefined);
+    const B = this.getNpcVisualDeltaMs(p ? (frameDeltaMs ?? 0) : undefined);
     const W = w ? 0 : B;
     const R = W * this.speedMultiplier;
     fy.Lk("syncNpcs");
@@ -47336,7 +47336,7 @@ var SceneCompositor = class e {
     );
     this.syncNpcInstances(simulationState.npcs, H, simulationState, w);
     fy.Dk("syncNpcs");
-    this.groundItemRenderer.iD(
+    this.groundItemRenderer.setLoaders(
       this.groundItemLoaderSource?.getObjTypeLoader() ?? null,
       this.groundItemLoaderSource?.getModelLoader() ?? null,
     );
@@ -47351,7 +47351,7 @@ var SceneCompositor = class e {
       fy.Lk("locs");
       this.locRenderer.setTerrainHeights(this.terrainHeights);
       this.locRenderer.Xz(this.speedMultiplier);
-      this.locRenderer.tw(x);
+      this.locRenderer.setHiddenLocIds(x);
       if (!blindfoldNow || blindfoldNow.enableScenery) {
         this.locRenderer.renderLocs(n);
       }
@@ -47361,7 +47361,7 @@ var SceneCompositor = class e {
       }
       fy.Lk("sceneObjects");
       if (!blindfoldNow || blindfoldNow.enableScenery) {
-        this.vH(
+        this.syncAndRenderSceneObjects(
           n,
           currentTick,
           interpolatedTick ?? currentTick,
@@ -47373,7 +47373,7 @@ var SceneCompositor = class e {
       }
       fy.Dk("sceneObjects");
       fy.Lk("encounterFx");
-      this.tH(
+      this.renderEncounterEffectsEarly(
         n,
         currentTick,
         interpolatedTick ?? currentTick,
@@ -47382,7 +47382,7 @@ var SceneCompositor = class e {
       );
       fy.Dk("encounterFx");
       fy.Lk("npcRender");
-      this.wH(n);
+      this.renderNpcModels(n);
       fy.Dk("npcRender");
     }
     fy.Lk("gridOverlays");
@@ -47392,8 +47392,8 @@ var SceneCompositor = class e {
     } else if (e.options.tileGrid) {
       this.DH(n, e.options.tileGrid);
     }
-    this.vD(currentTick, simulationState);
-    this.nH(
+    this.renderPrimaryNpcDeathSpotAnim(currentTick, simulationState);
+    this.renderEncounterEffectsLate(
       n,
       a,
       currentTick,
@@ -47403,7 +47403,7 @@ var SceneCompositor = class e {
       H,
       options,
     );
-    this.sH(
+    this.renderEncounterDebugOverlays(
       n,
       a,
       simulationState,
@@ -47446,7 +47446,7 @@ var SceneCompositor = class e {
         }
       }
     }
-    this.rH(n, a, simulationState);
+    this.renderEncounterNpc2D(n, a, simulationState);
     fy.Dk("gridOverlays");
     const {
       playerPreviousPosition: playerPreviousPosition,
@@ -47500,13 +47500,13 @@ var SceneCompositor = class e {
       K = null;
     }
     this.lastPlayerVisualCenter = [N[0] + 0.5, N[1] + 0.5];
-    const q = this.iH(N, R);
+    const q = this.updateEncounterNpcFacing(N, R);
     if (!H) {
       fy.Lk("npcAnims");
       const a =
-        replayHistory3 && this.qD(e)
+        replayHistory3 && this.restoreEncounterPrimaries(e)
           ? []
-          : this.lH(simulationState, interpolatedTick);
+          : this.getEncounterAttackTriggers(simulationState, interpolatedTick);
       this.npcInstanceManager.PA(W, this.speedMultiplier, a);
       fy.Dk("npcAnims");
     }
@@ -47527,7 +47527,7 @@ var SceneCompositor = class e {
     if (M.tzhaarHpTracker && M.tzhaarHpTracker.highlightStyle !== "none") {
       this.CH(n, a, M.tzhaarHpTracker, Z, H);
     }
-    this.oH(
+    this.renderEncounterAttackEffects(
       currentTick,
       interpolatedTick ?? currentTick,
       N,
@@ -47565,7 +47565,7 @@ var SceneCompositor = class e {
           pitchSin: g,
           pitchCos: d,
         };
-        this.playerAnimController?.Cv({
+        this.playerAnimController?.setSorterProjection({
           cameraX: p.cameraX,
           cameraY: p.cameraY,
           cameraZ: p.cameraZ,
@@ -47578,7 +47578,7 @@ var SceneCompositor = class e {
           modelY: -s * r,
           modelZ: n * r,
         });
-        this.npcInstanceManager.Cv({
+        this.npcInstanceManager.setSorterProjection({
           cameraX: p.cameraX,
           cameraY: p.cameraY,
           cameraZ: p.cameraZ,
@@ -47587,7 +47587,7 @@ var SceneCompositor = class e {
           pitchSin: p.pitchSin,
           pitchCos: p.pitchCos,
         });
-        this.spotAnimRenderer.Cv({
+        this.spotAnimRenderer.setSorterProjection({
           cameraX: p.cameraX,
           cameraY: p.cameraY,
           cameraZ: p.cameraZ,
@@ -47597,9 +47597,9 @@ var SceneCompositor = class e {
           pitchCos: p.pitchCos,
         });
       } else {
-        this.playerAnimController?.Cv(null);
-        this.npcInstanceManager.Cv(null);
-        this.spotAnimRenderer.Cv(null);
+        this.playerAnimController?.setSorterProjection(null);
+        this.npcInstanceManager.setSorterProjection(null);
+        this.spotAnimRenderer.setSorterProjection(null);
       }
     }
     if (!H) {
@@ -47609,7 +47609,7 @@ var SceneCompositor = class e {
     }
     fy.Lk("playerAnim");
     this.ZD(e);
-    this.playerAnimController?.tD({
+    this.playerAnimController?.updatePlayerAnimation({
       deltaMs: w ? 0 : frameDeltaMs,
       isMoving: G,
       simIsMoving: U,
@@ -47643,8 +47643,8 @@ var SceneCompositor = class e {
         spotAnimModelLoader: this.spotAnimModelLoader,
       });
       this.projectileController.setTerrainHeights(this.terrainHeights);
-      this.projectileController.$z(this.resolveSurfaceHeight);
-      const e = this.gH();
+      this.projectileController.setSurfaceHeightResolver(this.resolveSurfaceHeight);
+      const e = this.getEncounterNpcFacingAngle();
       let a;
       if (e !== undefined) {
         a = e;
@@ -47658,7 +47658,7 @@ var SceneCompositor = class e {
         this.effectTick,
         this.spotAnimModelLoader,
         a,
-        this.aH(N),
+        this.createActorVisualPositionResolver(N),
         this.replayProjectileWork,
       );
       fy.Dk("projectiles");
@@ -47689,9 +47689,9 @@ var SceneCompositor = class e {
           )
         : X,
     };
-    this.uiOverlayRenderer.mL(Y);
+    this.uiOverlayRenderer.setNpcOverlayHeights(Y);
     this.uiOverlayRenderer.update(currentTick, A);
-    this.uiOverlayRenderer.pL(
+    this.uiOverlayRenderer.buildOverheadTexts(
       n,
       uiCamera,
       J,
@@ -47749,7 +47749,7 @@ var SceneCompositor = class e {
       uiCamera,
       J.npcs,
       interpolatedTick ?? currentTick,
-      this.npcInstanceManager.aL(),
+      this.npcInstanceManager.getDyingActorIds(),
       this.npcInterpFraction,
       simulationState.currentTick,
     );
@@ -47847,7 +47847,7 @@ var SceneCompositor = class e {
     const l = [
       ...new Set(this.encounterRenderConfig?.locRender?.levels ?? [0]),
     ].filter((e) => Number.isInteger(e) && e >= 0);
-    const { x: o, y: d } = this.cH();
+    const { x: o, y: d } = this.getTerrainMapSquare();
     const g = await Promise.all(
       eh(r).map(async ({ dx: a, dy: t }) => {
         const n = o + a;
@@ -48066,7 +48066,7 @@ var SceneCompositor = class e {
     };
   }
   AH(e, a, t) {
-    const n = this.mH();
+    const n = this.getGridBounds();
     let s = Math.max(0, (n?.minX ?? 0) - 3);
     let r = Math.min(63, (n?.maxX ?? 63) + 3);
     let i = Math.max(0, (n?.minY ?? 0) - 3);
@@ -48165,11 +48165,11 @@ var SceneCompositor = class e {
     return this.arenaBoundaryPairs;
   }
   LH(e, a) {
-    const t = this.mH();
+    const t = this.getGridBounds();
     if (!t) {
       return;
     }
-    const n = this.hH();
+    const n = this.getArenaWalkabilityChecker();
     if (!n) {
       return;
     }
@@ -48318,7 +48318,7 @@ var SceneCompositor = class e {
       const r = n[1] + 0.5;
       const i = -Nb(this.terrainHeights, n[0] + 0.5, n[1] + 0.5) / 128;
       const l = this.xH();
-      const o = this.bH(a, t, r, i + l, s);
+      const o = this.createPlayerModelMatrix(a, t, r, i + l, s);
       for (const a of this.cachedPlayerMeshes) {
         const t = {
           ...a,
@@ -48328,7 +48328,7 @@ var SceneCompositor = class e {
       }
     } else {
       const a = packHsl(213, 255, 128);
-      const t = this.$H(0.5, 8, 8, a);
+      const t = this.createSphereMesh(0.5, 8, 8, a);
       const s = n[0] + 0.5;
       const r = n[1] + 0.5;
       const i = {
@@ -48367,7 +48367,7 @@ var SceneCompositor = class e {
     const e = this.playerAnimController?._w() ?? 0;
     return (this.playerModelBottomY + e) / 128;
   }
-  $H(e, a, t, n) {
+  createSphereMesh(e, a, t, n) {
     const s = [];
     const r = [];
     for (let n = 0; n <= a; n++) {
@@ -48488,7 +48488,7 @@ var SceneCompositor = class e {
       }
     );
   }
-  qH(a, t, n, s, r, i = 0.05, l = TF, o = 1) {
+  createOutlineMesh3D(a, t, n, s, r, i = 0.05, l = TF, o = 1) {
     const d = i / 2;
     const g = (e, a) => -Eb(this.terrainHeights, e, a) / 128 + 0.01;
     const c = [];
@@ -48735,7 +48735,7 @@ var SceneCompositor = class e {
         }
         if (pillarMarkerStyle2 !== "tileFill" && t.pillarTileOpacity > 0) {
           e.commands.push(
-            this.qH(
+            this.createOutlineMesh3D(
               a,
               l,
               a + sizeX - 1,
@@ -48786,7 +48786,7 @@ var SceneCompositor = class e {
           e.commands.push(
             is2D
               ? CF(a, [x, y], undefined, { color: TW(border.color, border.alpha), widthPx: borderWidth }, AF)
-              : this.qH(x, y, x, y, borderHsl, kF(borderWidth), AF, border.alpha),
+              : this.createOutlineMesh3D(x, y, x, y, borderHsl, kF(borderWidth), AF, border.alpha),
           );
         }
       });
@@ -48815,11 +48815,11 @@ var SceneCompositor = class e {
           }
         }
       } else if (overlay.npcOutline.alpha > 0) {
-        e.commands.push(this.qH(x, y, x + npc.size - 1, y + npc.size - 1, outlineHsl, kF(outlineWidth), AF + 1, overlay.npcOutline.alpha));
+        e.commands.push(this.createOutlineMesh3D(x, y, x + npc.size - 1, y + npc.size - 1, outlineHsl, kF(outlineWidth), AF + 1, overlay.npcOutline.alpha));
       }
     }
     if (!is2D && overlay.npcFill.alpha > 0) {
-      this.eM(e, a, highlighted.map((npc) => ({ npc, mode: "clickbox", color: overlay.npcFill.color })), is2D);
+      this.drawNpcHighlights(e, a, highlighted.map((npc) => ({ npc, mode: "clickbox", color: overlay.npcFill.color })), is2D);
     }
   }
   HH(e, a, t, n, s = true, r = 2) {
@@ -48851,7 +48851,7 @@ var SceneCompositor = class e {
             this.XH(e, s.x, s.y, SF, t, `tile-marker-fill-${t}`, 0.008, AF - 1);
           }
           if (s.opacity > 0) {
-            e.commands.push(this.qH(s.x, s.y, s.x, s.y, a, kF(i), AF, s.opacity));
+            e.commands.push(this.createOutlineMesh3D(s.x, s.y, s.x, s.y, a, kF(i), AF, s.opacity));
           }
         }
       }
@@ -49183,7 +49183,7 @@ var SceneCompositor = class e {
         }
       }
     }
-    this.eM(e, a, i, s);
+    this.drawNpcHighlights(e, a, i, s);
   }
   CH(e, a, t, n, s) {
     const highlightStyle2 = t.highlightStyle;
@@ -49200,9 +49200,9 @@ var SceneCompositor = class e {
         });
       }
     }
-    this.eM(e, a, i, s);
+    this.drawNpcHighlights(e, a, i, s);
   }
-  eM(e, a, t, n) {
+  drawNpcHighlights(e, a, t, n) {
     if (t.length === 0 || (!n && !this.terrainHeights)) {
       return;
     }
@@ -49234,7 +49234,7 @@ var SceneCompositor = class e {
         } else {
           const a = this.YH(color);
           e.commands.push(
-            this.qH(
+            this.createOutlineMesh3D(
               i.position[0],
               i.position[1],
               i.position[0] + i.size - 1,
@@ -49264,7 +49264,7 @@ var SceneCompositor = class e {
         } else {
           const a = this.YH(color);
           e.commands.push(
-            this.qH(
+            this.createOutlineMesh3D(
               i.position[0],
               i.position[1],
               i.position[0],
@@ -49305,7 +49305,7 @@ var SceneCompositor = class e {
       }
       s ??= new Map(
         this.npcInstanceManager
-          .$A()
+          .getAllHitTestData()
           .map(({ actorId: actorId, hitTestData: hitTestData }) => [
             actorId,
             hitTestData,
@@ -49388,7 +49388,7 @@ var SceneCompositor = class e {
       }
     }
   }
-  zH(e, a) {
+  resolveHiddenNpcModels(e, a) {
     if (!gF(a)) {
       if (this.hiddenNpcRenderIds.size > 0) {
         this.hiddenNpcRenderIds = new Set();
@@ -49440,8 +49440,8 @@ var SceneCompositor = class e {
       return e;
     }
   }
-  wH(e) {
-    this.npcInstanceManager.jA(e, this.isNpcRenderInstanceHidden);
+  renderNpcModels(e) {
+    this.npcInstanceManager.renderAll(e, this.isNpcRenderInstanceHidden);
   }
   _H(e, a, t, n, s) {
     if (!this.terrainHeights) {
@@ -49492,7 +49492,7 @@ var SceneCompositor = class e {
             );
           } else {
             i.push(
-              this.qH(
+              this.createOutlineMesh3D(
                 playerPosition2[0],
                 playerPosition2[1],
                 playerPosition2[0],
@@ -49517,7 +49517,7 @@ var SceneCompositor = class e {
           i.push(this.ZH(e.position[0], e.position[1], outline3.color, t));
         } else {
           i.push(
-            this.qH(
+            this.createOutlineMesh3D(
               e.position[0],
               e.position[1],
               e.position[0] + n,
@@ -49546,7 +49546,7 @@ var SceneCompositor = class e {
             );
           } else {
             i.push(
-              this.qH(
+              this.createOutlineMesh3D(
                 t[0],
                 t[1],
                 t[0],
@@ -49577,7 +49577,7 @@ var SceneCompositor = class e {
             i.push(this.ZH(a[0], a[1], t, n, 0.25, TF, hoverTile3.opacity));
           } else {
             i.push(
-              this.qH(a[0], a[1], a[0], a[1], t, n, TF, hoverTile3.opacity),
+              this.createOutlineMesh3D(a[0], a[1], a[0], a[1], t, n, TF, hoverTile3.opacity),
             );
           }
         }
@@ -49599,7 +49599,7 @@ var SceneCompositor = class e {
     return a;
   }
   FH(e) {
-    const a = this.npcInstanceManager.$A();
+    const a = this.npcInstanceManager.getAllHitTestData();
     if (a.length === 0) {
       return;
     }
@@ -49952,7 +49952,7 @@ function PF(e) {
     vertexCount: vertexCount,
     stride: stride,
     vertices: vertices,
-  } = new kW().Iy(
+  } = new kW().buildMesh(
     context,
     e.level,
     context.coreOriginX,
@@ -54126,7 +54126,7 @@ var IE = class extends SceneCompositor {
     this.footprintCache.clear();
     this.arenaRenderer.dispose();
   }
-  cH() {
+  getTerrainMapSquare() {
     return {
       x: this.lobbyMapX,
       y: this.lobbyMapY,
@@ -54154,7 +54154,7 @@ var IE = class extends SceneCompositor {
   aM(e) {
     return gE(e);
   }
-  sM(e) {
+  setForcedTerrain(e) {
     this.forcedTerrain = e;
   }
   build(e, a, t) {
@@ -54327,7 +54327,7 @@ var IE = class extends SceneCompositor {
         }
       }
     })(this.npcInstanceManager, this.celShadedCache, this.footprintCache);
-    this.wH(n);
+    this.renderNpcModels(n);
     if (e.options.showNpcClickbox) {
       this.FH(n);
     }
@@ -54411,7 +54411,7 @@ var CE = class {
   }
   async loadTerrain(e, a, t, n, s, r, i) {
     const l = await this.cacheManager.rM(25, 73);
-    this.compositor.sM(l.terrain);
+    this.compositor.setForcedTerrain(l.terrain);
     const o = l.locations ?? undefined;
     const d = o?.map((e) => e.location);
     const g = o
@@ -54434,7 +54434,7 @@ var CE = class {
     // the lobby still works, so a failure here is logged and not thrown.
     try {
       const loader = this.cacheManager.wd();
-      loader.Kh(re.resolve);
+      loader.setTextureLayerResolver(re.resolve);
       this.compositor.gatewayObjects = await loadGatewayObjects(r_, loader, this.compositor.terrainHeights);
     } catch (e) {
       logger.error("Lobby", "Failed to load the lobby gateways", e);
@@ -54445,7 +54445,7 @@ var CE = class {
   }
   async loadNpc(e, a) {
     if (a) {
-      this.compositor.Bv(a);
+      this.compositor.setAnimationSystem(a);
     }
     await (async function (e, a, t) {
       for (const n of lobbyNpcs) {
@@ -54464,10 +54464,10 @@ var CE = class {
     return this.compositor.isPlayerLoaded();
   }
   async loadSpotAnims(e) {
-    await this.compositor.jD(e);
+    await this.compositor.loadPlayerGraphicSpotAnims(e);
   }
   isSpotAnimsLoaded(e) {
-    return this.compositor.$D(e);
+    return this.compositor.isPlayerGraphicSpotAnimsLoaded(e);
   }
   getResidentMeshSources() {
     return this.compositor.getResidentMeshSources();
@@ -54716,12 +54716,12 @@ var EE = class {
     for (const [n, s] of this.flights) {
       if (
         (a
-          ? s.runtime.Gz(
+          ? s.runtime.updateReplay(
               this.renderer,
               e.cycle,
               (t) => {
                 const lastKnownTarget2 = s.lastKnownTarget;
-                const r = this.iM(s, {
+                const r = this.flightFrame(s, {
                   ...e,
                   cycle: t,
                   resolveActor: a(t, t),
@@ -54733,7 +54733,7 @@ var EE = class {
               },
               t,
             )
-          : s.runtime.update(this.renderer, this.iM(s, e))) === "expired"
+          : s.runtime.update(this.renderer, this.flightFrame(s, e))) === "expired"
       ) {
         this.flights.delete(n);
       }
@@ -54745,10 +54745,10 @@ var EE = class {
     }
     this.flights.clear();
   }
-  iM(e, a) {
+  flightFrame(e, a) {
     const { cue: t } = e;
     const sourcePosition2 = t.sourcePosition;
-    const s = this.lM(e, a);
+    const s = this.targetCentre(e, a);
     return {
       cycle: a.cycle,
       source: {
@@ -54769,7 +54769,7 @@ var EE = class {
       },
     };
   }
-  lM(e, a) {
+  targetCentre(e, a) {
     const { target: target } = e.cue;
     if (target.kind !== "actor") {
       return _E(target, a.resolveActor);
@@ -54815,7 +54815,7 @@ var OE = class {
     this.pending.length = 0;
     this.seen.clear();
   }
-  oM(e) {
+  removeActor(e) {
     for (let a = this.pending.length - 1; a >= 0; a--) {
       if (this.pending[a].cue.actorId === e) {
         this.pending.splice(a, 1);
@@ -54840,7 +54840,7 @@ var OE = class {
         }
         for (const [e, t] of a.graphics.entries()) {
           const n = `colosseum-${a.eventId}-${e}`;
-          this.graphics.set(n, this.dM(n, t, a.tick * 30 + t.delayCycles));
+          this.graphics.set(n, this.createGraphic(n, t, a.tick * 30 + t.delayCycles));
         }
         for (const [e, t] of (a.projectiles ?? []).entries()) {
           this.flights.add(NE(a.eventId, e), t, a.tick * 30);
@@ -54849,11 +54849,11 @@ var OE = class {
     }
     this.pending.sort((e, a) => e.cycle - a.cycle);
   }
-  gM(e) {
+  takeAnimations(e) {
     const a = this.pending.findIndex((a) => a.cycle > e);
     return this.pending.splice(0, a < 0 ? this.pending.length : a);
   }
-  cM(e, a) {
+  syncReplay(e, a) {
     let t = this.histories.get(e.frames);
     if (!t) {
       t = {
@@ -54949,7 +54949,7 @@ var OE = class {
     }
     this.pending.sort((e, a) => e.cycle - a.cycle);
     const r = new Set();
-    for (const { id: e, cue: a, tick: tick } of t.projectiles.Tz(
+    for (const { id: e, cue: a, tick: tick } of t.projectiles.unexpired(
       s,
       (e) => e.endDelayCycles,
     )) {
@@ -54968,7 +54968,7 @@ var OE = class {
       i = Math.max(i, xW(this.renderer, e, 0));
     }
     const l = ++this.syncs;
-    for (const { id: e, cue: a, tick: tick } of t.graphics.Tz(
+    for (const { id: e, cue: a, tick: tick } of t.graphics.unexpired(
       s,
       (e) => e.delayCycles + i,
       i,
@@ -54976,7 +54976,7 @@ var OE = class {
       const t = tick * 30 + a.delayCycles;
       let s = this.graphics.get(e);
       if (s?.cue !== a || s.start !== t) {
-        s = this.dM(e, a, t);
+        s = this.createGraphic(e, a, t);
         this.graphics.set(e, s);
       }
       s.synced = l;
@@ -54989,7 +54989,7 @@ var OE = class {
     });
     return t.actors;
   }
-  mM(e, a, t) {
+  updateProjectiles(e, a, t) {
     this.flights.update(e, a, t);
   }
   render(e, a, t) {
@@ -55003,7 +55003,7 @@ var OE = class {
       }
     });
   }
-  dM(e, a, t) {
+  createGraphic(e, a, t) {
     const n = {
       position: [0, 0, 0],
     };
@@ -55079,12 +55079,12 @@ var iN = class extends SceneCompositor {
     ce(this, "cullSolMeleeOutsideView", undefined);
     this.cullSolMeleeOutsideView = e.cullSolMeleeOutsideView === true;
     if (e.batchSolEffects === true) {
-      this.spotAnimRenderer.Fv([colosseumSpotAnimIds.solMelee, rN]);
+      this.spotAnimRenderer.setBatchableSpotAnimFamilies([colosseumSpotAnimIds.solMelee, rN]);
     }
     if (e.skipZeroAreaBeamParts === true) {
-      this.spotAnimRenderer.Gv(rN);
+      this.spotAnimRenderer.setZeroAreaPartSkip(rN);
     }
-    this.fD("colosseum-visuals", () => {
+    this.registerTransientReset("colosseum-visuals", () => {
       this.visuals.clear();
       this.frameSoundTracker?.reset();
     });
@@ -55124,7 +55124,7 @@ var iN = class extends SceneCompositor {
     }
     return s;
   }
-  yH(e) {
+  isEncounterReplayPresentationReady(e) {
     return (
       e.options.renderMode !== "3d" ||
       (this.OD() &&
@@ -55141,10 +55141,10 @@ var iN = class extends SceneCompositor {
       }
     }
   }
-  pH() {
+  getNpcVisualDeltaMs() {
     return 0;
   }
-  iH(e) {
+  updateEncounterNpcFacing(e) {
     const a = Math.max(
       0,
       this.primaryCycle - (this.npcAnimationCycle ?? this.primaryCycle),
@@ -55164,26 +55164,26 @@ var iN = class extends SceneCompositor {
     }
     for (const a of e) {
       if (mB(a, "actor_despawned")) {
-        this.visuals.oM(a.actorId);
+        this.visuals.removeActor(a.actorId);
         this.npcInstanceManager.removeInstance(this.getNpcRenderInstanceId(a.actorId));
       }
     }
   }
   KD(e) {
     if (e.replayHistory) {
-      this.visuals.cM(e.replayHistory, this.primaryCycle);
+      this.visuals.syncReplay(e.replayHistory, this.primaryCycle);
       this.visuals.render(this.primaryCycle, this.terrainHeights, (a) =>
-        this.uM(a, e.simulationState),
+        this.resolveGraphicActor(a, e.simulationState),
       );
     }
   }
-  qD(e) {
+  restoreEncounterPrimaries(e) {
     const replayHistory4 = e.replayHistory;
     if (!replayHistory4) {
       return false;
     }
-    const t = this.visuals.cM(replayHistory4, this.primaryCycle);
-    this.bD(this.primaryCycle);
+    const t = this.visuals.syncReplay(replayHistory4, this.primaryCycle);
+    this.advanceNpcAnimationClock(this.primaryCycle);
     for (const n of e.simulationState.npcs) {
       const e = this.aM(n);
       if (!TR(n, this.primaryCycle)) {
@@ -55213,11 +55213,11 @@ var iN = class extends SceneCompositor {
     }
     return true;
   }
-  lH(e, a = e.currentTick) {
+  getEncounterAttackTriggers(e, a = e.currentTick) {
     const t = a * 30;
     this.SD(e.currentTick * 30);
     const n = this.encounterRenderConfig?.primaryNpc;
-    for (const a of this.visuals.gM(t)) {
+    for (const a of this.visuals.takeAnimations(t)) {
       if (!e.npcs.some((e) => e.id === a.cue.actorId && TR(e, a.cycle))) {
         continue;
       }
@@ -55230,7 +55230,7 @@ var iN = class extends SceneCompositor {
           (e) => e.npcTypeId === t,
         )?.attackClips?.[a.cue.clipId] !== undefined
       ) {
-        this.bD(a.cycle);
+        this.advanceNpcAnimationClock(a.cycle);
         this.npcInstanceManager.PA(0, 1, [
           {
             actorId: this.getNpcRenderInstanceId(a.cue.actorId),
@@ -55241,20 +55241,20 @@ var iN = class extends SceneCompositor {
         ]);
       }
     }
-    this.bD(t);
-    this.visuals.render(t, this.terrainHeights, (a) => this.uM(a, e));
+    this.advanceNpcAnimationClock(t);
+    this.visuals.render(t, this.terrainHeights, (a) => this.resolveGraphicActor(a, e));
     return [];
   }
-  oH(e, a, t, n, s, r, i, l) {
+  renderEncounterAttackEffects(e, a, t, n, s, r, i, l) {
     this.playerVisualPosition = [...t];
     if (l) {
       return;
     }
     const replayThroughFrameIndex2 = this.replayThroughFrameIndex;
-    this.visuals.mM(
+    this.visuals.updateProjectiles(
       {
         cycle: this.primaryCycle,
-        resolveActor: this.aH(t),
+        resolveActor: this.createActorVisualPositionResolver(t),
         terrainHeights: this.terrainHeights,
         resolveSurfaceHeight: this.resolveSurfaceHeight,
       },
@@ -55270,7 +55270,7 @@ var iN = class extends SceneCompositor {
       this.replayProjectileWork,
     );
   }
-  uM(e, a) {
+  resolveGraphicActor(e, a) {
     if (e === "player") {
       if (!this.playerVisualPosition) {
         return null;
@@ -55284,7 +55284,7 @@ var iN = class extends SceneCompositor {
     if (!a.npcs.some((a) => a.id === e && TR(a, this.primaryCycle))) {
       return null;
     }
-    const t = this.npcInstanceManager.Gg(this.getNpcRenderInstanceId(e));
+    const t = this.npcInstanceManager.getModelMatrix(this.getNpcRenderInstanceId(e));
     if (t) {
       return {
         position: [t[12], t[13], t[14]],
@@ -55294,7 +55294,7 @@ var iN = class extends SceneCompositor {
       return null;
     }
   }
-  sH(e, a, t, n, s, r) {
+  renderEncounterDebugOverlays(e, a, t, n, s, r) {
     if (
       !(function (e) {
         return e.kind === "sol_heredit";
@@ -55312,21 +55312,21 @@ var iN = class extends SceneCompositor {
       dangerTiles: dangerTiles,
     } = t.encounter.state;
     if (s) {
-      this.vM(e, a, s, sandTiles, tN, nN, "sol-sand", 0.006);
-      this.vM(e, a, s, beamTiles, YE, XE, "sol-beam", 0.008);
+      this.paintTiles(e, a, s, sandTiles, tN, nN, "sol-sand", 0.006);
+      this.paintTiles(e, a, s, beamTiles, YE, XE, "sol-beam", 0.008);
     }
     if (r?.beamDamageTiles) {
       const t = QE;
-      this.vM(e, a, s, beamFiredTiles, t, eN, "sol-beam-damage", 0.012);
+      this.paintTiles(e, a, s, beamFiredTiles, t, eN, "sol-beam-damage", 0.012);
     }
     if (t.mechanicsConfig.solHereditTelegraph === true) {
-      this.vM(e, a, s, dangerTiles, VE, KE, "sol-danger", 0.01);
+      this.paintTiles(e, a, s, dangerTiles, VE, KE, "sol-danger", 0.01);
       if (dangerTiles.length > 0) {
-        this.pM(e, a, s, dangerTiles);
+        this.outlineTiles(e, a, s, dangerTiles);
       }
     }
   }
-  vM(e, a, t, n, s, r, i, l) {
+  paintTiles(e, a, t, n, s, r, i, l) {
     if (!t) {
       // In 3D the tiles as one mesh, as the loop below would draw them.
       const key = `${r}|${s.a}|${l}|${n.join(";")}`;
@@ -55364,7 +55364,7 @@ var iN = class extends SceneCompositor {
       }
     }
   }
-  pM(e, a, t, n) {
+  outlineTiles(e, a, t, n) {
     const s = new Set(n.map(sN));
     const r = [];
     for (const [e, a] of n) {
@@ -55610,7 +55610,7 @@ var IN = class {
       if (i === "2d") {
         if (a.ticksIntoPhase < 3) {
           const e = Math.min((c - o) / 3, 1);
-          this.kM(n, s, h, e);
+          this.buildFallingFireballs2D(n, s, h, e);
         } else if (a.ticksIntoPhase === 3) {
           this.SM(n, s, getFireballImpactTiles(r, a.angle), DN);
         } else if (a.ticksIntoPhase === 4) {
@@ -55620,10 +55620,10 @@ var IN = class {
         if (a.ticksIntoPhase >= 3) {
           const t = (f - 3) * 0.6;
           const n = getFireballExplosionTiles(r, a.angle);
-          this.bM(e, d, n, t, r, g);
+          this.buildExplosionSpotAnims(e, d, n, t, r, g);
         }
         if (a.ticksIntoPhase < 4) {
-          this.yM(e, d, h, u, g);
+          this.buildFallingFireballs3D(e, d, h, u, g);
         }
       }
     }
@@ -55641,13 +55641,13 @@ var IN = class {
       this.active3dIds.clear();
     }
   }
-  Sz(e) {
+  clearActive(e) {
     for (const a of this.active3dIds) {
       e.despawn(a);
     }
     this.active3dIds.clear();
   }
-  kM(e, a, t, n) {
+  buildFallingFireballs2D(e, a, t, n) {
     const s = a.tileDeltaToScreen({
       x: 0,
       y: -2,
@@ -55756,7 +55756,7 @@ var IN = class {
       }
     }
   }
-  yM(e, a, t, n, s) {
+  buildFallingFireballs3D(e, a, t, n, s) {
     for (let r = 0; r < t.length; r++) {
       const i = t[r];
       const l = `fireball-falling-${s}-${r}`;
@@ -55785,7 +55785,7 @@ var IN = class {
       });
     }
   }
-  bM(e, a, t, n, s, r) {
+  buildExplosionSpotAnims(e, a, t, n, s, r) {
     const i = e.getFrameLengths(spotAnimIds.VFX_FLAMING_SKULL_SHADOW_IMPACT01) ?? [];
     let l = 0;
     for (const e of i) {
@@ -55865,7 +55865,7 @@ var jN = class {
       const e = getYamaWaveTiles(a + 1, l, o, d, g, r);
       for (const a of e) {
         if (isArenaTileWalkable(a.x, a.y) && !isYamaSealedRow(a.y)) {
-          this.zM(n, a.x, a.y, a.waveType);
+          this.pushTileHighlight(n, a.x, a.y, a.waveType);
         }
       }
     }
@@ -55922,13 +55922,13 @@ var jN = class {
     }
     this.activeWaveIds = f;
   }
-  Sz(e) {
+  clearActive(e) {
     if (this.activeWaveIds.size !== 0) {
-      e.ak(EN);
+      e.despawnGroup(EN);
       this.activeWaveIds.clear();
     }
   }
-  zM(e, a, t, n) {
+  pushTileHighlight(e, a, t, n) {
     const s = -Eb(this.terrainHeights, a, t) / 128 + 0.01;
     const r = -Eb(this.terrainHeights, a + 1, t) / 128 + 0.01;
     const i = -Eb(this.terrainHeights, a, t + 1) / 128 + 0.01;
@@ -56015,33 +56015,33 @@ var qN = class extends SceneCompositor {
     ce(this, "_fadedDamageHistoryLen", 0);
     ce(this, "cachedWaveConfig", undefined);
     ce(this, "flareFrame", undefined);
-    this.fD("yama-effects", () => {
+    this.registerTransientReset("yama-effects", () => {
       this.flareFrame = undefined;
-      this.waveController.Sz(this.spotAnimRenderer);
-      this.attackController.Sz(this.spotAnimRenderer);
-      this.fireballController.Sz(this.spotAnimRenderer);
-      this.voidFlareController.Sz(this.spotAnimRenderer);
+      this.waveController.clearActive(this.spotAnimRenderer);
+      this.attackController.clearActive(this.spotAnimRenderer);
+      this.fireballController.clearActive(this.spotAnimRenderer);
+      this.voidFlareController.clearActive(this.spotAnimRenderer);
     });
-    this.fD("yama-overlays", () => {
+    this.registerTransientReset("yama-overlays", () => {
       this._fadedDamageEntries.clear();
       this._fadedDamageHistoryLen = 0;
       this.yamaAttackOutlineEndTick = undefined;
       this.yamaAttackOutlineIsMagic = false;
     });
-    this.fD("yama-frame-audio", () => {
+    this.registerTransientReset("yama-frame-audio", () => {
       this.frameSoundTracker?.reset();
     });
     // The other NPCs' visuals go on a replay jump, as Sol Heredit's scene clears them.
-    this.fD("yama-other-visuals", () => {
+    this.registerTransientReset("yama-other-visuals", () => {
       this.visuals.clear();
     });
   }
   dispose() {
     this.visuals.clear();
-    this.waveController.Sz(this.spotAnimRenderer);
-    this.attackController.Sz(this.spotAnimRenderer);
-    this.fireballController.Sz(this.spotAnimRenderer);
-    this.voidFlareController.Sz(this.spotAnimRenderer);
+    this.waveController.clearActive(this.spotAnimRenderer);
+    this.attackController.clearActive(this.spotAnimRenderer);
+    this.fireballController.clearActive(this.spotAnimRenderer);
+    this.voidFlareController.clearActive(this.spotAnimRenderer);
     super.dispose();
     this.frameSoundTracker = null;
     this._fadedDamageEntries.clear();
@@ -56083,7 +56083,7 @@ var qN = class extends SceneCompositor {
     }
     // A despawned NPC's pending animations and graphics go with it, as in Sol Heredit's scene.
     for (const event of e) {
-      if (mB(event, "actor_despawned")) this.visuals.oM(event.actorId);
+      if (mB(event, "actor_despawned")) this.visuals.removeActor(event.actorId);
     }
   }
   KD(e) {
@@ -56096,7 +56096,7 @@ var qN = class extends SceneCompositor {
       cycle: this.effectTick * 30,
       throughFrameIndex: replayHistory5.throughFrameIndex,
     };
-    const s = replayEffectIndex3._z(n);
+    const s = replayEffectIndex3.latestYamaAttack(n);
     if (s) {
       const e = this.effectDuration(s.npcCast.spotAnimId);
       const a = this.effectDuration(s.playerImpact.spotAnimId);
@@ -56108,7 +56108,7 @@ var qN = class extends SceneCompositor {
         a === undefined || n.cycle < s.playerImpact.startCycle + a
           ? s.playerImpact
           : null;
-      this.attackController.Dz({
+      this.attackController.consumeDescriptor({
         npcCast: t,
         playerImpact: r,
       });
@@ -56123,14 +56123,14 @@ var qN = class extends SceneCompositor {
       this.YD(e);
     }
     if (this.flareFrame !== replayHistory5.throughFrameIndex) {
-      this.voidFlareController.kz(
-        replayEffectIndex3.Fz(n),
+      this.voidFlareController.reconstruct(
+        replayEffectIndex3.recentFlareEvents(n),
         this.spotAnimRenderer,
       );
       this.flareFrame = replayHistory5.throughFrameIndex;
     }
   }
-  qD(e) {
+  restoreEncounterPrimaries(e) {
     const replayHistory6 = e.replayHistory;
     const replayEffectIndex4 = this.replayEffectIndex;
     return (
@@ -56147,7 +56147,7 @@ var qN = class extends SceneCompositor {
       true)
     );
   }
-  tH(e, a, t, n, s) {
+  renderEncounterEffectsEarly(e, a, t, n, s) {
     if (n?.waves !== false) {
       this.waveController.setTerrainHeights(this.terrainHeights);
       this.waveController.update(
@@ -56159,10 +56159,10 @@ var qN = class extends SceneCompositor {
         this.cachedWaveConfig,
       );
     } else {
-      this.waveController.Sz(this.spotAnimRenderer);
+      this.waveController.clearActive(this.spotAnimRenderer);
     }
   }
-  nH(e, a, t, n, s, r, i, l) {
+  renderEncounterEffectsLate(e, a, t, n, s, r, i, l) {
     this.fireballController.setTerrainHeights(this.terrainHeights);
     this.fireballController.update(
       this.spotAnimRenderer,
@@ -56187,15 +56187,15 @@ var qN = class extends SceneCompositor {
       },
     );
   }
-  sH(e, a, t, n, s, r) {
+  renderEncounterDebugOverlays(e, a, t, n, s, r) {
     if (r?.damageTiles) {
-      this.wM(e, a, t, n, s);
+      this.buildDamageTileOverlays(e, a, t, n, s);
     }
     if (r?.fireballDangerTiles) {
       this.AM(e, a, t, s);
     }
   }
-  rH(e, a, t) {
+  renderEncounterNpc2D(e, a, t) {
     const encounter6 = t.encounter;
     const s = RH(encounter6)
       ? (encounter6.state.lastAttackKind ?? undefined)
@@ -56210,20 +56210,20 @@ var qN = class extends SceneCompositor {
       t.primaryNpcSize,
     );
   }
-  lH(e, a) {
+  getEncounterAttackTriggers(e, a) {
     // The other NPCs' animations (see the constructor), as Sol Heredit's scene starts them.
     // Nothing changes for Yama's own fight, which has no such events.
     const cycle = (a ?? e.currentTick) * 30;
     let played = false;
-    for (const cue of this.visuals.gM(cycle)) {
+    for (const cue of this.visuals.takeAnimations(cycle)) {
       const npc = e.npcs.find((candidate) => candidate.id === cue.cue.actorId);
       if (!npc || !TR(npc, cue.cycle)) continue;
       if (this.encounterRenderConfig?.preloadNpcTypes?.find((entry) => entry.npcTypeId === npc.npcTypeId)?.attackClips?.[cue.cue.clipId] === undefined) continue;
-      this.bD(cue.cycle);
+      this.advanceNpcAnimationClock(cue.cycle);
       this.npcInstanceManager.PA(0, 1, [{ actorId: this.getNpcRenderInstanceId(cue.cue.actorId), trigger: "attack", clipId: cue.cue.clipId, tick: cue.cycle / 30 }]);
       played = true;
     }
-    if (played) this.bD(cycle);
+    if (played) this.advanceNpcAnimationClock(cycle);
     // Their graphics, where an NPC or the player is drawn now (as Sol Heredit's scene finds them).
     this.visuals.render(cycle, this.terrainHeights, (actorId) => {
       if (actorId === "player") {
@@ -56231,19 +56231,19 @@ var qN = class extends SceneCompositor {
         return tile ? { position: [tile[0] + 0.5, tile[1] + 0.5, -Nb(this.terrainHeights, tile[0] + 0.5, tile[1] + 0.5) / 128] } : null;
       }
       if (!e.npcs.some((npc) => npc.id === actorId && TR(npc, this.primaryCycle))) return null;
-      const matrix = this.npcInstanceManager.Gg(this.getNpcRenderInstanceId(actorId));
+      const matrix = this.npcInstanceManager.getModelMatrix(this.getNpcRenderInstanceId(actorId));
       return matrix ? { position: [matrix[12], matrix[13], matrix[14]], yaw2048: (Math.atan2(matrix[8], matrix[0]) * 2048) / (Math.PI * 2) } : null;
     });
     return WR(e);
   }
-  oH(e, a, t, n, s, r, i, l) {
+  renderEncounterAttackEffects(e, a, t, n, s, r, i, l) {
     // The other NPCs' projectiles (see the constructor), as Sol Heredit's scene flies them.
     this.otherVisualsPlayerTile = [...t];
     if (!l) {
-      this.visuals.mM({ cycle: this.primaryCycle, resolveActor: this.aH(t), terrainHeights: this.terrainHeights, resolveSurfaceHeight: this.resolveSurfaceHeight }, undefined, this.replayProjectileWork);
+      this.visuals.updateProjectiles({ cycle: this.primaryCycle, resolveActor: this.createActorVisualPositionResolver(t), terrainHeights: this.terrainHeights, resolveSurfaceHeight: this.resolveSurfaceHeight }, undefined, this.replayProjectileWork);
     }
     if (l || i?.yamaMageRange === false) {
-      this.attackController.Sz(this.spotAnimRenderer);
+      this.attackController.clearActive(this.spotAnimRenderer);
     } else {
       this.attackController.setTerrainHeights(this.terrainHeights);
       this.attackController.update(
@@ -56260,7 +56260,7 @@ var qN = class extends SceneCompositor {
   DM(e) {
     const a =
       this.latestSimulationState?.primaryNpcSize ?? this.HM()?.size ?? 5;
-    const t = this.npcInstanceManager.Gg(M_);
+    const t = this.npcInstanceManager.getModelMatrix(M_);
     if (t) {
       return [t[12], t[13], t[14]];
     } else {
@@ -56288,7 +56288,7 @@ var qN = class extends SceneCompositor {
       sg.start("YamaSceneBuilder.loadNpc");
       try {
         await this.loadNpcType(t.npcTypeId, e, a, {
-          ...this.dH(t),
+          ...this.getPrimaryNpcDeathLoadConfig(t),
           attackClips: n?.attackClips,
           depthBias: n?.depthBias,
         });
@@ -56308,7 +56308,7 @@ var qN = class extends SceneCompositor {
     this.spotAnimModelLoader = e;
     // With those of the render config: the sandbox's monsters beside Yama (client/encounters/sandbox/).
     this.spotAnimRenderer.preload(e, [...ON, ...(this.encounterRenderConfig?.spotAnimIds ?? [])]);
-    await this.xM(e);
+    await this.loadAttackSpotAnims(e);
   }
   HM() {
     return this.encounterRenderConfig?.primaryNpc ?? uN.primaryNpc;
@@ -56327,7 +56327,7 @@ var qN = class extends SceneCompositor {
     this.spotAnimModelLoader = e;
     this.spotAnimRenderer.preload(e, $W);
   }
-  async xM(e) {
+  async loadAttackSpotAnims(e) {
     this.spotAnimModelLoader = e;
     this.spotAnimRenderer.preload(e, qW);
   }
@@ -56424,7 +56424,7 @@ var qN = class extends SceneCompositor {
       });
     }
   }
-  wM(e, a, t, n, s) {
+  buildDamageTileOverlays(e, a, t, n, s) {
     const { damageHistory: damageHistory } = t;
     if (!damageHistory || damageHistory.length === 0) {
       return;
@@ -57166,11 +57166,11 @@ var cG = class {
       }
     }
   }
-  kz(e, a, t) {
+  reconstruct(e, a, t) {
     this.clear();
-    this.cM(e, a, t);
+    this.syncReplay(e, a, t);
   }
-  cM(e, a, t) {
+  syncReplay(e, a, t) {
     let n = t ?? this.replayIndexes.get(e.frames);
     if (!n) {
       n = new PR(e.frames);
@@ -57190,7 +57190,7 @@ var cG = class {
         this.flights.add(e.id, e.cue, e.tick * 30);
       }
     }
-    for (const e of n.inferno.Cz(s, (e) => xW(this.renderer, e, 0))) {
+    for (const e of n.inferno.activeGraphics(s, (e) => xW(this.renderer, e, 0))) {
       if (!this.graphics.has(e.id)) {
         this.graphics.set(e.id, {
           cue: e.cue,
@@ -57198,9 +57198,9 @@ var cG = class {
         });
       }
     }
-    this.animations = n.inferno.Bz(s);
+    this.animations = n.inferno.pendingAnimations(s);
   }
-  gM(e) {
+  takeAnimations(e) {
     const a = this.animations.filter((a) => a.cycle <= e);
     this.animations = this.animations.filter((a) => a.cycle > e);
     return a.sort((e, a) => e.cycle - a.cycle);
@@ -57309,11 +57309,11 @@ var InfernoScene = class extends SceneCompositor {
     ce(this, "frameSoundTracker", null);
     ce(this, "replayHistory", undefined);
     ce(this, "reconstructedHistory", false);
-    this.fD("inferno-visual-events", () => {
+    this.registerTransientReset("inferno-visual-events", () => {
       this.visuals.clear();
       this.replayHistory = undefined;
     });
-    this.fD("inferno-frame-audio", () => {
+    this.registerTransientReset("inferno-frame-audio", () => {
       this.frameSoundTracker?.reset();
     });
   }
@@ -57410,7 +57410,7 @@ var InfernoScene = class extends SceneCompositor {
     }
     return s;
   }
-  sH(e, a, t, n, s, r) {
+  renderEncounterDebugOverlays(e, a, t, n, s, r) {
     const i = PH(t.encounter);
     if (t.mechanicsConfig.zukShieldSafeTiles !== true || i === null) {
       return;
@@ -57421,8 +57421,8 @@ var InfernoScene = class extends SceneCompositor {
     if (!s && !this.terrainHeights) {
       return;
     }
-    const l = this.mH();
-    const o = this.hH();
+    const l = this.getGridBounds();
+    const o = this.getArenaWalkabilityChecker();
     if (!l || !o) {
       return;
     }
@@ -57509,7 +57509,7 @@ var InfernoScene = class extends SceneCompositor {
         this.npcInstanceManager.removeInstance(this.getNpcRenderInstanceId(a.actorId));
       }
       if (vG(a)) {
-        this.npcInstanceManager.kA(a.npcTypeIds);
+        this.npcInstanceManager.removePresentationsByNpcType(a.npcTypeIds);
       }
     }
     const replayHistory7 = a.replayHistory;
@@ -57523,7 +57523,7 @@ var InfernoScene = class extends SceneCompositor {
       }
       const e = {
         cycle: this.primaryCycle,
-        resolveActor: this.aH(a.simulationState.playerPosition),
+        resolveActor: this.createActorVisualPositionResolver(a.simulationState.playerPosition),
         terrainHeights: this.terrainHeights,
         resolveSurfaceHeight: this.resolveSurfaceHeight,
       };
@@ -57531,11 +57531,11 @@ var InfernoScene = class extends SceneCompositor {
         replayHistory7.frames !== this.replayHistory ||
         this.lastDiscontinuityReason !== null
       ) {
-        this.visuals.kz(replayHistory7, e, this.replayEffectIndex);
+        this.visuals.reconstruct(replayHistory7, e, this.replayEffectIndex);
         this.npcAnimationCycle = null;
         this.reconstructedHistory = true;
       } else {
-        this.visuals.cM(replayHistory7, e, this.replayEffectIndex);
+        this.visuals.syncReplay(replayHistory7, e, this.replayEffectIndex);
       }
     } else {
       this.visuals.consumeEvents(e);
@@ -57571,7 +57571,7 @@ var InfernoScene = class extends SceneCompositor {
       cycle: this.primaryCycle,
       throughFrameIndex: replayThroughFrameIndex3,
     };
-    for (const e of replayEffectIndex5.Ez(l, this.npcInstanceManager.nL())) {
+    for (const e of replayEffectIndex5.deathPresentations(l, this.npcInstanceManager.getMaximumLoadedDeathDurationMs())) {
       const a = this.aM(e.npc);
       if (!s.has(a)) {
         this.npcInstanceManager.SA(
@@ -57586,7 +57586,7 @@ var InfernoScene = class extends SceneCompositor {
       }
     }
   }
-  yH(e) {
+  isEncounterReplayPresentationReady(e) {
     return e.options.renderMode !== "3d" || this.WM();
   }
   WM() {
@@ -57603,10 +57603,10 @@ var InfernoScene = class extends SceneCompositor {
       await this.loadNpcType(t.npcTypeId, e, a, t);
     }
   }
-  pH() {
+  getNpcVisualDeltaMs() {
     return 0;
   }
-  iH(e) {
+  updateEncounterNpcFacing(e) {
     const a =
       ((this.latestSimulationState?.currentTick ?? 0) +
         this.npcInterpFraction) *
@@ -57617,11 +57617,11 @@ var InfernoScene = class extends SceneCompositor {
         : Math.max(0, a - this.npcAnimationCycle);
     return this.npcInstanceManager.LA(e, t * 20) ?? 0;
   }
-  lH(e, a = e.currentTick) {
+  getEncounterAttackTriggers(e, a = e.currentTick) {
     const t = a * 30;
     this.SD(e.currentTick * 30);
-    for (const { cue: a, cycle: cycle } of this.visuals.gM(t)) {
-      this.bD(cycle);
+    for (const { cue: a, cycle: cycle } of this.visuals.takeAnimations(t)) {
+      this.advanceNpcAnimationClock(cycle);
       const t = this.encounterRenderConfig?.primaryNpc;
       const s =
         a.actorId === t?.actorId
@@ -57642,10 +57642,10 @@ var InfernoScene = class extends SceneCompositor {
         ]);
       }
     }
-    this.bD(t);
+    this.advanceNpcAnimationClock(t);
     return [];
   }
-  qD(e) {
+  restoreEncounterPrimaries(e) {
     const replayHistory8 = e.replayHistory;
     const replayEffectIndex6 = this.replayEffectIndex;
     if (!replayHistory8 || !replayEffectIndex6) {
@@ -57655,7 +57655,7 @@ var InfernoScene = class extends SceneCompositor {
       return true;
     }
     const primaryCycle2 = this.primaryCycle;
-    this.bD(primaryCycle2);
+    this.advanceNpcAnimationClock(primaryCycle2);
     for (const s of e.simulationState.npcs) {
       if (!TR(s, primaryCycle2)) {
         continue;
@@ -57696,16 +57696,16 @@ var InfernoScene = class extends SceneCompositor {
       return t;
     }
   }
-  oH(e, a, t, n, s, r, i, l) {
+  renderEncounterAttackEffects(e, a, t, n, s, r, i, l) {
     if (!l) {
       this.visuals.update(
         {
           cycle: this.primaryCycle,
-          resolveActor: this.aH(t),
+          resolveActor: this.createActorVisualPositionResolver(t),
           // The way an NPC is drawn facing, off its model matrix as in Sol
           // Heredit's scene; undefined for the player and an NPC not drawn.
           resolveActorYaw: (actorId) => {
-            const matrix = actorId === "player" ? null : this.npcInstanceManager.Gg(this.getNpcRenderInstanceId(actorId));
+            const matrix = actorId === "player" ? null : this.npcInstanceManager.getModelMatrix(this.getNpcRenderInstanceId(actorId));
             return matrix ? (Math.atan2(matrix[8], matrix[0]) * 2048) / (Math.PI * 2) : undefined;
           },
           terrainHeights: this.terrainHeights,
@@ -58292,7 +58292,7 @@ function iK(e, a, t, n) {
         if (!t) {
           return null;
         }
-        if (t.Rg()) {
+        if (t.isSkeletalSeq()) {
           const a = e.loadSkeletalSeq(t.skeletalId);
           if (a) {
             return {
@@ -58338,7 +58338,7 @@ function iK(e, a, t, n) {
           r.faceAlphas.set(g);
         }
         if (f?.kind === "skeletal") {
-          r.Ph(f.seq, f.start + e);
+          r.animateSkeletal(f.seq, f.start + e);
         } else if (f) {
           let t = e;
           let n = 0;
@@ -59200,7 +59200,7 @@ function mq(e) {
     kind: "orbit3d",
     pitchDeg: (a = {
       ...e.getCameraState(),
-      pitch: e.xS(),
+      pitch: e.getViewPitch(),
     }).pitch,
     yawDeg: a.yaw,
     fovScale: a.fovScale,
@@ -59355,19 +59355,19 @@ var uq = class {
   executeCommand(e, a) {
     switch (a.kind) {
       case "poly2d":
-        this.bI(e, a.points, a.fill, a.stroke, a.closePath ?? true);
+        this.drawPolygon(e, a.points, a.fill, a.stroke, a.closePath ?? true);
         break;
       case "circle2d":
-        this.yI(e, a.center, a.radiusPx, a.fill, a.stroke);
+        this.drawCircle(e, a.center, a.radiusPx, a.fill, a.stroke);
         break;
       case "ellipse2d":
-        this.zI(e, a.center, a.radiusX, a.radiusY, a.fill, a.stroke);
+        this.drawEllipse(e, a.center, a.radiusX, a.radiusY, a.fill, a.stroke);
         break;
       case "text2d":
-        this.wI(e, a.position, a.text, a.color, a.font, a.shadow);
+        this.drawText(e, a.position, a.text, a.color, a.font, a.shadow);
     }
   }
-  bI(e, a, t, n, s = true) {
+  drawPolygon(e, a, t, n, s = true) {
     if (!(a.length < 2)) {
       e.beginPath();
       e.moveTo(a[0].x, a[0].y);
@@ -59394,7 +59394,7 @@ var uq = class {
       }
     }
   }
-  yI(e, a, t, n, s) {
+  drawCircle(e, a, t, n, s) {
     e.beginPath();
     e.arc(a.x, a.y, t, 0, Math.PI * 2);
     if (n) {
@@ -59407,7 +59407,7 @@ var uq = class {
       e.stroke();
     }
   }
-  zI(e, a, t, n, s, r) {
+  drawEllipse(e, a, t, n, s, r) {
     e.beginPath();
     e.ellipse(a.x, a.y, t, n, 0, 0, Math.PI * 2);
     if (s) {
@@ -59420,7 +59420,7 @@ var uq = class {
       e.stroke();
     }
   }
-  wI(e, a, t, n, s, r) {
+  drawText(e, a, t, n, s, r) {
     if (s) {
       e.font = s;
     }
@@ -62839,7 +62839,7 @@ var bZ = ({
         tracker2.reset(e[0], e[1]);
         tracker2.facingAngle = h.playerFacingAngle;
         tracker2.lastProcessedTick = u.held ? h.currentTick : h.currentTick - 1;
-      } else if (L || v || (z < 0 && !tracker2.Xy(h.playerPosition))) {
+      } else if (L || v || (z < 0 && !tracker2.routeEndsOn(h.playerPosition))) {
         tracker2.reset(h.playerPosition[0], h.playerPosition[1]);
         tracker2.facingAngle = h.playerFacingAngle;
         I = true;
@@ -62873,7 +62873,7 @@ var bZ = ({
           sequence: C.sequence,
         };
         if (!I) {
-          tracker2.Ky(C.step.stepTiles, C.step.isRunning);
+          tracker2.enqueueSteps(C.step.stepTiles, C.step.isRunning);
         }
       }
       const playerPosition4 = h.playerPosition;
@@ -62890,21 +62890,21 @@ var bZ = ({
       ];
       let P = false;
       if (h.currentTick !== tracker2.lastProcessedTick) {
-        tracker2.Vy(h.currentTick, T, h.playerIsRunning);
-        P = tracker2.Yy(h.playerPosition, h.playerFacingAngle);
+        tracker2.enqueueTickMovement(h.currentTick, T, h.playerIsRunning);
+        P = tracker2.snapToUnwalkedPlacement(h.playerPosition, h.playerFacingAngle);
         if (T.length === 0) {
-          tracker2.Gy(h.playerFacingAngle);
+          tracker2.setTargetAngle(h.playerFacingAngle);
         }
-        tracker2.jy(!!h.attackTarget);
-        tracker2.Uy(h.attackTarget ? h.playerFacingAngle : null);
+        tracker2.setInteracting(!!h.attackTarget);
+        tracker2.setForcedFacingAngle(h.attackTarget ? h.playerFacingAngle : null);
       } else if (R) {
-        P = tracker2.Yy(h.playerPosition, h.playerFacingAngle);
+        P = tracker2.snapToUnwalkedPlacement(h.playerPosition, h.playerFacingAngle);
       }
       const _ = Qe.current.getPrimaryAnimMovementBlock?.() ?? {
         blocksRunning: false,
         blocksWalking: false,
       };
-      tracker2.$y(_.blocksRunning, _.blocksWalking);
+      tracker2.setPrimaryAnimBlocking(_.blocksRunning, _.blocksWalking);
       const F = n
         ? tracker2.advance(M, 1)
         : tracker2.advance(u?.firstFrame && !u.held ? p * m : S, Xa.current);
@@ -62955,7 +62955,7 @@ var bZ = ({
           n -= e;
         }
         if (!l && (a !== 0 || t !== 0 || n !== 0)) {
-          current54.zb(a, t, n);
+          current54.moveFreeform(a, t, n);
         }
       } else if (i || l) {
         const e = Ye.current * 120 * (d / 1000);
@@ -62975,7 +62975,7 @@ var bZ = ({
           n.pitch = (n.pitch ?? cameraState4.pitch) + a;
         }
         if (n.yaw !== undefined || n.pitch !== undefined) {
-          current54.Md(n);
+          current54.updateCamera(n);
           Ze.current?.(current54.getCameraState());
         }
       } else {
@@ -62992,7 +62992,7 @@ var bZ = ({
           aa.current.cameraTarget.x += n * e;
           aa.current.cameraTarget.y += r * e;
         }
-        const i = current54.Cd(a, t);
+        const i = current54.getPlayerCenterZ(a, t);
         aa.current.cameraTarget.z = i;
         const l = {
           targetX: aa.current.cameraTarget.x,
@@ -63014,7 +63014,7 @@ var bZ = ({
         if (U("orbitTiltDown")) {
           l.pitch = (l.pitch ?? cameraState5.pitch) + g;
         }
-        current54.Md(l);
+        current54.updateCamera(l);
         current54.VS(d);
         const cameraState6 = current54.getCameraState();
         if (
@@ -63103,7 +63103,7 @@ var bZ = ({
         blocksRunning: false,
         blocksWalking: false,
       };
-      tracker2.$y($.blocksRunning, $.blocksWalking);
+      tracker2.setPrimaryAnimBlocking($.blocksRunning, $.blocksWalking);
       const V = ne(current54);
       fy.Lk("gpuRender");
       renderer.render({
@@ -63370,7 +63370,7 @@ var bZ = ({
       const current63 = Dt.current;
       const cameraState7 = current63.getCameraState();
       const r = Xe.current * 0.158203125 * t;
-      current63.Md({
+      current63.updateCamera({
         yaw: cameraState7.yaw - e * r * (ge ? -1 : 1),
         pitch: cameraState7.pitch - a * r * (ce ? -1 : 1),
       });
@@ -63522,7 +63522,7 @@ var bZ = ({
         return Math.log2(e) * 256 * (a / 25);
       })(e, Je.current);
       const n = Math.round(jt.current + t);
-      current65.Md({
+      current65.updateCamera({
         fovScale: n,
       });
       const cameraState8 = current65.getCameraState();
@@ -63736,7 +63736,7 @@ var bZ = ({
       }
       const current72 = Dt.current;
       const cameraState9 = current72.getCameraState();
-      current72.Md({
+      current72.updateCamera({
         fovScale: cameraState9.fovScale - t * Je.current,
       });
       if (onCameraChange) {

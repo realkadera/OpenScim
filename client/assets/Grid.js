@@ -20721,7 +20721,7 @@ function mse({
       audioEngine.sN();
     },
     onPlaybackEnd: () => {
-      eventAudioPlayerRef.current.ky(gl.current);
+      eventAudioPlayerRef.current.finishReplay(gl.current);
     },
     onShareReplay: onShareReplay,
     onReplayFailure: kse,
@@ -44384,21 +44384,21 @@ var Mqe = (0, pn.forwardRef)(function (
         fy.current = current124.currentTick;
       }
       if (current124.currentTick !== current125.lastProcessedTick) {
-        current125.Vy(
+        current125.enqueueTickMovement(
           current124.currentTick,
           current124.playerMovementPath,
           current124.playerIsRunning,
         );
-        current125.Yy(current124.playerPosition, current124.playerFacingAngle);
+        current125.snapToUnwalkedPlacement(current124.playerPosition, current124.playerFacingAngle);
         if (0 === current124.playerMovementPath.length) {
-          current125.Gy(current124.playerFacingAngle);
+          current125.setTargetAngle(current124.playerFacingAngle);
         }
-        current125.jy(!!current124.attackTarget);
-        current125.Uy(
+        current125.setInteracting(!!current124.attackTarget);
+        current125.setForcedFacingAngle(
           current124.attackTarget ? current124.playerFacingAngle : null,
         );
       } else {
-        current125.Yy(current124.playerPosition, current124.playerFacingAngle);
+        current125.snapToUnwalkedPlacement(current124.playerPosition, current124.playerFacingAngle);
       }
       const gP = current125.advance(gK, fz.current);
       const [gQ, gR] = fZ(gP.position[0], gP.position[1]);
@@ -52591,7 +52591,7 @@ var TBe = ({
   );
   const f9 = (0, pn.useCallback)(
     (fa, fb, fc, fd, fe) => {
-      const ff = fd ? projection3D.Kb(fd) : null;
+      const ff = fd ? projection3D.screenToRay(fd) : null;
       const fg =
         fe &&
         showTileMarkers &&
@@ -52619,7 +52619,7 @@ var TBe = ({
         fd
           ? {
               shiftKey: true,
-              edge: projection3D.Zb(fd),
+              edge: projection3D.screenToTileEdge(fd),
               hasEdge: f8,
               callbacks: {
                 onMark: onMarkLine,
@@ -52834,7 +52834,7 @@ var NBe = ({
         eW("shift", null, "yellow", null);
         return;
       }
-      const eX = projection3D.Kb(eV);
+      const eX = projection3D.screenToRay(eV);
       if (!eX) {
         eW("none", null, "yellow", null);
         return;
@@ -54371,7 +54371,7 @@ var mn = (ez) => {
           lp.current.XS("orbit");
         }
         lp.current.BS(null);
-        lp.current.Md({
+        lp.current.updateCamera({
           pitch: n2.pitch,
           yaw: n2.yaw,
           fovScale: n2.zoom ?? 512,
@@ -54405,7 +54405,7 @@ var mn = (ez) => {
     [onReplayViewportSample],
   );
   const lP = (0, pn.useCallback)(() => {
-    lp.current.Md({
+    lp.current.updateCamera({
       yaw: 0,
     });
     lH.current?.setCameraYaw(0);
@@ -54490,8 +54490,8 @@ var mn = (ez) => {
         n3,
         n2,
         n5,
-        current154.Hb(),
-        current154.jb(),
+        current154.getViewMatrix(),
+        current154.getProjectionMatrix(),
         current154.viewport.width,
         current154.viewport.height,
         lT,
@@ -54517,8 +54517,8 @@ var mn = (ez) => {
       const n5 = dj(
         n2,
         n3,
-        current155.Hb(),
-        current155.jb(),
+        current155.getViewMatrix(),
+        current155.getProjectionMatrix(),
         current155.viewport.width,
         current155.viewport.height,
       );
@@ -54705,7 +54705,7 @@ var mn = (ez) => {
       if (a1().shift) {
         return false;
       }
-      const n4 = lp.current.Kb(n2);
+      const n4 = lp.current.screenToRay(n2);
       if (!n4) {
         return false;
       }
@@ -55268,7 +55268,7 @@ var mn = (ez) => {
                                     simulationState.playerPosition[1] + 0.5;
                                   const nb = -d6(n7, n8, n9) / 128;
                                   const nc = lp.current._S();
-                                  lp.current.Md({
+                                  lp.current.updateCamera({
                                     targetZ: nb + nc,
                                   });
                                 }

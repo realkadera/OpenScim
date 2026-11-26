@@ -1,0 +1,1861 @@
+{
+  "rd": {
+    "jd": [
+      "readByte",
+      "upstream scimgg@f1cab1f src/rs/io/ByteBuffer.ts#ByteBuffer.readByte (pos+arity; bodies share 4 of 4/4: properties, strings, numbers)"
+    ],
+    "Od": [
+      "readUnsignedByte",
+      "upstream scimgg@f1cab1f src/rs/io/ByteBuffer.ts#ByteBuffer.readUnsignedByte (pos+arity; bodies share 2 of 2/2: properties, strings, numbers)"
+    ],
+    "$d": [
+      "readShort",
+      "upstream scimgg@f1cab1f src/rs/io/ByteBuffer.ts#ByteBuffer.readShort (pos+arity; bodies share 3 of 3/3: properties, strings, numbers)"
+    ],
+    "Vd": [
+      "readUnsignedShort",
+      "upstream scimgg@f1cab1f src/rs/io/ByteBuffer.ts#ByteBuffer.readUnsignedShort (pos+arity; bodies share 2 of 2/2: properties, strings, numbers)"
+    ],
+    "Kd": [
+      "readSignedShort",
+      "upstream scimgg@f1cab1f src/rs/io/ByteBuffer.ts#ByteBuffer.readSignedShort (pos+arity; bodies share 3 of 3/3: properties, strings, numbers)"
+    ],
+    "Zd": [
+      "readMedium",
+      "upstream scimgg@f1cab1f src/rs/io/ByteBuffer.ts#ByteBuffer.readMedium (pos+arity; bodies share 3 of 3/3: properties, strings, numbers)"
+    ],
+    "Yd": [
+      "readUnsignedMedium",
+      "upstream scimgg@f1cab1f src/rs/io/ByteBuffer.ts#ByteBuffer.readUnsignedMedium (pos+arity; bodies share 2 of 2/2: properties, strings, numbers)"
+    ],
+    "Jd": [
+      "readBigSmart",
+      "upstream scimgg@f1cab1f src/rs/io/ByteBuffer.ts#ByteBuffer.readBigSmart (pos+arity; bodies share 6 of 6/6: properties, strings, numbers)"
+    ],
+    "eg": [
+      "readUnsignedSmart",
+      "upstream scimgg@f1cab1f src/rs/io/ByteBuffer.ts#ByteBuffer.readUnsignedSmart (pos+arity; bodies share 6 of 6/6: properties, strings, numbers)"
+    ],
+    "tg": [
+      "readUnsignedSmartMin1",
+      "upstream scimgg@f1cab1f src/rs/io/ByteBuffer.ts#ByteBuffer.readUnsignedSmartMin1 (pos+arity; bodies share 6 of 6/6: properties, strings, numbers)"
+    ],
+    "rg": [
+      "readNullString",
+      "upstream scimgg@f1cab1f src/rs/io/ByteBuffer.ts#ByteBuffer.readNullString (pos+arity; bodies share 3 of 3/3: properties, strings, numbers)"
+    ],
+    "og": [
+      "readVerString",
+      "upstream scimgg@f1cab1f src/rs/io/ByteBuffer.ts#ByteBuffer.readVerString (pos+arity; bodies share 2 of 2/2: properties, strings, numbers)"
+    ],
+    "Qd": [
+      "getByte",
+      "upstream scimgg@f1cab1f src/rs/io/ByteBuffer.ts#ByteBuffer.getByte (pos+arity; bodies share 1 of 1/1: properties, strings, numbers)"
+    ],
+    "ag": [
+      "getUnsignedByte",
+      "upstream scimgg@f1cab1f src/rs/io/ByteBuffer.ts#ByteBuffer.getUnsignedByte (pos+arity; bodies share 2 of 2/2: properties, strings, numbers)"
+    ],
+    "dg": [
+      "getShort",
+      "upstream scimgg@f1cab1f src/rs/io/ByteBuffer.ts#ByteBuffer.getShort (pos+arity; bodies share 2 of 2/2: properties, strings, numbers)"
+    ],
+    "mg": [
+      "readBytes",
+      "upstream scimgg@f1cab1f src/rs/io/ByteBuffer.ts#ByteBuffer.readBytes (pos+arity; bodies share 3 of 3/3: properties, strings, numbers)"
+    ],
+    "hg": [
+      "readUnsignedBytes",
+      "upstream scimgg@f1cab1f src/rs/io/ByteBuffer.ts#ByteBuffer.readUnsignedBytes (pos+arity; bodies share 4 of 4/4: properties, strings, numbers)"
+    ]
+  },
+  "ud": {
+    "kg": [
+      "getDataBuffer",
+      "upstream scimgg@f1cab1f src/rs/config/TypeLoader.ts#ArchiveTypeLoader.getDataBuffer (pos+arity; bodies share 25 of 26/26: properties, strings, numbers); renamed as one family with vd (they override it)",
+      {
+        "alsoIn": [
+          "vd"
+        ]
+      }
+    ]
+  },
+  "pd": {
+    "Dg": [
+      "readParamsMap",
+      "upstream scimgg@f1cab1f src/rs/config/Type.ts#Type.readParamsMap (pos+arity; bodies share 5 of 5/5: properties, strings, numbers)"
+    ]
+  },
+  "bd": {
+    "Mg": [
+      "postDecode",
+      "upstream scimgg@f1cab1f src/rs/config/seqtype/SeqType.ts#SeqType.postDecode (pos+arity; bodies share 4 of 4/4: properties, strings, numbers)"
+    ],
+    "Tg": [
+      "getFrameLength",
+      "upstream scimgg@f1cab1f src/rs/config/seqtype/SeqType.ts#SeqType.getFrameLength (pos+arity; bodies share 7 of 7/7: properties, strings, numbers)"
+    ],
+    "Ig": [
+      "isNewSoundEffects",
+      "upstream scimgg@f1cab1f src/rs/config/seqtype/SeqType.ts#SeqType.isNewSoundEffects (pos+arity; bodies share 5 of 5/5: properties, strings, numbers)"
+    ],
+    "Cg": [
+      "decodeFrameSounds",
+      "upstream scimgg@f1cab1f src/rs/config/seqtype/SeqType.ts#SeqType.decodeFrameSounds (pos+arity; bodies share 5 of 6/6: properties, strings, numbers)"
+    ],
+    "xg": [
+      "decodeSparseFrameSounds",
+      "upstream scimgg@f1cab1f src/rs/config/seqtype/SeqType.ts#SeqType.decodeSparseFrameSounds (pos+arity; bodies share 5 of 6/6: properties, strings, numbers)"
+    ],
+    "Bg": [
+      "decodeSkeletalId",
+      "upstream scimgg@f1cab1f src/rs/config/seqtype/SeqType.ts#SeqType.decodeSkeletalId (pos+arity; bodies share 2 of 2/2: properties, strings, numbers)"
+    ],
+    "Wg": [
+      "decodeSkeletalDuration",
+      "upstream scimgg@f1cab1f src/rs/config/seqtype/SeqType.ts#SeqType.decodeSkeletalDuration (pos+arity; bodies share 3 of 3/3: properties, strings, numbers)"
+    ],
+    "Rg": [
+      "isSkeletalSeq",
+      "upstream scimgg@f1cab1f src/rs/config/seqtype/SeqType.ts#SeqType.isSkeletalSeq (pos+arity; bodies share 1 of 1/1: properties, strings, numbers)"
+    ],
+    "Pg": [
+      "getSkeletalDuration",
+      "upstream scimgg@f1cab1f src/rs/config/seqtype/SeqType.ts#SeqType.getSkeletalDuration (pos+arity; bodies share 2 of 2/2: properties, strings, numbers)"
+    ],
+    "_g": [
+      "isLooping",
+      "upstream scimgg@f1cab1f src/rs/config/seqtype/SeqType.ts#SeqType.isLooping (pos+arity; bodies share 1 of 1/1: properties, strings, numbers)"
+    ]
+  },
+  "wd": {
+    "Fg": [
+      "readMat4",
+      "upstream scimgg@f1cab1f src/rs/model/skeletal/SkeletalBone.ts#SkeletalBone.readMat4 (pos+arity; bodies share 3 of 3/3: properties, strings, numbers)"
+    ],
+    "Eg": [
+      "extractTransformations",
+      "upstream scimgg@f1cab1f src/rs/model/skeletal/SkeletalBone.ts#SkeletalBone.extractTransformations (pos+arity; bodies share 8 of 9/13: properties, strings, numbers)"
+    ],
+    "Ng": [
+      "getLocalMatrix",
+      "upstream scimgg@f1cab1f src/rs/model/skeletal/SkeletalBone.ts#SkeletalBone.getLocalMatrix (pos+arity; bodies share 1 of 1/1: properties, strings, numbers)"
+    ],
+    "Ug": [
+      "getInvertedModelMatrix",
+      "upstream scimgg@f1cab1f src/rs/model/skeletal/SkeletalBone.ts#SkeletalBone.getInvertedModelMatrix (pos+arity; bodies share 2 of 2/4: properties, strings, numbers)"
+    ],
+    "jg": [
+      "setAnimMatrix",
+      "upstream scimgg@f1cab1f src/rs/model/skeletal/SkeletalBone.ts#SkeletalBone.setAnimMatrix (pos+arity; bodies share 3 of 3/4: properties, strings, numbers)"
+    ],
+    "Og": [
+      "getAnimMatrix",
+      "upstream scimgg@f1cab1f src/rs/model/skeletal/SkeletalBone.ts#SkeletalBone.getAnimMatrix (pos+arity; bodies share 1 of 1/1: properties, strings, numbers)"
+    ],
+    "$g": [
+      "getAnimModelMatrix",
+      "upstream scimgg@f1cab1f src/rs/model/skeletal/SkeletalBone.ts#SkeletalBone.getAnimModelMatrix (pos+arity; bodies share 5 of 5/7: properties, strings, numbers)"
+    ],
+    "Vg": [
+      "getFinalMatrix",
+      "upstream scimgg@f1cab1f src/rs/model/skeletal/SkeletalBone.ts#SkeletalBone.getFinalMatrix (pos+arity; bodies share 4 of 4/5: properties, strings, numbers)"
+    ],
+    "Gg": [
+      "getModelMatrix",
+      "upstream scimgg@f1cab1f src/rs/model/skeletal/SkeletalBone.ts#SkeletalBone.getModelMatrix (pos+arity; bodies share 4 of 4/7: properties, strings, numbers); renamed as one family with NpcInstanceManager (they override it)",
+      {
+        "alsoIn": [
+          "NpcInstanceManager"
+        ]
+      }
+    ]
+  },
+  "Ud": {
+    "tm": [
+      "getPointIndex",
+      "upstream scimgg@f1cab1f src/rs/model/skeletal/Curve.ts#Curve.getPointIndex (pos+arity; bodies share 8 of 8/8: properties, strings, numbers)"
+    ],
+    "Jg": [
+      "getCurvePoint",
+      "upstream scimgg@f1cab1f src/rs/model/skeletal/Curve.ts#Curve.getCurvePoint (pos+arity; bodies share 3 of 3/3: properties, strings, numbers)"
+    ],
+    "am": [
+      "getTickDuration",
+      "upstream scimgg@f1cab1f src/rs/model/skeletal/Curve.ts#Curve.getTickDuration (pos+arity; bodies share 2 of 2/2: properties, strings, numbers)"
+    ]
+  },
+  "eg": {
+    "Zg": [
+      "updateAnimMatrix",
+      "upstream scimgg@f1cab1f src/rs/model/skeletal/SkeletalSeq.ts#SkeletalSeq.updateAnimMatrix (pos+arity; bodies share 5 of 6/6: properties, strings, numbers)"
+    ],
+    "nm": [
+      "applyRotation",
+      "upstream scimgg@f1cab1f src/rs/model/skeletal/SkeletalSeq.ts#SkeletalSeq.applyRotation (pos+arity; bodies share 5 of 6/10: properties, strings, numbers)"
+    ],
+    "im": [
+      "applyTranslation",
+      "upstream scimgg@f1cab1f src/rs/model/skeletal/SkeletalSeq.ts#SkeletalSeq.applyTranslation (pos+arity; bodies share 8 of 8/8: properties, strings, numbers)"
+    ]
+  },
+  "tg": {
+    "lm": [
+      "getSkeletalSeqLoader",
+      "upstream scimgg@f1cab1f src/render/backends/picogl/AnimationSystem.ts#AnimationSystem.getSkeletalSeqLoader (pos+arity; bodies share 1 of 1/1: properties, strings, numbers)"
+    ],
+    "im": [
+      "applyTranslation",
+      "upstream scimgg@f1cab1f src/render/backends/picogl/AnimationSystem.ts#AnimationSystem.applyTranslation (pos+arity; bodies share 4 of 4/4: properties, strings, numbers)"
+    ],
+    "nm": [
+      "applyRotation",
+      "upstream scimgg@f1cab1f src/render/backends/picogl/AnimationSystem.ts#AnimationSystem.applyRotation (pos+arity; bodies share 7 of 7/7: properties, strings, numbers)"
+    ]
+  },
+  "Bg": {
+    "Mm": [
+      "getFileId",
+      "upstream scimgg@f1cab1f src/rs/cache/Archive.ts#Archive.getFileId (pos+arity; bodies share 2 of 3/3: properties, strings, numbers)"
+    ],
+    "Tm": [
+      "getFileNamed",
+      "upstream scimgg@f1cab1f src/rs/cache/Archive.ts#Archive.getFileNamed (pos+arity; bodies share 2 of 2/2: properties, strings, numbers)"
+    ],
+    "Hm": [
+      "decodeOld",
+      "upstream scimgg@f1cab1f src/rs/cache/Archive.ts#Archive.decodeOld (pos+arity; bodies share 10 of 11/11: properties, strings, numbers); renamed as one family with wm (they override it)",
+      {
+        "alsoIn": [
+          "wm"
+        ]
+      }
+    ]
+  },
+  "Eg": {
+    "xm": [
+      "fileReferences",
+      "upstream scimgg@f1cab1f src/rs/cache/ref/ArchiveReference.ts#ArchiveReference.fileReferences (pos+arity; bodies share 3 of 3/3: properties, strings, numbers)"
+    ]
+  },
+  "Ng": {
+    "Bm": [
+      "fromArchiveCount",
+      "upstream scimgg@f1cab1f src/rs/cache/ref/ReferenceTable.ts#ReferenceTable.fromArchiveCount (pos+arity; bodies share 2 of 2/2: properties, strings, numbers)"
+    ]
+  },
+  "Gg": {
+    "wg": [
+      "getFileCount",
+      "upstream scimgg@f1cab1f src/rs/cache/CacheIndex.ts#CacheIndex.getFileCount (gap-arity; bodies share 3 of 3/3: properties, strings, numbers)"
+    ]
+  },
+  "Jg": {
+    "Vm": [
+      "getIndexFile",
+      "upstream scimgg@f1cab1f src/rs/cache/store/MemoryStore.ts#MemoryStore.getIndexFile (pos+arity; bodies share 2 of 3/2: properties, strings, numbers)"
+    ],
+    "Km": [
+      "getSectorIndexId",
+      "upstream scimgg@f1cab1f src/rs/cache/store/MemoryStore.ts#MemoryStore.getSectorIndexId (pos+arity; bodies share 1 of 1/1: properties, strings, numbers)"
+    ],
+    "$m": [
+      "fromFiles",
+      "upstream scimgg@f1cab1f src/rs/cache/store/MemoryStore.ts#MemoryStore.fromFiles (pos+arity; bodies share 6 of 13/9: properties, strings, numbers); renamed as one family with Qg (they override it)",
+      {
+        "alsoIn": [
+          "Qg"
+        ]
+      }
+    ]
+  },
+  "Qg": {
+    "qm": [
+      "loadIndicesFromStore",
+      "upstream scimgg@f1cab1f src/rs/cache/CacheSystem.ts#CacheSystem.loadIndicesFromStore (pos+arity; bodies share 6 of 7/7: properties, strings, numbers)"
+    ],
+    "Zm": [
+      "indexExists",
+      "upstream scimgg@f1cab1f src/rs/cache/CacheSystem.ts#CacheSystem.indexExists (pos+arity; bodies share 1 of 1/1: properties, strings, numbers)"
+    ],
+    "ym": [
+      "getIndexCount",
+      "upstream scimgg@f1cab1f src/rs/cache/CacheSystem.ts#CacheSystem.getIndexCount (pos+arity; bodies share 3 of 3/3: properties, strings, numbers)"
+    ]
+  },
+  "cm": {
+    "Ym": [
+      "getIntValue",
+      "upstream scimgg@f1cab1f src/rs/config/enumtype/EnumType.ts#EnumType.getIntValue (pos+arity; bodies share 4 of 4/4: properties, strings, numbers)"
+    ]
+  },
+  "fm": {
+    "Jm": [
+      "calculateHslFrom",
+      "upstream scimgg@f1cab1f src/rs/config/flotype/FloType.ts#OverlayType.calculateHslFrom (gap-arity; bodies share 12 of 12/12: properties, strings, numbers)"
+    ]
+  },
+  "wm": {
+    "nh": [
+      "clampAnimatedFaceAlpha",
+      "upstream scimgg@f1cab1f src/rs/model/ModelData.ts#ModelData.clampAnimatedFaceAlpha (pos+arity; bodies share 1 of 1/1: properties, strings, numbers)"
+    ],
+    "ih": [
+      "adjustLightness",
+      "upstream scimgg@f1cab1f src/rs/model/ModelData.ts#ModelData.adjustLightness (pos+arity; bodies share 4 of 4/4: properties, strings, numbers)"
+    ],
+    "oh": [
+      "clampLightness",
+      "upstream scimgg@f1cab1f src/rs/model/ModelData.ts#ModelData.clampLightness (pos+arity; bodies share 1 of 1/1: properties, strings, numbers)"
+    ],
+    "dh": [
+      "litBrightness",
+      "upstream scimgg@f1cab1f src/rs/model/ModelData.ts#ModelData.litBrightness (pos+arity; bodies share 1 of 1/1: properties, strings, numbers)"
+    ],
+    "gh": [
+      "normalMergeVertexHash",
+      "upstream scimgg@f1cab1f src/rs/model/ModelData.ts#ModelData.normalMergeVertexHash (pos+arity; bodies share 4 of 4/4: properties, strings, numbers)"
+    ],
+    "mh": [
+      "getNormalMergeIndex",
+      "upstream scimgg@f1cab1f src/rs/model/ModelData.ts#ModelData.getNormalMergeIndex (pos+arity; bodies share 6 of 6/6: properties, strings, numbers)"
+    ],
+    "hh": [
+      "addToMergedNormal",
+      "upstream scimgg@f1cab1f src/rs/model/ModelData.ts#ModelData.addToMergedNormal (pos+arity; bodies share 4 of 5/4: properties, strings, numbers)"
+    ],
+    "ph": [
+      "copyVertex",
+      "upstream scimgg@f1cab1f src/rs/model/ModelData.ts#ModelData.copyVertex (pos+arity; bodies share 7 of 10/7: properties, strings, numbers)"
+    ],
+    "Sh": [
+      "decodeV3",
+      "upstream scimgg@f1cab1f src/rs/model/ModelData.ts#ModelData.decodeV3 (pos+arity; bodies share 47 of 50/47: properties, strings, numbers)"
+    ],
+    "bh": [
+      "decodeV2",
+      "upstream scimgg@f1cab1f src/rs/model/ModelData.ts#ModelData.decodeV2 (pos+arity; bodies share 43 of 43/43: properties, strings, numbers)"
+    ],
+    "zh": [
+      "scaleDown",
+      "upstream scimgg@f1cab1f src/rs/model/ModelData.ts#ModelData.scaleDown (pos+arity; bodies share 9 of 9/9: properties, strings, numbers)"
+    ],
+    "yh": [
+      "decodeV1",
+      "upstream scimgg@f1cab1f src/rs/model/ModelData.ts#ModelData.decodeV1 (pos+arity; bodies share 49 of 49/49: properties, strings, numbers)"
+    ],
+    "wh": [
+      "decodeTextureMapping",
+      "upstream scimgg@f1cab1f src/rs/model/ModelData.ts#ModelData.decodeTextureMapping (pos+arity; bodies share 20 of 20/20: properties, strings, numbers)"
+    ],
+    "Lh": [
+      "rotate90",
+      "upstream scimgg@f1cab1f src/rs/model/ModelData.ts#ModelData.rotate90 (pos+arity; bodies share 4 of 4/4: properties, strings, numbers)"
+    ],
+    "Dh": [
+      "rotate180",
+      "upstream scimgg@f1cab1f src/rs/model/ModelData.ts#ModelData.rotate180 (pos+arity; bodies share 4 of 4/4: properties, strings, numbers)"
+    ],
+    "Hh": [
+      "rotate270",
+      "upstream scimgg@f1cab1f src/rs/model/ModelData.ts#ModelData.rotate270 (pos+arity; bodies share 4 of 4/4: properties, strings, numbers)"
+    ],
+    "Mh": [
+      "recolor",
+      "upstream scimgg@f1cab1f src/rs/model/ModelData.ts#ModelData.recolor (pos+arity; bodies share 2 of 2/2: properties, strings, numbers)"
+    ],
+    "uh": [
+      "calculateVertexNormals",
+      "upstream scimgg@f1cab1f src/rs/model/ModelData.ts#ModelData.calculateVertexNormals (pos+arity; bodies share 18 of 19/18: properties, strings, numbers)"
+    ],
+    "fh": [
+      "calculateBounds",
+      "upstream scimgg@f1cab1f src/rs/model/ModelData.ts#ModelData.calculateBounds (pos+arity; bodies share 16 of 16/16: properties, strings, numbers)"
+    ],
+    "xh": [
+      "animateInterleaved",
+      "upstream scimgg@f1cab1f src/rs/model/ModelData.ts#ModelData.animateInterleaved (pos+arity; bodies share 14 of 14/14: properties, strings, numbers)"
+    ],
+    "Ch": [
+      "applyTransform",
+      "upstream scimgg@f1cab1f src/rs/model/ModelData.ts#ModelData.applyTransform (pos+arity; bodies share 21 of 21/21: properties, strings, numbers)"
+    ],
+    "Bh": [
+      "vertexBrightness",
+      "upstream scimgg@f1cab1f src/rs/model/ModelData.ts#ModelData.vertexBrightness (pos+arity; bodies share 4 of 4/4: properties, strings, numbers)"
+    ],
+    "Wh": [
+      "faceBrightness",
+      "upstream scimgg@f1cab1f src/rs/model/ModelData.ts#ModelData.faceBrightness (pos+arity; bodies share 1 of 1/1: properties, strings, numbers)"
+    ],
+    "Ph": [
+      "animateSkeletal",
+      "upstream scimgg@f1cab1f src/rs/model/ModelData.ts#ModelData.animateSkeletal (pos+arity; bodies share 6 of 7/7: properties, strings, numbers)"
+    ],
+    "Eh": [
+      "debugSkeletalInfo",
+      "upstream scimgg@f1cab1f src/rs/model/ModelData.ts#ModelData.debugSkeletalInfo (pos+arity; bodies share 16 of 17/17: properties, strings, numbers)"
+    ],
+    "_h": [
+      "transformSkeletal",
+      "upstream scimgg@f1cab1f src/rs/model/ModelData.ts#ModelData.transformSkeletal (pos+arity; bodies share 11 of 12/16: properties, strings, numbers)"
+    ]
+  },
+  "Im": {
+    "jh": [
+      "isLargeModelId",
+      "upstream scimgg@f1cab1f src/rs/config/loctype/LocType.ts#LocType.isLargeModelId (pos+arity; bodies share 5 of 5/5: properties, strings, numbers)"
+    ]
+  },
+  "Rm": {
+    "Kh": [
+      "setTextureLayerResolver",
+      "upstream scimgg@f1cab1f src/rs/config/loctype/LocModelLoader.ts#LocModelLoader.setTextureLayerResolver (pos+arity; bodies share 1 of 1/1: properties, strings, numbers)"
+    ],
+    "Zh": [
+      "getModelData",
+      "upstream scimgg@f1cab1f src/rs/config/loctype/LocModelLoader.ts#LocModelLoader.getModelData (pos+arity; bodies share 7 of 8/8: properties, strings, numbers)"
+    ]
+  },
+  "Pm": {
+    "jh": [
+      "isLargeModelId",
+      "upstream scimgg@f1cab1f src/rs/config/npctype/NpcType.ts#NpcType.isLargeModelId (pos+arity; bodies share 5 of 5/5: properties, strings, numbers)"
+    ]
+  },
+  "Em": {
+    "Qh": [
+      "getWornOffset",
+      "upstream scimgg@f1cab1f src/rs/config/objtype/ObjType.ts#ObjType.getWornOffset (pos+arity; bodies share 2 of 2/2: properties, strings, numbers)"
+    ]
+  },
+  "Xm": {
+    "sf": [
+      "getNpcSpawnArchiveId",
+      "upstream scimgg@f1cab1f src/rs/map/MapLoader.ts#MapLoader.getNpcSpawnArchiveId (pos+arity; bodies share 5 of 5/5: properties, strings, numbers)"
+    ],
+    "lf": [
+      "clearMapSquareCache",
+      "upstream scimgg@f1cab1f src/rs/map/MapLoader.ts#MapLoader.clearMapSquareCache (pos+arity; bodies share 2 of 2/2: properties, strings, numbers)"
+    ],
+    "rf": [
+      "decodeMapSquare",
+      "upstream scimgg@f1cab1f src/rs/map/MapLoader.ts#MapLoader.decodeMapSquare (pos+arity; bodies share 8 of 10/8: properties, strings, numbers)"
+    ],
+    "df": [
+      "decodeTerrainTile",
+      "upstream scimgg@f1cab1f src/rs/map/MapLoader.ts#MapLoader.decodeTerrainTile (pos+arity; bodies share 6 of 8/6: properties, strings, numbers)"
+    ],
+    "gf": [
+      "loadLocations",
+      "upstream scimgg@f1cab1f src/rs/map/MapLoader.ts#MapLoader.loadLocations (pos+arity; bodies share 15 of 15/15: properties, strings, numbers)"
+    ],
+    "cf": [
+      "loadNpcSpawns",
+      "upstream scimgg@f1cab1f src/rs/map/MapLoader.ts#MapLoader.loadNpcSpawns (pos+arity; bodies share 14 of 15/14: properties, strings, numbers)"
+    ]
+  },
+  "Ih": {
+    "ff": [
+      "applyRecoloring",
+      "upstream scimgg@f1cab1f src/rs/model/NpcModelLoader.ts#NpcModelLoader.applyRecoloring (pos+arity; bodies share 3 of 3/3: properties, strings, numbers)"
+    ],
+    "uf": [
+      "loadNpcMesh",
+      "upstream scimgg@f1cab1f src/rs/model/NpcModelLoader.ts#NpcModelLoader.loadNpcMesh (pos+arity; bodies share 2 of 2/2: properties, strings, numbers)"
+    ]
+  },
+  "Rh": {
+    "pf": [
+      "loadPlayerModel",
+      "upstream scimgg@f1cab1f src/rs/model/PlayerModelLoader.ts#PlayerModelLoader.loadPlayerModel (pos+arity; bodies share 26 of 27/28: properties, strings, numbers)"
+    ],
+    "kf": [
+      "buildComposition",
+      "upstream scimgg@f1cab1f src/rs/model/PlayerModelLoader.ts#PlayerModelLoader.buildComposition (pos+arity; bodies share 11 of 18/18: properties, strings, numbers)"
+    ],
+    "yf": [
+      "loadWornObj",
+      "upstream scimgg@f1cab1f src/rs/model/PlayerModelLoader.ts#PlayerModelLoader.loadWornObj (pos+arity; bodies share 3 of 3/3: properties, strings, numbers)"
+    ],
+    "zf": [
+      "hasCompleteWornModels",
+      "upstream scimgg@f1cab1f src/rs/model/PlayerModelLoader.ts#PlayerModelLoader.hasCompleteWornModels (pos+arity; bodies share 6 of 6/6: properties, strings, numbers)"
+    ],
+    "bf": [
+      "applyEquipmentToComposition",
+      "upstream scimgg@f1cab1f src/rs/model/PlayerModelLoader.ts#PlayerModelLoader.applyEquipmentToComposition (pos; bodies share 11 of 15/20: properties, strings, numbers)"
+    ],
+    "wf": [
+      "applyItemToComposition",
+      "upstream scimgg@f1cab1f src/rs/model/PlayerModelLoader.ts#PlayerModelLoader.applyItemToComposition (pos+arity; bodies share 4 of 5/4: properties, strings, numbers)"
+    ],
+    "Sf": [
+      "loadCompositionModels",
+      "upstream scimgg@f1cab1f src/rs/model/PlayerModelLoader.ts#PlayerModelLoader.loadCompositionModels (pos; bodies share 4 of 6/4: properties, strings, numbers)"
+    ],
+    "Af": [
+      "loadEquipmentModel",
+      "upstream scimgg@f1cab1f src/rs/model/PlayerModelLoader.ts#PlayerModelLoader.loadEquipmentModel (pos+arity; bodies share 22 of 23/23: properties, strings, numbers)"
+    ],
+    "Lf": [
+      "loadKitModels",
+      "upstream scimgg@f1cab1f src/rs/model/PlayerModelLoader.ts#PlayerModelLoader.loadKitModels (pos+arity; bodies share 20 of 21/21: properties, strings, numbers)"
+    ],
+    "Df": [
+      "evictOldestCacheEntries",
+      "upstream scimgg@f1cab1f src/rs/model/PlayerModelLoader.ts#PlayerModelLoader.evictOldestCacheEntries (pos+arity; bodies share 7 of 7/7: properties, strings, numbers)"
+    ]
+  },
+  "Fh": {
+    "Hf": [
+      "loadSpotAnimType",
+      "upstream scimgg@f1cab1f src/rs/model/SpotAnimModelLoader.ts#SpotAnimModelLoader.loadSpotAnimType (pos+arity; bodies share 5 of 5/5: properties, strings, numbers)"
+    ],
+    "Mf": [
+      "loadSpotAnimModelData",
+      "upstream scimgg@f1cab1f src/rs/model/SpotAnimModelLoader.ts#SpotAnimModelLoader.loadSpotAnimModelData (pos+arity; bodies share 36 of 37/37: properties, strings, numbers)"
+    ],
+    "Bf": [
+      "loadSpotAnimMesh",
+      "upstream scimgg@f1cab1f src/rs/model/SpotAnimModelLoader.ts#SpotAnimModelLoader.loadSpotAnimMesh (pos+arity; bodies share 3 of 3/3: properties, strings, numbers)"
+    ],
+    "Wf": [
+      "getSequenceId",
+      "upstream scimgg@f1cab1f src/rs/model/SpotAnimModelLoader.ts#SpotAnimModelLoader.getSequenceId (pos+arity; bodies share 2 of 2/2: properties, strings, numbers)"
+    ],
+    "Rf": [
+      "isSkeletalOnly",
+      "upstream scimgg@f1cab1f src/rs/model/SpotAnimModelLoader.ts#SpotAnimModelLoader.isSkeletalOnly (pos+arity; bodies share 7 of 7/7: properties, strings, numbers)"
+    ],
+    "Pf": [
+      "loadSkeletalSpotAnimModel",
+      "upstream scimgg@f1cab1f src/rs/model/SpotAnimModelLoader.ts#SpotAnimModelLoader.loadSkeletalSpotAnimModel (pos+arity; bodies share 31 of 31/31: properties, strings, numbers)"
+    ],
+    "_f": [
+      "poseSkeletalSpotAnimMesh",
+      "upstream scimgg@f1cab1f src/rs/model/SpotAnimModelLoader.ts#SpotAnimModelLoader.poseSkeletalSpotAnimMesh (pos+arity; bodies share 22 of 22/22: properties, strings, numbers)"
+    ],
+    "ff": [
+      "applyRecoloring",
+      "upstream scimgg@f1cab1f src/rs/model/SpotAnimModelLoader.ts#SpotAnimModelLoader.applyRecoloring (pos+arity; bodies share 3 of 3/3: properties, strings, numbers)"
+    ],
+    "Cf": [
+      "applyRetexturing",
+      "upstream scimgg@f1cab1f src/rs/model/SpotAnimModelLoader.ts#SpotAnimModelLoader.applyRetexturing (pos+arity; bodies share 2 of 2/2: properties, strings, numbers)"
+    ],
+    "Ef": [
+      "loadAnimatedSpotAnim",
+      "upstream scimgg@f1cab1f src/rs/model/SpotAnimModelLoader.ts#SpotAnimModelLoader.loadAnimatedSpotAnim (pos+arity; bodies share 43 of 43/43: properties, strings, numbers)"
+    ],
+    "Nf": [
+      "loadStaticAnimatedFallback",
+      "upstream scimgg@f1cab1f src/rs/model/SpotAnimModelLoader.ts#SpotAnimModelLoader.loadStaticAnimatedFallback (pos+arity; bodies share 5 of 5/5: properties, strings, numbers)"
+    ],
+    "Gf": [
+      "cacheGeneration",
+      "upstream scimgg@f1cab1f src/rs/model/SpotAnimModelLoader.ts#SpotAnimModelLoader.cacheGeneration (pos+arity; bodies share 1 of 1/1: properties, strings, numbers)"
+    ],
+    "Tf": [
+      "cacheMissingModel",
+      "upstream scimgg@f1cab1f src/rs/model/SpotAnimModelLoader.ts#SpotAnimModelLoader.cacheMissingModel (pos+arity; bodies share 3 of 3/3: properties, strings, numbers)"
+    ]
+  },
+  "Eh": {
+    "Uf": [
+      "flipHorizontally",
+      "upstream scimgg@f1cab1f src/rs/sprite/IndexedSprite.ts#IndexedSprite.flipHorizontally (pos+arity; bodies share 6 of 6/6: properties, strings, numbers)"
+    ],
+    "jf": [
+      "flipVertically",
+      "upstream scimgg@f1cab1f src/rs/sprite/IndexedSprite.ts#IndexedSprite.flipVertically (pos+arity; bodies share 6 of 6/6: properties, strings, numbers)"
+    ]
+  },
+  "Gh": {
+    "Of": [
+      "loadFromIndex",
+      "upstream scimgg@f1cab1f src/rs/sprite/SpriteLoader.ts#SpriteLoader.loadFromIndex (pos+arity; bodies share 3 of 3/3: properties, strings, numbers)"
+    ],
+    "$f": [
+      "loadIntoIndexedSprite",
+      "upstream scimgg@f1cab1f src/rs/sprite/SpriteLoader.ts#SpriteLoader.loadIntoIndexedSprite (pos+arity; bodies share 14 of 14/14: properties, strings, numbers)"
+    ],
+    "Vf": [
+      "loadIntoIndexedSprites",
+      "upstream scimgg@f1cab1f src/rs/sprite/SpriteLoader.ts#SpriteLoader.loadIntoIndexedSprites (pos+arity; bodies share 15 of 15/15: properties, strings, numbers)"
+    ],
+    "Kf": [
+      "loadIndexedSpriteDat",
+      "upstream scimgg@f1cab1f src/rs/sprite/SpriteLoader.ts#SpriteLoader.loadIndexedSpriteDat (pos+arity; bodies share 5 of 5/5: properties, strings, numbers)"
+    ],
+    "qf": [
+      "loadIndexedSpriteDatId",
+      "upstream scimgg@f1cab1f src/rs/sprite/SpriteLoader.ts#SpriteLoader.loadIndexedSpriteDatId (pos+arity; bodies share 20 of 20/20: properties, strings, numbers)"
+    ]
+  },
+  "Yh": {
+    "Yf": [
+      "loadTextureSprite",
+      "upstream scimgg@f1cab1f src/rs/texture/SpriteTextureLoader.ts#SpriteTextureLoader.loadTextureSprite (pos+arity; bodies share 8 of 9/9: properties, strings, numbers)"
+    ]
+  },
+  "fe": {
+    "Qf": [
+      "holdsFirstBuild",
+      "upstream scimgg@f1cab1f src/render/core/meshSource.ts#ImmutableMeshSource.holdsFirstBuild (pos+arity; bodies share 1 of 1/1: properties, strings, numbers)"
+    ],
+    "qd": [
+      "materialize",
+      "upstream scimgg@f1cab1f src/render/core/meshSource.ts#ImmutableMeshSource.materialize (pos+arity; bodies share 11 of 16/11: properties, strings, numbers)"
+    ]
+  },
+  "Qb": {
+    "Av": [
+      "frameAt",
+      "upstream scimgg@f1cab1f src/render/effects/SkeletalSpotAnimPoser.ts#SkeletalSpotAnimPoser.frameAt (pos+arity; bodies share 7 of 7/7: properties, strings, numbers)"
+    ],
+    "Lv": [
+      "partsFor",
+      "upstream scimgg@f1cab1f src/render/effects/SkeletalSpotAnimPoser.ts#SkeletalSpotAnimPoser.partsFor (pos+arity; bodies share 9 of 9/9: properties, strings, numbers)"
+    ]
+  },
+  "gy": {
+    "Mv": [
+      "clearActiveInstances",
+      "upstream scimgg@f1cab1f src/render/effects/SpotAnimRenderer.ts#SpotAnimRenderer.clearActiveInstances (pos+arity; bodies share 9 of 9/9: properties, strings, numbers)"
+    ],
+    "Iv": [
+      "setHideProjectiles",
+      "upstream scimgg@f1cab1f src/render/effects/SpotAnimRenderer.ts#SpotAnimRenderer.setHideProjectiles (pos+arity; bodies share 1 of 1/1: properties, strings, numbers)"
+    ],
+    "Wv": [
+      "loadSkeletalById",
+      "upstream scimgg@f1cab1f src/render/effects/SpotAnimRenderer.ts#SpotAnimRenderer.loadSkeletalById (pos+arity; bodies share 16 of 16/16: properties, strings, numbers)"
+    ],
+    "Rv": [
+      "bindLoader",
+      "upstream scimgg@f1cab1f src/render/effects/SpotAnimRenderer.ts#SpotAnimRenderer.bindLoader (pos+arity; bodies share 11 of 12/12: properties, strings, numbers)"
+    ],
+    "_v": [
+      "isBoundTo",
+      "upstream scimgg@f1cab1f src/render/effects/SpotAnimRenderer.ts#SpotAnimRenderer.isBoundTo (pos+arity; bodies share 1 of 1/1: properties, strings, numbers)"
+    ],
+    "xv": [
+      "loadById",
+      "upstream scimgg@f1cab1f src/render/effects/SpotAnimRenderer.ts#SpotAnimRenderer.loadById (pos+arity; bodies share 5 of 6/6: properties, strings, numbers)"
+    ],
+    "Pv": [
+      "holdShared",
+      "upstream scimgg@f1cab1f src/render/effects/SpotAnimRenderer.ts#SpotAnimRenderer.holdShared (pos+arity; bodies share 7 of 8/8: properties, strings, numbers)"
+    ],
+    "Fv": [
+      "setBatchableSpotAnimFamilies",
+      "upstream scimgg@f1cab1f src/render/effects/SpotAnimRenderer.ts#SpotAnimRenderer.setBatchableSpotAnimFamilies (pos+arity; bodies share 15 of 17/18: properties, strings, numbers)"
+    ],
+    "Gv": [
+      "setZeroAreaPartSkip",
+      "upstream scimgg@f1cab1f src/render/effects/SpotAnimRenderer.ts#SpotAnimRenderer.setZeroAreaPartSkip (pos+arity; bodies share 1 of 1/1: properties, strings, numbers)"
+    ],
+    "Uv": [
+      "refreshBatchFamilies",
+      "upstream scimgg@f1cab1f src/render/effects/SpotAnimRenderer.ts#SpotAnimRenderer.refreshBatchFamilies (pos+arity; bodies share 2 of 2/2: properties, strings, numbers)"
+    ],
+    "Ev": [
+      "syncFamilyEntries",
+      "upstream scimgg@f1cab1f src/render/effects/SpotAnimRenderer.ts#SpotAnimRenderer.syncFamilyEntries (pos+arity; bodies share 9 of 10/11: properties, strings, numbers)"
+    ],
+    "Nv": [
+      "admitBatchFamilies",
+      "upstream scimgg@f1cab1f src/render/effects/SpotAnimRenderer.ts#SpotAnimRenderer.admitBatchFamilies (pos+arity; bodies share 17 of 18/17: properties, strings, numbers)"
+    ],
+    "jv": [
+      "familyBoundBytes",
+      "upstream scimgg@f1cab1f src/render/effects/SpotAnimRenderer.ts#SpotAnimRenderer.familyBoundBytes (pos+arity; bodies share 12 of 12/13: properties, strings, numbers)"
+    ],
+    "Ov": [
+      "buildFamilyAtlas",
+      "upstream scimgg@f1cab1f src/render/effects/SpotAnimRenderer.ts#SpotAnimRenderer.buildFamilyAtlas (pos+arity; bodies share 28 of 28/28: properties, strings, numbers)"
+    ],
+    "$v": [
+      "getBakedBounds",
+      "upstream scimgg@f1cab1f src/render/effects/SpotAnimRenderer.ts#SpotAnimRenderer.getBakedBounds (pos+arity; bodies share 2 of 2/2: properties, strings, numbers)"
+    ],
+    "Vv": [
+      "getFrameStates",
+      "upstream scimgg@f1cab1f src/render/effects/SpotAnimRenderer.ts#SpotAnimRenderer.getFrameStates (pos+arity; bodies share 16 of 16/16: properties, strings, numbers)"
+    ],
+    "Yv": [
+      "staticCenterOf",
+      "upstream scimgg@f1cab1f src/render/effects/SpotAnimRenderer.ts#SpotAnimRenderer.staticCenterOf (pos+arity; bodies share 5 of 5/5: properties, strings, numbers)"
+    ],
+    "Jv": [
+      "spawnBatch",
+      "upstream scimgg@f1cab1f src/render/effects/SpotAnimRenderer.ts#SpotAnimRenderer.spawnBatch (pos+arity; bodies share 2 of 2/2: properties, strings, numbers)"
+    ],
+    "ak": [
+      "despawnGroup",
+      "upstream scimgg@f1cab1f src/render/effects/SpotAnimRenderer.ts#SpotAnimRenderer.despawnGroup (pos+arity; bodies share 3 of 4/4: properties, strings, numbers)"
+    ],
+    "gk": [
+      "pushResidentCommand",
+      "upstream scimgg@f1cab1f src/render/effects/SpotAnimRenderer.ts#SpotAnimRenderer.pushResidentCommand (gap-arity; bodies share 22 of 22/22: properties, strings, numbers)"
+    ],
+    "vk": [
+      "setInstanceAtlas",
+      "upstream scimgg@f1cab1f src/render/effects/SpotAnimRenderer.ts#SpotAnimRenderer.setInstanceAtlas (gap-arity; bodies share 3 of 4/4: properties, strings, numbers)"
+    ],
+    "ik": [
+      "withHeightOffset",
+      "upstream scimgg@f1cab1f src/render/effects/SpotAnimRenderer.ts#SpotAnimRenderer.withHeightOffset (gap-arity; bodies share 5 of 5/5: properties, strings, numbers)"
+    ],
+    "Xv": [
+      "insertInstance",
+      "upstream scimgg@f1cab1f src/render/effects/SpotAnimRenderer.ts#SpotAnimRenderer.insertInstance (gap-arity; bodies share 8 of 8/8: properties, strings, numbers)"
+    ],
+    "ek": [
+      "addToGroup",
+      "upstream scimgg@f1cab1f src/render/effects/SpotAnimRenderer.ts#SpotAnimRenderer.addToGroup (gap-arity; bodies share 3 of 4/4: properties, strings, numbers)"
+    ],
+    "Qv": [
+      "removeFromGroups",
+      "upstream scimgg@f1cab1f src/render/effects/SpotAnimRenderer.ts#SpotAnimRenderer.removeFromGroups (gap-arity; bodies share 3 of 3/3: properties, strings, numbers)"
+    ],
+    "rk": [
+      "resolveTransform",
+      "upstream scimgg@f1cab1f src/render/effects/SpotAnimRenderer.ts#SpotAnimRenderer.resolveTransform (gap-arity; bodies share 7 of 7/7: properties, strings, numbers)"
+    ],
+    "Kv": [
+      "resolveFrameProgress",
+      "upstream scimgg@f1cab1f src/render/effects/SpotAnimRenderer.ts#SpotAnimRenderer.resolveFrameProgress (gap-arity; bodies share 19 of 19/19: properties, strings, numbers)"
+    ],
+    "bk": [
+      "resolvePersistentFrameProgress",
+      "upstream scimgg@f1cab1f src/render/effects/SpotAnimRenderer.ts#SpotAnimRenderer.resolvePersistentFrameProgress (gap-arity; bodies share 7 of 7/7: properties, strings, numbers)"
+    ],
+    "Zv": [
+      "resolveFrameIndex",
+      "upstream scimgg@f1cab1f src/render/effects/SpotAnimRenderer.ts#SpotAnimRenderer.resolveFrameIndex (gap-arity; bodies share 3 of 3/3: properties, strings, numbers)"
+    ],
+    "dk": [
+      "resolveMeshParts",
+      "upstream scimgg@f1cab1f src/render/effects/SpotAnimRenderer.ts#SpotAnimRenderer.resolveMeshParts (gap-arity; bodies share 4 of 4/4: properties, strings, numbers)"
+    ],
+    "pk": [
+      "getOrCreateCommand",
+      "upstream scimgg@f1cab1f src/render/effects/SpotAnimRenderer.ts#SpotAnimRenderer.getOrCreateCommand (gap-arity; bodies share 7 of 7/7: properties, strings, numbers)"
+    ],
+    "ck": [
+      "isTransparentPartVisible",
+      "upstream scimgg@f1cab1f src/render/effects/SpotAnimRenderer.ts#SpotAnimRenderer.isTransparentPartVisible (gap-arity; bodies share 20 of 46/23: properties, strings, numbers)"
+    ],
+    "wk": [
+      "recordVisible",
+      "upstream scimgg@f1cab1f src/render/effects/SpotAnimRenderer.ts#SpotAnimRenderer.recordVisible (gap-arity; bodies share 10 of 11/13: properties, strings, numbers)"
+    ],
+    "yk": [
+      "buildSorterProjection",
+      "upstream scimgg@f1cab1f src/render/effects/SpotAnimRenderer.ts#SpotAnimRenderer.buildSorterProjection (gap-arity; bodies share 18 of 18/18: properties, strings, numbers)"
+    ],
+    "lk": [
+      "fillModelMatrix",
+      "upstream scimgg@f1cab1f src/render/effects/SpotAnimRenderer.ts#SpotAnimRenderer.fillModelMatrix (gap-arity; bodies share 19 of 19/19: properties, strings, numbers)"
+    ],
+    "Cv": [
+      "setSorterProjection",
+      "upstream scimgg@f1cab1f src/render/effects/SpotAnimRenderer.ts#SpotAnimRenderer.setSorterProjection (pos+arity; bodies share 16 of 16/16: properties, strings, numbers); renamed as one family with NpcInstanceManager, Q_ (they override it)",
+      {
+        "alsoIn": [
+          "NpcInstanceManager",
+          "Q_"
+        ]
+      }
+    ],
+    "Bv": [
+      "setAnimationSystem",
+      "upstream scimgg@f1cab1f src/render/effects/SpotAnimRenderer.ts#SpotAnimRenderer.setAnimationSystem (pos+arity; bodies share 5 of 5/5: properties, strings, numbers); renamed as one family with SceneCompositor (they override it)",
+      {
+        "alsoIn": [
+          "SceneCompositor"
+        ]
+      }
+    ]
+  },
+  "Vy": {
+    "Mk": [
+      "windowStart",
+      "upstream scimgg@f1cab1f src/render/core/soupIndexing.ts#WindowedMatcher.windowStart (pos+arity; bodies share 1 of 1/1: properties, strings, numbers)"
+    ]
+  },
+  "Ky": {
+    "Hk": [
+      "clearedTable",
+      "upstream scimgg@f1cab1f src/render/core/soupIndexing.ts#SoupIndexingScratch.clearedTable (gap-arity; bodies share 4 of 4/4: properties, strings, numbers)"
+    ],
+    "Tk": [
+      "shortCorners",
+      "upstream scimgg@f1cab1f src/render/core/soupIndexing.ts#SoupIndexingScratch.shortCorners (pos+arity; bodies share 3 of 3/3: properties, strings, numbers)"
+    ]
+  },
+  "qy": {
+    "Ik": [
+      "distinct",
+      "upstream scimgg@f1cab1f src/render/core/soupIndexing.ts#StreamingSoupIndexer.distinct (pos+arity; bodies share 1 of 1/1: properties, strings, numbers)"
+    ]
+  },
+  "nz": {
+    "Bk": [
+      "reupload",
+      "upstream scimgg@f1cab1f src/render/backends/picogl/PicoTexture.ts#TextureArrayManager.reupload (pos+arity; bodies share 4 of 4/4: properties, strings, numbers)"
+    ],
+    "Rk": [
+      "getLoadedTextureIds",
+      "upstream scimgg@f1cab1f src/render/backends/picogl/PicoTexture.ts#TextureArrayManager.getLoadedTextureIds (pos+arity; bodies share 1 of 1/1: properties, strings, numbers)"
+    ],
+    "Bd": [
+      "getTextureArray",
+      "upstream scimgg@f1cab1f src/render/backends/picogl/PicoTexture.ts#TextureArrayManager.getTextureArray (pos+arity; bodies share 1 of 1/1: properties, strings, numbers)"
+    ],
+    "xk": [
+      "getMaxTextureArrayLayers",
+      "upstream scimgg@f1cab1f src/render/backends/picogl/PicoTexture.ts#TextureArrayManager.getMaxTextureArrayLayers (pos+arity; bodies share 6 of 7/6: properties, strings, numbers)"
+    ]
+  },
+  "iz": {
+    "_k": [
+      "releaseContextHandles",
+      "upstream scimgg@f1cab1f src/render/backends/picogl/PicoGLRenderer.ts#PicoGLAssetManager.releaseContextHandles (gap-arity; bodies share 3 of 3/3: properties, strings, numbers)"
+    ]
+  },
+  "ea": {
+    "Ek": [
+      "getFeatures",
+      "upstream scimgg@f1cab1f src/render/backends/picogl/PicoGLRenderer.ts#PicoGLRenderer.getFeatures (pos+arity; bodies share 1 of 1/1: properties, strings, numbers)"
+    ],
+    "sS": [
+      "buildTextureAnimations",
+      "upstream scimgg@f1cab1f src/render/backends/picogl/PicoGLRenderer.ts#PicoGLRenderer.buildTextureAnimations (pos+arity; bodies share 11 of 12/11: properties, strings, numbers)"
+    ],
+    "nS": [
+      "uploadTextureAnimations",
+      "upstream scimgg@f1cab1f src/render/backends/picogl/PicoGLRenderer.ts#PicoGLRenderer.uploadTextureAnimations (pos+arity; bodies share 10 of 10/10: properties, strings, numbers)"
+    ],
+    "rS": [
+      "evictStaleCacheEntries",
+      "upstream scimgg@f1cab1f src/render/backends/picogl/PicoGLRenderer.ts#PicoGLRenderer.evictStaleCacheEntries (pos+arity; bodies share 8 of 15/9: properties, strings, numbers)"
+    ],
+    "lS": [
+      "deleteVaoHandles",
+      "upstream scimgg@f1cab1f src/render/backends/picogl/PicoGLRenderer.ts#PicoGLRenderer.deleteVaoHandles (pos+arity; bodies share 7 of 9/7: properties, strings, numbers)"
+    ],
+    "hS": [
+      "claimId",
+      "upstream scimgg@f1cab1f src/render/backends/picogl/PicoGLRenderer.ts#PicoGLRenderer.claimId (pos+arity; bodies share 6 of 7/7: properties, strings, numbers)"
+    ],
+    "fS": [
+      "releaseResidentSource",
+      "upstream scimgg@f1cab1f src/render/backends/picogl/PicoGLRenderer.ts#PicoGLRenderer.releaseResidentSource (pos+arity; bodies share 8 of 8/8: properties, strings, numbers)"
+    ],
+    "uS": [
+      "releaseSources",
+      "upstream scimgg@f1cab1f src/render/backends/picogl/PicoGLRenderer.ts#PicoGLRenderer.releaseSources (pos+arity; bodies share 14 of 15/14: properties, strings, numbers)"
+    ],
+    "pS": [
+      "uploadInstances",
+      "upstream scimgg@f1cab1f src/render/backends/picogl/PicoGLRenderer.ts#PicoGLRenderer.uploadInstances (pos; bodies share 36 of 42/38: properties, strings, numbers)"
+    ],
+    "dS": [
+      "forgetSource",
+      "upstream scimgg@f1cab1f src/render/backends/picogl/PicoGLRenderer.ts#PicoGLRenderer.forgetSource (pos+arity; bodies share 1 of 1/1: properties, strings, numbers)"
+    ],
+    "bS": [
+      "residentPart",
+      "upstream scimgg@f1cab1f src/render/backends/picogl/PicoGLRenderer.ts#PicoGLRenderer.residentPart (pos+arity; bodies share 8 of 10/10: properties, strings, numbers)"
+    ],
+    "yS": [
+      "uploadQueuedSources",
+      "upstream scimgg@f1cab1f src/render/backends/picogl/PicoGLRenderer.ts#PicoGLRenderer.uploadQueuedSources (pos+arity; bodies share 10 of 12/11: properties, strings, numbers)"
+    ],
+    "zS": [
+      "evictResidentSources",
+      "upstream scimgg@f1cab1f src/render/backends/picogl/PicoGLRenderer.ts#PicoGLRenderer.evictResidentSources (pos+arity; bodies share 11 of 11/11: properties, strings, numbers)"
+    ],
+    "wS": [
+      "deleteMeshCache",
+      "upstream scimgg@f1cab1f src/render/backends/picogl/PicoGLRenderer.ts#PicoGLRenderer.deleteMeshCache (gap-arity; bodies share 10 of 10/10: properties, strings, numbers)"
+    ]
+  },
+  "Mz": {
+    "Cd": [
+      "getPlayerCenterZ",
+      "upstream scimgg@f1cab1f src/render/projections/Projection3D.ts#Projection3D.getPlayerCenterZ (pos+arity; bodies share 3 of 3/3: properties, strings, numbers)"
+    ],
+    "Md": [
+      "updateCamera",
+      "upstream scimgg@f1cab1f src/render/projections/Projection3D.ts#Projection3D.updateCamera (pos+arity; bodies share 2 of 2/2: properties, strings, numbers)"
+    ],
+    "xS": [
+      "getViewPitch",
+      "upstream scimgg@f1cab1f src/render/projections/Projection3D.ts#Projection3D.getViewPitch (pos+arity; bodies share 6 of 6/6: properties, strings, numbers)"
+    ],
+    "jS": [
+      "invalidateMatrixCache",
+      "upstream scimgg@f1cab1f src/render/projections/Projection3D.ts#Projection3D.invalidateMatrixCache (pos+arity; bodies share 4 of 4/4: properties, strings, numbers)"
+    ],
+    "zb": [
+      "moveFreeform",
+      "upstream scimgg@f1cab1f src/render/projections/Projection3D.ts#Projection3D.moveFreeform (pos+arity; bodies share 10 of 10/10: properties, strings, numbers)"
+    ],
+    "Zb": [
+      "screenToTileEdge",
+      "upstream scimgg@f1cab1f src/render/projections/Projection3D.ts#Projection3D.screenToTileEdge (pos+arity; bodies share 10 of 10/10: properties, strings, numbers)"
+    ],
+    "Xb": [
+      "projectWorldToScreenOrNull",
+      "upstream scimgg@f1cab1f src/render/projections/Projection3D.ts#Projection3D.projectWorldToScreenOrNull (pos+arity; bodies share 3 of 3/3: properties, strings, numbers)"
+    ],
+    "$b": [
+      "projectToScreenOrNull",
+      "upstream scimgg@f1cab1f src/render/projections/Projection3D.ts#Projection3D.projectToScreenOrNull (pos+arity; bodies share 4 of 4/4: properties, strings, numbers)"
+    ],
+    "Jb": [
+      "projectScreenFromWorld",
+      "upstream scimgg@f1cab1f src/render/projections/Projection3D.ts#Projection3D.projectScreenFromWorld (pos+arity; bodies share 16 of 16/16: properties, strings, numbers)"
+    ],
+    "Qb": [
+      "getInverseViewMatrix",
+      "upstream scimgg@f1cab1f src/render/projections/Projection3D.ts#Projection3D.getInverseViewMatrix (pos+arity; bodies share 3 of 3/3: properties, strings, numbers)"
+    ],
+    "iy": [
+      "getInverseProjectionMatrix",
+      "upstream scimgg@f1cab1f src/render/projections/Projection3D.ts#Projection3D.getInverseProjectionMatrix (pos+arity; bodies share 3 of 3/3: properties, strings, numbers)"
+    ],
+    "Kb": [
+      "screenToRay",
+      "upstream scimgg@f1cab1f src/render/projections/Projection3D.ts#Projection3D.screenToRay (pos+arity; bodies share 19 of 19/19: properties, strings, numbers)"
+    ],
+    "Hb": [
+      "getViewMatrix",
+      "upstream scimgg@f1cab1f src/render/projections/Projection3D.ts#Projection3D.getViewMatrix (pos+arity; bodies share 20 of 20/20: properties, strings, numbers)"
+    ],
+    "jb": [
+      "getProjectionMatrix",
+      "upstream scimgg@f1cab1f src/render/projections/Projection3D.ts#Projection3D.getProjectionMatrix (pos+arity; bodies share 4 of 8/5: properties, strings, numbers)"
+    ],
+    "ey": [
+      "invertMatrix",
+      "upstream scimgg@f1cab1f src/render/projections/Projection3D.ts#Projection3D.invertMatrix (pos+arity; bodies share 12 of 12/12: properties, strings, numbers)"
+    ]
+  },
+  "bx": {
+    "py": [
+      "updateReplayClock",
+      "upstream scimgg@f1cab1f src/audio/EventAudioPlayer.ts#EventAudioPlayer.updateReplayClock (pos+arity; bodies share 11 of 11/11: properties, strings, numbers)"
+    ],
+    "ky": [
+      "finishReplay",
+      "upstream scimgg@f1cab1f src/audio/EventAudioPlayer.ts#EventAudioPlayer.finishReplay (pos+arity; bodies share 9 of 9/9: properties, strings, numbers)"
+    ],
+    "My": [
+      "getAllSoundIds",
+      "upstream scimgg@f1cab1f src/audio/EventAudioPlayer.ts#EventAudioPlayer.getAllSoundIds (pos+arity; bodies share 8 of 8/8: properties, strings, numbers)"
+    ]
+  },
+  "kW": {
+    "Iy": [
+      "buildMesh",
+      "upstream scimgg@f1cab1f src/render/backends/picogl/TerrainBuilder.ts#TerrainBuilder.buildMesh (pos+arity; bodies share 11 of 13/11: properties, strings, numbers)"
+    ],
+    "Cy": [
+      "blendUnderlays",
+      "upstream scimgg@f1cab1f src/render/backends/picogl/TerrainBuilder.ts#TerrainBuilder.blendUnderlays (pos+arity; bodies share 8 of 11/8: properties, strings, numbers)"
+    ],
+    "By": [
+      "calculateTileLights",
+      "upstream scimgg@f1cab1f src/render/backends/picogl/TerrainBuilder.ts#TerrainBuilder.calculateTileLights (pos+arity; bodies share 9 of 10/9: properties, strings, numbers)"
+    ],
+    "Wy": [
+      "buildTile",
+      "upstream scimgg@f1cab1f src/render/backends/picogl/TerrainBuilder.ts#TerrainBuilder.buildTile (pos+arity; bodies share 22 of 28/22: properties, strings, numbers)"
+    ],
+    "Ry": [
+      "computeSmoothNormal",
+      "upstream scimgg@f1cab1f src/render/backends/picogl/TerrainBuilder.ts#TerrainBuilder.computeSmoothNormal (pos+arity; bodies share 4 of 6/4: properties, strings, numbers)"
+    ],
+    "Py": [
+      "computeFaceNormal",
+      "upstream scimgg@f1cab1f src/render/backends/picogl/TerrainBuilder.ts#TerrainBuilder.computeFaceNormal (pos+arity; bodies share 4 of 4/4: properties, strings, numbers)"
+    ],
+    "Ey": [
+      "uploadToGPU",
+      "upstream scimgg@f1cab1f src/render/backends/picogl/TerrainBuilder.ts#TerrainBuilder.uploadToGPU (pos+arity; bodies share 8 of 13/12: properties, strings, numbers)"
+    ],
+    "Ny": [
+      "disposeGLMesh",
+      "upstream scimgg@f1cab1f src/render/backends/picogl/TerrainBuilder.ts#TerrainBuilder.disposeGLMesh (pos+arity; bodies share 3 of 3/3: properties, strings, numbers)"
+    ]
+  },
+  "AW": {
+    "Gy": [
+      "setTargetAngle",
+      "upstream scimgg@f1cab1f src/render/core/interpolation.ts#PlayerVisualTracker.setTargetAngle (pos+arity; bodies share 2 of 2/2: properties, strings, numbers)"
+    ],
+    "Uy": [
+      "setForcedFacingAngle",
+      "upstream scimgg@f1cab1f src/render/core/interpolation.ts#PlayerVisualTracker.setForcedFacingAngle (pos+arity; bodies share 1 of 1/1: properties, strings, numbers)"
+    ],
+    "jy": [
+      "setInteracting",
+      "upstream scimgg@f1cab1f src/render/core/interpolation.ts#PlayerVisualTracker.setInteracting (pos+arity; bodies share 2 of 2/2: properties, strings, numbers)"
+    ],
+    "Oy": [
+      "isEffectivelyInteracting",
+      "upstream scimgg@f1cab1f src/render/core/interpolation.ts#PlayerVisualTracker.isEffectivelyInteracting (pos+arity; bodies share 2 of 2/2: properties, strings, numbers)"
+    ],
+    "$y": [
+      "setPrimaryAnimBlocking",
+      "upstream scimgg@f1cab1f src/render/core/interpolation.ts#PlayerVisualTracker.setPrimaryAnimBlocking (pos+arity; bodies share 2 of 2/2: properties, strings, numbers)"
+    ],
+    "Vy": [
+      "enqueueTickMovement",
+      "upstream scimgg@f1cab1f src/render/core/interpolation.ts#PlayerVisualTracker.enqueueTickMovement (pos+arity; bodies share 2 of 2/2: properties, strings, numbers)"
+    ],
+    "Ky": [
+      "enqueueSteps",
+      "upstream scimgg@f1cab1f src/render/core/interpolation.ts#PlayerVisualTracker.enqueueSteps (pos+arity; bodies share 3 of 3/3: properties, strings, numbers)"
+    ],
+    "Yy": [
+      "snapToUnwalkedPlacement",
+      "upstream scimgg@f1cab1f src/render/core/interpolation.ts#PlayerVisualTracker.snapToUnwalkedPlacement (pos+arity; bodies share 4 of 4/4: properties, strings, numbers)"
+    ],
+    "Xy": [
+      "routeEndsOn",
+      "upstream scimgg@f1cab1f src/render/core/interpolation.ts#PlayerVisualTracker.routeEndsOn (pos; bodies share 7 of 7/7: properties, strings, numbers)"
+    ],
+    "Jy": [
+      "consumePathHead",
+      "upstream scimgg@f1cab1f src/render/core/interpolation.ts#PlayerVisualTracker.consumePathHead (pos+arity; bodies share 4 of 4/4: properties, strings, numbers)"
+    ],
+    "Zy": [
+      "retargetToPathHead",
+      "upstream scimgg@f1cab1f src/render/core/interpolation.ts#PlayerVisualTracker.retargetToPathHead (pos+arity; bodies share 17 of 18/17: properties, strings, numbers)"
+    ],
+    "rz": [
+      "isMovementBlockedByAnim",
+      "upstream scimgg@f1cab1f src/render/core/interpolation.ts#PlayerVisualTracker.isMovementBlockedByAnim (pos+arity; bodies share 6 of 6/6: properties, strings, numbers)"
+    ],
+    "lz": [
+      "stepRenderAngleSingle",
+      "upstream scimgg@f1cab1f src/render/core/interpolation.ts#PlayerVisualTracker.stepRenderAngleSingle (pos+arity; bodies share 2 of 2/2: properties, strings, numbers)"
+    ],
+    "dz": [
+      "interpolateAlongPath",
+      "upstream scimgg@f1cab1f src/render/core/interpolation.ts#PlayerVisualTracker.interpolateAlongPath (pos+arity; bodies share 16 of 16/16: properties, strings, numbers)"
+    ],
+    "Qy": [
+      "computeMovementSpeed",
+      "upstream scimgg@f1cab1f src/render/core/interpolation.ts#PlayerVisualTracker.computeMovementSpeed (pos+arity; bodies share 9 of 9/9: properties, strings, numbers)"
+    ],
+    "ez": [
+      "buildState",
+      "upstream scimgg@f1cab1f src/render/core/interpolation.ts#PlayerVisualTracker.buildState (pos+arity; bodies share 8 of 8/8: properties, strings, numbers)"
+    ],
+    "iz": [
+      "currentTurnTarget",
+      "upstream scimgg@f1cab1f src/render/core/interpolation.ts#PlayerVisualTracker.currentTurnTarget (pos+arity; bodies share 2 of 2/2: properties, strings, numbers)"
+    ]
+  },
+  "LW": {
+    "mz": [
+      "setTurnSpeed",
+      "upstream scimgg@f1cab1f src/render/core/interpolation.ts#NpcVisualTracker.setTurnSpeed (pos+arity; bodies share 1 of 1/1: properties, strings, numbers)"
+    ],
+    "hz": [
+      "setTarget",
+      "upstream scimgg@f1cab1f src/render/core/interpolation.ts#NpcVisualTracker.setTarget (pos+arity; bodies share 1 of 1/1: properties, strings, numbers)"
+    ],
+    "fz": [
+      "stepVisualAngle",
+      "upstream scimgg@f1cab1f src/render/core/interpolation.ts#NpcVisualTracker.stepVisualAngle (pos+arity; bodies share 7 of 7/7: properties, strings, numbers)"
+    ],
+    "ez": [
+      "buildState",
+      "upstream scimgg@f1cab1f src/render/core/interpolation.ts#NpcVisualTracker.buildState (pos+arity; bodies share 4 of 4/4: properties, strings, numbers)"
+    ]
+  },
+  "VW": {
+    "Lz": [
+      "buildExplosion2D",
+      "upstream scimgg@f1cab1f src/render/effects/controllers/VoidFlareController.ts#VoidFlareController.buildExplosion2D (pos+arity; bodies share 8 of 9/8: properties, strings, numbers)"
+    ],
+    "kz": [
+      "reconstruct",
+      "upstream scimgg@f1cab1f src/render/effects/controllers/VoidFlareController.ts#VoidFlareController.reconstruct (pos+arity; bodies share 2 of 2/2: properties, strings, numbers); renamed as one family with cG (they override it)",
+      {
+        "alsoIn": [
+          "cG"
+        ]
+      }
+    ],
+    "Sz": [
+      "clearActive",
+      "upstream scimgg@f1cab1f src/render/effects/controllers/VoidFlareController.ts#VoidFlareController.clearActive (pos+arity; bodies share 4 of 4/4: properties, strings, numbers); renamed as one family with ZW, IN, jN (they override it)",
+      {
+        "alsoIn": [
+          "ZW",
+          "IN",
+          "jN"
+        ]
+      }
+    ]
+  },
+  "ZW": {
+    "Mz": [
+      "renderEffect",
+      "upstream scimgg@f1cab1f src/render/effects/controllers/YamaAttackController.ts#YamaAttackController.renderEffect (pos+arity; bodies share 8 of 10/8: properties, strings, numbers)"
+    ],
+    "Dz": [
+      "consumeDescriptor",
+      "upstream scimgg@f1cab1f src/render/effects/controllers/YamaAttackController.ts#YamaAttackController.consumeDescriptor (pos+arity; bodies share 4 of 4/4: properties, strings, numbers); renamed as one family with jR, oP (they override it)",
+      {
+        "alsoIn": [
+          "jR",
+          "oP"
+        ]
+      }
+    ]
+  },
+  "bR": {
+    "Tz": [
+      "unexpired",
+      "upstream scimgg@f1cab1f src/render/core/replayCueStream.ts#ReplayCueStream.unexpired (pos; bodies share 9 of 9/9: properties, strings, numbers)"
+    ]
+  },
+  "wR": {
+    "Iz": [
+      "sampleEntry",
+      "upstream scimgg@f1cab1f src/render/core/replayPrimaryIndex.ts#ReplayPrimaryIndex.sampleEntry (pos+arity; bodies share 6 of 6/6: properties, strings, numbers)"
+    ]
+  },
+  "DR": {
+    "Cz": [
+      "activeGraphics",
+      "upstream scimgg@f1cab1f src/render/core/infernoReplayIndex.ts#InfernoReplayIndex.activeGraphics (pos; bodies share 6 of 6/6: properties, strings, numbers)"
+    ],
+    "Bz": [
+      "pendingAnimations",
+      "upstream scimgg@f1cab1f src/render/core/infernoReplayIndex.ts#InfernoReplayIndex.pendingAnimations (pos+arity; bodies share 7 of 7/7: properties, strings, numbers)"
+    ]
+  },
+  "IR": {
+    "Rz": [
+      "latest",
+      "upstream scimgg@f1cab1f src/render/core/replayActorHistory.ts#ReplayActorHistory.latest (pos+arity; bodies share 2 of 2/2: properties, strings, numbers)"
+    ]
+  },
+  "PR": {
+    "Pz": [
+      "playerEffects",
+      "upstream scimgg@f1cab1f src/render/core/replayEffectIndex.ts#ReplayEffectIndex.playerEffects (pos+arity; bodies share 19 of 19/19: properties, strings, numbers)"
+    ],
+    "_z": [
+      "latestYamaAttack",
+      "upstream scimgg@f1cab1f src/render/core/replayEffectIndex.ts#ReplayEffectIndex.latestYamaAttack (pos+arity; bodies share 2 of 2/2: properties, strings, numbers)"
+    ],
+    "Fz": [
+      "recentFlareEvents",
+      "upstream scimgg@f1cab1f src/render/core/replayEffectIndex.ts#ReplayEffectIndex.recentFlareEvents (pos+arity; bodies share 5 of 6/6: properties, strings, numbers)"
+    ],
+    "Ez": [
+      "deathPresentations",
+      "upstream scimgg@f1cab1f src/render/core/replayEffectIndex.ts#ReplayEffectIndex.deathPresentations (pos+arity; bodies share 17 of 19/18: properties, strings, numbers)"
+    ]
+  },
+  "jR": {
+    "Nz": [
+      "triggerGraphic",
+      "upstream scimgg@f1cab1f src/render/effects/controllers/PlayerGraphicController.ts#PlayerGraphicController.triggerGraphic (pos+arity; bodies share 3 of 3/3: properties, strings, numbers)"
+    ]
+  },
+  "sP": {
+    "Gz": [
+      "updateReplay",
+      "upstream scimgg@f1cab1f src/render/effects/ProjectileFlight.ts#ProjectileFlight.updateReplay (pos; bodies share 14 of 14/14: properties, strings, numbers)"
+    ]
+  },
+  "rP": {
+    "Oz": [
+      "isHoming",
+      "upstream scimgg@f1cab1f src/render/effects/projectileAim.ts#ProjectileAim.isHoming (pos+arity; bodies share 1 of 1/1: properties, strings, numbers)"
+    ]
+  },
+  "oP": {
+    "$z": [
+      "setSurfaceHeightResolver",
+      "upstream scimgg@f1cab1f src/render/effects/controllers/ProjectileController.ts#ProjectileController.setSurfaceHeightResolver (pos+arity; bodies share 1 of 1/1: properties, strings, numbers)"
+    ],
+    "Kz": [
+      "launchProjectile",
+      "upstream scimgg@f1cab1f src/render/effects/controllers/ProjectileController.ts#ProjectileController.launchProjectile (pos+arity; bodies share 23 of 24/23: properties, strings, numbers)"
+    ],
+    "Zz": [
+      "scheduleImpactSpotanim",
+      "upstream scimgg@f1cab1f src/render/effects/controllers/ProjectileController.ts#ProjectileController.scheduleImpactSpotanim (pos+arity; bodies share 7 of 7/7: properties, strings, numbers)"
+    ]
+  },
+  "r_": {
+    "tw": [
+      "setHiddenLocIds",
+      "upstream scimgg@f1cab1f src/render/environment/LocRenderer.ts#LocRenderer.setHiddenLocIds (pos+arity; bodies share 6 of 9/7: properties, strings, numbers)"
+    ],
+    "Jz": [
+      "createAnimatedLocPlacer",
+      "upstream scimgg@f1cab1f src/render/environment/LocRenderer.ts#LocRenderer.createAnimatedLocPlacer (pos+arity; bodies share 21 of 24/23: properties, strings, numbers)"
+    ],
+    "iw": [
+      "renderAnimatedLocs",
+      "upstream scimgg@f1cab1f src/render/environment/LocRenderer.ts#LocRenderer.renderAnimatedLocs (pos+arity; bodies share 17 of 20/20: properties, strings, numbers)"
+    ]
+  },
+  "d_": {
+    "lw": [
+      "resetTimeline",
+      "upstream scimgg@f1cab1f src/render/graphics/SceneObjectRenderer.ts#SceneObjectRenderer.resetTimeline (pos+arity; bodies share 1 of 1/1: properties, strings, numbers)"
+    ],
+    "dw": [
+      "bakeSpec",
+      "upstream scimgg@f1cab1f src/render/graphics/SceneObjectRenderer.ts#SceneObjectRenderer.bakeSpec (pos+arity; bodies share 18 of 20/19: properties, strings, numbers)"
+    ],
+    "mw": [
+      "loadGeometry",
+      "upstream scimgg@f1cab1f src/render/graphics/SceneObjectRenderer.ts#SceneObjectRenderer.loadGeometry (pos+arity; bodies share 11 of 19/11: properties, strings, numbers)"
+    ],
+    "cw": [
+      "resolveLoc",
+      "upstream scimgg@f1cab1f src/render/graphics/SceneObjectRenderer.ts#SceneObjectRenderer.resolveLoc (pos+arity; bodies share 9 of 11/9: properties, strings, numbers)"
+    ],
+    "ow": [
+      "buildBakeKey",
+      "upstream scimgg@f1cab1f src/render/graphics/SceneObjectRenderer.ts#SceneObjectRenderer.buildBakeKey (pos+arity; bodies share 17 of 17/17: properties, strings, numbers)"
+    ]
+  },
+  "A_": {
+    "hw": [
+      "makeIdleTrack",
+      "upstream scimgg@f1cab1f src/render/npc/NpcAnimationController.ts#NpcAnimationController.makeIdleTrack (pos+arity; bodies share 5 of 5/5: properties, strings, numbers)"
+    ],
+    "fw": [
+      "makeTrack",
+      "upstream scimgg@f1cab1f src/render/npc/NpcAnimationController.ts#NpcAnimationController.makeTrack (pos+arity; bodies share 1 of 1/1: properties, strings, numbers)"
+    ],
+    "Sw": [
+      "restoreBaseAt",
+      "upstream scimgg@f1cab1f src/render/npc/NpcAnimationController.ts#NpcAnimationController.restoreBaseAt (pos+arity; bodies share 14 of 15/14: properties, strings, numbers)"
+    ],
+    "ww": [
+      "restoreDeathAt",
+      "upstream scimgg@f1cab1f src/render/npc/NpcAnimationController.ts#NpcAnimationController.restoreDeathAt (pos+arity; bodies share 6 of 6/6: properties, strings, numbers)"
+    ],
+    "Hw": [
+      "updateBaseTrack",
+      "upstream scimgg@f1cab1f src/render/npc/NpcAnimationController.ts#NpcAnimationController.updateBaseTrack (pos+arity; bodies share 7 of 7/7: properties, strings, numbers)"
+    ],
+    "Aw": [
+      "triggerDeath",
+      "upstream scimgg@f1cab1f src/render/npc/NpcAnimationController.ts#NpcAnimationController.triggerDeath (pos+arity; bodies share 4 of 4/4: properties, strings, numbers)"
+    ],
+    "Rw": [
+      "getActiveState",
+      "upstream scimgg@f1cab1f src/render/npc/NpcAnimationController.ts#NpcAnimationController.getActiveState (pos+arity; bodies share 4 of 4/4: properties, strings, numbers)"
+    ],
+    "Dw": [
+      "consumeSignalQueue",
+      "upstream scimgg@f1cab1f src/render/npc/NpcAnimationController.ts#NpcAnimationController.consumeSignalQueue (pos+arity; bodies share 6 of 6/6: properties, strings, numbers)"
+    ],
+    "Lw": [
+      "advancePrimary",
+      "upstream scimgg@f1cab1f src/render/npc/NpcAnimationController.ts#NpcAnimationController.advancePrimary (pos+arity; bodies share 3 of 3/3: properties, strings, numbers)"
+    ],
+    "Tw": [
+      "resolveBaseAnimation",
+      "upstream scimgg@f1cab1f src/render/npc/NpcAnimationController.ts#NpcAnimationController.resolveBaseAnimation (pos+arity; bodies share 11 of 11/11: properties, strings, numbers)"
+    ],
+    "yw": [
+      "resolveWalkOrIdle",
+      "upstream scimgg@f1cab1f src/render/npc/NpcAnimationController.ts#NpcAnimationController.resolveWalkOrIdle (pos+arity; bodies share 4 of 4/4: properties, strings, numbers)"
+    ],
+    "Iw": [
+      "isTurnState",
+      "upstream scimgg@f1cab1f src/render/npc/NpcAnimationController.ts#NpcAnimationController.isTurnState (pos+arity; bodies share 2 of 2/2: properties, strings, numbers)"
+    ],
+    "Cw": [
+      "setBase",
+      "upstream scimgg@f1cab1f src/render/npc/NpcAnimationController.ts#NpcAnimationController.setBase (pos+arity; bodies share 11 of 11/11: properties, strings, numbers)"
+    ],
+    "Ww": [
+      "setPrimary",
+      "upstream scimgg@f1cab1f src/render/npc/NpcAnimationController.ts#NpcAnimationController.setPrimary (pos+arity; bodies share 4 of 4/4: properties, strings, numbers)"
+    ],
+    "Mw": [
+      "applyPose",
+      "upstream scimgg@f1cab1f src/render/npc/NpcAnimationController.ts#NpcAnimationController.applyPose (pos+arity; bodies share 25 of 25/25: properties, strings, numbers)"
+    ],
+    "uw": [
+      "baseModeFor",
+      "upstream scimgg@f1cab1f src/render/npc/NpcAnimationController.ts#NpcAnimationController.baseModeFor (pos+arity; bodies share 4 of 4/4: properties, strings, numbers)"
+    ],
+    "Zw": [
+      "frameStepLocalTick",
+      "upstream scimgg@f1cab1f src/render/npc/NpcAnimationController.ts#NpcAnimationController.frameStepLocalTick (pos+arity; bodies share 7 of 7/7: properties, strings, numbers)"
+    ],
+    "Kw": [
+      "getFrameDurationTicks",
+      "upstream scimgg@f1cab1f src/render/npc/NpcAnimationController.ts#NpcAnimationController.getFrameDurationTicks (pos+arity; bodies share 4 of 4/4: properties, strings, numbers)"
+    ],
+    "kw": [
+      "restorePrimaryAt",
+      "upstream scimgg@f1cab1f src/render/npc/NpcAnimationController.ts#NpcAnimationController.restorePrimaryAt (pos+arity; bodies share 12 of 12/12: properties, strings, numbers); renamed as one family with Q_ (they override it)",
+      {
+        "alsoIn": [
+          "Q_"
+        ]
+      }
+    ],
+    "xw": [
+      "enqueueSignal",
+      "upstream scimgg@f1cab1f src/render/npc/NpcAnimationController.ts#NpcAnimationController.enqueueSignal (pos+arity; bodies share 2 of 2/2: properties, strings, numbers); renamed as one family with Q_ (they override it)",
+      {
+        "alsoIn": [
+          "Q_"
+        ]
+      }
+    ],
+    "Bw": [
+      "triggerAttack",
+      "upstream scimgg@f1cab1f src/render/npc/NpcAnimationController.ts#NpcAnimationController.triggerAttack (pos+arity; bodies share 6 of 6/6: properties, strings, numbers); renamed as one family with Q_ (they override it)",
+      {
+        "alsoIn": [
+          "Q_"
+        ]
+      }
+    ]
+  },
+  "L_": {
+    "Jw": [
+      "snapTo",
+      "upstream scimgg@f1cab1f src/render/npc/NpcFacingController.ts#NpcFacingController.snapTo (gap-arity; bodies share 8 of 8/8: properties, strings, numbers)"
+    ]
+  },
+  "NpcInstanceManager": {
+    "kA": [
+      "removePresentationsByNpcType",
+      "upstream scimgg@f1cab1f src/render/npc/NpcInstanceManager.ts#NpcInstanceManager.removePresentationsByNpcType (pos+arity; bodies share 5 of 6/6: properties, strings, numbers)"
+    ],
+    "xA": [
+      "getPrimaryNpcSmoothedFacingAngle",
+      "upstream scimgg@f1cab1f src/render/npc/NpcInstanceManager.ts#NpcInstanceManager.getPrimaryNpcSmoothedFacingAngle (pos+arity; bodies share 1 of 1/1: properties, strings, numbers)"
+    ],
+    "fA": [
+      "settleSpawnClip",
+      "upstream scimgg@f1cab1f src/render/npc/NpcInstanceManager.ts#NpcInstanceManager.settleSpawnClip (pos+arity; bodies share 10 of 13/12: properties, strings, numbers)"
+    ],
+    "jA": [
+      "renderAll",
+      "upstream scimgg@f1cab1f src/render/npc/NpcInstanceManager.ts#NpcInstanceManager.renderAll (pos+arity; bodies share 7 of 7/7: properties, strings, numbers)"
+    ],
+    "qA": [
+      "getNpcTypeModelBounds",
+      "upstream scimgg@f1cab1f src/render/npc/NpcInstanceManager.ts#NpcInstanceManager.getNpcTypeModelBounds (pos+arity; bodies share 2 of 3/3: properties, strings, numbers)"
+    ],
+    "eL": [
+      "getPrimaryNpcMeshCommands",
+      "upstream scimgg@f1cab1f src/render/npc/NpcInstanceManager.ts#NpcInstanceManager.getPrimaryNpcMeshCommands (pos+arity; bodies share 5 of 6/6: properties, strings, numbers)"
+    ],
+    "aL": [
+      "getDyingActorIds",
+      "upstream scimgg@f1cab1f src/render/npc/NpcInstanceManager.ts#NpcInstanceManager.getDyingActorIds (pos+arity; bodies share 4 of 4/4: properties, strings, numbers)"
+    ],
+    "tL": [
+      "getInstanceFrameStates",
+      "upstream scimgg@f1cab1f src/render/npc/NpcInstanceManager.ts#NpcInstanceManager.getInstanceFrameStates (pos+arity; bodies share 6 of 6/6: properties, strings, numbers)"
+    ],
+    "nL": [
+      "getMaximumLoadedDeathDurationMs",
+      "upstream scimgg@f1cab1f src/render/npc/NpcInstanceManager.ts#NpcInstanceManager.getMaximumLoadedDeathDurationMs (pos+arity; bodies share 7 of 7/7: properties, strings, numbers)"
+    ],
+    "mA": [
+      "markDyingActorIdsCacheDirty",
+      "upstream scimgg@f1cab1f src/render/npc/NpcInstanceManager.ts#NpcInstanceManager.markDyingActorIdsCacheDirty (pos+arity; bodies share 1 of 1/1: properties, strings, numbers)"
+    ],
+    "sL": [
+      "resolveDeath",
+      "upstream scimgg@f1cab1f src/render/npc/NpcInstanceManager.ts#NpcInstanceManager.resolveDeath (pos+arity; bodies share 6 of 6/6: properties, strings, numbers)"
+    ],
+    "uA": [
+      "holdsDeathUntilRemoved",
+      "upstream scimgg@f1cab1f src/render/npc/NpcInstanceManager.ts#NpcInstanceManager.holdsDeathUntilRemoved (pos+arity; bodies share 2 of 3/3: properties, strings, numbers)"
+    ],
+    "rL": [
+      "createDyingAnimController",
+      "upstream scimgg@f1cab1f src/render/npc/NpcInstanceManager.ts#NpcInstanceManager.createDyingAnimController (pos+arity; bodies share 18 of 18/18: properties, strings, numbers)"
+    ],
+    "iA": [
+      "computeModelMatrixInto",
+      "upstream scimgg@f1cab1f src/render/npc/NpcInstanceManager.ts#NpcInstanceManager.computeModelMatrixInto (pos+arity; bodies share 17 of 18/17: properties, strings, numbers)"
+    ],
+    "hA": [
+      "createInstance",
+      "upstream scimgg@f1cab1f src/render/npc/NpcInstanceManager.ts#NpcInstanceManager.createInstance (pos+arity; bodies share 37 of 37/37: properties, strings, numbers)"
+    ],
+    "oA": [
+      "isAnimationSetAlphaAnimated",
+      "upstream scimgg@f1cab1f src/render/npc/NpcInstanceManager.ts#NpcInstanceManager.isAnimationSetAlphaAnimated (pos+arity; bodies share 16 of 16/16: properties, strings, numbers)"
+    ],
+    "iL": [
+      "applySplitBuffersToCommands",
+      "upstream scimgg@f1cab1f src/render/npc/NpcInstanceManager.ts#NpcInstanceManager.applySplitBuffersToCommands (pos+arity; bodies share 27 of 28/27: properties, strings, numbers)"
+    ],
+    "lL": [
+      "resolveTransparentFaceMap",
+      "upstream scimgg@f1cab1f src/render/npc/NpcInstanceManager.ts#NpcInstanceManager.resolveTransparentFaceMap (pos+arity; bodies share 4 of 4/4: properties, strings, numbers)"
+    ],
+    "oL": [
+      "ensureSplitBuffersCapacity",
+      "upstream scimgg@f1cab1f src/render/npc/NpcInstanceManager.ts#NpcInstanceManager.ensureSplitBuffersCapacity (pos+arity; bodies share 17 of 17/17: properties, strings, numbers)"
+    ],
+    "dA": [
+      "isPrimaryNpcType",
+      "upstream scimgg@f1cab1f src/render/npc/NpcInstanceManager.ts#NpcInstanceManager.isPrimaryNpcType (pos+arity; bodies share 2 of 2/2: properties, strings, numbers)"
+    ],
+    "gA": [
+      "seedSplitBuffers",
+      "upstream scimgg@f1cab1f src/render/npc/NpcInstanceManager.ts#NpcInstanceManager.seedSplitBuffers (pos+arity; bodies share 29 of 29/29: properties, strings, numbers)"
+    ],
+    "tA": [
+      "loadAnimationSet",
+      "upstream scimgg@f1cab1f src/render/npc/NpcInstanceManager.ts#NpcInstanceManager.loadAnimationSet (pos+arity; bodies share 26 of 27/26: properties, strings, numbers)"
+    ],
+    "gL": [
+      "loadAttackClips",
+      "upstream scimgg@f1cab1f src/render/npc/NpcInstanceManager.ts#NpcInstanceManager.loadAttackClips (pos+arity; bodies share 7 of 7/7: properties, strings, numbers)"
+    ],
+    "cL": [
+      "loadLifecycleClips",
+      "upstream scimgg@f1cab1f src/render/npc/NpcInstanceManager.ts#NpcInstanceManager.loadLifecycleClips (pos+arity; bodies share 12 of 12/12: properties, strings, numbers)"
+    ],
+    "dL": [
+      "loadAnimClip",
+      "upstream scimgg@f1cab1f src/render/npc/NpcInstanceManager.ts#NpcInstanceManager.loadAnimClip (pos+arity; bodies share 11 of 15/11: properties, strings, numbers)"
+    ],
+    "$A": [
+      "getAllHitTestData",
+      "upstream scimgg@f1cab1f src/render/npc/NpcInstanceManager.ts#NpcInstanceManager.getAllHitTestData (pos+arity; bodies share 3 of 3/3: properties, strings, numbers); renamed as one family with rF (they override it)",
+      {
+        "alsoIn": [
+          "rF"
+        ]
+      }
+    ]
+  },
+  "X_": {
+    "mL": [
+      "setNpcOverlayHeights",
+      "upstream scimgg@f1cab1f src/render/overlay/UIOverlayRenderer.ts#UIOverlayRenderer.setNpcOverlayHeights (pos+arity; bodies share 1 of 1/1: properties, strings, numbers)"
+    ],
+    "pL": [
+      "buildOverheadTexts",
+      "upstream scimgg@f1cab1f src/render/overlay/UIOverlayRenderer.ts#UIOverlayRenderer.buildOverheadTexts (gap-arity; bodies share 12 of 13/13: properties, strings, numbers)"
+    ]
+  },
+  "Q_": {
+    "jL": [
+      "refreshCurrentPoseSequence",
+      "upstream scimgg@f1cab1f src/render/player/PlayerAnimationController.ts#PlayerAnimationController.refreshCurrentPoseSequence (pos+arity; bodies share 8 of 8/8: properties, strings, numbers)"
+    ],
+    "$L": [
+      "triggerAttackWithSequence",
+      "upstream scimgg@f1cab1f src/render/player/PlayerAnimationController.ts#PlayerAnimationController.triggerAttackWithSequence (pos+arity; bodies share 2 of 2/2: properties, strings, numbers)"
+    ],
+    "qL": [
+      "canReplacePrimaryWith",
+      "upstream scimgg@f1cab1f src/render/player/PlayerAnimationController.ts#PlayerAnimationController.canReplacePrimaryWith (pos+arity; bodies share 3 of 3/3: properties, strings, numbers)"
+    ],
+    "eD": [
+      "restoreConsumeAnim",
+      "upstream scimgg@f1cab1f src/render/player/PlayerAnimationController.ts#PlayerAnimationController.restoreConsumeAnim (pos+arity; bodies share 12 of 12/12: properties, strings, numbers)"
+    ],
+    "aD": [
+      "applyInitialAnimationFrame",
+      "upstream scimgg@f1cab1f src/render/player/PlayerAnimationController.ts#PlayerAnimationController.applyInitialAnimationFrame (pos+arity; bodies share 23 of 23/23: properties, strings, numbers)"
+    ],
+    "tD": [
+      "updatePlayerAnimation",
+      "upstream scimgg@f1cab1f src/render/player/PlayerAnimationController.ts#PlayerAnimationController.updatePlayerAnimation (pos+arity; bodies share 81 of 84/82: properties, strings, numbers)"
+    ],
+    "nD": [
+      "resolveDirectionalState",
+      "upstream scimgg@f1cab1f src/render/player/PlayerAnimationController.ts#PlayerAnimationController.resolveDirectionalState (pos+arity; bodies share 12 of 12/12: properties, strings, numbers)"
+    ],
+    "sD": [
+      "buildPlayerAnimatedMesh",
+      "upstream scimgg@f1cab1f src/render/player/PlayerAnimationController.ts#PlayerAnimationController.buildPlayerAnimatedMesh (pos+arity; bodies share 26 of 28/26: properties, strings, numbers)"
+    ],
+    "rD": [
+      "buildMeshFromFaces",
+      "upstream scimgg@f1cab1f src/render/player/PlayerAnimationController.ts#PlayerAnimationController.buildMeshFromFaces (pos+arity; bodies share 36 of 36/36: properties, strings, numbers)"
+    ]
+  },
+  "rF": {
+    "iD": [
+      "setLoaders",
+      "upstream scimgg@f1cab1f src/render/scene/GroundItemRenderer.ts#GroundItemRenderer.setLoaders (gap-arity; bodies share 5 of 5/5: properties, strings, numbers)"
+    ],
+    "oD": [
+      "getOrBakeModel",
+      "upstream scimgg@f1cab1f src/render/scene/GroundItemRenderer.ts#GroundItemRenderer.getOrBakeModel (pos+arity; bodies share 3 of 4/4: properties, strings, numbers)"
+    ],
+    "dD": [
+      "bakeModel",
+      "upstream scimgg@f1cab1f src/render/scene/GroundItemRenderer.ts#GroundItemRenderer.bakeModel (pos+arity; bodies share 39 of 39/39: properties, strings, numbers)"
+    ],
+    "gD": [
+      "createCommand",
+      "upstream scimgg@f1cab1f src/render/scene/GroundItemRenderer.ts#GroundItemRenderer.createCommand (pos+arity; bodies share 14 of 14/14: properties, strings, numbers)"
+    ],
+    "hA": [
+      "createInstance",
+      "upstream scimgg@f1cab1f src/render/scene/GroundItemRenderer.ts#GroundItemRenderer.createInstance (pos+arity; bodies share 2 of 2/2: properties, strings, numbers)"
+    ]
+  },
+  "hF": {
+    "hD": [
+      "setGroundDecorations",
+      "upstream scimgg@f1cab1f src/render/scene/SceneSurfaceHeightResolver.ts#SceneSurfaceHeightResolver.setGroundDecorations (gap-arity; bodies share 3 of 3/3: properties, strings, numbers)"
+    ]
+  },
+  "SceneCompositor": {
+    "vD": [
+      "renderPrimaryNpcDeathSpotAnim",
+      "upstream scimgg@f1cab1f src/render/scene/SceneCompositor.ts#SceneCompositor.renderPrimaryNpcDeathSpotAnim (pos+arity; bodies share 25 of 33/26: properties, strings, numbers)"
+    ],
+    "pD": [
+      "loadPrimaryNpcDeathSpotAnim",
+      "upstream scimgg@f1cab1f src/render/scene/SceneCompositor.ts#SceneCompositor.loadPrimaryNpcDeathSpotAnim (pos+arity; bodies share 5 of 5/5: properties, strings, numbers)"
+    ],
+    "kD": [
+      "isPrimaryNpcDeathSpotAnimLoaded",
+      "upstream scimgg@f1cab1f src/render/scene/SceneCompositor.ts#SceneCompositor.isPrimaryNpcDeathSpotAnimLoaded (pos+arity; bodies share 5 of 5/5: properties, strings, numbers)"
+    ],
+    "bD": [
+      "advanceNpcAnimationClock",
+      "upstream scimgg@f1cab1f src/render/scene/SceneCompositor.ts#SceneCompositor.advanceNpcAnimationClock (pos+arity; bodies share 7 of 9/7: properties, strings, numbers)"
+    ],
+    "fD": [
+      "registerTransientReset",
+      "upstream scimgg@f1cab1f src/render/scene/SceneCompositor.ts#SceneCompositor.registerTransientReset (pos+arity; bodies share 2 of 2/2: properties, strings, numbers)"
+    ],
+    "wD": [
+      "setSceneObjectLocModelLoader",
+      "upstream scimgg@f1cab1f src/render/scene/SceneCompositor.ts#SceneCompositor.setSceneObjectLocModelLoader (pos+arity; bodies share 3 of 3/3: properties, strings, numbers)"
+    ],
+    "zD": [
+      "setSceneObjectController",
+      "upstream scimgg@f1cab1f src/render/scene/SceneCompositor.ts#SceneCompositor.setSceneObjectController (pos+arity; bodies share 1 of 1/1: properties, strings, numbers)"
+    ],
+    "xD": [
+      "loadFrameBasedSeq",
+      "upstream scimgg@f1cab1f src/render/scene/SceneCompositor.ts#SceneCompositor.loadFrameBasedSeq (pos+arity; bodies share 4 of 4/4: properties, strings, numbers)"
+    ],
+    "jD": [
+      "loadPlayerGraphicSpotAnims",
+      "upstream scimgg@f1cab1f src/render/scene/SceneCompositor.ts#SceneCompositor.loadPlayerGraphicSpotAnims (pos+arity; bodies share 4 of 4/4: properties, strings, numbers)"
+    ],
+    "$D": [
+      "isPlayerGraphicSpotAnimsLoaded",
+      "upstream scimgg@f1cab1f src/render/scene/SceneCompositor.ts#SceneCompositor.isPlayerGraphicSpotAnimsLoaded (pos+arity; bodies share 4 of 4/4: properties, strings, numbers)"
+    ],
+    "aH": [
+      "createActorVisualPositionResolver",
+      "upstream scimgg@f1cab1f src/render/scene/SceneCompositor.ts#SceneCompositor.createActorVisualPositionResolver (pos+arity; bodies share 2 of 4/3: properties, strings, numbers)"
+    ],
+    "dH": [
+      "getPrimaryNpcDeathLoadConfig",
+      "upstream scimgg@f1cab1f src/render/scene/SceneCompositor.ts#SceneCompositor.getPrimaryNpcDeathLoadConfig (pos+arity; bodies share 2 of 3/2: properties, strings, numbers)"
+    ],
+    "gH": [
+      "getEncounterNpcFacingAngle",
+      "upstream scimgg@f1cab1f src/render/scene/SceneCompositor.ts#SceneCompositor.getEncounterNpcFacingAngle (pos+arity; bodies share 2 of 2/2: properties, strings, numbers)"
+    ],
+    "mH": [
+      "getGridBounds",
+      "upstream scimgg@f1cab1f src/render/scene/SceneCompositor.ts#SceneCompositor.getGridBounds (pos+arity; bodies share 1 of 1/1: properties, strings, numbers)"
+    ],
+    "hH": [
+      "getArenaWalkabilityChecker",
+      "upstream scimgg@f1cab1f src/render/scene/SceneCompositor.ts#SceneCompositor.getArenaWalkabilityChecker (pos+arity; bodies share 3 of 5/5: properties, strings, numbers)"
+    ],
+    "fH": [
+      "getLocRenderOptions",
+      "upstream scimgg@f1cab1f src/render/scene/SceneCompositor.ts#SceneCompositor.getLocRenderOptions (pos+arity; bodies share 1 of 1/1: properties, strings, numbers)"
+    ],
+    "uD": [
+      "clearEncounterVisuals",
+      "upstream scimgg@f1cab1f src/render/scene/SceneCompositor.ts#SceneCompositor.clearEncounterVisuals (pos+arity; bodies share 27 of 27/27: properties, strings, numbers)"
+    ],
+    "uH": [
+      "clearSceneObjects",
+      "upstream scimgg@f1cab1f src/render/scene/SceneCompositor.ts#SceneCompositor.clearSceneObjects (pos+arity; bodies share 2 of 2/2: properties, strings, numbers)"
+    ],
+    "vH": [
+      "syncAndRenderSceneObjects",
+      "upstream scimgg@f1cab1f src/render/scene/SceneCompositor.ts#SceneCompositor.syncAndRenderSceneObjects (pos+arity; bodies share 9 of 9/9: properties, strings, numbers)"
+    ],
+    "kH": [
+      "getUnprocessedEvents",
+      "upstream scimgg@f1cab1f src/render/scene/SceneCompositor.ts#SceneCompositor.getUnprocessedEvents (pos+arity; bodies share 4 of 4/4: properties, strings, numbers)"
+    ],
+    "bH": [
+      "createPlayerModelMatrix",
+      "upstream scimgg@f1cab1f src/render/scene/SceneCompositor.ts#SceneCompositor.createPlayerModelMatrix (pos+arity; bodies share 16 of 16/16: properties, strings, numbers)"
+    ],
+    "$H": [
+      "createSphereMesh",
+      "upstream scimgg@f1cab1f src/render/scene/SceneCompositor.ts#SceneCompositor.createSphereMesh (gap-arity; bodies share 4 of 4/4: properties, strings, numbers)"
+    ],
+    "qH": [
+      "createOutlineMesh3D",
+      "upstream scimgg@f1cab1f src/render/scene/SceneCompositor.ts#SceneCompositor.createOutlineMesh3D (gap-arity; bodies share 19 of 19/19: properties, strings, numbers)"
+    ],
+    "eM": [
+      "drawNpcHighlights",
+      "upstream scimgg@f1cab1f src/render/scene/SceneCompositor.ts#SceneCompositor.drawNpcHighlights (gap-arity; bodies share 33 of 35/37: properties, strings, numbers)"
+    ],
+    "zH": [
+      "resolveHiddenNpcModels",
+      "upstream scimgg@f1cab1f src/render/scene/SceneCompositor.ts#SceneCompositor.resolveHiddenNpcModels (gap-arity; bodies share 4 of 6/5: properties, strings, numbers)"
+    ],
+    "wH": [
+      "renderNpcModels",
+      "upstream scimgg@f1cab1f src/render/scene/SceneCompositor.ts#SceneCompositor.renderNpcModels (gap-arity; bodies share 3 of 3/3: properties, strings, numbers)"
+    ],
+    "iH": [
+      "updateEncounterNpcFacing",
+      "upstream scimgg@f1cab1f src/render/scene/SceneCompositor.ts#SceneCompositor.updateEncounterNpcFacing (pos+arity; bodies share 2 of 2/2: properties, strings, numbers); renamed as one family with iN, InfernoScene (they override it)",
+      {
+        "alsoIn": [
+          "iN",
+          "InfernoScene"
+        ]
+      }
+    ],
+    "cH": [
+      "getTerrainMapSquare",
+      "upstream scimgg@f1cab1f src/render/scene/SceneCompositor.ts#SceneCompositor.getTerrainMapSquare (pos+arity; bodies share 2 of 3/4: properties, strings, numbers); renamed as one family with IE (they override it)",
+      {
+        "alsoIn": [
+          "IE"
+        ]
+      }
+    ],
+    "pH": [
+      "getNpcVisualDeltaMs",
+      "upstream scimgg@f1cab1f src/render/scene/SceneCompositor.ts#SceneCompositor.getNpcVisualDeltaMs (pos+arity; bodies share 4 of 5/5: properties, strings, numbers); renamed as one family with iN, InfernoScene (they override it)",
+      {
+        "alsoIn": [
+          "iN",
+          "InfernoScene"
+        ]
+      }
+    ],
+    "yH": [
+      "isEncounterReplayPresentationReady",
+      "upstream scimgg@f1cab1f src/render/scene/ColosseumSceneCompositor.ts#ColosseumSceneCompositor.isEncounterReplayPresentationReady (pos+arity; bodies share 8 of 8/8: properties, strings, numbers); renamed as one family with iN, InfernoScene (they override it)",
+      {
+        "alsoIn": [
+          "iN",
+          "InfernoScene"
+        ]
+      }
+    ],
+    "qD": [
+      "restoreEncounterPrimaries",
+      "upstream scimgg@f1cab1f src/render/scene/ColosseumSceneCompositor.ts#ColosseumSceneCompositor.restoreEncounterPrimaries (pos+arity; bodies share 19 of 20/20: properties, strings, numbers); renamed as one family with iN, qN, InfernoScene (they override it)",
+      {
+        "alsoIn": [
+          "iN",
+          "qN",
+          "InfernoScene"
+        ]
+      }
+    ],
+    "lH": [
+      "getEncounterAttackTriggers",
+      "upstream scimgg@f1cab1f src/render/scene/ColosseumSceneCompositor.ts#ColosseumSceneCompositor.getEncounterAttackTriggers (pos+arity; bodies share 25 of 26/26: properties, strings, numbers); renamed as one family with iN, qN, InfernoScene (they override it)",
+      {
+        "alsoIn": [
+          "iN",
+          "qN",
+          "InfernoScene"
+        ]
+      }
+    ],
+    "oH": [
+      "renderEncounterAttackEffects",
+      "upstream scimgg@f1cab1f src/render/scene/ColosseumSceneCompositor.ts#ColosseumSceneCompositor.renderEncounterAttackEffects (pos+arity; bodies share 13 of 13/13: properties, strings, numbers); renamed as one family with iN, qN, InfernoScene (they override it)",
+      {
+        "alsoIn": [
+          "iN",
+          "qN",
+          "InfernoScene"
+        ]
+      }
+    ],
+    "sH": [
+      "renderEncounterDebugOverlays",
+      "upstream scimgg@f1cab1f src/render/scene/ColosseumSceneCompositor.ts#ColosseumSceneCompositor.renderEncounterDebugOverlays (pos+arity; bodies share 17 of 19/17: properties, strings, numbers); renamed as one family with iN, qN, InfernoScene (they override it)",
+      {
+        "alsoIn": [
+          "iN",
+          "qN",
+          "InfernoScene"
+        ]
+      }
+    ],
+    "tH": [
+      "renderEncounterEffectsEarly",
+      "upstream scimgg@f1cab1f src/render/scene/YamaSceneCompositor.ts#YamaSceneCompositor.renderEncounterEffectsEarly (pos+arity; bodies share 10 of 10/10: properties, strings, numbers); renamed as one family with qN (they override it)",
+      {
+        "alsoIn": [
+          "qN"
+        ]
+      }
+    ],
+    "nH": [
+      "renderEncounterEffectsLate",
+      "upstream scimgg@f1cab1f src/render/scene/YamaSceneCompositor.ts#YamaSceneCompositor.renderEncounterEffectsLate (pos+arity; bodies share 11 of 11/11: properties, strings, numbers); renamed as one family with qN (they override it)",
+      {
+        "alsoIn": [
+          "qN"
+        ]
+      }
+    ],
+    "rH": [
+      "renderEncounterNpc2D",
+      "upstream scimgg@f1cab1f src/render/scene/YamaSceneCompositor.ts#YamaSceneCompositor.renderEncounterNpc2D (pos+arity; bodies share 9 of 9/9: properties, strings, numbers); renamed as one family with qN (they override it)",
+      {
+        "alsoIn": [
+          "qN"
+        ]
+      }
+    ]
+  },
+  "IE": {
+    "sM": [
+      "setForcedTerrain",
+      "upstream scimgg@f1cab1f src/render/scene/lobby/LobbySceneCompositor.ts#LobbySceneCompositor.setForcedTerrain (pos+arity; bodies share 1 of 1/1: properties, strings, numbers)"
+    ]
+  },
+  "EE": {
+    "iM": [
+      "flightFrame",
+      "upstream scimgg@f1cab1f src/render/effects/NpcProjectileFlights.ts#NpcProjectileFlights.flightFrame (pos+arity; bodies share 7 of 7/7: properties, strings, numbers)"
+    ],
+    "lM": [
+      "targetCentre",
+      "upstream scimgg@f1cab1f src/render/effects/NpcProjectileFlights.ts#NpcProjectileFlights.targetCentre (pos+arity; bodies share 10 of 10/10: properties, strings, numbers)"
+    ]
+  },
+  "OE": {
+    "oM": [
+      "removeActor",
+      "upstream scimgg@f1cab1f src/render/effects/controllers/ColosseumVisualController.ts#ColosseumVisualController.removeActor (pos+arity; bodies share 10 of 10/10: properties, strings, numbers)"
+    ],
+    "mM": [
+      "updateProjectiles",
+      "upstream scimgg@f1cab1f src/render/effects/controllers/ColosseumVisualController.ts#ColosseumVisualController.updateProjectiles (pos+arity; bodies share 2 of 2/2: properties, strings, numbers)"
+    ],
+    "dM": [
+      "createGraphic",
+      "upstream scimgg@f1cab1f src/render/effects/controllers/ColosseumVisualController.ts#ColosseumVisualController.createGraphic (pos+arity; bodies share 14 of 15/15: properties, strings, numbers)"
+    ],
+    "gM": [
+      "takeAnimations",
+      "upstream scimgg@f1cab1f src/render/effects/controllers/ColosseumVisualController.ts#ColosseumVisualController.takeAnimations (pos+arity; bodies share 5 of 5/5: properties, strings, numbers); renamed as one family with cG (they override it)",
+      {
+        "alsoIn": [
+          "cG"
+        ]
+      }
+    ],
+    "cM": [
+      "syncReplay",
+      "upstream scimgg@f1cab1f src/render/effects/controllers/ColosseumVisualController.ts#ColosseumVisualController.syncReplay (pos+arity; bodies share 43 of 46/45: properties, strings, numbers); renamed as one family with cG (they override it)",
+      {
+        "alsoIn": [
+          "cG"
+        ]
+      }
+    ]
+  },
+  "iN": {
+    "uM": [
+      "resolveGraphicActor",
+      "upstream scimgg@f1cab1f src/render/scene/ColosseumSceneCompositor.ts#ColosseumSceneCompositor.resolveGraphicActor (pos+arity; bodies share 16 of 18/17: properties, strings, numbers)"
+    ],
+    "vM": [
+      "paintTiles",
+      "upstream scimgg@f1cab1f src/render/scene/ColosseumSceneCompositor.ts#ColosseumSceneCompositor.paintTiles (pos+arity; bodies share 8 of 10/9: properties, strings, numbers)"
+    ],
+    "pM": [
+      "outlineTiles",
+      "upstream scimgg@f1cab1f src/render/scene/ColosseumSceneCompositor.ts#ColosseumSceneCompositor.outlineTiles (pos+arity; bodies share 3 of 5/6: properties, strings, numbers)"
+    ]
+  },
+  "IN": {
+    "kM": [
+      "buildFallingFireballs2D",
+      "upstream scimgg@f1cab1f src/render/effects/controllers/FireballController.ts#FireballController.buildFallingFireballs2D (pos+arity; bodies share 20 of 22/20: properties, strings, numbers)"
+    ],
+    "yM": [
+      "buildFallingFireballs3D",
+      "upstream scimgg@f1cab1f src/render/effects/controllers/FireballController.ts#FireballController.buildFallingFireballs3D (pos+arity; bodies share 8 of 9/8: properties, strings, numbers)"
+    ],
+    "bM": [
+      "buildExplosionSpotAnims",
+      "upstream scimgg@f1cab1f src/render/effects/controllers/FireballController.ts#FireballController.buildExplosionSpotAnims (pos+arity; bodies share 15 of 17/15: properties, strings, numbers)"
+    ]
+  },
+  "jN": {
+    "zM": [
+      "pushTileHighlight",
+      "upstream scimgg@f1cab1f src/render/effects/controllers/WaveController.ts#WaveController.pushTileHighlight (pos+arity; bodies share 10 of 11/10: properties, strings, numbers)"
+    ]
+  },
+  "qN": {
+    "xM": [
+      "loadAttackSpotAnims",
+      "upstream scimgg@f1cab1f src/render/scene/YamaSceneCompositor.ts#YamaSceneCompositor.loadAttackSpotAnims (pos+arity; bodies share 3 of 3/3: properties, strings, numbers)"
+    ],
+    "wM": [
+      "buildDamageTileOverlays",
+      "upstream scimgg@f1cab1f src/render/scene/YamaSceneCompositor.ts#YamaSceneCompositor.buildDamageTileOverlays (pos+arity; bodies share 23 of 26/26: properties, strings, numbers)"
+    ]
+  },
+  "uq": {
+    "bI": [
+      "drawPolygon",
+      "upstream scimgg@f1cab1f src/render/backends/canvas2d/Canvas2DRenderer.ts#Canvas2DRenderer.drawPolygon (pos+arity; bodies share 17 of 17/17: properties, strings, numbers)"
+    ],
+    "yI": [
+      "drawCircle",
+      "upstream scimgg@f1cab1f src/render/backends/canvas2d/Canvas2DRenderer.ts#Canvas2DRenderer.drawCircle (pos+arity; bodies share 13 of 13/13: properties, strings, numbers)"
+    ],
+    "zI": [
+      "drawEllipse",
+      "upstream scimgg@f1cab1f src/render/backends/canvas2d/Canvas2DRenderer.ts#Canvas2DRenderer.drawEllipse (pos+arity; bodies share 13 of 13/13: properties, strings, numbers)"
+    ],
+    "wI": [
+      "drawText",
+      "upstream scimgg@f1cab1f src/render/backends/canvas2d/Canvas2DRenderer.ts#Canvas2DRenderer.drawText (pos+arity; bodies share 13 of 13/13: properties, strings, numbers)"
+    ]
+  }
+}

@@ -41,7 +41,7 @@ try {
   const missing = await page.evaluate(async () => {
     const { projectileOverrideTargets } = await import("/plugins/projectileOverride.js");
     const renderer = scene.spotAnimRenderer;
-    for (const id of projectileOverrideTargets) renderer.xv(renderer.boundLoader, id);
+    for (const id of projectileOverrideTargets) renderer.loadById(renderer.boundLoader, id);
     return projectileOverrideTargets.filter((id) => !renderer.isLoaded(id));
   });
   assert.deepEqual(missing, []);
