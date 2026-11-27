@@ -791,6 +791,54 @@ worn. `docs/ADDING-AN-ENCOUNTER.md` is the guide, with what still needs a
 chunk; `test/fixtures/training-ground/` is an encounter added that way,
 which only the tests register.
 
+## From a URL to the first frame
+
+What a visitor waits for, and what keeps it short. Measure with
+`node tools/measure-vitals.mjs` after a build (first and largest paint, the
+loading screen's end, main-thread blocking; cold and warm, throttled and
+not); `node tools/trace-boot.mjs` lists what a cold visit waited for.
+
+1. **The loading screen is in `index.html`**, inside `#root`, as the
+   application first renders it (`LoadingScreen` in `application.js`), styled
+   by the stylesheets the page links. It is on screen before the application
+   script has arrived, over the page's own text, which the build writes ahead
+   of it (`tools/seo/prerender.mjs`); React replaces both on its first
+   render, starting on the same tip (`shellTip`).
+2. **The cache is asked for from `index.html`**: an inline script fetches
+   `osrs-cache/manifest.json` while the application script downloads, and
+   when IndexedDB does not hold the manifest's cache, the lobby's boot pack
+   (on `/`) or the whole cache (on any other route). `CacheManager` takes
+   them from `window.__cacheBoot`.
+3. **The lobby is fast, a fight is whole.** A first visit to `/` starts from
+   the lobby's boot pack (`CacheManager.bootFromPack` in `player.js`):
+   `osrs-cache/boot/lobby.zip`, a cache in the layout of `disk.zip` with
+   only the groups the lobby and its encounter picker read, a fifth of the
+   whole. A first visit to a fight's own URL has no pack: it downloads the
+   whole cache before it shows anything of the fight, as every visit used
+   to, so nothing of a fight is ever read from a pack.
+4. **The whole cache follows behind the lobby** (`CacheManager.hydrate`),
+   once the application has its own assets (`beginHydration`). Every index
+   reads through one `MemoryStore`; the pack has the whole cache's reference
+   tables and the same bytes for its groups, so the whole cache's files are
+   put into that store in place and the loaders never notice. It is then
+   written to IndexedDB for the next visit, which reads it from there.
+5. **Entering a fight from the lobby waits for the whole cache.** Every
+   scene starts with `loadMapSquare`. Until the whole cache is in, it waits
+   there for every square but the lobby's own: the squares the pack lacks,
+   which its idx files mark ("size 0, sector 1", `packCache` in
+   `tools/assets/cache.mjs`, read by `awaitsWholeCache`), and the square
+   `CacheManager` reads at start-up for the arena bounds, which is Yama's.
+   An encounter on the lobby's own map square would slip through; there is
+   none.
+
+The pack's list is `tools/assets/boot-packs/lobby.json`, in the shape of the
+cache group lists. `node tools/boot-packs.mjs` records it from a build: it
+opens `/` with the whole cache, walks every tile of the encounter picker
+(each draws a portrait), and writes down every group read. `npm run assets`
+cuts the pack from the trimmed cache and names it in
+`osrs-cache/manifest.json` (`bootPacks`). Record again after changing what
+the lobby shows: what a stale pack lacks reads as empty until the whole
+cache is in (`test/test-boot-pack-visit.mjs` fails on such a read).
 ## The import cycle
 
 There was one between `rendering.js` and the encounter modules. It is gone
