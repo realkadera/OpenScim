@@ -8,6 +8,10 @@
 //     is running as it would have been: the same digest on every tick.
 //
 // The harness itself rebuilds each fight once, in the middle.
+//
+// Not a test: all the fights in one process took longer than the rest of
+// `npm test` together, so test-replay-rebuild-1.mjs to -8.mjs each take every
+// eighth fight, and run side by side.
 import assert from "node:assert/strict";
 import { existsSync } from "node:fs";
 import { test } from "node:test";
@@ -30,10 +34,14 @@ const firstDifference = (was, is) => {
 
 const skip = !existsSync(cacheZip) && `${cacheZip} is missing (npm run assets)`;
 
+/** The tests, over the fights whose place in the list is `shard` modulo `shards`. */
+export function rebuildTests(shard, shards) {
+const mine = async () => (await loadScenarios()).filter((scenario, index) => index % shards === shard);
+
 test("every fight can be gone back to, all through it, and ends the same from there", { skip }, async () => {
   const problems = [];
   let fights = 0, rebuilds = 0;
-  for (const scenario of await loadScenarios()) {
+  for (const scenario of await mine()) {
     if (scenario.pure || notRecorded.has(scenario.name)) continue;
     fights++;
     const seen = new Map(); // the state on each tick of the run, the last one where it restarts
@@ -74,13 +82,13 @@ test("every fight can be gone back to, all through it, and ends the same from th
     });
   }
   assert.deepEqual(problems, []);
-  assert.ok(fights > 100 && rebuilds > 500, `${fights} fights, ${rebuilds} rebuilds`);
+  assert.ok(fights > 100 / shards && rebuilds > 500 / shards, `${fights} fights, ${rebuilds} rebuilds`);
 });
 
 test("a rebuild that is thrown away leaves a running fight alone", { skip }, async () => {
   const problems = [];
   const kinds = new Set();
-  for (const scenario of await loadScenarios()) {
+  for (const scenario of await mine()) {
     if (scenario.pure) continue;
     kinds.add(scenario.kind);
     let rebuild, length;
@@ -101,5 +109,6 @@ test("a rebuild that is thrown away leaves a running fight alone", { skip }, asy
     if (alone.final !== disturbed.final && at < 0) problems.push(`${scenario.name}: ends differently`);
   }
   assert.deepEqual(problems, []);
-  assert.ok(kinds.size > 10, `${kinds.size} kinds of fight`);
+  assert.ok(kinds.size > 5, `${kinds.size} kinds of fight`);
 });
+}
