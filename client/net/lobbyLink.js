@@ -7,14 +7,14 @@
 //                                    presence once; stops it when false.
 //   lobbyBeforeTick(kind, state)     Grid.js live loop, before advanceTick:
 //                                    { tile, ctrlClickOverride } while following
-//   lobbyAfterTick(kind, before, after, appearance)
+//   lobbyAfterTick(kind, before, after, appearance, combat)
 //                                    Grid.js live loop, after advanceTick
 //   followRemotePlayer(id)           the menu's "Follow <name>"
 //   stopLobbyFollow(reason)          a click to walk
 //
 // Nothing is created, fetched or connected before setLobbyPresenceActive(true).
 import { createLobbyPresence } from "./index.js";
-import { STEPS_PER_PRESENCE_MAX, isAdjacent, tilesEqual } from "./protocol.js";
+import { COMBAT_MAX, COMBAT_MIN, STEPS_PER_PRESENCE_MAX, isAdjacent, tilesEqual } from "./protocol.js";
 import { createFollow } from "./follow.js";
 import { appearanceToWire, equipmentToWire, getRemotePlayersSource, setRemotePlayersSource } from "./remotePlayers.js";
 
@@ -101,17 +101,19 @@ export function createLobbyLink({ createPresence = createLobbyPresence, build = 
       override = ctrlClickOverride;
       return { tile: step.tile, ctrlClickOverride, changed };
     },
-    // After the tick: the look when it changed, and the tile, steps, run and facing.
-    afterTick(kind, before, after, appearance) {
+    // After the tick: the look (and the combat level, from the player's base
+    // levels) when it changed, and the tile, steps, run and facing.
+    afterTick(kind, before, after, appearance, combat) {
       if (kind !== "lobby") return;
       const equipment = equipmentToWire(after?.playerEquipment);
       if (follow.leaderId !== null) follow.tick({ inLobby: true, self: after?.playerPosition, runEnabled: after?.isRunEnabled === true, equipment });
       if (!presence || !active || !isTile(after?.playerPosition)) return;
       const look = appearanceToWire(appearance);
-      const key = JSON.stringify([look, equipment]);
+      const level = Number.isSafeInteger(combat) && combat >= COMBAT_MIN && combat <= COMBAT_MAX ? combat : undefined;
+      const key = JSON.stringify([look, equipment, level ?? null]);
       if (key !== sentLook) {
         sentLook = key;
-        quiet(() => presence.session.setAppearance(look, equipment));
+        quiet(() => presence.session.setAppearance(look, equipment, level));
       }
       const steps = presenceSteps(before, after);
       quiet(() =>
@@ -130,6 +132,6 @@ export function createLobbyLink({ createPresence = createLobbyPresence, build = 
 export const lobbyLink = createLobbyLink();
 export const setLobbyPresenceActive = (active) => lobbyLink.setActive(active);
 export const lobbyBeforeTick = (kind, state) => lobbyLink.beforeTick(kind, state);
-export const lobbyAfterTick = (kind, before, after, appearance) => lobbyLink.afterTick(kind, before, after, appearance);
+export const lobbyAfterTick = (kind, before, after, appearance, combat) => lobbyLink.afterTick(kind, before, after, appearance, combat);
 export const followRemotePlayer = (id) => lobbyLink.follow.start(id);
 export const stopLobbyFollow = (reason = "walk") => lobbyLink.follow.cancel(reason);

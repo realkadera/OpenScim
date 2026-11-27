@@ -153,6 +153,17 @@ const moved = (p, steps, { run = false, tick, facing = p.facing, snapped = false
   assert.deepEqual(remotes.hitTestData(), []);
 }
 
+// --- the combat level: kept when it is one, else null ----------------------------------
+{
+  const { remotes } = setup();
+  remotes.update([player(1, [1, 1], { combat: 99 }), player(2, [2, 2], { combat: null }), player(3, [3, 3], { combat: 127 }), player(4, [4, 4])]);
+  assert.deepEqual(remotes.entries().map((e) => [e.id, e.combat]), [[1, 99], [2, null], [3, null], [4, null]]);
+  remotes.update([player(1, [1, 1], { combat: 100 })]);
+  assert.equal(remotes.get(1).combat, 100);
+  for (let frame = 0; frame < 3; frame++) remotes.update([player(1, [1, 1], { combat: 100 })]);
+  assert.deepEqual(remotes.hitTestData().map((h) => [h.actorId, h.combat]), [[1, 100]]);
+}
+
 // --- a new look builds a new rig; equipment too --------------------------------------
 {
   const { remotes, built } = setup();

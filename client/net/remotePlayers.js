@@ -17,10 +17,10 @@
 //   });
 //   remotes.update(records, { localPosition, deltaMs })  each frame; returns
 //                                     the entries to draw, nearest first
-//   remotes.hitTestData()             [{ actorId: id, name, hitTestData }] of those
+//   remotes.hitTestData()             [{ actorId: id, name, combat, hitTestData }] of those
 //   remotes.get(id), remotes.entries(), remotes.clear(), remotes.size
 //
-// An entry: { id, name, tile, position (visual [x, y]), facingAngle, state (the
+// An entry: { id, name, combat (3..126 or null), tile, position (visual [x, y]), facingAngle, state (the
 // tracker's), rig, modelMatrix (its own Float32Array(16), written by the
 // scene), overheadAnchor (the screen point above the head, set by the scene,
 // or null) }. buildRig's rig is { meshCommands, hitModel?, controller?, ... };
@@ -30,7 +30,7 @@
 // whole is skipped, an appearance value the client cannot draw is replaced by
 // the default appearance's, and a rig that fails is built again without the
 // equipment, then with the default look.
-import { APPEARANCE_FIELDS, EQUIPMENT_SLOTS, ITEM_ID_MAX, NAME_MAX_CHARS, TILE_MAX, TILE_MIN } from "./protocol.js";
+import { COMBAT_MAX, COMBAT_MIN, EQUIPMENT_SLOTS, ITEM_ID_MAX, NAME_MAX_CHARS, TILE_MAX, TILE_MIN } from "./protocol.js";
 
 // At most this many other players are drawn, the nearest to the local player:
 // each rig is animated on the CPU every frame (inferred: a cost bound; see the
@@ -232,13 +232,14 @@ export function createRemotePlayers({ buildRig, makeTracker, isValidKit, maxDraw
           const facing = readFacing(record.facing);
           let entry = entries.get(id);
           if (!entry) {
-            entry = { id, name: "Player", tile, facing, position: [tile[0], tile[1]], facingAngle: facing, state: null, lastTick: record.lastTick, moves: 0, appearance: null, equipment: {}, rig: null, rigKey: null, hit: null, modelMatrix: new Float32Array(16), overheadAnchor: null, tracker: null };
+            entry = { id, name: "Player", combat: null, tile, facing, position: [tile[0], tile[1]], facingAngle: facing, state: null, lastTick: record.lastTick, moves: 0, appearance: null, equipment: {}, rig: null, rigKey: null, hit: null, modelMatrix: new Float32Array(16), overheadAnchor: null, tracker: null };
             place(entry, tile, facing);
             entries.set(id, entry);
           } else {
             feed(entry, record, tile, facing);
           }
           entry.name = safeName(record.name);
+          entry.combat = isInt(record.combat, COMBAT_MIN, COMBAT_MAX) ? record.combat : null;
           entry.tile = tile;
           entry.facing = facing;
           entry.appearance = record.appearance ? appearanceFromWire(record.appearance, isValidKit) : null;
@@ -285,7 +286,7 @@ export function createRemotePlayers({ buildRig, makeTracker, isValidKit, maxDraw
         const model = entry.rig?.hitModel;
         if (!model) continue;
         entry.hit ??= { ...model, modelMatrix: entry.modelMatrix, useBoundingBox: true };
-        out.push({ actorId: entry.id, name: entry.name, hitTestData: entry.hit });
+        out.push({ actorId: entry.id, name: entry.name, combat: entry.combat, hitTestData: entry.hit });
       }
       return out;
     },
