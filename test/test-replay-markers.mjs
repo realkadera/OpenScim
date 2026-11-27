@@ -253,8 +253,11 @@ try {
   const marks = page.locator(".replay-marker");
   await marks.first().waitFor({ timeout: 20000 });
   assert.deepEqual((await marks.evaluateAll((all) => all.map((each) => each.title))).sort(), [`Marker: tick ${saved.tick}`, `Marker: tick ${second.tick}`, `Marker: wave 1 (tick ${wave.fight.tick})`].sort());
-  await page.locator(`.replay-marker[title="Marker: tick ${saved.tick}"]`).click();
   const playhead = () => page.locator(".replay-seek").inputValue();
+  const end = await playhead();
+  await page.locator(`.replay-marker[title="Marker: tick ${saved.tick}"]`).click();
+  // The playhead moves a frame after the click: read at once, it can still be at the end.
+  await page.waitForFunction((value) => document.querySelector(".replay-seek").value !== value, end, { timeout: 5000 });
   const savedFrame = Number(await playhead());
   await page.keyboard.press("Shift+F7");
   await page.waitForFunction(([value, at]) => Number(document.querySelector(".replay-seek").value) === value + at, [savedFrame, second.tick - saved.tick], { timeout: 5000 });
