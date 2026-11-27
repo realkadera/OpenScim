@@ -40,8 +40,13 @@ var prayerMultipliersByPrayer = {
     defence: 1.05,
   },
 };
+// A level times a prayer's multiplier, rounded down, in whole thousandths:
+// 100 * 1.15 is 114.99999999999999 as a double, and the game's 115.
+function scaleLevel(level, multiplier) {
+  return Math.floor((level * Math.round(multiplier * 1000)) / 1000);
+}
 function getEffectiveMeleeAttackLevel(attacker, prayerMultipliers) {
-  const prayerScaledAttack = Math.floor(attacker.levels.attack * prayerMultipliers.attack);
+  const prayerScaledAttack = scaleLevel(attacker.levels.attack, prayerMultipliers.attack);
   const stanceBonus = attacker.stance === "Accurate" ? 3 : attacker.stance === "Controlled" ? 1 : 0;
   const voidMultiplier = attacker.voidSet === "melee" ? 1.1 : 1;
   return Math.floor((prayerScaledAttack + stanceBonus + 8) * voidMultiplier);
@@ -86,14 +91,14 @@ function getSteadyStateHitChance(singleRollChance, doubleRollChance) {
   return (1 - doubleRollShare) * singleRollChance + doubleRollShare * doubleRollChance;
 }
 function getEffectiveRangedAttackLevel(attacker, prayerMultipliers) {
-  const prayerScaledRanged = Math.floor(attacker.levels.ranged * prayerMultipliers.ranged);
+  const prayerScaledRanged = scaleLevel(attacker.levels.ranged, prayerMultipliers.ranged);
   const stanceBonus = attacker.stance === "Accurate" ? 3 : 0;
   const voidMultiplier =
     attacker.voidSet === "ranged" || attacker.voidSet === "elite_ranged" ? 1.1 : 1;
   return Math.floor((prayerScaledRanged + stanceBonus + 8) * voidMultiplier);
 }
 function getEffectiveMagicAttackLevel(attacker, prayerMultipliers) {
-  const prayerScaledMagic = Math.floor(attacker.levels.magic * prayerMultipliers.magic);
+  const prayerScaledMagic = scaleLevel(attacker.levels.magic, prayerMultipliers.magic);
   // WIKI (Damage per second/Magic, step two): the level times the prayer,
   // rounded down; times 1.45 in Void Magic; "+2 if using Accurate on powered
   // staves"; "+9". A spell cast and Longrange get the 9 alone.
@@ -166,12 +171,12 @@ function getNpcAttackRoll(attacker, formulaStyle) {
   }
 }
 function getEffectiveMagicDefenceLevel(target, targetPrayerMultipliers) {
-  const prayerScaledMagic = Math.floor(target.levels.magic * targetPrayerMultipliers.magic);
-  const prayerScaledDefence = Math.floor(target.levels.defence * targetPrayerMultipliers.defence);
+  const prayerScaledMagic = scaleLevel(target.levels.magic, targetPrayerMultipliers.magic);
+  const prayerScaledDefence = scaleLevel(target.levels.defence, targetPrayerMultipliers.defence);
   return Math.floor((prayerScaledMagic * 7) / 10) + Math.floor((prayerScaledDefence * 3) / 10) + getStanceDefenceBonus(target) + 8;
 }
 function getEffectiveMeleeOrRangedDefenceLevel(target, targetPrayerMultipliers) {
-  return Math.floor(target.levels.defence * targetPrayerMultipliers.defence) + getStanceDefenceBonus(target) + 8;
+  return scaleLevel(target.levels.defence, targetPrayerMultipliers.defence) + getStanceDefenceBonus(target) + 8;
 }
 function getEquipmentDefenceBonus(formulaStyle, targetEquipmentStats) {
   switch (formulaStyle) {
@@ -305,7 +310,7 @@ function getEffectiveMeleeStrengthLevel(attacker, prayerMultipliers) {
   const meleeStrengthBonusPercent = attacker.meleeStrengthBonusPercent ?? 0;
   const prayerScaledStrength =
     meleeStrengthBonusPercent === 0
-      ? Math.floor(attacker.levels.strength * prayerMultipliers.strength)
+      ? scaleLevel(attacker.levels.strength, prayerMultipliers.strength)
       : Math.floor(
           (attacker.levels.strength *
             (Math.round(prayerMultipliers.strength * 100) + meleeStrengthBonusPercent)) /
@@ -321,8 +326,9 @@ function getEffectiveMeleeStrengthLevel(attacker, prayerMultipliers) {
   return Math.floor((prayerScaledStrength + stanceBonus + 8) * voidMultiplier);
 }
 function getEffectiveRangedStrengthLevel(attacker, prayerMultipliers) {
-  const prayerScaledRanged = Math.floor(
-    (attacker.rangedStrengthLevel ?? attacker.levels.ranged) * prayerMultipliers.rangedStrength,
+  const prayerScaledRanged = scaleLevel(
+    attacker.rangedStrengthLevel ?? attacker.levels.ranged,
+    prayerMultipliers.rangedStrength,
   );
   const stanceBonus = attacker.stance === "Accurate" ? 3 : 0;
   const voidMultiplier =
@@ -349,10 +355,14 @@ function getPlayerMaxHit(attacker, formulaStyle, equipmentStats, prayerMultiplie
       );
     case "magic": {
       const magicBaseMaxHit = Math.floor(attacker.magicBaseMaxHit ?? 0);
-      const equipmentDamageBonus = equipmentStats.magicDamage / 100;
-      const prayerDamageBonus = prayerMultipliers.magicDamage - 1;
-      const voidDamageBonus = attacker.voidSet === "elite_magic" ? 0.05 : 0;
-      return Math.floor(magicBaseMaxHit * (1 + equipmentDamageBonus + prayerDamageBonus + voidDamageBonus));
+      // The bonuses in whole tenths of a percent: 25 * (1 + 16 / 100) is
+      // 28.999999999999996 as a double, and the game's 29.
+      const equipmentDamageBonus = Math.round(equipmentStats.magicDamage * 10);
+      const prayerDamageBonus = Math.round((prayerMultipliers.magicDamage - 1) * 1000);
+      const voidDamageBonus = attacker.voidSet === "elite_magic" ? 50 : 0;
+      return Math.floor(
+        (magicBaseMaxHit * (1000 + equipmentDamageBonus + prayerDamageBonus + voidDamageBonus)) / 1000,
+      );
     }
     default:
       return formulaStyle;

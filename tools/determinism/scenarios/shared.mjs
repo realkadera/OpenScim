@@ -452,6 +452,12 @@ function formulas(rendering) {
         rendering.getFormulaMaxHit(player(variant), style, gear, boosted),
       ]),
     ),
+    // Where the product as a double falls just under the whole number: 100 Ranged with Eagle Eye is 115, so the roll
+    // is (115 + 8) * (110 + 64) = 21402; a base of 25 with +16% magic damage is 29.
+    rounding: [
+      rendering.getPlayerAccuracyRolls(player({ levels: { attack: 99, strength: 98, defence: 97, ranged: 100, magic: 95 }, stance: "Other" }), monster(), "ranged", gear, { ...rendering.neutralPrayerMultipliers, ranged: 1.15 }).attackRoll,
+      rendering.getFormulaMaxHit(player({ magicBaseMaxHit: 25 }), "magic", { ...gear, magicDamage: 16 }),
+    ],
     maxHitOfNeither: rendering.getFormulaMaxHit({ kind: "bogus", note: "handed back" }, "magic", gear),
     hitDelay: ["melee", "bow", "thrown", "magic", "magic_slow", "bogus"].map((kind) => [1, 4, 10].map((distance) => rendering.getHitDelayTicks(kind, distance))),
     projectileTimings: rendering.projectileTimings,
