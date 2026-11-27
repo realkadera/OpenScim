@@ -33,7 +33,7 @@
 // Numbers no source gives are marked inferred.
 //
 // She rises as the fight-start countdown ends, which stands in for her poke.
-// Not yet: the woox walk's subtleties beyond what the ticks give; her sounds;
+// Not yet: the woox walk's subtleties beyond what the ticks give;
 // Salve amulet's and the dragon hunter weapons' bonuses are the engine's
 // (attributes "undead", "dragon").
 import { getMonsterFormulaStats, getMonsterHitpoints } from "../../engine/monsterStats.js";
@@ -474,7 +474,7 @@ class VorkathEncounter {
       const vorkath = this.boss(ctx.world);
       if (this.phase !== "spawn" || !vorkath?.alive || !you.alive) return this.endSpawn();
       this.frozenUntil = ctx.tick + freezeTicks;
-      this.animate(ctx, "high");
+      this.animate(ctx, "throw"); // the fireball's animation, under a name of its own: its sound is another (audio.js)
       const tile = this.spawnTile(vorkath, you);
       if (!tile) return this.endSpawn();
       this.animate(ctx, null, [], [tileProjectile(spotAnims.spawnThrown, centreOf(vorkath.position), tile, tileFlights.spawn)]);

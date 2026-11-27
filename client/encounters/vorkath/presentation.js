@@ -5,6 +5,7 @@
 import { buildScene } from "../shared/buildScene.js";
 import { vorkathKind, vorkathMapSquare, bossActorId } from "./encounter.js";
 import { npcTypeIds, seqIds, spotAnims, acidPoolLoc, bossStart, bossSize } from "./ids.js";
+import { vorkathAudio } from "./audio.js";
 
 const identity = new Float32Array([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
 const acid = ([x, y]) => ({
@@ -32,7 +33,7 @@ const renderConfig = {
     {
       npcTypeId: npcTypeIds.vorkath,
       idleSeqId: seqIds.idle,
-      attackClips: { wake: seqIds.wake, melee: seqIds.melee, breath: seqIds.breath, acid: seqIds.acid, high: seqIds.high },
+      attackClips: { wake: seqIds.wake, melee: seqIds.melee, breath: seqIds.breath, acid: seqIds.acid, high: seqIds.high, throw: seqIds.high },
       deathSeqId: seqIds.death,
       bossDeathAnimationEnabled: true,
     },
@@ -50,6 +51,7 @@ export const presentation = (BaseScene) => ({
   kind: vorkathKind,
   renderConfig,
   sceneBuilder: (context) => buildScene(BaseScene, renderConfig, context),
+  audio: vorkathAudio,
   // The player comes in south of her: the camera looks north, over his shoulder.
   defaultCamera: { yaw: 0, pitch: -40, zoom: 420 },
   presentation: {
