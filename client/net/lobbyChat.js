@@ -1,0 +1,194 @@
+// The lobby's public chat as the bundles show it: the chatbox's input line
+// and lines (Grid.js Chatbox) and the text above the speakers' heads (the
+// lobby scene, rendering.js). One source, the presence of lobbyLink.js while
+// it is active; nothing without one, and the chatbox is then as before.
+//
+//   setLobbyChatSource(presence | null)    lobbyLink.js: { session, chat } (index.js)
+//   getLobbyChatSource()
+//   subscribeLobbyChat(fn), getLobbyChatSnapshot()
+//                                          the chatbox, through useSyncExternalStore:
+//     available  signed in, in the lobby, the server's chat on: the input line is ours
+//     name       our own name (the welcome's), the input line's "<name>: "
+//     maxChars   the welcome's chat_max_chars
+//     draft      what is typed and not sent yet; kept while the line is away
+//     lines      the chatbox entries, oldest first, in the shape of the
+//                chatbox's own (Grid.js ChatLogProjection): { key, kind,
+//                speaker?, segments: [{ text }] }; the keys start with "net:"
+//   setLobbyChatDraft(text)                at most maxChars characters are kept
+//   sendLobbyChat()                        Enter: the draft through session.sendChat;
+//                                          a refusal of ours becomes a game line
+//   chatKeyStartsTyping(event, keybinds)   whether a key pressed outside the
+//                                          input line goes to it (a character no
+//                                          keybind uses)
+//   lobbyChatOverheadText(id, now?)        the text above player id (null: our own)
+//                                          as the overlay draws it, or null
+//   createChatboxMerge(now?)               the chatbox's lines and ours, in time order
+//
+// Names and texts are the server's, untrusted plain text: they go into
+// segments as text, which the chatbox renders as React text and the
+// overlay as textContent, never as markup.
+import { chatLength } from "./chatText.js";
+import { overheadChatText } from "./chatEffects.js";
+
+let source = null;
+let unsubscribe = [];
+let draft = "";
+let snapshot = null;
+const listeners = new Set();
+// Entries by line object: the same line gives the same entry, so the
+// chatbox's memoised lines are not drawn again.
+let entries = new WeakMap();
+
+const notify = () => {
+  snapshot = null;
+  for (const listener of [...listeners]) listener();
+};
+
+export function setLobbyChatSource(next) {
+  next = next ?? null;
+  if (next === source) return;
+  for (const off of unsubscribe) off();
+  unsubscribe = [];
+  source = next;
+  entries = new WeakMap();
+  if (source) {
+    const on = (target) => target?.subscribe?.(notify);
+    unsubscribe = [on(source.session), on(source.chat)].filter((off) => typeof off === "function");
+  }
+  notify();
+}
+export const getLobbyChatSource = () => source;
+
+export function subscribeLobbyChat(listener) {
+  listeners.add(listener);
+  return () => listeners.delete(listener);
+}
+
+const EMPTY = Object.freeze({ available: false, name: null, maxChars: 0, draft: "", lines: Object.freeze([]) });
+
+function entryOf(line) {
+  let entry = entries.get(line);
+  if (!entry) {
+    entry =
+      line.kind === "public"
+        ? Object.freeze({ key: `net:${line.seq}`, kind: "public", speaker: line.name, segments: Object.freeze([Object.freeze({ text: line.display.text })]), at: line.at })
+        : Object.freeze({ key: `net:${line.seq}`, kind: "game", segments: Object.freeze([Object.freeze({ text: line.text })]), at: line.at });
+    entries.set(line, entry);
+  }
+  return entry;
+}
+
+export function getLobbyChatSnapshot() {
+  if (snapshot) return snapshot;
+  if (!source) return (snapshot = EMPTY);
+  const session = source.session?.getSnapshot?.() ?? null;
+  const lines = source.chat?.getSnapshot?.().lines ?? [];
+  const available = !!session && session.chatEnabled === true && !!session.you && session.state !== "stopped";
+  snapshot = Object.freeze({
+    available,
+    name: session?.you?.name ?? null,
+    maxChars: session?.limits?.chat_max_chars ?? 0,
+    draft,
+    lines: Object.freeze(lines.map(entryOf)),
+  });
+  return snapshot;
+}
+
+// The first maxChars characters (Unicode scalar values, as the server
+// counts); the game takes no more than that on the input line.
+export function clampDraft(text, maxChars) {
+  if (typeof text !== "string") return "";
+  if (!(maxChars > 0) || chatLength(text) <= maxChars) return text;
+  return [...text].slice(0, maxChars).join("");
+}
+
+export function setLobbyChatDraft(text) {
+  const next = clampDraft(text, getLobbyChatSnapshot().maxChars);
+  if (next === draft) return;
+  draft = next;
+  notify();
+}
+
+// { ok, reason?, text? } as session.sendChat answers. An empty line is not
+// sent and says nothing (the game ignores Enter on an empty input line);
+// any other refusal shows as a game line of the chatbox. The draft is
+// cleared once sent and kept when refused, to be sent again.
+export function sendLobbyChat() {
+  if (!source || !getLobbyChatSnapshot().available) return { ok: false, reason: "chat_off" };
+  if (draft.trim() === "") return { ok: false, reason: "empty" };
+  let result;
+  try {
+    result = source.session.sendChat(draft);
+  } catch {
+    result = { ok: false, reason: "not_sent" };
+  }
+  if (result?.ok) setLobbyChatDraft("");
+  else if (result?.reason !== "empty") source.chat?.addSystemLine?.(result?.reason ?? "not_sent");
+  return result;
+}
+
+// A key binding as stored ("a", "Shift+Z", "Ctrl+Z", " ", "F2"): the key it
+// takes, lower case, when it is a character with no Ctrl, Alt or Meta.
+function boundCharacter(binding) {
+  const match = typeof binding === "string" ? /^((?:[A-Za-z]+\+)*)(.+)$/su.exec(binding) : null;
+  if (!match || /(^|\+)(ctrl|control|alt|meta|cmd|command)\+/i.test(match[1])) return null;
+  return [...match[2]].length === 1 ? match[2].toLowerCase() : null;
+}
+
+// Whether a key pressed with focus outside any field types into the input
+// line: one printable character, no Ctrl, Alt or Meta, and no keybind of
+// keybinds (rendering.js's unified keybinds: { gamePanel, camera, ui,
+// plugins }) uses it, Shift or not. Space never starts a line. A bound key
+// keeps its binding; Enter opens the line for any.
+export function chatKeyStartsTyping(event, keybinds) {
+  if (!event || event.ctrlKey || event.altKey || event.metaKey || event.isComposing) return false;
+  const key = event.key;
+  if (typeof key !== "string" || [...key].length !== 1 || /\s/u.test(key) || /\p{C}/u.test(key)) return false;
+  const lower = key.toLowerCase();
+  for (const domain of ["gamePanel", "camera", "ui", "plugins"]) {
+    for (const binding of Object.values(keybinds?.[domain] ?? {})) if (boundCharacter(binding) === lower) return false;
+  }
+  return true;
+}
+
+// The text above player id (null: our own) now, as the overlay's
+// overheadTexts take it ({ text, textColor, segments?, transform?,
+// clipPath? }), or null: none, past its time, or filtered out.
+export function lobbyChatOverheadText(id, now = Date.now()) {
+  if (!source?.chat) return null;
+  const own = id === null;
+  if (own) id = source.session?.getSnapshot?.().you?.id ?? null;
+  if (id === null || id === undefined) return null;
+  const line = source.chat.overheadFor(id, now);
+  if (!line) return null;
+  return overheadChatText(line.display, now - line.at, now);
+}
+
+// The chatbox shows two kinds of lines: the fight's game messages, which
+// follow its replay (Grid.js ChatLogProjection), and ours, which follow the
+// clock. A game line is placed by when it was first shown, ours by when it
+// came; a game line and one of ours at the same moment, the game line first.
+// The merge returns the game lines themselves when there are none of ours.
+export function createChatboxMerge(now = Date.now) {
+  const seen = new Map();
+  let lastGame = null, lastNet = null, last = null;
+  return (game, net) => {
+    if (!net || net.length === 0) return game;
+    if (game === lastGame && net === lastNet) return last;
+    const t = now();
+    const keys = new Set();
+    for (const entry of game) {
+      keys.add(entry.key);
+      if (!seen.has(entry.key)) seen.set(entry.key, t);
+    }
+    for (const key of seen.keys()) if (!keys.has(key)) seen.delete(key);
+    const out = [];
+    let i = 0, j = 0;
+    while (i < game.length || j < net.length) {
+      if (j >= net.length || (i < game.length && seen.get(game[i].key) <= net[j].at)) out.push(game[i++]);
+      else out.push(net[j++]);
+    }
+    [lastGame, lastNet, last] = [game, net, out];
+    return out;
+  };
+}

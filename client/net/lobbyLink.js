@@ -6,7 +6,9 @@
 //                                    shown, no replay. Creates the presence
 //                                    once and starts it after the next lobby
 //                                    tick (look and tile known); stops it
-//                                    when false.
+//                                    when false. Its players and its chat
+//                                    are the sources of remotePlayers.js and
+//                                    lobbyChat.js while it is active.
 //   lobbyBeforeTick(kind, state, engineOverride)
 //                                    Grid.js live loop, before advanceTick:
 //                                    { tile, ctrlClickOverride, changed } while
@@ -22,6 +24,7 @@ import { createLobbyPresence } from "./index.js";
 import { COMBAT_MAX, COMBAT_MIN, STEPS_PER_PRESENCE_MAX, isAdjacent, tilesEqual } from "./protocol.js";
 import { createFollow } from "./follow.js";
 import { appearanceToWire, equipmentToWire, getRemotePlayersSource, setRemotePlayersSource } from "./remotePlayers.js";
+import { getLobbyChatSource, setLobbyChatSource } from "./lobbyChat.js";
 
 // hello.build of this client, the one place it is set.
 export const LOBBY_BUILD = "web";
@@ -49,7 +52,14 @@ export function presenceSteps(before, after) {
 // one, the presence stays stopped until the page is loaded again.
 const FINAL_STOPS = new Set(["replaced", "session_ended", "banned", "version_mismatch"]);
 
-export function createLobbyLink({ createPresence = createLobbyPresence, build = LOBBY_BUILD, setSource = setRemotePlayersSource, getSource = getRemotePlayersSource } = {}) {
+export function createLobbyLink({
+  createPresence = createLobbyPresence,
+  build = LOBBY_BUILD,
+  setSource = setRemotePlayersSource,
+  getSource = getRemotePlayersSource,
+  setChatSource = setLobbyChatSource,
+  getChatSource = getLobbyChatSource,
+} = {}) {
   let presence = null;
   let active = false;
   let sentLook = null;
@@ -96,6 +106,7 @@ export function createLobbyLink({ createPresence = createLobbyPresence, build = 
         if (finalStop) return;
         sentLook = null;
         setSource(presence.players);
+        setChatSource(presence);
         // Started after the next lobby tick has set the look and the tile, so
         // both go out before join and the others never see us half made.
         startPending = true;
@@ -105,6 +116,7 @@ export function createLobbyLink({ createPresence = createLobbyPresence, build = 
         if (presence) {
           presence.stop();
           if (getSource() === presence.players) setSource(null);
+          if (getChatSource() === presence) setChatSource(null);
         }
       }
     },
