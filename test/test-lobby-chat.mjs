@@ -298,6 +298,61 @@ try {
     assert.deepEqual(errors, []);
     await page.close();
   }
+  // --- 3. the interface scaled (Stretched Mode at 2): the text is scaled with the overlay ------------
+  {
+    const context = await browser.newContext({ viewport: { width: 1920, height: 1080 } });
+    const page = await context.newPage();
+    const errors = [];
+    page.on("pageerror", (error) => errors.push(error.stack));
+    await page.addInitScript(() => {
+      if (!localStorage.getItem("osrs-yama-settings")) localStorage.setItem("osrs-yama-settings", JSON.stringify({ uiScale: 2, stretchedModeEnabled: true, stretchedModeScale: 2 }));
+    });
+    await exposeEngines(page);
+    await openLobby(page);
+    await page.evaluate(async (look) => {
+      const remotes = await import("/net/remotePlayers.js");
+      const chat = await import("/net/lobbyChat.js");
+      const alice = { id: 1, name: "Alice", appearance: look, equipment: {}, combat: 100, tile: [30, 23], facing: 0, run: false, fromTile: [30, 23], steps: [], snapped: true, lastTick: null };
+      remotes.setRemotePlayersSource({ list: () => [alice], getById: () => alice });
+      window.scaledRemotes = remotes;
+      const said = { display: { colour: "yellow", effect: null, text: "Scaled" } };
+      chat.setLobbyChatSource({
+        chat: { overheadFor: (id) => (id === 1 ? { ...said, at: Date.now() - 100 } : null), getSnapshot: () => ({ lines: [], filter: "on" }), subscribe: () => () => {} },
+        session: { getSnapshot: () => ({ you: { id: 99, name: "Me" }, chatEnabled: true, state: "open", limits: { chat_max_chars: 80 } }), subscribe: () => () => {} },
+      });
+    }, look);
+    const scaled = await page
+      .waitForFunction(() => {
+        const canvas = document.querySelector("canvas[data-overhead-bitmap]");
+        const text = canvas?.drawnTexts?.find((drawn) => drawn.text === "Scaled");
+        const entry = window.scaledRemotes.presentedRemotePlayers().find((e) => e.id === 1);
+        if (!text || !entry?.chatAnchor || canvas.style.transform === "") return null;
+        const rect = canvas.getBoundingClientRect();
+        const parent = canvas.parentElement.getBoundingClientRect();
+        // (The frame after the scale is set, the canvas takes its size in game pixels.)
+        if (rect.width > parent.width + 1) return null;
+        return {
+          transform: canvas.style.transform,
+          layer: document.querySelector("[data-overhead-texts]").style.transform,
+          covers: [Math.round(rect.width - parent.width), Math.round(rect.height - parent.height)],
+          // In game pixels: the baseline 2 px under the point, the text centred on it.
+          dy: text.baseline - Math.round(entry.chatAnchor.y),
+          dx: Math.abs(text.left + text.width / 2 - entry.chatAnchor.x) <= 1,
+          // On the screen: the game pixel of the baseline is the point's, scaled.
+          screenY: Math.round(rect.top + text.baseline * 2),
+          anchorScreenY: Math.round(parent.top + entry.chatAnchor.y * 2),
+        };
+      }, null, { timeout: 30000 })
+      .then((handle) => handle.jsonValue());
+    assert.equal(scaled.transform, "scale(2)", JSON.stringify(scaled));
+    assert.equal(scaled.layer, "scale(2)");
+    assert.deepEqual(scaled.covers, [0, 0], "the scaled canvas covers the overlay exactly");
+    assert.equal(scaled.dy, 2);
+    assert.equal(scaled.dx, true);
+    assert.ok(Math.abs(scaled.screenY - scaled.anchorScreenY - 4) <= 2, JSON.stringify(scaled));
+    assert.deepEqual(errors, []);
+    await context.close();
+  }
   console.log("Lobby chat passed");
 } finally {
   await browser.close();

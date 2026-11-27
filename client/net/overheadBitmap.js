@@ -9,7 +9,10 @@
 //     chatEffects.js overheadChatText gives, with screenX and screenY (the
 //     bottom of a 16 px line, 4 px under the baseline, as the overlay's text
 //     spans hang). True when it drew them; false while the font is not
-//     loaded (the caller then shows its own text).
+//     loaded (the caller then shows its own text). The points are in game
+//     pixels: the canvas is one of the overlay's layers and is scaled with
+//     them (Stretched Mode, the interface scale), as the game scales its
+//     whole picture, text included.
 //   stackOverheadTexts(texts)   the baselines after stacking; no DOM
 //
 // The glyphs are those of the page's "RuneScape Bold 12" font at 16 px, where
@@ -127,8 +130,11 @@ export function drawOverheadBitmapTexts(container, entries, zIndex) {
     if (zIndex !== undefined) canvas.style.zIndex = `${zIndex}`;
     container.appendChild(canvas);
   }
-  const width = container.clientWidth;
-  const height = container.clientHeight;
+  // The overlay's layers are drawn in game pixels and scaled up together (rendering.js scaleOverlayLayers sets
+  // the scale on this canvas too): the canvas is the container in game pixels, so that scaled it covers it.
+  const scale = Number(/scale\(([\d.]+)\)/.exec(canvas.style.transform)?.[1]) || 1;
+  const width = Math.ceil(container.clientWidth / scale);
+  const height = Math.ceil(container.clientHeight / scale);
   if (canvas.width !== width || canvas.height !== height) {
     canvas.width = width;
     canvas.height = height;
