@@ -128,6 +128,17 @@ try {
     await exposeEngines(page);
     await openLobby(page);
     await page.waitForFunction(async () => (await import("/net/remotePlayers.js")).presentedRemotePlayers().some((e) => e.id === 8 && e.rig && e.chatAnchor), null, { timeout: 30000 });
+    // The text hangs from the top of the model as it is drawn: the posed height and the lift the scene draws it
+    // with (its lowest point, the stance's offset), not the posed height alone, which put the text in the head.
+    const heights = await page.evaluate(async () => {
+      const e = (await import("/net/remotePlayers.js")).presentedRemotePlayers().find((entry) => entry.id === 8);
+      const lift = e.rig.minHeight + e.rig.controller._w();
+      // overheadAnchor is 7 px above the point 15 over the posed height: the pixels of one unit of height.
+      const unit = (e.screenCenter.y - (e.overheadAnchor.y + 7)) / (e.rig.controller.posedModelHeight / 2 + 15);
+      return { lift, above: (e.overheadAnchor.y + 7 - e.chatAnchor.y) / unit };
+    });
+    assert.ok(heights.lift > 0, JSON.stringify(heights));
+    assert.ok(Math.abs(heights.above - (heights.lift - 15)) < 2.5, "the anchor is the lift above the posed height: " + JSON.stringify(heights));
 
     // Our own name from the welcome, not "Player".
     await page.waitForFunction(() => document.querySelector(".chatbox__input")?.textContent === "Player-0420: *", null, { timeout: 30000 });

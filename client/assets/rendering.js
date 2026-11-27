@@ -43834,14 +43834,15 @@ var UIOverlayRenderer = class e {
     const a = this.playerBarAnchor(t, s, posedModelHeight);
     return a && { x: a.x, y: a.y - 5 - 2 };
   }
-  // Where a player's overhead chat stands (the bottom of its text): the top of the model as posed, 15 under the
-  // point the health bar hangs from (inferred: the game client draws an actor's overhead text at its height and
-  // its health bar at its height + 15).
-  playerChatAnchor(t, s, posedModelHeight) {
+  // Where a player's overhead chat stands: the top of the model as it is drawn. OBS (the game's client): an actor's
+  // overhead text hangs from the top of its posed model. `lift`: how far the scene raises the model off the
+  // ground when it draws it (its lowest point, and the stance's own offset); the top is that much higher than
+  // the posed height says. Without it the text stood in the head.
+  playerChatAnchor(t, s, posedModelHeight, lift = 0) {
     return t.tileToScreen({
       x: s[0] + 0.5,
       y: s[1] + 0.5,
-      level: -Nb(this.terrainHeights, s[0], s[1]) / 128 + (posedModelHeight || playerLogicalHeight) / 128,
+      level: -Nb(this.terrainHeights, s[0], s[1]) / 128 + ((posedModelHeight || playerLogicalHeight) + lift) / 128,
     });
   }
   SL(a, t, n, s, posedModelHeight) {
@@ -54719,7 +54720,7 @@ var LobbySceneCompositor = class extends SceneCompositor {
     const own = lobbyChatOverheadText(null, now);
     const center = this.lastPlayerVisualCenter;
     if (own && center) {
-      push("lobby-chat-local", this.uiOverlayRenderer.playerChatAnchor(uiCamera, [center[0] - 0.5, center[1] - 0.5], this.playerAnimController?.posedModelHeight), own);
+      push("lobby-chat-local", this.uiOverlayRenderer.playerChatAnchor(uiCamera, [center[0] - 0.5, center[1] - 0.5], this.playerAnimController?.posedModelHeight, this.xH() * 128), own);
     }
   }
   drawRemotePlayer(n, r, camera, uiCamera, deltaMs, standingTiles) {
@@ -54780,7 +54781,7 @@ var LobbySceneCompositor = class extends SceneCompositor {
     r.overheadAnchor = uiCamera
       ? this.uiOverlayRenderer.playerOverheadBase(uiCamera, r.position, ctrl?.posedModelHeight)
       : null;
-    r.chatAnchor = uiCamera ? this.uiOverlayRenderer.playerChatAnchor(uiCamera, r.position, ctrl?.posedModelHeight) : null;
+    r.chatAnchor = uiCamera ? this.uiOverlayRenderer.playerChatAnchor(uiCamera, r.position, ctrl?.posedModelHeight, rig.minHeight + (ctrl?._w() ?? 0)) : null;
     // The screen point of the middle of the body (a pointer aimed at this player, as the tests aim).
     r.screenCenter = uiCamera
       ? uiCamera.tileToScreen({ x: x, y: y, level: ground + (ctrl?.posedModelHeight || 200) / 256 })
