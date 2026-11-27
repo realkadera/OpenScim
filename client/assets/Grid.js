@@ -28441,6 +28441,8 @@ var TooltipCard = pn.forwardRef(
                     fontSize: Math.round(eA * 18) + "px",
                     color: eE.color,
                     textShadow: "1px 1px 0 rgba(0, 0, 0, 0.7)",
+                    // Optional: text another player chose, kept from reordering the line around it.
+                    ...(eE.isolate ? { unicodeBidi: "isolate" } : {}),
                   },
                   children: eE.text,
                 },
@@ -29872,6 +29874,8 @@ var ContextMenuOverlay = () => {
                               : (fz.targetColor ?? fx.target),
                             textShadow: "1px 1px 0 rgba(0, 0, 0, 0.7)",
                             marginLeft: Math.round(f0 * 4) + "px",
+                            // A name another player chose cannot reorder the entry around it.
+                            unicodeBidi: "isolate",
                           },
                           children: fz.target,
                         }),
@@ -53542,7 +53546,7 @@ var ViewportEntityBridge = ({
               {
                 spans: [
                   { text: "Walk here ", color: TOOLTIP_COLORS.action },
-                  { text: remote.name, color: "#ffffff" },
+                  { text: remote.name, color: "#ffffff", isolate: true },
                   ...(remote.combat == null ? [] : [{ text: " (level-" + remote.combat + ")", color: remote.levelColor }]),
                 ],
               },
