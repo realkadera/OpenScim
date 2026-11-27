@@ -646,6 +646,19 @@ for (const [code, retry] of Object.entries(policies).map(([code, retry]) => [Num
   assert.deepEqual(session.sendChat("later"), { ok: false, reason: "rate_limited", retryInMs: 5000 });
   socket.receive({ t: "chat_rejected", reason: "muted" });
   assert.equal(chat.getSnapshot().lines.at(-1).text, "You are muted and cannot talk.");
+  // A line the server refuses spends no interval: its refusal gives the time back.
+  await clock.advance(5000);
+  const refused = session.sendChat("muted line");
+  assert.equal(refused.ok, true);
+  assert.equal(session.sendChat("too soon").reason, "rate_limited");
+  socket.receive({ t: "chat_rejected", rid: refused.rid, reason: "muted" });
+  assert.equal(session.sendChat("not too soon").ok, true);
+  // The per-address limit comes as rate_limited too.
+  socket.receive({ ...fixtureBody("valid", "chat-rejected.rate-limited-address"), rid: 12345 });
+  assert.deepEqual(session.sendChat("x"), { ok: false, reason: "rate_limited", retryInMs: 4000 });
+  await clock.advance(4000);
+  socket.receive({ t: "chat_rejected", rid: 999, reason: "rate_limited", retry_in_ms: 1000 });
+  assert.deepEqual(session.sendChat("x"), { ok: false, reason: "rate_limited", retryInMs: 1000 });
   // Notices switch chat off and on.
   socket.receive({ t: "notice", kind: "chat_off" });
   assert.equal(session.getSnapshot().chatEnabled, false);

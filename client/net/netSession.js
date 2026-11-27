@@ -204,6 +204,9 @@ export function createNetSession({
   // The earliest time the next chat line may go. Kept across connections:
   // the server's interval is per user, across reconnects.
   let chatAllowedAt = -Infinity;
+  // The rid of the last line sent, and chatAllowedAt before it: a line the
+  // server refuses spends no interval, so its refusal gives that time back.
+  let chatRid = null, chatAllowedBefore = -Infinity;
 
   // --- sending. Half the server's rate, so a burst of ours never meets its limit.
   const bucketSize = () => Math.max(1, Math.floor(snapshot.limits.msg_burst / 2));
@@ -463,6 +466,11 @@ export function createNetSession({
         break;
       case "chat_rejected":
         if (msg.reason === "chat_off") update({ chatEnabled: false });
+        if (chatRid !== null && msg.rid === chatRid) {
+          chatAllowedAt = chatAllowedBefore;
+          chatRid = null;
+        }
+        // Per user or per address: either way, nothing before retry_in_ms.
         if (msg.reason === "rate_limited") chatAllowedAt = Math.max(chatAllowedAt, now() + msg.retry_in_ms);
         break;
       case "notice":
@@ -518,6 +526,7 @@ export function createNetSession({
       ridCounter = (ridCounter % 0xffffffff) + 1;
       const rid = ridCounter;
       if (!send(buildChat(prepared.text, rid))) return { ok: false, reason: "not_sent" };
+      [chatRid, chatAllowedBefore] = [rid, chatAllowedAt];
       chatAllowedAt = now() + snapshot.limits.chat_interval_ms;
       return { ok: true, text: prepared.text, rid };
     },

@@ -17,10 +17,12 @@ import { fixtureBody, readFixtures } from "./net-fakes.mjs";
 
 // The fixtures: the raw client line is relayed in its cleaned form, and every
 // text the server relays is already clean (cleaning it again changes nothing).
-assert.equal(cleanChatText(fixtureBody("valid", "chat.raw").text), "twospaces");
+const raw = { "chat.raw": "twospaces", "chat.blanks": "buying gf free items" };
+for (const [name, cleaned] of Object.entries(raw)) assert.equal(cleanChatText(fixtureBody("valid", name).text), cleaned, name);
+assert.equal(prepareOutgoing(fixtureBody("valid", "chat.blanks").text).text, "Buying gf free items");
 for (const fixture of readFixtures("valid").filter((f) => f.body.t === "chat")) {
   const text = fixture.body.text;
-  if (fixture.name === "chat.raw") continue;
+  if (raw[fixture.name]) continue;
   assert.equal(cleanChatText(text), text, fixture.name);
   if (fixture.direction === "server") assert.equal(prepareOutgoing(text).ok, true, fixture.name);
 }

@@ -84,7 +84,7 @@ assert.equal(CHAT_LOG_MAX, 100);
 // --- system lines --------------------------------------------------------------------
 {
   const { chat } = setup();
-  for (const name of ["chat-rejected.too-long", "chat-rejected.empty", "chat-rejected.rate-limited", "chat-rejected.chat-off", "chat-rejected.not-joined"]) {
+  for (const name of ["chat-rejected.too-long", "chat-rejected.empty", "chat-rejected.rate-limited", "chat-rejected.chat-off", "chat-rejected.not-joined", "chat-rejected.muted", "chat-rejected.rate-limited-address"]) {
     const body = fixtureBody("valid", name);
     chat.handle(message(body));
     const line = chat.getSnapshot().lines.at(-1);
