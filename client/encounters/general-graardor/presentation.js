@@ -16,25 +16,11 @@ const renderConfig = {
     bounds: null,
     levels: [0, 1],
     replacements: [
-      // CACHE: loc 26503 at (47, 42) and flanking doorway frame walls 26509/26511 at (47, 41..43) are replaced with 40419 ("Big door") so the entire 3-tile doorway has a red-X clickbox.
+      // CACHE: loc 26503 at (47, 42) is replaced with 40419 ("Big door") so the doorway has an interactive clickbox.
       {
         sourceLocId: 26503,
         localX: 47,
         localY: 42,
-        targetLocId: 40419,
-        targetRotation: 0,
-      },
-      {
-        sourceLocId: 26511,
-        localX: 47,
-        localY: 41,
-        targetLocId: 40419,
-        targetRotation: 0,
-      },
-      {
-        sourceLocId: 26509,
-        localX: 47,
-        localY: 43,
         targetLocId: 40419,
         targetRotation: 0,
       },

@@ -125,8 +125,9 @@ function isRedXObjectTile(tile) {
     return false;
   }
   const [x, y] = tile;
-  // Big door at (47, 41..43) on the west wall, or Bandos altar at (53..55, 58..60) on the north wall (CACHE).
-  return (x === 47 && y >= 41 && y <= 43) || (x >= 53 && x <= 55 && y >= 58 && y <= 60);
+  // Inferred: known approximation checking destination tile coordinates rather than object entity click events.
+  // Big door at (47, 42) on the west wall (CACHE: loc 26503), or Bandos altar at (53..55, 58..60) on the north wall (CACHE: loc 26366).
+  return (x === 47 && y === 42) || (x >= 53 && x <= 55 && y >= 58 && y <= 60);
 }
 
 const graardorDefinition = defineNpc({
@@ -495,7 +496,7 @@ export class GeneralGraardorEncounter {
     this.startMode = getStartMode(mechanics);
     // Inferred: 6:0 uses the normal room spawns; only Altar-Door pre-aligns the boss.
     this.standardDoorStart = this.startMode !== startModeAltarDoor;
-    this.spawnMinions = mechanics[spawnMinionsKey] !== false;
+    this.spawnMinions = mechanics?.[spawnMinionsKey] !== false;
     if (!runStartContext) {
       return;
     }
@@ -551,6 +552,7 @@ export class GeneralGraardorEncounter {
   getEngineRules() {
     return {
       multiCombat: true,
+      targetTile: true,
     };
   }
 
@@ -696,10 +698,6 @@ export class GeneralGraardorEncounter {
       },
       visuals: {},
     };
-  }
-
-  getEngineRules() {
-    return { targetTile: true };
   }
 
   getNpcDamageSourceLabel(npcId) {

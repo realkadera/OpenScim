@@ -22,7 +22,7 @@ const crystalBowfaGear = {
     legs: 23979, // Crystal legs
     hands: 7462, // Barrows gloves
     boots: item.pegasianBoots,
-    ring: 19710, // Ring of suffering (i)
+    ring: 20657, // Ring of suffering (ri) (charged)
   },
   supplies: {
     equippedAmmo: { id: 22947 }, // Rada's blessing 4
