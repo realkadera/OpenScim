@@ -1,6 +1,6 @@
 // General Graardor (client/encounters/general-graardor/): solo gear setups from the OSRS Wiki
 // strategy guide (General Graardor/Strategies). Defaults to the Crystal (Bow of faerdhinen) setup
-// with Ring of suffering (i) and Toxic blowpipe for Altar-Door and 6:0 kiting, and minion tanking/healing.
+// with Ring of suffering (ri) (charged) and Toxic blowpipe for Altar-Door and 6:0 kiting, and minion tanking/healing.
 
 const ancientRunePouch = {
   kind: "divine",
