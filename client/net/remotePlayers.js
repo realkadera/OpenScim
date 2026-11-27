@@ -12,9 +12,13 @@
 //     makeTracker(x, y),                    a PlayerVisualTracker at a tile
 //     isValidKit(kit, bodyPart),            optional: does the cache have this kit
 //                                           for this body part (0 hair .. 6 feet)
+//     releaseRig(rig),                      optional: a rig that is not drawn any more
+//     now,                                  optional, () => milliseconds (Date.now)
 //     maxDrawn,                             REMOTE_DRAW_MAX
-//     onError(error),                       optional, told once per kind of failure
+//     onError(error, id?),                  optional, told once per kind of failure,
+//                                           and once per id whose rig broke
 //   });
+//   remotes.markBroken(id, error)     the scene could not draw that rig
 //   remotes.update(records, { localPosition, deltaMs })  each frame; returns
 //                                     the entries to draw, nearest first
 //   remotes.hitTestData()             [{ actorId: id, name, combat, hitTestData }] of those
@@ -38,6 +42,13 @@ import { COMBAT_MAX, COMBAT_MIN, EQUIPMENT_SLOTS, ITEM_ID_MAX, NAME_MAX_CHARS, T
 export const REMOTE_DRAW_MAX = 30;
 // Rigs built in one frame at most, so a crowd arriving does not stall a frame.
 export const RIG_BUILDS_PER_FRAME = 2;
+// A member's look is built again at most this often (a look sent every tick
+// must not rebuild a rig every tick), and a rig that broke while drawn is
+// tried again after this long when its look has not changed (inferred: costs).
+export const REBUILD_INTERVAL_MS = 3000;
+export const BROKEN_RETRY_MS = 30000;
+// A drawn player stays drawn unless another is this much nearer (tiles).
+export const DRAW_HYSTERESIS_TILES = 2;
 
 // The client's default look (rendering.js `Wh`, player.js defaultPlayerModelConfig).
 export const DEFAULT_APPEARANCE = Object.freeze({
@@ -117,15 +128,28 @@ export function equipmentToWire(equipment) {
 }
 export const equipmentFromWire = equipmentToWire;
 
-// A name from another player is text and nothing else: no control or
-// direction characters, no "<" or ">" (the menus read "<col=...>" in the
-// cache's names), at most 24 characters.
+// A name from another player is text and nothing else: no control, format,
+// line-separator or direction characters (U+0000-001F, U+007F-009F, the soft
+// hyphen U+00AD, the Arabic letter mark U+061C, U+200B-200F, U+2028-202E,
+// U+2066-2069, U+FEFF), no "<" or ">" (the menus read "<col=...>" in the
+// cache's names), at most two combining marks on a character, at most 24
+// characters.
+const STRIPPED_RANGES = [[0x00, 0x1f], [0x7f, 0x9f], [0xad, 0xad], [0x61c, 0x61c], [0x200b, 0x200f], [0x2028, 0x202e], [0x2066, 0x2069], [0xfeff, 0xfeff], [0x3c, 0x3c], [0x3e, 0x3e]];
+const codePoint = (code) => "\\u{" + code.toString(16) + "}";
+const STRIPPED = new RegExp("[" + STRIPPED_RANGES.map(([from, to]) => (from === to ? codePoint(from) : codePoint(from) + "-" + codePoint(to))).join("") + "]", "gu");
+const COMBINING = /^\p{M}$/u;
+export const COMBINING_MARKS_MAX = 2;
 export function safeName(name) {
   if (typeof name !== "string") return "Player";
-  const text = [...name.normalize("NFC").replace(/[\u0000-\u001f\u007f-\u009f​-‏‪-‮⁦-⁩<>]/g, "")]
-    .slice(0, NAME_MAX_CHARS)
-    .join("")
-    .trim();
+  const kept = [];
+  let marks = 0;
+  for (const char of name.normalize("NFC").replace(STRIPPED, "")) {
+    if (COMBINING.test(char)) {
+      if (++marks > COMBINING_MARKS_MAX) continue;
+    } else marks = 0;
+    kept.push(char);
+  }
+  const text = kept.slice(0, NAME_MAX_CHARS).join("").trim();
   return text || "Player";
 }
 
@@ -163,7 +187,7 @@ export const getRemotePlayersSource = () => source;
 // The entries the lobby scene drew last (for tests and diagnostics).
 export const presentedRemotePlayers = () => presented?.drawn() ?? [];
 
-export function createRemotePlayers({ buildRig, makeTracker, isValidKit, maxDrawn = REMOTE_DRAW_MAX, onError } = {}) {
+export function createRemotePlayers({ buildRig, makeTracker, isValidKit, releaseRig, now = () => Date.now(), maxDrawn = REMOTE_DRAW_MAX, onError } = {}) {
   if (typeof buildRig !== "function" || typeof makeTracker !== "function") throw new TypeError("createRemotePlayers: buildRig and makeTracker are needed");
   const entries = new Map();
   let drawn = [];
@@ -172,6 +196,12 @@ export function createRemotePlayers({ buildRig, makeTracker, isValidKit, maxDraw
     if (reported.has(kind)) return;
     reported.add(kind);
     safeCall(() => onError?.(error));
+  };
+  // A rig no longer drawn is handed back (its meshes are not drawn again).
+  const release = (entry) => {
+    if (entry.rig) safeCall(() => releaseRig?.(entry.rig));
+    entry.rig = null;
+    entry.hit = null;
   };
 
   const place = (entry, tile, facing) => {
@@ -206,17 +236,29 @@ export function createRemotePlayers({ buildRig, makeTracker, isValidKit, maxDraw
       return null;
     }
   };
-  const ensureRig = (entry) => {
+  // The rig of the latest look, built again at most once per
+  // REBUILD_INTERVAL_MS (a look that changes faster is built when the time is
+  // up, as it is then); a rig that broke waits for a new look or
+  // BROKEN_RETRY_MS.
+  const ensureRig = (entry, t) => {
     const key = lookKey(entry);
-    if (entry.rigKey === key) return false;
+    if (entry.brokenAt !== null) {
+      if (key === entry.brokenKey && t - entry.brokenAt < BROKEN_RETRY_MS) return false;
+    } else if (key === entry.rigKey) return false;
+    if (entry.rig && t - entry.builtAt < REBUILD_INTERVAL_MS) return false;
+    const old = entry.rig;
     entry.rigKey = key;
+    entry.builtAt = t;
+    entry.brokenAt = null;
     entry.hit = null;
     entry.rig =
       tryBuild(entry, entry.appearance, entry.equipment) ??
       (Object.keys(entry.equipment).length ? tryBuild(entry, entry.appearance, {}) : null) ??
       tryBuild(entry, { ...DEFAULT_APPEARANCE }, {});
+    if (old && old !== entry.rig) safeCall(() => releaseRig?.(old));
     return true;
   };
+  const brokenReported = new Set();
 
   const api = {
     update(records, { localPosition = null, deltaMs = 0 } = {}) {
@@ -232,7 +274,7 @@ export function createRemotePlayers({ buildRig, makeTracker, isValidKit, maxDraw
           const facing = readFacing(record.facing);
           let entry = entries.get(id);
           if (!entry) {
-            entry = { id, name: "Player", combat: null, tile, facing, position: [tile[0], tile[1]], facingAngle: facing, state: null, lastTick: record.lastTick, moves: 0, appearance: null, equipment: {}, rig: null, rigKey: null, hit: null, modelMatrix: new Float32Array(16), overheadAnchor: null, tracker: null };
+            entry = { id, name: "Player", combat: null, tile, facing, position: [tile[0], tile[1]], facingAngle: facing, state: null, lastTick: record.lastTick, moves: 0, appearance: null, equipment: {}, rig: null, rigKey: null, builtAt: -Infinity, brokenAt: null, brokenKey: null, hit: null, modelMatrix: new Float32Array(16), overheadAnchor: null, tracker: null };
             place(entry, tile, facing);
             entries.set(id, entry);
           } else {
@@ -248,7 +290,11 @@ export function createRemotePlayers({ buildRig, makeTracker, isValidKit, maxDraw
           report("record", error);
         }
       }
-      for (const id of [...entries.keys()]) if (!seen.has(id)) entries.delete(id);
+      for (const [id, entry] of [...entries]) {
+        if (seen.has(id)) continue;
+        release(entry);
+        entries.delete(id);
+      }
 
       for (const entry of entries.values()) {
         try {
@@ -264,20 +310,48 @@ export function createRemotePlayers({ buildRig, makeTracker, isValidKit, maxDraw
         }
       }
 
-      // The nearest to the local player, a look known; ties by id.
+      // The nearest to the local player, a look known; ties by id. One drawn
+      // now stays drawn unless another is nearer by DRAW_HYSTERESIS_TILES, so
+      // the set does not flicker at the edge of the cap.
       const [lx, ly] = readTile(localPosition) ?? [31, 25];
+      const shown = new Set(drawn.map((entry) => entry.id));
       const near = [...entries.values()]
         .filter((entry) => entry.appearance)
-        .map((entry) => ({ entry, d: (entry.position[0] - lx) ** 2 + (entry.position[1] - ly) ** 2 }))
+        .map((entry) => {
+          const d = Math.hypot(entry.position[0] - lx, entry.position[1] - ly);
+          return { entry, d: shown.has(entry.id) ? d - DRAW_HYSTERESIS_TILES + 1e-9 : d };
+        })
         .sort((a, b) => a.d - b.d || a.entry.id - b.entry.id)
         .slice(0, Math.max(0, maxDrawn))
         .map(({ entry }) => entry);
+      const inNear = new Set(near);
+      for (const entry of entries.values()) {
+        if (!inNear.has(entry) && entry.rig) {
+          release(entry);
+          entry.rigKey = null;
+        }
+      }
+      const t = now();
       let builds = 0;
       for (const entry of near) {
-        if (entry.rigKey !== lookKey(entry) && builds < RIG_BUILDS_PER_FRAME && ensureRig(entry)) builds++;
+        if (builds < RIG_BUILDS_PER_FRAME && ensureRig(entry, t)) builds++;
       }
       drawn = near.filter((entry) => entry.rig && entry.rig.meshCommands);
       return drawn;
+    },
+    // The scene could not draw this entry's rig: it is dropped, and built
+    // again only for a new look or after BROKEN_RETRY_MS; told once per id.
+    markBroken(id, error) {
+      const entry = entries.get(id);
+      if (!entry) return;
+      release(entry);
+      entry.brokenAt = now();
+      entry.brokenKey = lookKey(entry);
+      drawn = drawn.filter((each) => each !== entry);
+      if (!brokenReported.has(id)) {
+        brokenReported.add(id);
+        safeCall(() => onError?.(error, id));
+      }
     },
     drawn: () => drawn,
     hitTestData() {
@@ -296,6 +370,7 @@ export function createRemotePlayers({ buildRig, makeTracker, isValidKit, maxDraw
       return entries.size;
     },
     clear() {
+      for (const entry of entries.values()) release(entry);
       entries.clear();
       drawn = [];
     },

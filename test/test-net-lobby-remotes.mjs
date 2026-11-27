@@ -4,7 +4,11 @@
 import assert from "node:assert/strict";
 
 import {
+  BROKEN_RETRY_MS,
+  COMBINING_MARKS_MAX,
   DEFAULT_APPEARANCE,
+  DRAW_HYSTERESIS_TILES,
+  REBUILD_INTERVAL_MS,
   REMOTE_DRAW_MAX,
   RIG_BUILDS_PER_FRAME,
   appearanceFromWire,
@@ -63,8 +67,12 @@ function fakeTracker(x, y) {
 
 function setup(options = {}) {
   const built = [];
+  const released = [];
   const trackers = new Map();
+  const clock = { ms: 0 };
   const remotes = createRemotePlayers({
+    now: () => clock.ms,
+    releaseRig: (rig) => released.push(rig),
     buildRig: (appearance, equipment, id) => {
       built.push({ id, appearance, equipment });
       return options.buildRig ? options.buildRig(appearance, equipment, id) : { meshCommands: [{ meshId: `remote-player-${id}` }], hitModel: { verticesCount: 1 } };
@@ -76,7 +84,7 @@ function setup(options = {}) {
     },
     ...options.extra,
   });
-  return { remotes, built, trackers };
+  return { remotes, built, trackers, released, clock };
 }
 
 const player = (id, tile, more = {}) =>
@@ -125,6 +133,15 @@ const moved = (p, steps, { run = false, tick, facing = p.facing, snapped = false
   assert.equal([...safeName("x".repeat(40))].length, 24);
   assert.equal([...safeName("😀".repeat(30))].length, 24);
   for (const junk of [null, 5, "", "   ", "<>"]) assert.equal(safeName(junk), "Player");
+  // Format characters: the Arabic letter mark, the BOM, the line and paragraph separators, the soft hyphen.
+  assert.equal(safeName("a؜b﻿c d e­f"), "abcdef");
+  assert.equal(safeName("⁦x⁩"), "x");
+  // At most COMBINING_MARKS_MAX combining marks on one character ("Zalgo").
+  assert.equal(COMBINING_MARKS_MAX, 2);
+  assert.equal(safeName("o̶̷̸̹b"), "o̶̷b");
+  assert.equal(safeName("á̂̃̄b"), "á̂̃b", "composed first, then two marks");
+  assert.equal(safeName("é"), "é", "NFC first");
+  assert.ok([...safeName("Z" + "̶".repeat(200))].length <= 3);
 }
 
 // --- created on first sight, dropped on leave --------------------------------------------
@@ -166,19 +183,64 @@ const moved = (p, steps, { run = false, tick, facing = p.facing, snapped = false
 
 // --- a new look builds a new rig; equipment too --------------------------------------
 {
-  const { remotes, built } = setup();
+  const { remotes, built, released, clock } = setup();
   const p = player(5, [10, 10]);
   remotes.update([p]);
+  const first = remotes.get(5).rig;
+  // A new look within REBUILD_INTERVAL_MS waits; looks sent meanwhile are coalesced into the latest.
+  clock.ms = 1000;
+  remotes.update([{ ...p, equipment: { weapon: 1 } }]);
+  clock.ms = 2000;
   remotes.update([{ ...p, equipment: { weapon: 22325 } }]);
-  assert.deepEqual(built.at(-1).equipment, { weapon: 22325 });
-  remotes.update([{ ...p, equipment: { weapon: 22325 }, appearance: { ...LOOK, gender: 1 } }]);
-  assert.equal(built.at(-1).appearance.gender, 1);
-  assert.equal(built.length, 3);
+  assert.equal(built.length, 1, "no rebuild within the interval");
+  assert.equal(remotes.get(5).rig, first, "the old rig is drawn meanwhile");
+  clock.ms = REBUILD_INTERVAL_MS;
+  remotes.update([{ ...p, equipment: { weapon: 22325 } }]);
+  assert.equal(built.length, 2);
+  assert.deepEqual(built.at(-1).equipment, { weapon: 22325 }, "the latest look, once");
+  assert.deepEqual(released, [first], "the old rig is released");
+  // A look sent every tick for a minute: one rebuild per interval, not one per tick.
+  for (let tick = 0; tick < 100; tick++) {
+    clock.ms += 600;
+    remotes.update([{ ...p, appearance: { ...LOOK, hair_kit: tick % 2 } }]);
+  }
+  assert.ok(built.length - 2 <= Math.ceil((100 * 600) / REBUILD_INTERVAL_MS), `${built.length - 2} rebuilds in a minute`);
+  // Leaving releases the rig.
+  const last = remotes.get(5).rig;
+  remotes.update([]);
+  assert.equal(released.at(-1), last);
+}
+
+// --- a rig the scene could not draw: dropped, warned once, retried on a new look or after 30 s
+{
+  const errors = [];
+  const { remotes, built, released, clock } = setup({ extra: { onError: (error, id) => errors.push([error.message, id]) } });
+  const p = player(5, [10, 10]);
+  remotes.update([p]);
+  const rig = remotes.get(5).rig;
+  remotes.markBroken(5, new Error("draw"));
+  remotes.markBroken(5, new Error("draw"));
+  assert.deepEqual(errors, [["draw", 5]], "one warning per id");
+  assert.deepEqual(released, [rig]);
+  assert.deepEqual(remotes.drawn(), []);
+  clock.ms = 10_000;
+  remotes.update([p]);
+  assert.equal(built.length, 1, "not retried every frame");
+  assert.deepEqual(remotes.drawn(), []);
+  clock.ms = 10_000 + BROKEN_RETRY_MS;
+  remotes.update([p]);
+  assert.equal(built.length, 2, "retried after 30 s");
+  remotes.markBroken(5, new Error("again"));
+  clock.ms += 1000;
+  remotes.update([{ ...p, equipment: { weapon: 4151 } }]);
+  assert.equal(built.length, 3, "a new look is tried at once");
+  assert.equal(errors.length, 1);
+  remotes.markBroken(99, new Error("unknown id")); // nothing happens
 }
 
 // --- a rig that fails: without the equipment, then the default look; never thrown -------
 {
-  const { remotes, built } = setup({
+  const { remotes, built, clock } = setup({
     buildRig: (appearance, equipment) => {
       if (equipment.weapon === 1) throw new Error("no such item");
       if (appearance.torsoKit === 19) return null;
@@ -189,6 +251,7 @@ const moved = (p, steps, { run = false, tick, facing = p.facing, snapped = false
   remotes.update([player(1, [5, 5], { equipment: { weapon: 1, head: 2 } })]);
   assert.deepEqual(built.map((b) => b.equipment), [{ weapon: 1, head: 2 }, {}]);
   assert.equal(remotes.drawn().length, 1);
+  clock.ms = REBUILD_INTERVAL_MS;
   remotes.update([player(1, [5, 5], { appearance: { ...LOOK, torso_kit: 19 }, equipment: { weapon: 1 } })]);
   assert.deepEqual(built.slice(2).map((b) => [b.appearance.torsoKit, b.equipment]), [[19, { weapon: 1 }], [19, {}], [18, {}]]);
   assert.equal(remotes.drawn().length, 1);
@@ -272,6 +335,22 @@ const moved = (p, steps, { run = false, tick, facing = p.facing, snapped = false
   assert.ok(drawn.some((e) => e.id === 49));
   assert.ok(!drawn.some((e) => e.id === 1));
   assert.equal(remotes.hitTestData().length, 30);
+}
+
+// --- hysteresis at the edge of the cap: a drawn player stays unless another is 2 tiles nearer ---
+{
+  assert.equal(DRAW_HYSTERESIS_TILES, 2);
+  const { remotes } = setup({ extra: { maxDrawn: 1 } });
+  const a = player(1, [10, 10]);
+  const b = player(2, [10, 12]);
+  remotes.update([a, b], { localPosition: [10, 9] });
+  assert.deepEqual(remotes.drawn().map((e) => e.id), [1]);
+  // b is now 1 tile nearer than a: a stays.
+  remotes.update([player(1, [10, 12], { lastTick: 1 }), player(2, [10, 11], { lastTick: 1 })], { localPosition: [10, 9] });
+  assert.deepEqual(remotes.drawn().map((e) => e.id), [1]);
+  // b is 2 tiles nearer: b replaces a.
+  for (let frame = 0; frame < 2; frame++) remotes.update([player(1, [10, 13], { lastTick: 2 }), player(2, [10, 11], { lastTick: 1 })], { localPosition: [10, 9] });
+  assert.deepEqual(remotes.drawn().map((e) => e.id), [2]);
 }
 
 // --- the hook ----------------------------------------------------------------------
