@@ -418,6 +418,20 @@ export function createNetSession({
         update({ lastError: Object.freeze({ ...msg }) });
         // A join that was refused (lobby_full, rate_limited): ask again later.
         if (joinRid !== null && msg.rid === joinRid && snapshot.state === "open") arm("rejoin", backoff(), sendJoin);
+        // The room closed under us (fixture error.room-closed): we are in no
+        // room, the others are gone, and join is sent again after a short wait,
+        // the look and the tile first, as after a welcome.
+        else if (msg.code === "room_closed" && snapshot.state === "joined") {
+          update({ state: "open", room: null });
+          roomLost("room_closed");
+          emit({ type: "message", msg });
+          arm("rejoin", backoff(), () => {
+            sentAppearance = sentPresence = null;
+            flush({ beforeJoin: true });
+            sendJoin();
+          });
+          return;
+        }
         break;
       case "notice":
         if (msg.kind === "shutdown") {

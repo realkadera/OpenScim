@@ -433,6 +433,41 @@ for (const [code, retry] of Object.entries(policies).map(([code, retry]) => [Num
   session.stop();
 }
 
+// --- error room_closed: the others are gone, and join goes out again --------------------
+{
+  const { clock, ws, presence, session, connect, joinedFor } = setup();
+  const socket = await connect({ members: [other(8), other(9)] });
+  session.setAppearance(LOOK.appearance, LOOK.equipment);
+  session.sendPresence(presenceAt(31, 25));
+  await clock.advance(1000);
+  assert.equal(presence.players.size, 2);
+  const joinsBefore = socket.messages.filter((msg) => msg.t === "join").length;
+  const sentBefore = socket.messages.length;
+  socket.receive(fixtureBody("valid", "error.room-closed"));
+  assert.equal(session.getSnapshot().state, "open");
+  assert.equal(session.getSnapshot().room, null);
+  assert.equal(presence.players.size, 0, "the store is emptied");
+  assert.equal(session.getSnapshot().lastError.code, "room_closed");
+  assert.equal(socket.messages.length, sentBefore, "nothing at once");
+  await clock.advance(1000);
+  const after = socket.messages.slice(sentBefore).map((msg) => msg.t);
+  assert.equal(after.filter((t) => t === "join").length, 1, "join again");
+  assert.ok(after.indexOf("appearance") >= 0 && after.indexOf("appearance") < after.indexOf("join"), "the look goes first");
+  assert.ok(after.indexOf("presence") >= 0 && after.indexOf("presence") < after.indexOf("join"), "and the tile");
+  socket.receive(joinedFor({ messages: socket.messages.slice(sentBefore) }, [other(10)]));
+  assert.equal(session.getSnapshot().state, "joined");
+  assert.equal(presence.players.size, 1);
+  assert.equal(ws.sockets.length, 1, "the same socket");
+  assert.equal(socket.messages.filter((msg) => msg.t === "join").length, joinsBefore + 1);
+  // Not in a room (before joined): room_closed changes nothing.
+  socket.receive(fixtureBody("valid", "error.room-closed"));
+  socket.receive(fixtureBody("valid", "error.room-closed"));
+  await clock.advance(1000);
+  assert.equal(socket.messages.filter((msg) => msg.t === "join").length, joinsBefore + 2);
+  session.stop();
+  assert.equal(clock.pending(), 0);
+}
+
 // --- the shutdown notice: the close is expected, then a reconnect ---------------------
 {
   const { clock, ws, session, connect } = setup();
