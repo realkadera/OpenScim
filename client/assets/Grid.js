@@ -27292,13 +27292,20 @@ function LobbyChatInput({ chat: chat, ink: ink, width: width }) {
   }, [chat.available]);
   return (0, wn.jsxs)("span", {
     className: "chatbox__typing",
+    // A line longer than the chatbox keeps its end, the star, in view: the start scrolls out to the left.
+    style: { maxWidth: width },
     children: [
-      (0, wn.jsx)("bdi", { children: chat.name }),
-      ": ",
       (0, wn.jsxs)("span", {
-        className: "chatbox__typed",
-        style: { color: ink.caret },
-        children: [(0, wn.jsx)("bdi", { children: chat.available ? chat.draft : "" }), "*"],
+        className: "chatbox__typing-line",
+        children: [
+          (0, wn.jsx)("bdi", { children: chat.name }),
+          ": ",
+          (0, wn.jsxs)("span", {
+            className: "chatbox__typed",
+            style: { color: ink.caret },
+            children: [(0, wn.jsx)("bdi", { children: chat.available ? chat.draft : "" }), "*"],
+          }),
+        ],
       }),
       chat.available &&
         (0, wn.jsx)("input", {

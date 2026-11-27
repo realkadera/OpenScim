@@ -3122,6 +3122,12 @@ html:not([data-panel-dragging])
 /* The lobby's public chat input line (Grid.js LobbyChatInput): the text as drawn, a real input under it. */
 .chatbox__typing {
   white-space: pre;
+  display: inline-flex;
+  justify-content: flex-end;
+  overflow: hidden;
+}
+.chatbox__typing-line {
+  flex: none;
 }
 .chatbox__field {
   pointer-events: auto;
