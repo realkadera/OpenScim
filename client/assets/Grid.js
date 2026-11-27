@@ -5,6 +5,7 @@ import { projectileOverrideDefaults, readProjectileOverrideSettings } from "/plu
 import { getDefenceTrackerInfoboxes } from "/plugins/defenceTracker.js";
 import { pickLobbyObject } from "/lobby/gateways.js";
 import { lobbyBeforeTick, lobbyAfterTick, followRemotePlayer, lobbyLink } from "/net/lobbyLink.js";
+import { startBackgroundBeat } from "/net/backgroundBeat.js";
 import { subscribeLobbyChat, getLobbyChatSnapshot, setLobbyChatDraft, sendLobbyChat, chatKeyStartsTyping, createChatboxMerge } from "/net/lobbyChat.js";
 import { combatLevelColor } from "/util/combatLevelColor.js";
 import { replayMarkerStore, findUndoFrameIndex, addMarker, isOnTimeline, pickMarker, pickAutoMarker, nameNewAutoMarkers, describeMarker, isRollbackHeld, holdAfterRollback, releaseRollback, showReplayMessage } from "/replay/markers.js";
@@ -21880,6 +21881,7 @@ function useSimulationWiring({
     });
     let hK = null;
     let hL = true;
+    let lobbyBeatAt = performance.now(); // when the loop below last ran
     const hN = dF.clock.now();
     const current42 = fm.current;
     const current43 = gR.current;
@@ -21953,7 +21955,9 @@ function useSimulationWiring({
         return;
       }
       const i0 = performance.now();
-      if ("hidden" === document.visibilityState) {
+      lobbyBeatAt = i0;
+      // Hidden, the game waits; not in the lobby with the other players, where the beat below runs it.
+      if ("hidden" === document.visibilityState && !lobbyLink.active) {
         hH = null;
         hK = dF.request(hW);
         return;
@@ -22145,7 +22149,19 @@ function useSimulationWiring({
     } else {
       hW(performance.now());
     }
+    // In the lobby with the other players (client/net/lobbyLink.js) the game goes on in a window that is hidden or
+    // covered, where the browser sends no frames: a beat runs the loop when no frame has for a quarter of a second.
+    const stopLobbyBeat = startBackgroundBeat(() => {
+      if (!hL || !lobbyLink.active || dF.suspended || performance.now() - lobbyBeatAt < 250) {
+        return;
+      }
+      if (null !== hK) {
+        dF.cancel(hK);
+      }
+      hW(performance.now());
+    }, 100);
     return () => {
+      stopLobbyBeat();
       hL = false;
       const hX = dF.clock.now();
       gi.current = {
