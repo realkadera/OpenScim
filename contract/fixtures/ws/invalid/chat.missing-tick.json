@@ -1,11 +1,10 @@
 {
-  "name": "chat.not-served",
+  "name": "chat.missing-tick",
   "direction": "server",
-  "why": "this phase has no chat messages",
+  "why": "tick is missing",
   "body": {
     "t": "chat",
     "id": 7,
-    "from": 7,
     "name": "Player-0420",
     "text": "hi"
   }

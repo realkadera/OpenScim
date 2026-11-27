@@ -1,0 +1,14 @@
+{
+  "name": "report.reserved",
+  "direction": "client",
+  "why": "report is reserved but not served",
+  "expect": {
+    "error": "unsupported"
+  },
+  "body": {
+    "t": "report",
+    "rid": 4,
+    "user_id": "x",
+    "text_as_received": "y"
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "name": "chat-rejected.chat-off",
+  "direction": "server",
+  "when": "chat is switched off",
+  "body": {
+    "t": "chat_rejected",
+    "reason": "chat_off"
+  }
+}

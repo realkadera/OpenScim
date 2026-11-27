@@ -1,0 +1,13 @@
+{
+  "name": "chat.color-field",
+  "direction": "client",
+  "why": "no styling from the network: an extra colour field",
+  "expect": {
+    "error": "invalid_message"
+  },
+  "body": {
+    "t": "chat",
+    "text": "hi",
+    "color": "#ff0000"
+  }
+}

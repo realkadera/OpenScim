@@ -1,0 +1,12 @@
+{
+  "name": "chat.missing-text",
+  "direction": "client",
+  "why": "text is missing",
+  "expect": {
+    "error": "invalid_message"
+  },
+  "body": {
+    "t": "chat",
+    "rid": 4
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "name": "chat.text-number",
+  "direction": "client",
+  "why": "text is not a string",
+  "expect": {
+    "error": "invalid_message"
+  },
+  "body": {
+    "t": "chat",
+    "text": 7
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "name": "chat-rejected.too-long",
+  "direction": "server",
+  "when": "over chat_max_chars after cleaning; never truncated",
+  "body": {
+    "t": "chat_rejected",
+    "rid": 9,
+    "reason": "too_long"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "name": "chat.with-rid",
+  "direction": "client",
+  "when": "rid is optional and echoed in chat_rejected",
+  "body": {
+    "t": "chat",
+    "rid": 9,
+    "text": "gz"
+  }
+}

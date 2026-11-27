@@ -1,0 +1,12 @@
+{
+  "name": "chat.effects",
+  "direction": "server",
+  "when": "effect prefixes relayed as typed",
+  "body": {
+    "t": "chat",
+    "id": 8,
+    "name": "Zezima",
+    "text": "red:wave:Buying gf",
+    "tick": 1241
+  }
+}

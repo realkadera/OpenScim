@@ -1,0 +1,9 @@
+{
+  "name": "chat-rejected.not-joined",
+  "direction": "server",
+  "when": "not in a room",
+  "body": {
+    "t": "chat_rejected",
+    "reason": "not_joined"
+  }
+}

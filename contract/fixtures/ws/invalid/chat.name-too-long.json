@@ -1,0 +1,12 @@
+{
+  "name": "chat.name-too-long",
+  "direction": "server",
+  "why": "a sender name over 24 characters",
+  "body": {
+    "t": "chat",
+    "id": 7,
+    "name": "xxxxxxxxxxxxxxxxxxxxxxxxx",
+    "text": "hi",
+    "tick": 1240
+  }
+}

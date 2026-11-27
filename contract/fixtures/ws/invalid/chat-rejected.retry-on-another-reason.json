@@ -1,0 +1,10 @@
+{
+  "name": "chat-rejected.retry-on-another-reason",
+  "direction": "server",
+  "why": "only rate_limited carries retry_in_ms",
+  "body": {
+    "t": "chat_rejected",
+    "reason": "empty",
+    "retry_in_ms": 5
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "name": "chat",
+  "direction": "server",
+  "when": "a chat line, to every member of the instance, the sender included",
+  "body": {
+    "t": "chat",
+    "id": 7,
+    "name": "Player-0420",
+    "text": "Selling lobsters",
+    "tick": 1240
+  }
+}

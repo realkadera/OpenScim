@@ -1,0 +1,9 @@
+{
+  "name": "chat.raw",
+  "direction": "client",
+  "when": "any string: cleaning and the length are checked by the chat rules",
+  "body": {
+    "t": "chat",
+    "text": "  two​spaces  "
+  }
+}

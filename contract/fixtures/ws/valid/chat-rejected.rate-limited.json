@@ -1,0 +1,10 @@
+{
+  "name": "chat-rejected.rate-limited",
+  "direction": "server",
+  "when": "within 4 s of the user's last line; retry_in_ms is the time left",
+  "body": {
+    "t": "chat_rejected",
+    "reason": "rate_limited",
+    "retry_in_ms": 100
+  }
+}

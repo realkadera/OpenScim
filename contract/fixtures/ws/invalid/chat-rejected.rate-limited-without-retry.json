@@ -1,0 +1,9 @@
+{
+  "name": "chat-rejected.rate-limited-without-retry",
+  "direction": "server",
+  "why": "rate_limited always carries retry_in_ms",
+  "body": {
+    "t": "chat_rejected",
+    "reason": "rate_limited"
+  }
+}

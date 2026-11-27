@@ -1,0 +1,9 @@
+{
+  "name": "chat-rejected.unknown-reason",
+  "direction": "server",
+  "why": "reason is not one of the five",
+  "body": {
+    "t": "chat_rejected",
+    "reason": "duplicate"
+  }
+}

@@ -34,3 +34,46 @@ are exactly what the client's `SimulationEngine.getState()` returns as
 
 `presence.walk-north` and `presence-tick.walk-north` pin this: a player
 walking north from the start tile `[31, 25]` arrives with a larger `y`.
+
+## Chat
+
+`chat{rid?, text}`, sent only while joined, is relayed as
+`chat{id, name, text, tick}` to every member of the sender's instance, the
+sender included, at once and in the room's order. Nothing is stored. The
+server cleans the text, then relays it as plain text. In order:
+
+1. every White_Space character, and U+2800 BRAILLE PATTERN BLANK, U+3164
+   HANGUL FILLER, U+FFA0 HALFWIDTH HANGUL FILLER and U+16FE4 KHITAN SMALL
+   SCRIPT FILLER, becomes U+0020;
+2. every character of General_Category Cc, Cf, Zl, Zp, Co or Cn (Cn
+   includes the noncharacters such as U+FFFE and U+10FFFF), every
+   Default_Ignorable_Code_Point, and U+FFFC OBJECT REPLACEMENT CHARACTER is
+   removed;
+3. NFC;
+4. a combining mark (General_Category M) is removed when nothing comes before
+   it or the character before it is U+0020; after any other character at
+   most 2 marks are kept and the rest are removed;
+5. runs of U+0020 become one U+0020, and leading and trailing U+0020 are
+   removed;
+6. a line with no character of General_Category L, N, P or S is `empty`;
+7. a line of more than `chat_max_chars` Unicode scalar values is `too_long`.
+
+Before any of this, a raw `text` longer than 16 × `chat_max_chars` bytes
+(UTF-8) is `too_long` at once.
+
+**"80 characters" means 80 Unicode scalar values of the cleaned text** (in
+JavaScript: `[...cleaned].length`, not `cleaned.length`, which counts UTF-16
+units). An emoji outside the BMP is 1; `e` + combining acute is 1 after NFC.
+OSRS effect prefixes (`red:`, `wave:`, `glow1:scroll:`) are ordinary text: they
+count, and the server never parses them. Over the limit is `too_long`, never
+truncated. The limit is `welcome.limits.chat_max_chars` (80).
+
+One line per user every `welcome.limits.chat_interval_ms` (4000), across
+tabs and reconnects; sooner is `chat_rejected{reason: "rate_limited",
+retry_in_ms}`. Only refused-by-rate lines carry `retry_in_ms`.
+
+`chat_rejected{rid?, reason}` names the refusal: `too_long`, `empty`,
+`rate_limited`, `chat_off` or `not_joined`. `welcome.features.chat` says
+whether chat is on; `notice{kind: "chat_off"}` and `notice{kind: "chat_on"}`
+switch it while connected. No styling comes over the network: names and
+texts are plain text, never markup or game tags.

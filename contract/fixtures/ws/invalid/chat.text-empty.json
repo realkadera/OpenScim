@@ -1,0 +1,12 @@
+{
+  "name": "chat.text-empty",
+  "direction": "server",
+  "why": "an empty chat line",
+  "body": {
+    "t": "chat",
+    "id": 7,
+    "name": "Player-0420",
+    "text": "",
+    "tick": 1240
+  }
+}

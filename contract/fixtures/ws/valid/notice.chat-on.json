@@ -1,0 +1,9 @@
+{
+  "name": "notice.chat-on",
+  "direction": "server",
+  "when": "chat was switched back on",
+  "body": {
+    "t": "notice",
+    "kind": "chat_on"
+  }
+}

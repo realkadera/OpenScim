@@ -1,0 +1,9 @@
+{
+  "name": "chat-rejected.empty",
+  "direction": "server",
+  "when": "nothing left after cleaning",
+  "body": {
+    "t": "chat_rejected",
+    "reason": "empty"
+  }
+}

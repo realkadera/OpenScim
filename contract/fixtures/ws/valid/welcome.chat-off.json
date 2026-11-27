@@ -1,0 +1,30 @@
+{
+  "name": "welcome.chat-off",
+  "direction": "server",
+  "when": "the answer to hello while chat is switched off",
+  "body": {
+    "t": "welcome",
+    "proto": 1,
+    "you": {
+      "id": 7,
+      "name": "Player-0420"
+    },
+    "limits": {
+      "max_message_bytes": 4096,
+      "msg_per_sec": 20,
+      "msg_burst": 40,
+      "tick_ms": 600,
+      "tile_min": 0,
+      "tile_max": 63,
+      "steps_max": 2,
+      "chat_max_chars": 80,
+      "chat_interval_ms": 4000
+    },
+    "features": {
+      "chat": false,
+      "report": false,
+      "party": false
+    },
+    "server_tick": 1234
+  }
+}
