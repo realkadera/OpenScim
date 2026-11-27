@@ -54711,7 +54711,9 @@ var LobbySceneCompositor = class extends SceneCompositor {
       // overlay hangs the bottom of a 16 px line (baseline 4 px above it) on its point, so the point is 6 px lower;
       // whole pixels, so the letters and their shadow are not smeared.
       // bitmap: drawn as the game's client draws it, 1-bit glyphs with a hard shadow (client/net/overheadBitmap.js).
-      n.overheadTexts.push({ screenX: Math.round(point.x), screenY: Math.round(point.y) + 6, ...text, fontSize: UIOverlayRenderer.OSRS_OVERHEAD_TEXT_FONT_SIZE, key: key, bitmap: true });
+      // inferred: 40 px higher than the rule above puts it (the maintainer's, 2026-11-27: "for now"; the text
+      // stood too low against the game). Not measured: to be replaced by a distance taken from a recording.
+      n.overheadTexts.push({ screenX: Math.round(point.x), screenY: Math.round(point.y) + 6 - 40, ...text, fontSize: UIOverlayRenderer.OSRS_OVERHEAD_TEXT_FONT_SIZE, key: key, bitmap: true });
     };
     // OBS (the game's client): the other players' texts first, then our own; a later one that overlaps is pushed up.
     for (const r of drawn) {
