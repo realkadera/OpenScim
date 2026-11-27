@@ -51174,6 +51174,7 @@ function AppShell({ devHarness: devHarness } = {}) {
         if (sW.replayMode || graphicsHeld) {
           return;
         }
+        stopLobbyFollow("walk");
         const tp = t2.groundItems.find((tw) => tw.id === tk);
         if (!tp) {
           return;
@@ -51317,6 +51318,10 @@ function AppShell({ devHarness: devHarness } = {}) {
     ),
     setTargetTile: (0, React.useCallback)(
       (sP) => {
+        // A walk set from outside (a tutorial's adapter) ends Follow as a click does.
+        if (sP) {
+          stopLobbyFollow("walk");
+        }
         setTargetTile(sP);
         targetTileRef.current = sP;
       },

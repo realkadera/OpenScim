@@ -21986,8 +21986,13 @@ function useSimulationWiring({
         gd.current.flush(i2);
         const state11 = current44.getState();
         // Follow in the lobby (client/net/lobbyLink.js): the leader's tile each tick, by the click-to-walk
-        // path. Null in every other scene, and in the lobby when not following.
-        const lobbyFollow = lobbyBeforeTick(current44.getEncounterKind(), state11);
+        // path, against the engine's own ctrl-click flag; once a null tile when Follow ends (stop where it
+        // is). Null in every other scene, and in the lobby when not following.
+        const lobbyFollow = lobbyBeforeTick(
+          current44.getEncounterKind(),
+          state11,
+          current44.player?.()?.ctrlClickOverride === true,
+        );
         if (lobbyFollow) {
           fE.current = lobbyFollow.tile;
           if (lobbyFollow.changed) {

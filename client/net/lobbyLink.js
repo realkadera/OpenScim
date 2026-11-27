@@ -5,8 +5,11 @@
 //   setLobbyPresenceActive(active)   application.js: signed in, the lobby
 //                                    shown, no replay. Creates and starts the
 //                                    presence once; stops it when false.
-//   lobbyBeforeTick(kind, state)     Grid.js live loop, before advanceTick:
-//                                    { tile, ctrlClickOverride } while following
+//   lobbyBeforeTick(kind, state, engineOverride)
+//                                    Grid.js live loop, before advanceTick:
+//                                    { tile, ctrlClickOverride, changed } while
+//                                    following; { tile: null, ... } once after
+//                                    Follow ends otherwise than by a click
 //   lobbyAfterTick(kind, before, after, appearance, combat)
 //                                    Grid.js live loop, after advanceTick
 //   followRemotePlayer(id)           the menu's "Follow <name>"
@@ -25,23 +28,31 @@ const isTile = (tile) => Array.isArray(tile) && tile.length === 2 && Number.isSa
 
 // The tiles stepped onto this tick, as protocol.js buildPresence takes them:
 // none when the tile did not change, else the move's path when it is a walk
-// to the tile (at most two steps, each next to the one before), else none.
+// to the tile from the tile before (at most two steps, the first next to the
+// tile before, each next to the one before), else none: the others then put
+// the player on its tile at once.
 export function presenceSteps(before, after) {
   const tile = after?.playerPosition;
   if (!isTile(tile)) return [];
   if (isTile(before?.playerPosition) && tilesEqual(before.playerPosition, tile)) return [];
   const path = Array.isArray(after.playerMovementPath) ? after.playerMovementPath : [];
   if (path.length === 0 || path.length > STEPS_PER_PRESENCE_MAX || !path.every(isTile)) return [];
+  if (isTile(before?.playerPosition) && !isAdjacent(before.playerPosition, path[0])) return [];
   for (let i = 1; i < path.length; i++) if (!isAdjacent(path[i - 1], path[i])) return [];
   if (!tilesEqual(path[path.length - 1], tile)) return [];
   return path.map(([x, y]) => [x, y]);
 }
 
+// The session's stop reasons that are never retried (netSession.js): after
+// one, the presence stays stopped until the page is loaded again.
+const FINAL_STOPS = new Set(["replaced", "session_ended", "banned", "version_mismatch"]);
+
 export function createLobbyLink({ createPresence = createLobbyPresence, build = LOBBY_BUILD, setSource = setRemotePlayersSource, getSource = getRemotePlayersSource } = {}) {
   let presence = null;
   let active = false;
   let sentLook = null;
-  let override = null; // the ctrl-click override follow last set
+  let following = false; // a step was given since Follow started
+  let finalStop = null; // a stop reason of FINAL_STOPS, once seen
   const follow = createFollow({
     lookup: (id) => {
       const players = getSource();
@@ -63,7 +74,23 @@ export function createLobbyLink({ createPresence = createLobbyPresence, build = 
       if (next === active) return;
       active = next;
       if (active) {
-        presence ??= createPresence({ build });
+        if (!presence) {
+          presence = createPresence({ build });
+          // Remember a final stop when it happens (a later stop() says "stopped").
+          quiet(() =>
+            presence.session.subscribe?.(() => {
+              const reason = presence.session.getSnapshot?.().stopReason;
+              if (FINAL_STOPS.has(reason)) finalStop = reason;
+            }),
+          );
+          // The leader's member_leave ends Follow, even when the same id joins again at once.
+          quiet(() =>
+            presence.session.onRoomEvent?.((event) => {
+              if (event?.type === "room_lost" || (event?.type === "message" && event.msg?.t === "member_leave" && event.msg.id === follow.leaderId)) follow.cancel("leader left");
+            }),
+          );
+        }
+        if (finalStop) return;
         sentLook = null;
         setSource(presence.players);
         presence.start();
@@ -81,25 +108,35 @@ export function createLobbyLink({ createPresence = createLobbyPresence, build = 
     get presence() {
       return presence;
     },
+    get finalStop() {
+      return finalStop;
+    },
     follow,
-    // Before the tick: the leader's tile, by the click-to-walk path. The
-    // ctrl-click override walks where Run is on and the leader walks.
-    beforeTick(kind, state) {
-      if (follow.leaderId === null) return null;
-      const step = follow.tick({
-        inLobby: kind === "lobby",
-        self: state?.playerPosition,
-        runEnabled: state?.isRunEnabled === true,
-        equipment: equipmentToWire(state?.playerEquipment),
-      });
+    // Before the tick: the leader's tile, by the click-to-walk path, and the
+    // ctrl-click override that walks where Run is on and the follower should
+    // walk; `changed` against the engine's own flag (`engineOverride`), which
+    // the engine also changes (a Run toggle resets it). Once, after Follow
+    // ends otherwise than by a click: { tile: null, ctrlClickOverride: false }
+    // so the player stops where it is and the override is off again; a click
+    // sets its own tile and override.
+    beforeTick(kind, state, engineOverride = false) {
+      const step =
+        follow.leaderId === null
+          ? null
+          : follow.tick({
+              inLobby: kind === "lobby",
+              self: state?.playerPosition,
+              runEnabled: state?.isRunEnabled === true,
+              equipment: equipmentToWire(state?.playerEquipment),
+            });
       if (!step) {
-        override = null;
-        return null;
+        const stopped = following && kind === "lobby" && follow.lastCancel !== "walk";
+        following = false;
+        return stopped ? { tile: null, ctrlClickOverride: false, changed: engineOverride !== false } : null;
       }
+      following = true;
       const ctrlClickOverride = state?.isRunEnabled === true && !step.run;
-      const changed = override !== ctrlClickOverride;
-      override = ctrlClickOverride;
-      return { tile: step.tile, ctrlClickOverride, changed };
+      return { tile: step.tile, ctrlClickOverride, changed: engineOverride !== ctrlClickOverride };
     },
     // After the tick: the look (and the combat level, from the player's base
     // levels) when it changed, and the tile, steps, run and facing.
@@ -131,7 +168,7 @@ export function createLobbyLink({ createPresence = createLobbyPresence, build = 
 
 export const lobbyLink = createLobbyLink();
 export const setLobbyPresenceActive = (active) => lobbyLink.setActive(active);
-export const lobbyBeforeTick = (kind, state) => lobbyLink.beforeTick(kind, state);
+export const lobbyBeforeTick = (kind, state, engineOverride) => lobbyLink.beforeTick(kind, state, engineOverride);
 export const lobbyAfterTick = (kind, before, after, appearance, combat) => lobbyLink.afterTick(kind, before, after, appearance, combat);
 export const followRemotePlayer = (id) => lobbyLink.follow.start(id);
 export const stopLobbyFollow = (reason = "walk") => lobbyLink.follow.cancel(reason);

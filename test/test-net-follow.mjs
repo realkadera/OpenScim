@@ -104,7 +104,8 @@ const leader = (tile, more = {}) => ({ id: 9, name: "Leader", tile, fromTile: ti
   assert.deepEqual(presenceSteps(state([31, 25]), state([31, 26], [[31, 26]])), [[31, 26]]);
   assert.deepEqual(presenceSteps(state([31, 25]), state([31, 27], [[31, 26], [31, 27]])), [[31, 26], [31, 27]]);
   assert.deepEqual(presenceSteps(state([31, 27]), state([31, 27], [[31, 26], [31, 27]])), [], "a path left from an earlier tick");
-  assert.deepEqual(presenceSteps(state([31, 25]), state([40, 40], [[40, 40]])), [[40, 40]], "a teleport is one step; the receiving store snaps it");
+  assert.deepEqual(presenceSteps(state([31, 25]), state([40, 40], [[40, 40]])), [], "a teleport: no steps, the others snap");
+  assert.deepEqual(presenceSteps(state([31, 25]), state([31, 28], [[31, 27], [31, 28]])), [], "the first step not next to the tile before");
   assert.deepEqual(presenceSteps(state([31, 25]), state([31, 28], [[31, 26], [31, 27], [31, 28]])), [], "more than two");
   assert.deepEqual(presenceSteps(state([31, 25]), state([31, 27], [[31, 26], [35, 27]])), [], "not adjacent");
   assert.deepEqual(presenceSteps(state([31, 25]), state([31, 27], [[31, 26]])), [], "does not end on the tile");
@@ -195,20 +196,49 @@ function fakePresence() {
   fake.players.set(9, leader([31, 30], { fromTile: [31, 29], steps: [[31, 30]], run: false }));
   link.follow.start(9);
   const state = { playerPosition: [31, 28], isRunEnabled: true, playerEquipment: {} };
-  assert.deepEqual(link.beforeTick("lobby", state), { tile: [31, 29], ctrlClickOverride: true, changed: true }, "Run on, a walking leader one step ahead: walk");
-  assert.deepEqual(link.beforeTick("lobby", state), { tile: [31, 29], ctrlClickOverride: true, changed: false });
-  assert.deepEqual(link.beforeTick("lobby", { ...state, playerPosition: [31, 25] }), { tile: [31, 29], ctrlClickOverride: false, changed: true }, "far behind: runs to catch up");
-  assert.deepEqual(link.beforeTick("lobby", state), { tile: [31, 29], ctrlClickOverride: true, changed: true });
+  // The engine's ctrl-click flag, as Grid.js reads it and sets it when `changed`.
+  let flag = false;
+  const tick = (s, kind = "lobby") => {
+    const result = link.beforeTick(kind, s, flag);
+    if (result?.changed) flag = result.ctrlClickOverride;
+    return result;
+  };
+  assert.deepEqual(tick(state), { tile: [31, 29], ctrlClickOverride: true, changed: true }, "Run on, a walking leader one step ahead: walk");
+  assert.deepEqual(tick(state), { tile: [31, 29], ctrlClickOverride: true, changed: false });
+  // The engine resets its flag (a Run toggle): it is set again.
+  flag = false;
+  assert.deepEqual(tick(state), { tile: [31, 29], ctrlClickOverride: true, changed: true });
+  assert.deepEqual(tick({ ...state, playerPosition: [31, 25] }), { tile: [31, 29], ctrlClickOverride: false, changed: true }, "far behind: runs to catch up");
+  assert.deepEqual(tick(state), { tile: [31, 29], ctrlClickOverride: true, changed: true });
   fake.players.set(9, leader([31, 32], { fromTile: [31, 30], steps: [[31, 31], [31, 32]], run: true }));
-  assert.deepEqual(link.beforeTick("lobby", state), { tile: [31, 31], ctrlClickOverride: false, changed: true }, "runs when the leader runs");
-  assert.deepEqual(link.beforeTick("lobby", { ...state, isRunEnabled: false }), { tile: [31, 31], ctrlClickOverride: false, changed: false }, "Run off: no override, it walks");
-  // An item put on between ticks cancels it (the link sees it after the tick).
+  assert.deepEqual(tick(state), { tile: [31, 31], ctrlClickOverride: false, changed: true }, "runs when the leader runs");
+  assert.deepEqual(tick({ ...state, isRunEnabled: false }), { tile: [31, 31], ctrlClickOverride: false, changed: false }, "Run off: no override, it walks");
+  // An item put on between ticks cancels it (the link sees it after the tick): once, a stop with the
+  // override off and no tile, so the player does not walk on to the last tile; then nothing.
+  fake.players.set(9, leader([31, 30], { fromTile: [31, 29], steps: [[31, 30]], run: false }));
+  assert.equal(tick(state).ctrlClickOverride, true);
   link.afterTick("lobby", state, { ...state, playerEquipment: { head: 1 } }, null);
-  assert.equal(link.beforeTick("lobby", { ...state, playerEquipment: { head: 1 } }), null);
+  assert.deepEqual(tick({ ...state, playerEquipment: { head: 1 } }), { tile: null, ctrlClickOverride: false, changed: true });
+  assert.equal(flag, false);
+  assert.equal(tick({ ...state, playerEquipment: { head: 1 } }), null);
   assert.equal(link.follow.lastCancel, "equipment");
-  // Another scene cancels it.
+  // The leader gone: the same stop.
   link.follow.start(9);
-  assert.equal(link.beforeTick("yama", state), null);
+  assert.ok(tick(state));
+  fake.players.delete(9);
+  assert.equal(flag, true);
+  assert.deepEqual(tick(state), { tile: null, ctrlClickOverride: false, changed: true });
+  assert.equal(link.follow.lastCancel, "leader left");
+  fake.players.set(9, leader([31, 30], { fromTile: [31, 29], steps: [[31, 30]], run: false }));
+  // A click: no stop from the link (the click sets its own tile and override).
+  link.follow.start(9);
+  assert.ok(tick(state));
+  link.follow.cancel("walk");
+  assert.equal(tick(state), null);
+  // Another scene cancels it, and gives no stop there (a fight's input is its own).
+  link.follow.start(9);
+  assert.ok(tick(state));
+  assert.equal(tick(state, "yama"), null);
   assert.equal(link.follow.lastCancel, "left the lobby");
   // Leaving the lobby or signing out: stopped, the source cleared, Follow cancelled.
   link.follow.start(9);
@@ -244,6 +274,50 @@ function fakePresence() {
   link.afterTick("lobby", at, at, null, 91);
   link.afterTick("lobby", at, at, null, 500); // not a level: sent without one
   assert.deepEqual(calls.map((args) => args[2]), [90, 91, undefined]);
+}
+
+// --- a final stop (replaced, signed out, banned, version) is not undone by entering the lobby again;
+// the leader's member_leave ends Follow even when the same id joins again at once --------------
+{
+  const fake = fakePresence();
+  let snapshot = { stopReason: null };
+  const sessionListeners = [];
+  const roomListeners = [];
+  Object.assign(fake.presence.session, {
+    getSnapshot: () => snapshot,
+    subscribe: (fn) => sessionListeners.push(fn),
+    onRoomEvent: (fn) => roomListeners.push(fn),
+  });
+  let source = null;
+  const link = createLobbyLink({ createPresence: () => fake.presence, setSource: (s) => (source = s), getSource: () => source });
+  link.setActive(true);
+  assert.equal(fake.presence.started, 1);
+  // member_leave of the leader, then member_join of the same id in the same tick.
+  fake.players.set(9, leader([31, 30]));
+  link.follow.start(9);
+  for (const fn of roomListeners) fn({ type: "message", msg: { t: "member_leave", id: 9 } });
+  assert.equal(link.follow.leaderId, null);
+  assert.equal(link.follow.lastCancel, "leader left");
+  // Another member's leave changes nothing; room_lost ends it.
+  link.follow.start(9);
+  for (const fn of roomListeners) fn({ type: "message", msg: { t: "member_leave", id: 8 } });
+  assert.equal(link.follow.leaderId, 9);
+  for (const fn of roomListeners) fn({ type: "room_lost", reason: "grace over" });
+  assert.equal(link.follow.leaderId, null);
+  // A newer tab took over (4009): stopped for good.
+  for (const reason of ["stopped", "signed_out"]) {
+    snapshot = { stopReason: reason };
+    for (const fn of sessionListeners) fn();
+  }
+  assert.equal(link.finalStop, null, "an ordinary stop is not final");
+  snapshot = { stopReason: "replaced" };
+  for (const fn of sessionListeners) fn();
+  snapshot = { stopReason: "stopped" }; // our own stop() afterwards
+  link.setActive(false);
+  for (const fn of sessionListeners) fn();
+  link.setActive(true);
+  assert.equal(link.finalStop, "replaced");
+  assert.equal(fake.presence.started, 1, "not started again until a reload");
 }
 
 console.log("Follow and the lobby link passed");
