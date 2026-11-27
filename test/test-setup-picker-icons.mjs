@@ -3,12 +3,10 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import {chromium} from "playwright-core";
+import {browserOptions} from "../tools/browser.mjs";
 
 const hostIcon = fs.readFileSync(new URL("../client/assets/items/28951.png", import.meta.url));
-const browser = await chromium.launch({
-  executablePath: process.env.CHROME_PATH || "C:/Program Files/Google/Chrome/Application/chrome.exe",
-  args: ["--enable-unsafe-swiftshader"],
-});
+const browser = await chromium.launch(browserOptions);
 try {
   const page = await browser.newPage();
   const asked = [];
@@ -18,9 +16,11 @@ try {
     if (id === "999999999") return route.fulfill({status: 404, body: ""});
     return route.fulfill({status: 200, contentType: "image/png", body: hostIcon, headers: {"Access-Control-Allow-Origin": "*"}});
   });
+  // The Alchemical Hydra's first setup wears a helmet (11865). Its local icon is taken away here, so that the test
+  // doesn't depend on which icons the manifest has: 11865 got one (#181) and the test failed.
+  await page.route("**/assets/items/11865.png", (route) => route.fulfill({status: 404, body: ""}));
   await page.goto(process.env.TEST_ORIGIN + "/");
 
-  // The Alchemical Hydra's first setup wears a helmet (11865) with no local icon.
   await page.getByRole("button", {name: "Menu", exact: true}).click();
   await page.getByText("Encounters", {exact: true}).click();
   await page.getByPlaceholder("Search encounters...").fill("hydra");
