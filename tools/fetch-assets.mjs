@@ -18,8 +18,9 @@ import { parseArgs } from "node:util";
 import { Readable } from "node:stream";
 import { pipeline } from "node:stream/promises";
 import JSZip from "jszip";
-import { SECTOR, container, unpack, unzipCache } from "./assets/cache.mjs";
+import { container, packCache, unpack, unzipCache } from "./assets/cache.mjs";
 import { readCacheGroups } from "./assets/cache-groups.mjs";
+import { bootPacksStatus, buildBootPacks } from "./assets/boot-packs.mjs";
 import { trimmedCacheStatus } from "./assets/trimmed-cache.mjs";
 import { decodePng, decodeSprites, encodePng, onCanvas, pixelHash } from "./assets/sprites.mjs";
 import { isStandIn, makeStandIn } from "./assets/standins.mjs";
@@ -111,42 +112,7 @@ function openFullCache() {
 
 async function buildTrimmedCache() {
   const full = await openFullCache();
-  const sectors = [Buffer.alloc(SECTOR)]; // sector 0 is never referenced
-  const zip = new JSZip();
-  const date = new Date(Date.UTC(1980, 0, 1)); // fixed, so rebuilds are reproducible
-  const compressions = new Set();
-  let count = 0;
-  for (const [archiveKey, groups] of Object.entries(cacheGroups)) {
-    const archive = Number(archiveKey);
-    const idx = Buffer.alloc((await full.load("idx" + archive)).length);
-    for (const group of groups) {
-      const data = await full.group(archive, group);
-      if (!data) throw new Error("full cache has no archive " + archive + " group " + group);
-      compressions.add(data[0]);
-      idx.writeUIntBE(data.length, group * 6, 3);
-      idx.writeUIntBE(sectors.length, group * 6 + 3, 3);
-      const header = group > 0xffff ? 10 : 8;
-      const room = SECTOR - header;
-      for (let at = 0, chunk = 0; at < data.length; at += room, chunk++) {
-        const sector = Buffer.alloc(SECTOR);
-        if (header === 10) sector.writeUInt32BE(group);
-        else sector.writeUInt16BE(group);
-        sector.writeUInt16BE(chunk, header - 6);
-        sector.writeUIntBE(at + room < data.length ? sectors.length + 1 : 0, header - 4, 3);
-        sector[header - 1] = archive;
-        data.copy(sector, header, at, at + room);
-        sectors.push(sector);
-      }
-      count++;
-    }
-    zip.file("main_file_cache.idx" + archive, idx, { date });
-  }
-  zip.file("main_file_cache.dat2", Buffer.concat(sectors), { date });
-  const bytes = await zip.generateAsync({
-    type: "nodebuffer",
-    compression: "DEFLATE",
-    compressionOptions: { level: 9 },
-  });
+  const { bytes, count, sectors, compressions } = await packCache(full, cacheGroups);
   const dir = path.join(out, "osrs-cache");
   await writeFile(path.join(dir, "disk.zip"), bytes);
   await writeFile(path.join(dir, "keys.json"), "[]\n");
@@ -172,7 +138,7 @@ async function buildTrimmedCache() {
     containerCompressions: [...compressions].sort().map((id) => COMPRESSION[id] ?? "unknown-" + id),
   };
   await writeFile(path.join(dir, "manifest.json"), JSON.stringify(info, null, 2) + "\n");
-  return count + " groups, " + sectors.length + " sectors, disk.zip " + bytes.length + " bytes, sha256 " + info.diskZipSha256;
+  return count + " groups, " + sectors + " sectors, disk.zip " + bytes.length + " bytes, sha256 " + info.diskZipSha256;
 }
 
 // ------------------------------------------------------------------- media
@@ -256,6 +222,7 @@ for (const file of manifest.files) {
 const cacheState = await trimmedCacheStatus(path.join(out, "osrs-cache"), cacheGroups);
 let cacheStatus = cacheState.state === "ok" ? "ok" : cacheState.message ?? cacheState.state;
 let cacheLine = cacheStatus === "ok" ? "already present" : cacheStatus;
+let bootLine = cacheStatus !== "ok" ? "none" : (await bootPacksStatus(path.join(out, "osrs-cache"))) === "ok" ? "already present" : "out of date";
 
 if (!opt.check) {
   // A stale one (built here before a list of groups changed) is rebuilt
@@ -266,6 +233,10 @@ if (!opt.check) {
     cacheLine = (cacheState.state === "stale" ? "rebuilt, " + cacheState.message + ": " : "built: ") + (await buildTrimmedCache());
     cacheStatus = "ok";
   } else if (cacheStatus !== "ok") cacheLine += " (kept; pass --force to rebuild)";
+
+  // The boot packs are cut from the trimmed cache, so they follow it.
+  if (cacheStatus === "ok" && (await bootPacksStatus(path.join(out, "osrs-cache"))) !== "ok")
+    bootLine = "built: " + (await buildBootPacks(path.join(out, "osrs-cache"), cacheGroups));
 
   const bySource = Map.groupBy(wanted, (file) => file.source.split(":")[0]);
   const jobs = [];
@@ -312,6 +283,7 @@ const names = (files) => {
 
 console.log("\n== " + (opt.check ? "check" : "fetch") + " " + out);
 console.log("osrs-cache: " + cacheLine);
+console.log("boot packs: " + bootLine);
 console.log("media files in manifest: " + manifest.files.length);
 console.log("  already present, hash ok: " + tally.present.length);
 if (!opt.check) {
@@ -341,5 +313,5 @@ console.log("  full list: entries with \"source\":null in tools/assets/manifest.
 // A fresh clone always lacks the no-upstream files, so only --check treats an
 // incomplete tree as failure; a fetch fails when something that has an
 // upstream could not be reproduced.
-const incomplete = cacheStatus !== "ok" || tally.differs.length || tally.missingNoSource.length || tally.standIns.length || wanted.length;
+const incomplete = cacheStatus !== "ok" || bootLine === "out of date" || tally.differs.length || tally.missingNoSource.length || tally.standIns.length || wanted.length;
 process.exitCode = tally.failed.length || (opt.check && incomplete) ? 1 : 0;

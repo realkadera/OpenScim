@@ -68,6 +68,58 @@ export async function unpack(stored) {
   throw new Error("unknown container compression " + stored[0]);
 }
 
+/**
+ * A cache in the layout of an OpenRS2 disk.zip that holds `groups`
+ * ({ "<index>": [group ids] }) of `source` (what unzipCache returns) and no
+ * others: the trimmed cache from the full one, a boot pack from the trimmed one.
+ * Every index of `groups` gets its idx file, as long as the source's, so a
+ * group left out reads as empty.
+ *
+ * A group of `pending` (same shape) that is left out has its idx entry marked
+ * "size 0, sector 1": empty to every reader, and to the client the sign that
+ * the whole cache has it (CacheManager.awaitsWholeCache, client/assets/player.js).
+ */
+export async function packCache(source, groups, pending = {}) {
+  const sectors = [Buffer.alloc(SECTOR)]; // sector 0 is never referenced
+  const zip = new JSZip();
+  const date = new Date(Date.UTC(1980, 0, 1)); // fixed, so rebuilds are reproducible
+  const compressions = new Set();
+  let count = 0;
+  for (const [archiveKey, ids] of Object.entries(groups)) {
+    const archive = Number(archiveKey);
+    const idx = Buffer.alloc((await source.load("idx" + archive)).length);
+    for (const group of pending[archiveKey] ?? []) idx.writeUIntBE(1, group * 6 + 3, 3);
+    for (const group of ids) {
+      const data = await source.group(archive, group);
+      if (!data) throw new Error("source cache has no archive " + archive + " group " + group);
+      compressions.add(data[0]);
+      idx.writeUIntBE(data.length, group * 6, 3);
+      idx.writeUIntBE(sectors.length, group * 6 + 3, 3);
+      const header = group > 0xffff ? 10 : 8;
+      const room = SECTOR - header;
+      for (let at = 0, chunk = 0; at < data.length; at += room, chunk++) {
+        const sector = Buffer.alloc(SECTOR);
+        if (header === 10) sector.writeUInt32BE(group);
+        else sector.writeUInt16BE(group);
+        sector.writeUInt16BE(chunk, header - 6);
+        sector.writeUIntBE(at + room < data.length ? sectors.length + 1 : 0, header - 4, 3);
+        sector[header - 1] = archive;
+        data.copy(sector, header, at, at + room);
+        sectors.push(sector);
+      }
+      count++;
+    }
+    zip.file("main_file_cache.idx" + archive, idx, { date });
+  }
+  zip.file("main_file_cache.dat2", Buffer.concat(sectors), { date });
+  const bytes = await zip.generateAsync({
+    type: "nodebuffer",
+    compression: "DEFLATE",
+    compressionOptions: { level: 9 },
+  });
+  return { bytes, count, sectors: sectors.length, compressions };
+}
+
 export async function unzipCache(zipBytes) {
   const zip = await JSZip.loadAsync(zipBytes);
   const files = new Map();
