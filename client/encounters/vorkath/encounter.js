@@ -289,10 +289,12 @@ class VorkathEncounter {
     }
     return choices[choices.length - 1][0];
   }
-  // Her head: two tiles from her middle toward the target.
+  // Her head: two tiles from her middle along the line to the target, to the nearest tile. OBS (REC): the tile
+  // 146 of 148 shots and breaths and 21 of 21 fireballs left from (two tiles along each axis fits 47 of the 148).
   head(boss, target) {
     const [cx, cy] = centreOf(boss.position);
-    return [cx + 2 * Math.sign(target[0] - cx), cy + 2 * Math.sign(target[1] - cy)];
+    const length = Math.hypot(target[0] - cx, target[1] - cy) || 1;
+    return [cx + Math.round((2 * (target[0] - cx)) / length), cy + Math.round((2 * (target[1] - cy)) / length)];
   }
   // A shot at the player: its flight's end in cycles, and the hit's delay in ticks. OBS (REC, 129 shots and
   // breaths): the hitsplat comes on the last tick that starts before it lands, 2 ticks on for a flight ending at 80
@@ -358,17 +360,22 @@ class VorkathEncounter {
     return Math.max(0, this.randomInt([0, max]) - reduction - penalty);
   }
   // Thrown high at the player's tile: up to 121 on it, half beside it, nothing further.
+  // OBS (REC, 21 fireballs): it is aimed at the tile the player stands on once he has stepped in the tick she rears
+  // up (one of them at a player who stepped onto it then, two at a player who left it the tick after), and leaves
+  // her head. A hazard runs before the player steps, so that tile is read as the fireball leaves, a tick on.
   throwFireball(boss, player, context) {
     this.animate(context, "high");
-    const tile = [...player.position];
     this.later(fireballThrowTicks, (ctx) => {
       if (!this.boss(ctx.world)?.alive) return;
-      this.animate(ctx, null, [], [tileProjectile(spotAnims.fireball, centreOf(boss.position), tile, tileFlights.fireball)]);
+      const tile = [...ctx.world.getPlayer().position];
+      this.animate(ctx, null, [], [tileProjectile(spotAnims.fireball, this.head(boss, tile), tile, tileFlights.fireball)]);
       this.fireballs.push({ tile, landsAt: this.now + fireballLandTicks });
       this.later(fireballLandTicks, (landed) => {
         if (!this.boss(landed.world)?.alive) return;
         // OBS (tsps): the impact on the tile, 38 high.
         this.animate(landed, null, [onTile(spotAnims.dragonfireImpact, tile, 0, 38)]);
+        // OBS (REC): by where he stood before his step of this tick: a player a tile off then, and two off after
+        // it, took 48. Hazards run before the step, so this is that.
         const you = landed.world.getPlayer();
         const distance = chebyshev(you.position, tile);
         if (distance > 1) return;
@@ -384,7 +391,8 @@ class VorkathEncounter {
     this.nextAt = context.tick + acidNextAttackTicks;
     this.acid = { startedAt: context.tick, shots: 0 };
     const tiles = this.acidPoolTiles(boss, player);
-    const from = centreOf(boss.position);
+    // OBS (REC, 15 of 15 acid phases): every pool leaves her head as it faces the player, not her middle.
+    const from = this.head(boss, player.position);
     this.animate(context, "acid", [], tiles.map((tile) => tileProjectile(spotAnims.acid, from, tile, tileFlights.acid)));
     this.later(acidPoolLandTicks, () => {
       if (this.phase === "acid") this.pools = tiles;
@@ -437,7 +445,8 @@ class VorkathEncounter {
     if (elapsed >= acidFirstShotTicks && this.acid.shots < acidRapidShots) {
       const tile = [...player.position];
       this.acid.shots++;
-      this.animate(context, null, [], [tileProjectile(spotAnims.rapid, centreOf(boss.position), tile, tileFlights.rapid)]);
+      // OBS (REC, 363 of 367 shots): from her head, toward the shot's tile.
+      this.animate(context, null, [], [tileProjectile(spotAnims.rapid, this.head(boss, tile), tile, tileFlights.rapid)]);
       this.rapidTargets.push({ tile, landsAt: context.tick + 1 });
       this.later(1, (ctx) => {
         // OBS (tsps): on the tile, hit or miss, graphic 131, 30 high.
@@ -477,7 +486,8 @@ class VorkathEncounter {
       this.animate(ctx, "throw"); // the fireball's animation, under a name of its own: its sound is another (audio.js)
       const tile = this.spawnTile(vorkath, you);
       if (!tile) return this.endSpawn();
-      this.animate(ctx, null, [], [tileProjectile(spotAnims.spawnThrown, centreOf(vorkath.position), tile, tileFlights.spawn)]);
+      // OBS (REC, 11 of 11): from her head as it faces the player, wherever the spawn lands.
+      this.animate(ctx, null, [], [tileProjectile(spotAnims.spawnThrown, this.head(vorkath, you.position), tile, tileFlights.spawn)]);
       this.later(spawnThrowTicks, (landed) => {
         if (this.phase !== "spawn" || !this.boss(landed.world)?.alive || !landed.world.getPlayer().alive) return this.endSpawn();
         landed.spawnNpc(spawnDefinition.createActor(
