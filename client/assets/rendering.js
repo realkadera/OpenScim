@@ -54577,7 +54577,11 @@ var LobbySceneCompositor = class extends SceneCompositor {
         const k = this.remotePlayerLoader.identKitLoader.load(kit);
         return !!k && k.bodyPartId >= 0 && k.bodyPartId % 7 === bodyPart && k.models.length > 0;
       },
-      onError: (error) => logger.warn("Lobby", "A remote player could not be drawn", error),
+      // A rig not drawn any more: its meshes are not pushed again, and the renderer frees their buffers when
+      // they go stale (its only release: no scene frees a mesh explicitly, NPC instances included).
+      releaseRig: (rig) => rig.release(),
+      now: () => performance.now(),
+      onError: (error, id) => logger.warn("Lobby", "A remote player could not be drawn" + (id === undefined ? "" : " (id " + id + ")"), error),
     });
     const deltaMs = e.frameDeltaMs ?? 0;
     const drawn = this.remotePlayers.update(source.list(), {
@@ -54587,53 +54591,61 @@ var LobbySceneCompositor = class extends SceneCompositor {
     const camera = this.sorterCamera;
     const uiCamera = overlayCamera(a, n, e.options?.overlayGameScale);
     for (const r of drawn) {
-      const { rig: rig, state: s } = r;
-      const ctrl = rig.controller;
-      const x = r.position[0] + 0.5;
-      const y = r.position[1] + 0.5;
-      const ground = -Nb(this.terrainHeights, x, y) / 128;
-      const angle = s?.facingAngle ?? r.facing;
-      if (ctrl) {
-        ctrl.stanceName = null;
-        ctrl.setSorterProjection(
-          camera
-            ? {
-                cameraX: camera.cameraX,
-                cameraY: camera.cameraY,
-                cameraZ: camera.cameraZ,
-                yawSin: camera.yawSin,
-                yawCos: camera.yawCos,
-                pitchSin: camera.pitchSin,
-                pitchCos: camera.pitchCos,
-                orientation: angle,
-                modelX: x * 128,
-                modelY: -(ground + (rig.minHeight + ctrl._w()) / 128) * 128,
-                modelZ: y * 128,
-              }
-            : null,
-        );
-        ctrl.updatePlayerAnimation({
-          deltaMs: deltaMs,
-          isMoving: !!s?.isVisuallyMoving,
-          simIsMoving: !!s?.simIsMoving,
-          isRunning: !!s?.isRunning,
-          locomotionState: s?.locomotionState ?? null,
-          visualAngle: angle,
-          targetAngle: s?.targetAngle ?? angle,
-          speedMultiplier: 1,
-          isTurning: !!s?.isTurning,
-        });
+      // One remote that fails is dropped (remotePlayers.js markBroken), never the frame.
+      try {
+        this.drawRemotePlayer(n, r, camera, uiCamera, deltaMs);
+      } catch (error) {
+        this.remotePlayers.markBroken(r.id, error);
       }
-      const z = ground + (rig.minHeight + (ctrl?._w() ?? 0)) / 128;
-      ctrl?.ZL(-z * 128);
-      this.createPlayerModelMatrix(1 / 128, x, y, z, angle, r.modelMatrix);
-      for (const m of rig.meshCommands) {
-        n.commands.push(ME({ ...m, modelMatrix: r.modelMatrix }));
-      }
-      r.overheadAnchor = uiCamera
-        ? this.uiOverlayRenderer.playerOverheadBase(uiCamera, r.position, ctrl?.posedModelHeight)
-        : null;
     }
+  }
+  drawRemotePlayer(n, r, camera, uiCamera, deltaMs) {
+    const { rig: rig, state: s } = r;
+    const ctrl = rig.controller;
+    const x = r.position[0] + 0.5;
+    const y = r.position[1] + 0.5;
+    const ground = -Nb(this.terrainHeights, x, y) / 128;
+    const angle = s?.facingAngle ?? r.facing;
+    if (ctrl) {
+      ctrl.stanceName = null;
+      ctrl.setSorterProjection(
+        camera
+          ? {
+              cameraX: camera.cameraX,
+              cameraY: camera.cameraY,
+              cameraZ: camera.cameraZ,
+              yawSin: camera.yawSin,
+              yawCos: camera.yawCos,
+              pitchSin: camera.pitchSin,
+              pitchCos: camera.pitchCos,
+              orientation: angle,
+              modelX: x * 128,
+              modelY: -(ground + (rig.minHeight + ctrl._w()) / 128) * 128,
+              modelZ: y * 128,
+            }
+          : null,
+      );
+      ctrl.updatePlayerAnimation({
+        deltaMs: deltaMs,
+        isMoving: !!s?.isVisuallyMoving,
+        simIsMoving: !!s?.simIsMoving,
+        isRunning: !!s?.isRunning,
+        locomotionState: s?.locomotionState ?? null,
+        visualAngle: angle,
+        targetAngle: s?.targetAngle ?? angle,
+        speedMultiplier: 1,
+        isTurning: !!s?.isTurning,
+      });
+    }
+    const z = ground + (rig.minHeight + (ctrl?._w() ?? 0)) / 128;
+    ctrl?.ZL(-z * 128);
+    this.createPlayerModelMatrix(1 / 128, x, y, z, angle, r.modelMatrix);
+    for (const m of rig.meshCommands) {
+      n.commands.push(ME({ ...m, modelMatrix: r.modelMatrix }));
+    }
+    r.overheadAnchor = uiCamera
+      ? this.uiOverlayRenderer.playerOverheadBase(uiCamera, r.position, ctrl?.posedModelHeight)
+      : null;
   }
   // One remote player's rig (buildPlayerRig with no controller to reuse), its meshes under its own ids.
   buildRemotePlayerRig(appearance, equipment, id) {
@@ -54658,6 +54670,11 @@ var LobbySceneCompositor = class extends SceneCompositor {
       meshCommands: holder.meshes,
       controller: rig.controller,
       minHeight: rig.minHeight,
+      // Nothing of this rig is uploaded or drawn again.
+      release: () => {
+        holder.controller = null;
+        holder.meshes = [];
+      },
       hitModel: {
         verticesX: model.verticesX,
         verticesY: model.verticesY,
@@ -54799,8 +54816,13 @@ var LobbySceneBuilder = class {
     return this.npcLoaded;
   }
   async loadPlayer(e, a, t) {
-    // The remote players' rigs are built with the local player's model loader.
-    this.compositor.remotePlayerLoader = e;
+    // The remote players' rigs are built by a loader of their own over the same cache loaders, so their
+    // looks never take the local player's models out of its loader's model cache.
+    if (this.compositor.remotePlayerLoaderSource !== e) {
+      this.compositor.remotePlayerLoaderSource = e;
+      this.compositor.remotePlayerLoader =
+        e instanceof Rh ? new Rh(e.objTypeLoader, e.identKitLoader, e.modelLoader) : e;
+    }
     await this.compositor.loadPlayer(e, a, t);
   }
   isPlayerLoaded() {
