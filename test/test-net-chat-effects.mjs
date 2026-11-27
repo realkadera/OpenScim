@@ -2,7 +2,7 @@
 // speaker's head at one moment.
 import assert from "node:assert/strict";
 
-import { CYCLE_MS, OVERHEAD_CYCLES, OVERHEAD_COLOURS, overheadChatText, overheadColour } from "../client/net/chatEffects.js";
+import { CYCLE_MS, OVERHEAD_CYCLES, OVERHEAD_COLOURS, PATTERN_COLOURS, overheadChatText, overheadColour, overheadGlyphColours, rainbowColour } from "../client/net/chatEffects.js";
 import { parseChatEffects } from "../client/net/chatText.js";
 
 assert.equal(CYCLE_MS, 20);
@@ -36,7 +36,36 @@ assert.equal(overheadColour("glow3", 50, 0), "#00ff00");
 assert.equal(overheadColour("glow3", 100, 0), "#ffffff");
 assert.equal(overheadColour("glow3", 1000, 0), overheadColour("glow3", 149, 0), "held at its last colour");
 
-// rainbow and pattern: yellow (their timing is not known here); unknown: yellow.
+// rainbow and pattern: each character its own colour. OBS (the game's client): the table of the 36 pattern
+// colours as it holds it, in decimal; the rainbow from its palette (hue, saturation 7, lightness 64).
+assert.deepEqual(
+  [...PATTERN_COLOURS],
+  [
+    16777215, 14942979, 16747520, 16772352, 32806, 2375822, 7547266, 16720268, 11884176, 5261772, 10724259, 13970688, 15693351, 16577588, 494960, 2208255, 10178454, 16756679,
+    13722276, 8105443, 16751190, 2543274, 7591918, 10246609, 10021057, 11894492, 2894892, 9699842, 6371605, 13680896, 4882723, 14504, 8388736, 14025328, 10682978, 4004472,
+  ],
+);
+assert.equal(rainbowColour(0), 0xf81509, "hue 0: red");
+assert.equal(rainbowColour(21) >> 16 < 0x40 && ((rainbowColour(21) >> 8) & 255) === 0xf8, true, "a third round: green");
+// Character i of n takes hue floor(i / n * 64): the first red, the hues rising, never the same twice in 8.
+const rainbow = overheadChatText(parseChatEffects("rainbow:Rainbow!"), 0, 0);
+assert.equal(rainbow.textColor, "#ffff00");
+assert.deepEqual(rainbow.segments.map((part) => part.text).join(""), "Rainbow!");
+assert.deepEqual(rainbow.segments.map((part) => part.color), [0, 8, 16, 24, 32, 40, 48, 56].map((hue) => "#" + rainbowColour(hue).toString(16).padStart(6, "0")));
+assert.equal(rainbow.segments[0].color, "#f81509");
+assert.equal(rainbow.segments[0].dx, undefined, "not moved");
+// A pattern of n codes: character i takes code floor(i * n / length). The wiki's example, yellow and black.
+const bee = overheadChatText(parseChatEffects("patternq3q3:Bumblebee"), 0, 0);
+assert.deepEqual(overheadGlyphColours({ colour: "pattern", pattern: "q3" }, 4), ["#2c2c2c", "#2c2c2c", "#ffed00", "#ffed00"]);
+assert.deepEqual(
+  bee.segments.map((part) => part.color),
+  ["#2c2c2c", "#2c2c2c", "#2c2c2c", "#ffed00", "#ffed00", "#2c2c2c", "#2c2c2c", "#ffed00", "#ffed00"],
+);
+assert.deepEqual(overheadGlyphColours({ colour: "pattern", pattern: "0z" }, 2), ["#ffffff", "#3d1a78"], "the first code and the last");
+// With an effect that moves the characters, both.
+const waved = overheadChatText(parseChatEffects("rainbow:wave:Hi"), 0, 0);
+assert.deepEqual(waved.segments.map((part) => [part.text, typeof part.dy, part.color]), [["H", "number", "#f81509"], ["i", "number", rainbow.segments[4].color]]);
+assert.equal(overheadGlyphColours({ colour: "red" }, 3), null);
 assert.equal(overheadColour("rainbow", 10, 10), "#ffff00");
 assert.equal(overheadColour("pattern", 10, 10), "#ffff00");
 assert.equal(overheadColour(undefined, 0, 0), "#ffff00");

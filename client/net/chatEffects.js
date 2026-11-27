@@ -39,7 +39,8 @@ const hex = (rgb) => "#" + (rgb & 0xffffff).toString(16).padStart(6, "0");
 
 // The colour at a moment. flash1-3 alternate every 10 cycles of the page's
 // clock; glow1-3 run once through three colours over the 150 cycles of the
-// line. rainbow and pattern are drawn yellow: their timing is not known here.
+// line. rainbow and pattern colour each character (overheadGlyphColours);
+// their base colour is yellow.
 export function overheadColour(colour, elapsedCycles, clockCycles) {
   const fixed = OVERHEAD_COLOURS[colour];
   if (fixed) return fixed;
@@ -69,6 +70,45 @@ function glyphs(text) {
   return [...text];
 }
 const perGlyph = (text, offset) => glyphs(text).map((glyph, i) => ({ text: glyph, ...offset(i) }));
+
+// OBS (the game's client): the 36 colours a pattern's codes name, "0" to "9"
+// then "a" to "z".
+export const PATTERN_COLOURS = Object.freeze([
+  0xffffff, 0xe40303, 0xff8c00, 0xffed00, 0x008026, 0x24408e, 0x732982, 0xff218c, 0xb55690, 0x5049cc, 0xa3a3a3, 0xd52d00,
+  0xef7627, 0xfcf434, 0x078d70, 0x21b1ff, 0x9b4f96, 0xffafc7, 0xd162a4, 0x7bade3, 0xff9a56, 0x26ceaa, 0x73d7ee, 0x9c59d1,
+  0x98e8c1, 0xb57edc, 0x2c2c2c, 0x940202, 0x613915, 0xd0c100, 0x4a8123, 0x0038a8, 0x800080, 0xd60270, 0xa30262, 0x3d1a78,
+]);
+
+// OBS (the game's client): the rainbow takes the client's palette at hue
+// 0..63, saturation 7 of 0..7 and lightness 64 of 0..127: hue/64 + 1/128,
+// saturation 7/8 + 1/16, lightness 1/2, to red, green and blue, each raised
+// to the power 0.95 and cut to 0..255.
+export function rainbowColour(hue) {
+  const h = 0.0078125 + (hue & 63) / 64;
+  const q = 0.96875; // lightness + saturation - lightness * saturation
+  const p = 0.03125; // 2 * lightness - q
+  const channel = (t) => {
+    if (t > 1) t -= 1;
+    if (t < 0) t += 1;
+    const v = t * 6 < 1 ? p + (q - p) * 6 * t : t * 2 < 1 ? q : t * 3 < 2 ? p + (q - p) * (2 / 3 - t) * 6 : p;
+    return Math.trunc(256 * Math.pow(v, 0.95));
+  };
+  return (channel(h + 1 / 3) << 16) | (channel(h) << 8) | channel(h - 1 / 3);
+}
+
+// The colour of each of `count` characters, or null when the line has one
+// colour. OBS (the game's client; its arithmetic is in 32-bit floats):
+// rainbow gives character i the hue floor(i / count * 64); a pattern of n
+// codes gives it the colour of code floor(i * (n / count)).
+export function overheadGlyphColours(display, count) {
+  const f = Math.fround;
+  if (display?.colour === "rainbow") return Array.from({ length: count }, (_, i) => hex(rainbowColour(Math.trunc(f(f(i / count) * 64)))));
+  if (display?.colour !== "pattern" || typeof display.pattern !== "string" || !display.pattern) return null;
+  const codes = [...display.pattern].map((code) => PATTERN_COLOURS[parseInt(code, 36)]);
+  if (codes.some((colour) => colour === undefined)) return null;
+  const step = f(codes.length / count);
+  return Array.from({ length: count }, (_, i) => hex(codes[Math.trunc(f(i * step))]));
+}
 
 export function overheadChatText(display, elapsedMs, clockMs) {
   const text = typeof display?.text === "string" ? display.text : "";
@@ -109,5 +149,9 @@ export function overheadChatText(display, elapsedMs, clockMs) {
       break;
     }
   }
+  // rainbow and pattern: every character in its own colour, moved or not.
+  const segments = out.segments ?? (display?.colour === "rainbow" || display?.colour === "pattern" ? perGlyph(text, () => null) : null);
+  const colours = segments && overheadGlyphColours(display, segments.length);
+  if (colours) out.segments = segments.map((segment, i) => ({ ...segment, color: colours[i] }));
   return out;
 }

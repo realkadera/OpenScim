@@ -188,6 +188,10 @@ try {
     await page.waitForFunction(() => document.querySelector(".chatbox__line--speaker:last-child .chatbox__speaker")?.textContent === "Remote:");
     assert.equal(await page.locator(".chatbox__line--speaker").last().locator(".chatbox__said").textContent(), "Hi there");
     assert.deepEqual(await overhead("Hi there"), { color: "rgb(255, 0, 0)", parts: 8 });
+    // A pattern: each character in its code's colour (q black, 3 yellow), the prefix not shown.
+    await page.evaluate(() => window.apiWs.reply({ t: "chat", id: 8, name: "Remote", text: "patternq3:Bees", tick: 3 }));
+    const bees = await page.waitForFunction(() => [...document.querySelectorAll("[data-overhead-texts] > span")].find((s) => s.textContent === "Bees"), null, { timeout: 10000 });
+    assert.deepEqual(await bees.evaluate((s) => [...s.children].map((part) => getComputedStyle(part).color)), ["rgb(44, 44, 44)", "rgb(44, 44, 44)", "rgb(255, 237, 0)", "rgb(255, 237, 0)"]);
 
     // Shot for the pull request, while both are above the heads.
     if (process.env.LOBBY_CHAT_SCREENSHOT) await page.screenshot({ path: process.env.LOBBY_CHAT_SCREENSHOT });
