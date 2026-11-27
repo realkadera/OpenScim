@@ -109,10 +109,11 @@ assert.deepEqual(prepareOutgoing("x".repeat(81), { chat_max_chars: 100 }).ok, tr
 // A raw text over 16 bytes a character is refused before cleaning, as the server does.
 assert.deepEqual(prepareOutgoing("x" + "​".repeat(500)), { ok: false, reason: "too_long" });
 
-// Capitals (inferred): the first letter, and the first after ". ", "! ", "? ".
+// Capitals (OBS, the game's client): the first letter and the first after ".", "?", "!"; lower case inside a word.
 assert.equal(capitalise("hello there. how are you? fine! ok"), "Hello there. How are you? Fine! Ok");
-assert.equal(capitalise("i AM Here"), "I AM Here");
-assert.equal(capitalise("1 apple.no space"), "1 apple.no space");
+assert.equal(capitalise("i AM Here"), "I Am Here");
+assert.equal(capitalise("HELLO WORLD"), "Hello World");
+assert.equal(capitalise("1 apple.no space"), "1 apple.No space");
 assert.equal(capitalise("étoile"), "Étoile");
 assert.equal(capitalise("ßtraße"), "ßtraße", "a capital of two letters is left alone");
 assert.equal(capitalise(""), "");

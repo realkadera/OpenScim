@@ -70,18 +70,28 @@ export const hasVisibleText = (text) => VISIBLE.test(text);
 export const RAW_BYTES_PER_CHAR = 16;
 const utf8 = new TextEncoder();
 
-// inferred: OSRS capitalises the first letter of a public message and the
-// first letter after ". ", "! " or "? ", and leaves the rest as typed (the
-// commonly known behaviour of the game's chat; the wiki does not say). Only a
-// lower-case letter whose capital is one character is changed, so the length
-// never changes.
-const SENTENCE_START = /(^|[.!?] )(\p{Ll})/gu;
+// OBS (the game's client, the case of a public message as it is shown): the
+// first letter, and the first after ".", "?" or "!" (spaces between or not),
+// is a capital; a letter inside a word is lower case; the first letter of any
+// other word is as typed. "HELLO WORLD" is "Hello World", "hi.there" is
+// "Hi.There". Only a letter whose other case is one character is changed, so
+// the length never changes.
+const LETTER = /^\p{L}$/u;
+const SPACE = /^\p{Zs}$/u;
+const oneChar = (changed, char) => ([...changed].length === 1 ? changed : char);
 export function capitalise(text) {
   if (typeof text !== "string") return "";
-  return text.replace(SENTENCE_START, (all, before, letter) => {
-    const upper = letter.toUpperCase();
-    return [...upper].length === 1 ? before + upper : all;
-  });
+  let state = 2; // 2: a sentence starts, 1: a word starts, 0: inside a word
+  let out = "";
+  for (let char of text) {
+    if (state === 0) char = oneChar(char.toLowerCase(), char);
+    else if (state === 2) char = oneChar(char.toUpperCase(), char);
+    if (LETTER.test(char)) state = 0;
+    else if (char === "." || char === "?" || char === "!") state = 2;
+    else if (!SPACE.test(char) || state !== 2) state = 1;
+    out += char;
+  }
+  return out;
 }
 
 // WIKI (Chat Interface, "Chat effects"): the colours and text effects of a
