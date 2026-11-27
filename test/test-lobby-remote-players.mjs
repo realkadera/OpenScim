@@ -169,6 +169,7 @@ try {
             if (!String(url).includes("/api/ws")) return new Real(url, protocols);
             super();
             this.url = String(url);
+            window.apiWs = this;
             this.readyState = 0;
             setTimeout(() => {
               this.readyState = 1;
@@ -216,6 +217,28 @@ try {
     const blurredAt = await tickNow();
     await page.waitForFunction((args) => eval(args.engines).getState().currentTick >= args.from + 3, { engines: liveEngine, from: blurredAt }, { timeout: 15000 });
     await page.evaluate(() => window.dispatchEvent(new Event("focus")));
+
+    // Follow over the wire, in a window that is hidden (no frames come, as behind another window): the leader
+    // walks east a tile a tick, as the room tells it; the local player ends on the tile behind the leader.
+    await page.evaluate(() => {
+      Object.defineProperty(document, "visibilityState", { configurable: true, get: () => "hidden" });
+      window.requestAnimationFrame = () => 0;
+      document.dispatchEvent(new Event("visibilitychange"));
+    });
+    await page.evaluate(async () => (await import("/net/lobbyLink.js")).followRemotePlayer(8));
+    for (let n = 1; n <= 6; n++) {
+      await page.evaluate((n) => window.apiWs.reply({ t: "presence_tick", tick: 100 + n, d: [{ id: 8, tile: [29 + n, 22], steps: [[29 + n, 22]], run: false, facing: 1536 }] }), n);
+      await page.waitForTimeout(600);
+    }
+    const followState = async () =>
+      page.evaluate(async (engines) => {
+        const { lobbyLink } = await import("/net/lobbyLink.js");
+        return { at: eval(engines).getState().playerPosition, leader: lobbyLink.follow.leaderId, cancel: lobbyLink.follow.lastCancel };
+      }, liveEngine);
+    await page
+      .waitForFunction((engines) => eval(engines).getState().playerPosition.join() === "34,22", liveEngine, { timeout: 15000 })
+      .catch(async () => assert.fail("the follower did not end behind the leader: " + JSON.stringify(await followState())));
+    assert.equal((await followState()).leader, 8, "still following");
 
     assert.deepEqual(errors, []);
     await page.close();
