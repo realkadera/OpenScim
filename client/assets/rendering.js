@@ -54643,10 +54643,16 @@ var LobbySceneCompositor = class extends SceneCompositor {
     });
     const camera = this.sorterCamera;
     const uiCamera = overlayCamera(a, n, e.options?.overlayGameScale);
+    // The tiles a standing player was drawn on this frame, the local player's first.
+    const standingTiles = new Set();
+    const local = this.playerModelMatrix;
+    if (local && Number.isInteger(local[12] - 0.5) && Number.isInteger(local[13] - 0.5)) {
+      standingTiles.add(local[12] - 0.5 + "," + (local[13] - 0.5));
+    }
     for (const r of drawn) {
       // One remote that fails is dropped (remotePlayers.js markBroken), never the frame.
       try {
-        this.drawRemotePlayer(n, r, camera, uiCamera, deltaMs);
+        this.drawRemotePlayer(n, r, camera, uiCamera, deltaMs, standingTiles);
       } catch (error) {
         this.remotePlayers.markBroken(r.id, error);
       }
@@ -54677,7 +54683,7 @@ var LobbySceneCompositor = class extends SceneCompositor {
       push("lobby-chat-" + r.id, r.chatAnchor, lobbyChatOverheadText(r.id, now));
     }
   }
-  drawRemotePlayer(n, r, camera, uiCamera, deltaMs) {
+  drawRemotePlayer(n, r, camera, uiCamera, deltaMs, standingTiles) {
     const { rig: rig, state: s } = r;
     const ctrl = rig.controller;
     const x = r.position[0] + 0.5;
@@ -54718,10 +54724,15 @@ var LobbySceneCompositor = class extends SceneCompositor {
     const z = ground + (rig.minHeight + (ctrl?._w() ?? 0)) / 128;
     ctrl?.ZL(-z * 128);
     this.createPlayerModelMatrix(1 / 128, x, y, z, angle, r.modelMatrix);
-    // On the local player's tile the local player is the one seen: the other is not drawn, and stays in the menu
-    // (its matrix and hit data are kept).
-    const local = this.playerModelMatrix;
-    r.covered = !!local && Math.abs(local[12] - x) < 0.5 && Math.abs(local[13] - y) < 0.5;
+    // OBS (the game's client, addPlayerToScene): a player standing on the middle of a tile is not drawn when another
+    // was drawn there this frame, the local player first; a player that is moving is always drawn. A player not
+    // drawn stays in the menu (its matrix and hit data are kept).
+    const standing = Number.isInteger(r.position[0]) && Number.isInteger(r.position[1]);
+    const key = r.position[0] + "," + r.position[1];
+    r.covered = standing && standingTiles.has(key);
+    if (standing) {
+      standingTiles.add(key);
+    }
     if (!r.covered) {
       for (const m of rig.meshCommands) {
         n.commands.push(ME({ ...m, modelMatrix: r.modelMatrix }));
