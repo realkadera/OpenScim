@@ -3087,6 +3087,11 @@ html:not([data-panel-dragging])
   flex: 1 1 0;
   min-width: 0;
 }
+/* A player's name and text, each in a bidi isolate: neither reorders the other or the ": " (lobby chat). */
+.chatbox__speaker,
+.chatbox__said {
+  unicode-bidi: isolate;
+}
 .chatbox__scrollbar {
   position: absolute;
 }
@@ -3113,6 +3118,22 @@ html:not([data-panel-dragging])
   font-family: "RuneScape Plain 12", sans-serif;
   display: flex;
   position: absolute;
+}
+/* The lobby's public chat input line (Grid.js LobbyChatInput): the text as drawn, a real input under it. */
+.chatbox__typing {
+  white-space: pre;
+}
+.chatbox__field {
+  pointer-events: auto;
+  opacity: 0;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
 }
 .chatbox__tab,
 .chatbox__report {

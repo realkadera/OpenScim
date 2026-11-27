@@ -5,6 +5,7 @@ import { projectileOverrideDefaults, readProjectileOverrideSettings } from "/plu
 import { getDefenceTrackerInfoboxes } from "/plugins/defenceTracker.js";
 import { pickLobbyObject } from "/lobby/gateways.js";
 import { lobbyBeforeTick, lobbyAfterTick, followRemotePlayer } from "/net/lobbyLink.js";
+import { subscribeLobbyChat, getLobbyChatSnapshot, setLobbyChatDraft, sendLobbyChat, chatKeyStartsTyping, createChatboxMerge } from "/net/lobbyChat.js";
 import { combatLevelColor } from "/util/combatLevelColor.js";
 import { replayMarkerStore, findUndoFrameIndex, addMarker, isOnTimeline, pickMarker, pickAutoMarker, nameNewAutoMarkers, describeMarker, isRollbackHeld, holdAfterRollback, releaseRollback, showReplayMessage } from "/replay/markers.js";
 import { createTickLogPanel } from "/replay/tickLogPanel.js";
@@ -27248,6 +27249,91 @@ function EOe(ez) {
     };
   }
 }
+// The input line of the lobby's public chat (client/net/lobbyChat.js), signed in: "<name>: <typed>*" as the game
+// draws it, the account's own name in the message colour, the typed text and the star in the caret's. While the
+// server's chat is on, a real input under it takes the keys: a character no keybind uses, Enter or Backspace pressed
+// outside any field goes to it; Enter sends, Escape leaves it. Its keys stop at the input (F1-F12 excepted), so no
+// hotkey of the page sees them.
+function LobbyChatInput({ chat: chat, ink: ink, width: width }) {
+  const input = (0, pn.useRef)(null);
+  const latest = (0, pn.useRef)(chat);
+  latest.current = chat;
+  (0, pn.useEffect)(() => {
+    if (!chat.available) {
+      return;
+    }
+    const onKeyDown = (event) => {
+      const el = input.current;
+      if (!el || event.defaultPrevented || event.isComposing || bg() || aK(event.target) || aK(document.activeElement)) {
+        return;
+      }
+      const draft = latest.current.draft;
+      const plain = !event.ctrlKey && !event.altKey && !event.metaKey;
+      if (plain && !event.shiftKey && event.key === "Enter") {
+        if (draft.trim() === "") {
+          el.focus();
+        } else {
+          sendLobbyChat();
+        }
+      } else if (plain && event.key === "Backspace" && draft !== "") {
+        setLobbyChatDraft([...draft].slice(0, -1).join(""));
+        el.focus();
+      } else if (chatKeyStartsTyping(event, ck())) {
+        setLobbyChatDraft(draft + event.key);
+        el.focus();
+      } else {
+        return;
+      }
+      event.preventDefault();
+      event.stopImmediatePropagation();
+    };
+    window.addEventListener("keydown", onKeyDown, true);
+    return () => window.removeEventListener("keydown", onKeyDown, true);
+  }, [chat.available]);
+  return (0, wn.jsxs)("span", {
+    className: "chatbox__typing",
+    children: [
+      (0, wn.jsx)("bdi", { children: chat.name }),
+      ": ",
+      (0, wn.jsxs)("span", {
+        className: "chatbox__typed",
+        style: { color: ink.caret },
+        children: [(0, wn.jsx)("bdi", { children: chat.available ? chat.draft : "" }), "*"],
+      }),
+      chat.available &&
+        (0, wn.jsx)("input", {
+          ref: input,
+          className: "chatbox__field",
+          "aria-label": "Public chat",
+          autoComplete: "off",
+          spellCheck: false,
+          enterKeyHint: "send",
+          value: chat.draft,
+          style: { width: width },
+          onChange: (event) => setLobbyChatDraft(event.target.value),
+          onKeyDown: (event) => {
+            if (/^F\d{1,2}$/.test(event.key)) {
+              return;
+            }
+            event.stopPropagation();
+            if (event.nativeEvent.isComposing) {
+              return;
+            }
+            if (event.key === "Enter") {
+              event.preventDefault();
+              sendLobbyChat();
+              event.currentTarget.blur();
+            } else if (event.key === "Escape") {
+              event.preventDefault();
+              event.currentTarget.blur();
+            } else if (event.key === "Tab") {
+              event.preventDefault();
+            }
+          },
+        }),
+    ],
+  });
+}
 var Chatbox = (0, pn.memo)(function ({
   rect: rect,
   scale: scale,
@@ -27257,6 +27343,7 @@ var Chatbox = (0, pn.memo)(function ({
   sceneRef: sceneRef,
   onToggle: onToggle,
   messages: messages,
+  lobbyChat: lobbyChat,
 }) {
   const eI = {
     CqpJr: function (fB, fD) {
@@ -27821,15 +27908,27 @@ var Chatbox = (0, pn.memo)(function ({
             color: eK.message,
             textShadow: textShadow(eK, scale),
           },
-          children: [
-            "Player: ",
-            (0, wn.jsx)("span", {
-              style: {
-                color: eK.caret,
-              },
-              children: "*",
-            }),
-          ],
+          children: lobbyChat?.name
+            ? [
+                (0, wn.jsx)(
+                  LobbyChatInput,
+                  {
+                    chat: lobbyChat,
+                    ink: eK,
+                    width: (XCe.width - 3) * scale,
+                  },
+                  "lobby-chat",
+                ),
+              ]
+            : [
+                "Player: ",
+                (0, wn.jsx)("span", {
+                  style: {
+                    color: eK.caret,
+                  },
+                  children: "*",
+                }),
+              ],
         }),
       (0, wn.jsx)("div", {
         className: "chatbox__controls",
@@ -53010,9 +53109,15 @@ var wBe = (0, pn.memo)(function (ez) {
     }, [eB, eC]);
     return (0, pn.useSyncExternalStore)(eB?.subscribe ?? MLe, eD);
   })();
+  // The lobby's public chat (client/net/lobbyChat.js): its lines merged in by time and its input line; without it
+  // (signed out, out of the lobby) the game lines alone, as before.
+  const lobbyChat = (0, pn.useSyncExternalStore)(subscribeLobbyChat, getLobbyChatSnapshot);
+  const [mergeLines] = (0, pn.useState)(() => createChatboxMerge());
+  const messages = (0, pn.useMemo)(() => mergeLines(eA, lobbyChat.lines), [mergeLines, eA, lobbyChat.lines]);
   return (0, wn.jsx)(Chatbox, {
     ...ez,
-    messages: eA,
+    messages: messages,
+    lobbyChat: lobbyChat,
   });
 });
 var uZ = {
