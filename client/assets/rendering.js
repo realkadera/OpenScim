@@ -22410,11 +22410,12 @@ var dA = {
 var gA = {
   closeOverlay: "Escape",
 };
+// The camera turns by the arrow keys, as in the game: every letter is free for the chat.
 var cA = {
-  orbitRotateLeft: "a",
-  orbitRotateRight: "d",
-  orbitTiltUp: "w",
-  orbitTiltDown: "s",
+  orbitRotateLeft: "ArrowLeft",
+  orbitRotateRight: "ArrowRight",
+  orbitTiltUp: "ArrowUp",
+  orbitTiltDown: "ArrowDown",
   freeformForward: "w",
   freeformBackward: "s",
   freeformLeft: "a",
@@ -22507,11 +22508,38 @@ function vA(e) {
   cS(rA, e.gamePanel);
   cS(iA, e.camera);
 }
+// The camera's first default keys. Stored keys that are still exactly these move to the arrow keys, once
+// (they were saved on the first visit, chosen or not); keys set after that are kept.
+var cameraLetterKeys = {
+  orbitRotateLeft: "a",
+  orbitRotateRight: "d",
+  orbitTiltUp: "w",
+  orbitTiltDown: "s",
+};
+function cameraKeysToArrows(e) {
+  if (!e || gS("osrs-camera-arrow-keys")) {
+    return e;
+  }
+  cS("osrs-camera-arrow-keys", true);
+  if (!mA.every((a) => e[a] === cameraLetterKeys[a])) {
+    return e;
+  }
+  const a = {
+    ...e,
+  };
+  for (const e of mA) {
+    a[e] = cA[e];
+  }
+  return a;
+}
 function pA() {
-  const e = gS(lA);
+  const stored = gS(lA);
+  const storedCamera = cameraKeysToArrows(stored?.camera);
+  const e = stored && storedCamera !== stored.camera ? { ...stored, camera: storedCamera } : stored;
   if (e) {
     const a = uA(e);
     if (
+      e !== stored ||
       Object.keys(e.plugins ?? {}).some((e) => !Object.hasOwn(nA, e)) ||
       Object.keys(e.ui ?? {}).some((e) => !Object.hasOwn(gA, e)) ||
       yA.some((t) => e[t.domain]?.[t.action] !== wA(a, t))
@@ -22522,7 +22550,7 @@ function pA() {
   }
   const a = uA({
     gamePanel: gS(rA) ?? undefined,
-    camera: gS(iA) ?? undefined,
+    camera: cameraKeysToArrows(gS(iA) ?? undefined),
   });
   vA(a);
   return a;

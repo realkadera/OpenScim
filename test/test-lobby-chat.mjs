@@ -50,6 +50,33 @@ try {
     assert.equal(await page.locator(".chatbox__field").count(), 0, "no input signed out");
     await page.keyboard.press("h");
     assert.equal(await inputLine(page), "Player: *");
+    // The camera turns by the arrow keys by default (as in the game; the letters are the chat's).
+    const cameraKeys = () => page.evaluate(() => JSON.parse(localStorage.getItem("osrs-unified-keybinds")).camera);
+    assert.deepEqual(
+      (({ orbitRotateLeft, orbitRotateRight, orbitTiltUp, orbitTiltDown }) => [orbitRotateLeft, orbitRotateRight, orbitTiltUp, orbitTiltDown])(await cameraKeys()),
+      ["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"],
+    );
+    // Held, an arrow key turns the camera: the compass turns with it.
+    const turned = () => page.evaluate(() => [...document.querySelectorAll("*")].some((el) => /rotate\((?!0deg)/.test(el.style?.transform || "")));
+    assert.equal(await turned(), false);
+    await page.keyboard.down("ArrowLeft");
+    await page.waitForFunction(() => [...document.querySelectorAll("*")].some((el) => /rotate\((?!0deg)/.test(el.style?.transform || "")), null, { timeout: 5000 });
+    await page.keyboard.up("ArrowLeft");
+    // Keys stored by an earlier visit that are still the first defaults (A, D, W, S) move to the arrows once;
+    // set again after that, they are kept.
+    const storeLetters = (forget) =>
+      page.evaluate((forget) => {
+        const keybinds = JSON.parse(localStorage.getItem("osrs-unified-keybinds"));
+        Object.assign(keybinds.camera, { orbitRotateLeft: "a", orbitRotateRight: "d", orbitTiltUp: "w", orbitTiltDown: "s" });
+        localStorage.setItem("osrs-unified-keybinds", JSON.stringify(keybinds));
+        if (forget) localStorage.removeItem("osrs-camera-arrow-keys");
+      }, forget);
+    await storeLetters(true);
+    await openLobby(page);
+    assert.equal((await cameraKeys()).orbitRotateLeft, "ArrowLeft", "the first defaults, moved once");
+    await storeLetters(false);
+    await openLobby(page);
+    assert.equal((await cameraKeys()).orbitRotateLeft, "a", "chosen after that: kept");
     assert.deepEqual(errors, []);
     await page.close();
   }
