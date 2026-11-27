@@ -46,7 +46,7 @@ assert.equal(carryOver({ ...old, attackTimerMetronomeEnabled: false }).carried, 
 assert.equal(carryOver({ ...old, attackTimerMetronomeEnabled: true }, JSON.stringify({ enabled: false, settings: {} })).carried, false);
 assert.equal(carryOver({}).carried, false);
 
-const origin = "http://127.0.0.1:8791";
+const origin = process.env.TEST_ORIGIN;
 const browser = await chromium.launch({
   executablePath: process.env.CHROME_PATH || "C:/Program Files/Google/Chrome/Application/chrome.exe",
   args: ["--enable-unsafe-swiftshader"],
