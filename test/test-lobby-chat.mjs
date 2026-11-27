@@ -229,6 +229,39 @@ try {
 
     // The overhead text goes after its 3 s.
     await page.waitForFunction(() => ![...document.querySelectorAll("[data-overhead-texts] > span")].some((s) => s.textContent === "Hello world"), null, { timeout: 10000 });
+
+    // The Public stone: "On"; a right click gives the game's modes; "Show none" makes it "Off", takes the public
+    // lines out of the chatbox but our own, and no text is drawn above a head (OBS: the game's client), our own
+    // neither; "Hide" keeps the texts above the heads and empties the chatbox of public lines.
+    const stone = page.locator('[data-chat-tab="public"]');
+    const stoneLabel = () => stone.evaluate((el) => [el.children[1].textContent, getComputedStyle(el.children[1]).color]);
+    assert.deepEqual(await stoneLabel(), ["On", "rgb(13, 193, 13)"]);
+    const menuItems = page.locator('[role="menuitem"]');
+    const chooseMode = async (entry) => {
+      await stone.click({ button: "right" });
+      await menuItems.first().waitFor();
+      const texts = await menuItems.evaluateAll((els) => els.map((el) => el.textContent));
+      const index = texts.findIndex((text) => text.includes(entry));
+      assert.ok(index >= 0, `${entry} in ${JSON.stringify(texts)}`);
+      const box = await menuItems.nth(index).boundingBox();
+      await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2);
+      await menuItems.first().waitFor({ state: "detached" });
+      return texts;
+    };
+    const publicLines = () => page.locator(".chatbox__line--speaker .chatbox__speaker").evaluateAll((els) => els.map((el) => el.textContent));
+    const modes = await chooseMode("Show none");
+    assert.deepEqual(["Show standard", "Show friends", "Show none", "Hide"].map((entry) => modes.some((text) => text.includes(entry))), [true, true, true, true]);
+    assert.deepEqual(await stoneLabel(), ["Off", "rgb(255, 0, 0)"]);
+    assert.deepEqual(await publicLines(), ["Player-0420:"]);
+    await page.evaluate(() => window.apiWs.reply({ t: "chat", id: 7, name: "Player-0420", text: "Unseen", tick: 9 }));
+    await page.waitForFunction(() => document.querySelectorAll(".chatbox__line--speaker").length === 2);
+    await page.waitForTimeout(300);
+    assert.equal(await page.evaluate(() => [...document.querySelectorAll("[data-overhead-texts] > span")].some((s) => s.textContent === "Unseen")), false, "Off: nothing above our head");
+    await chooseMode("Hide");
+    assert.deepEqual(await stoneLabel(), ["Hide", "rgb(0, 255, 255)"]);
+    assert.deepEqual(await publicLines(), []);
+    await page.waitForFunction(() => [...document.querySelectorAll("[data-overhead-texts] > span")].some((s) => s.textContent === "Unseen"), null, { timeout: 5000 });
+    assert.equal(await page.evaluate(() => localStorage.getItem("openscim.chat.public")), "hide");
     assert.deepEqual(errors, []);
     await page.close();
   }

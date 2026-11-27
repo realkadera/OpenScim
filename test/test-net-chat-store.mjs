@@ -3,7 +3,7 @@
 import assert from "node:assert/strict";
 
 import { parseServerMessage } from "../client/net/protocol.js";
-import { BLOCKED_MAX, BLOCKED_STORAGE_KEY, CHAT_LOG_MAX, CHAT_SYSTEM_TEXTS, OVERHEAD_MS, createChatStore } from "../client/net/chatStore.js";
+import { BLOCKED_MAX, BLOCKED_STORAGE_KEY, CHAT_LOG_MAX, FILTER_STORAGE_KEY, CHAT_SYSTEM_TEXTS, OVERHEAD_MS, createChatStore } from "../client/net/chatStore.js";
 import { fixtureBody } from "./net-fakes.mjs";
 
 function memoryStorage(initial = {}) {
@@ -155,9 +155,11 @@ assert.equal(CHAT_LOG_MAX, 100);
   assert.equal(chat.getSnapshot().filter, "friends");
   assert.deepEqual(texts(), ["from a friend", "from me", CHAT_SYSTEM_TEXTS.empty]);
   assert.deepEqual(overheads(), [null, "from a friend", "from me"]);
+  // OBS (the game's client): in friends our own text is still above our head (we count as our own friend).
   chat.setFilter("off");
   assert.deepEqual(texts(), ["from me", CHAT_SYSTEM_TEXTS.empty]);
-  assert.deepEqual(overheads(), [null, null, "from me"]);
+  // OBS (the game's client): off hides every text above a head, our own too.
+  assert.deepEqual(overheads(), [null, null, null]);
   // Hide: nothing public in the chatbox, everything above the heads.
   chat.setFilter("hide");
   assert.deepEqual(texts(), [CHAT_SYSTEM_TEXTS.empty]);
@@ -175,6 +177,24 @@ assert.equal(CHAT_LOG_MAX, 100);
   chat.setFilter("friends");
   assert.deepEqual(chat.getSnapshot().lines, []);
   assert.equal(chat.overheadFor(8), null);
+}
+
+// --- 100 lines of each kind; the mode kept for the next visit ---------------------------
+{
+  const { chat, storage } = setup();
+  chat.handle(message({ t: "chat_rejected", reason: "empty" }));
+  for (let i = 0; i < 150; i++) chat.handle(chatFrom(8, "Bob", `line ${i}`));
+  const lines = chat.getSnapshot().lines;
+  // OBS (the game's client): 100 messages of each type; the game line is not pushed out by public ones.
+  assert.equal(lines.length, CHAT_LOG_MAX + 1);
+  assert.equal(lines[0].kind, "system");
+  assert.equal(lines[1].text, "line 50");
+  assert.equal(storage.getItem(FILTER_STORAGE_KEY), null);
+  chat.setFilter("hide");
+  assert.equal(storage.getItem(FILTER_STORAGE_KEY), "hide");
+  assert.equal(createChatStore({ storage }).getSnapshot().filter, "hide", "kept for the next visit");
+  storage.setItem(FILTER_STORAGE_KEY, "loud");
+  assert.equal(createChatStore({ storage }).getSnapshot().filter, "on", "a stored mode that is none");
 }
 
 // --- the block list ------------------------------------------------------------------

@@ -90,9 +90,23 @@ export function getLobbyChatSnapshot() {
     maxChars: session?.limits?.chat_max_chars ?? 0,
     draft,
     lines: Object.freeze(lines.map(entryOf)),
+    // The Public stone's mode: "on" | "friends" | "off" | "hide".
+    filter: source.chat?.getSnapshot?.().filter ?? "on",
   });
   return snapshot;
 }
+
+// The Public stone: its modes in the order of the game's menu, each with the
+// menu's entry, the stone's label and the label's colour. WIKI (Chat
+// Interface, Public): the entries. inferred: the labels' colours, but "On",
+// which is the chatbox's own green.
+export const PUBLIC_CHAT_MODES = Object.freeze([
+  Object.freeze({ mode: "on", entry: "Show standard", label: "On", colour: "#0dc10d" }),
+  Object.freeze({ mode: "friends", entry: "Show friends", label: "Friends", colour: "#ffff00" }),
+  Object.freeze({ mode: "off", entry: "Show none", label: "Off", colour: "#ff0000" }),
+  Object.freeze({ mode: "hide", entry: "Hide", label: "Hide", colour: "#00ffff" }),
+]);
+export const setLobbyChatFilter = (mode) => source?.chat?.setFilter?.(mode) === true;
 
 // The first maxChars characters (Unicode scalar values, as the server
 // counts); the game takes no more than that on the input line.

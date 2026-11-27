@@ -14,7 +14,8 @@
 //   chat.subscribe(fn)      fn() after every change; returns unsubscribe
 //   chat.overheadFor(id, now?)
 //                           the ChatLine to draw above player id, or null
-//   chat.setFilter(mode)    false for a mode that is not one of the four
+//   chat.setFilter(mode)    false for a mode that is not one of the four; the
+//                           mode is kept in storage under FILTER_STORAGE_KEY
 //   chat.block(name), chat.unblock(name), chat.isBlocked(name)
 //   chat.addSystemLine(reason)
 //                           a line of ours for a refusal (the session's own
@@ -34,9 +35,11 @@
 import { NOTICE_CHAT_OFF, NOTICE_CHAT_ON, NAME_MAX_CHARS } from "./protocol.js";
 import { parseChatEffects } from "./chatText.js";
 
-// The chatbox keeps the last 100 lines (inferred: OSRS's chatbox scrolls
-// back about this far; none of it is stored anywhere).
+// OBS (the game's client): it keeps the last 100 messages of each type, and
+// shows them in the order they came. Here a type is a line's kind.
 export const CHAT_LOG_MAX = 100;
+// The Public mode is kept for the next visit (the game keeps it with the account).
+export const FILTER_STORAGE_KEY = "openscim.chat.public";
 // inferred: overhead chat lasts 150 client ticks of 20 ms, 3 seconds (the
 // commonly known OSRS overhead text duration; the wiki does not say).
 export const OVERHEAD_MS = 3000;
@@ -46,7 +49,7 @@ export const BLOCKED_MAX = 200;
 // "Show none", "Hide". "Hide ... will filter all public messages from the
 // chat panel but will allow public messages above players' heads"; "Show
 // none ... will cease the display of all public messages on the screen".
-// Without a friends list, "friends" shows what "off" does.
+// Without a friends list, "friends" shows our own lines only.
 export const CHAT_FILTERS = Object.freeze(["on", "friends", "off", "hide"]);
 
 // Ours, not the game's: the lines shown for a refusal or a notice. Plain text.
@@ -76,7 +79,7 @@ function defaultStorage() {
 export function createChatStore({ now = Date.now, storage = defaultStorage(), isFriend = () => false } = {}) {
   let entries = [];
   let seq = 0;
-  let filter = "on";
+  let filter = loadFilter();
   let ownId = null, ownName = null;
   let roomId = null;
   let overhead = new Map(); // speaker id -> ChatLine
@@ -84,6 +87,14 @@ export function createChatStore({ now = Date.now, storage = defaultStorage(), is
   let snapshot = null;
   const listeners = new Set();
 
+  function loadFilter() {
+    try {
+      const mode = storage?.getItem(FILTER_STORAGE_KEY);
+      return CHAT_FILTERS.includes(mode) ? mode : "on";
+    } catch {
+      return "on";
+    }
+  }
   function loadBlocked() {
     try {
       const list = JSON.parse(storage?.getItem(BLOCKED_STORAGE_KEY) ?? "[]");
@@ -104,11 +115,14 @@ export function createChatStore({ now = Date.now, storage = defaultStorage(), is
   };
   const blockedSet = () => new Set(blocked.map(nameKey));
 
-  // Whether a public line shows, in the chatbox or above the head. Our own
-  // lines always show above our head and in the chatbox unless hidden
-  // (inferred: the game never filters your own public message out).
+  // Whether a public line shows, in the chatbox or above the head.
+  // OBS (the game's client, the one test before it draws a player's text):
+  // above a head the text shows in the modes on and hide, in friends for a
+  // friend, and never in off; the local player counts as its own friend, so
+  // our own text shows in every mode but off. In the chatbox our own lines
+  // show unless hidden (inferred: the game does not filter your own line out).
   const shows = (line, where, blockedNames = blockedSet()) => {
-    if (line.mine) return where === "overhead" || filter !== "hide";
+    if (line.mine) return where === "overhead" ? filter !== "off" : filter !== "hide";
     if (blockedNames.has(nameKey(line.name))) return false;
     if (filter === "on") return true;
     if (filter === "hide") return where === "overhead";
@@ -122,7 +136,8 @@ export function createChatStore({ now = Date.now, storage = defaultStorage(), is
   };
   const push = (entry) => {
     entries.push(entry);
-    if (entries.length > CHAT_LOG_MAX) entries = entries.slice(entries.length - CHAT_LOG_MAX);
+    // The oldest of its own kind goes when that kind is full.
+    if (entries.filter((other) => other.kind === entry.kind).length > CHAT_LOG_MAX) entries.splice(entries.findIndex((other) => other.kind === entry.kind), 1);
     publish();
   };
   const system = (key, reason) => {
@@ -208,6 +223,11 @@ export function createChatStore({ now = Date.now, storage = defaultStorage(), is
       if (!CHAT_FILTERS.includes(mode)) return false;
       if (mode !== filter) {
         filter = mode;
+        try {
+          storage?.setItem(FILTER_STORAGE_KEY, mode);
+        } catch {
+          // full or refused storage: the mode holds for this page only
+        }
         publish();
       }
       return true;

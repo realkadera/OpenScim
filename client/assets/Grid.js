@@ -6,7 +6,7 @@ import { getDefenceTrackerInfoboxes } from "/plugins/defenceTracker.js";
 import { pickLobbyObject } from "/lobby/gateways.js";
 import { lobbyBeforeTick, lobbyAfterTick, followRemotePlayer, lobbyLink, lobbyFollowFacing } from "/net/lobbyLink.js";
 import { startBackgroundBeat } from "/net/backgroundBeat.js";
-import { subscribeLobbyChat, getLobbyChatSnapshot, setLobbyChatDraft, sendLobbyChat, chatKeyStartsTyping, createChatboxMerge } from "/net/lobbyChat.js";
+import { subscribeLobbyChat, getLobbyChatSnapshot, setLobbyChatDraft, sendLobbyChat, chatKeyStartsTyping, createChatboxMerge, PUBLIC_CHAT_MODES, setLobbyChatFilter } from "/net/lobbyChat.js";
 import { combatLevelColor } from "/util/combatLevelColor.js";
 import { replayMarkerStore, findUndoFrameIndex, addMarker, isOnTimeline, pickMarker, pickAutoMarker, nameNewAutoMarkers, describeMarker, isRollbackHeld, holdAfterRollback, releaseRollback, showReplayMessage } from "/replay/markers.js";
 import { createTickLogPanel } from "/replay/tickLogPanel.js";
@@ -27489,6 +27489,14 @@ var Chatbox = (0, pn.memo)(function ({
   };
   const eK = eC ? TRANSPARENT_INK : OPAQUE_INK;
   const eM = eC && eD;
+  // The Public stone's menu (client/net/lobbyChat.js): one entry a mode, as the game's.
+  const publicChatMenu = useContextMenu().bindContextMenu(() => ({
+    entries: PUBLIC_CHAT_MODES.map((entry) => ({
+      action: entry.entry,
+      target: "Public",
+      onClick: () => setLobbyChatFilter(entry.mode),
+    })),
+  }));
   const eN = (0, pn.useRef)(null);
   const eO = (0, pn.useRef)(null);
   const eQ = (0, pn.useRef)(null);
@@ -27959,6 +27967,7 @@ var Chatbox = (0, pn.memo)(function ({
         },
       }),
       FIXED_CHAT_TAB_SLOT_X.map((fB, fD) => {
+        const publicChatMode = lobbyChat?.name ? PUBLIC_CHAT_MODES.find((entry) => entry.mode === lobbyChat.filter) : undefined;
         const fE = {
           left: fB * scale,
           top: f8 * scale,
@@ -27976,12 +27985,29 @@ var Chatbox = (0, pn.memo)(function ({
             fD >= 1 &&
               (0, wn.jsx)("span", {
                 style: {
-                  color: "#0dc10d",
+                  color: (2 === fD && publicChatMode?.colour) || "#0dc10d",
                 },
-                children: "On",
+                children: (2 === fD && publicChatMode?.label) || "On",
               }),
           ],
         });
+        // The Public stone with the lobby's chat: a right click opens its modes (client/net/lobbyChat.js).
+        if (2 === fD && publicChatMode) {
+          return (0, wn.jsx)(
+            "div",
+            {
+              className: "chatbox__tab",
+              "data-chat-tab": "public",
+              style: {
+                ...fE,
+                pointerEvents: "auto",
+              },
+              ...publicChatMenu,
+              children: fF,
+            },
+            CHAT_TABS[fD],
+          );
+        }
         if (0 === fD) {
           return (0, wn.jsx)(
             "button",
