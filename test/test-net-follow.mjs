@@ -17,11 +17,15 @@ const leader = (tile, more = {}) => ({ id: 9, name: "Leader", tile, fromTile: ti
   assert.deepEqual(followDestination(leader([10, 12], { fromTile: [10, 10], steps: [[10, 11], [10, 12]], run: true }), [10, 5]), [10, 11]);
   // Standing since it came (snapped, no steps): next to it on the follower's side...
   assert.deepEqual(followDestination(leader([10, 10]), [10, 5]), [10, 9]);
-  assert.deepEqual(followDestination(leader([10, 10]), [14, 14]), [11, 11]);
+  assert.deepEqual(followDestination(leader([10, 10]), [14, 14]), [11, 10], "west, east, south or north of it, never a corner");
   // ...and where the follower is next to it already, it stays.
   assert.deepEqual(followDestination(leader([10, 10]), [11, 9]), [11, 9]);
-  // On the leader's tile: it stays (players do not block each other).
-  assert.deepEqual(followDestination(leader([10, 10]), [10, 10]), [10, 10]);
+  // On the leader's tile: it steps off, west first.
+  assert.deepEqual(followDestination(leader([10, 10]), [10, 10]), [9, 10]);
+  // Next to a leader that walks on, it takes the tile the leader left; a trail remembered while the leader stands
+  // is still the tile (it ends right behind, not beside).
+  assert.deepEqual(followDestination(leader([10, 12], { fromTile: [10, 11], steps: [[10, 12]] }), [11, 11]), [10, 11]);
+  assert.deepEqual(followDestination(leader([10, 12]), [10, 8], [10, 11], false), [10, 11]);
   // After the leader stopped, the tile it left stays the tile (it trails).
   assert.deepEqual(followDestination(leader([10, 11], { fromTile: [10, 10], steps: [[10, 11]] }), [10, 10]), [10, 10]);
   for (const junk of [null, {}, leader(null), leader("x")]) assert.equal(followDestination(junk, [1, 1]), null);

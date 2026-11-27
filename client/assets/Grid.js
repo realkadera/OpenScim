@@ -4,7 +4,7 @@ import { attackRangesDefaults, readAttackRangesSettings, isAttackDragProtected }
 import { projectileOverrideDefaults, readProjectileOverrideSettings } from "/plugins/projectileOverride.js";
 import { getDefenceTrackerInfoboxes } from "/plugins/defenceTracker.js";
 import { pickLobbyObject } from "/lobby/gateways.js";
-import { lobbyBeforeTick, lobbyAfterTick, followRemotePlayer, lobbyLink } from "/net/lobbyLink.js";
+import { lobbyBeforeTick, lobbyAfterTick, followRemotePlayer, lobbyLink, lobbyFollowFacing } from "/net/lobbyLink.js";
 import { startBackgroundBeat } from "/net/backgroundBeat.js";
 import { subscribeLobbyChat, getLobbyChatSnapshot, setLobbyChatDraft, sendLobbyChat, chatKeyStartsTyping, createChatboxMerge } from "/net/lobbyChat.js";
 import { combatLevelColor } from "/util/combatLevelColor.js";
@@ -22012,6 +22012,12 @@ function useSimulationWiring({
         }
         const i7 = fE.current ?? state11.playerPosition;
         current44.advanceTick(i7);
+        // A follower that stands faces its leader (client/net/lobbyLink.js); null when not following.
+        const lobbyFace = lobbyFollowFacing(state11.playerPosition, current44.getState().playerPosition);
+        const lobbyFollower = lobbyFace && current44.player?.();
+        if (lobbyFollower) {
+          lobbyFollower.facing = current44.computeFacingFromDelta(lobbyFace[0], lobbyFace[1], lobbyFollower.facing);
+        }
         if (current44.isLastTickInputLocked()) {
           fE.current = null;
         }

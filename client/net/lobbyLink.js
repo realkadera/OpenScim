@@ -161,7 +161,7 @@ export function createLobbyLink({
     afterTick(kind, before, after, appearance, combat) {
       if (kind !== "lobby") return;
       const equipment = equipmentToWire(after?.playerEquipment);
-      if (follow.leaderId !== null) follow.tick({ inLobby: true, self: after?.playerPosition, runEnabled: after?.isRunEnabled === true, equipment });
+      if (follow.leaderId !== null) follow.tick({ inLobby: true, self: after?.playerPosition, runEnabled: after?.isRunEnabled === true, equipment, observe: false });
       if (!presence || !active || !isTile(after?.playerPosition)) return;
       const look = appearanceToWire(appearance);
       const level = Number.isSafeInteger(combat) && combat >= COMBAT_MIN && combat <= COMBAT_MAX ? combat : undefined;
@@ -193,4 +193,12 @@ export const setLobbyPresenceActive = (active) => lobbyLink.setActive(active);
 export const lobbyBeforeTick = (kind, state, engineOverride) => lobbyLink.beforeTick(kind, state, engineOverride);
 export const lobbyAfterTick = (kind, before, after, appearance, combat) => lobbyLink.afterTick(kind, before, after, appearance, combat);
 export const followRemotePlayer = (id) => lobbyLink.follow.start(id);
+// While following and standing: [dx, dy] from our tile to the leader's, for the follower to face it (the
+// servers that copy the game turn a follower to its leader every tick); null otherwise.
+export function lobbyFollowFacing(before, after) {
+  if (!isTile(before) || !isTile(after) || before[0] !== after[0] || before[1] !== after[1]) return null;
+  const leader = lobbyLink.follow.leaderTile();
+  if (!leader || (leader[0] === after[0] && leader[1] === after[1])) return null;
+  return [leader[0] - after[0], leader[1] - after[1]];
+}
 export const stopLobbyFollow = (reason = "walk") => lobbyLink.follow.cancel(reason);
