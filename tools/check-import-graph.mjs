@@ -1,12 +1,15 @@
-// Checks the two rules of docs/ARCHITECTURE.md ("The import cycle") for the
-// modules under client/engine, client/encounters, client/data and
-// client/util:
+// Checks the rules of docs/ARCHITECTURE.md ("The import cycle") for the
+// modules under client/engine, client/encounters, client/data, client/util
+// and client/net:
 //
 //   1. None of them imports a chunk of client/assets/ (vendor.js excepted).
 //      The last one that did, createSimulationEngine.js, takes the encounter
 //      registry from client/encounters/registry.js now.
 //   2. They import each other without a cycle, except inferno/waves.js and
 //      inferno/spawnLayout.js, which use each other inside functions only.
+//   3. The simulation (client/engine, client/encounters, client/data) and
+//      client/util do not import client/net: the network stays outside the
+//      fight, which runs the same with no server.
 //
 //   node tools/check-import-graph.mjs [root]      (root defaults to ".")
 //
@@ -24,9 +27,10 @@ const walk = (dir) => readdirSync(dir).flatMap((name) => {
   const full = posix.join(dir, name);
   return statSync(full).isDirectory() ? walk(full) : full.endsWith(".js") ? [full] : [];
 });
-const files = ["client/engine", "client/encounters", "client/data", "client/util"].map((dir) => posix.join(root, dir)).filter((dir) => existsSync(dir)).flatMap(walk);
+const files = ["client/engine", "client/encounters", "client/data", "client/util", "client/net"].map((dir) => posix.join(root, dir)).filter((dir) => existsSync(dir)).flatMap(walk);
 const short = (file) => (root === "." ? file : file.slice(root.length + 1));
-const graph = new Map(), chunkImports = [];
+const graph = new Map(), chunkImports = [], netImports = [];
+const keepsOffNet = (file) => ["client/engine/", "client/encounters/", "client/data/", "client/util/"].some((dir) => short(file).startsWith(dir));
 for (const file of files) {
   const text = readFileSync(file, "utf8");
   const sources = parse(text, { sourceType: "module" }).program.body
@@ -37,6 +41,7 @@ for (const file of files) {
   const targets = sources.map((source) => (source.startsWith("/") ? posix.join(root, "client", source) : /^\.\.?\//.test(source) ? posix.join(posix.dirname(file), source) : null)).filter(Boolean);
   graph.set(file, targets.filter((target) => files.includes(target)));
   for (const target of targets) if (short(target).startsWith("client/assets/") && !target.endsWith("/vendor.js")) chunkImports.push(`${short(file)} -> ${short(target)}`);
+  if (keepsOffNet(file)) for (const target of targets) if (short(target).startsWith("client/net/")) netImports.push(`${short(file)} -> ${short(target)}`);
 }
 
 // Tarjan's strongly connected components.
@@ -63,7 +68,8 @@ const badCycles = cycles.filter((cycle) => !allowedCycles.has(cycle));
 console.log(`${files.length} modules, ${[...graph.values()].reduce((sum, list) => sum + list.length, 0)} imports among them; ${chunkImports.length} ${chunkImports.length === 1 ? "import" : "imports"} of a chunk, ${cycles.length} ${cycles.length === 1 ? "cycle" : "cycles"}`);
 for (const entry of chunkImports) console.log(`  ${allowedChunkImports.has(entry) ? "known" : "NEW  "} chunk import: ${entry}`);
 for (const cycle of cycles) console.log(`  ${allowedCycles.has(cycle) ? "known" : "NEW  "} cycle: ${cycle}`);
-if (badChunkImports.length || badCycles.length) {
+for (const entry of netImports) console.log(`  NEW   import of client/net by the simulation: ${entry}`);
+if (badChunkImports.length || badCycles.length || netImports.length) {
   console.error("The import graph broke a rule of docs/ARCHITECTURE.md, \"The import cycle\".");
   process.exit(1);
 }

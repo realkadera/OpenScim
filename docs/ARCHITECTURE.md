@@ -879,6 +879,9 @@ fails on any other.
 
 To keep it so:
 
+- `client/net/` (the lobby's WebSocket) is checked too: it imports no
+  chunk, and no module of the engine, the data, the utilities or an
+  encounter imports it, so a fight runs the same without a server.
 - Do not import `rendering.js`, `Grid.js` or `application.js` from a module
   of the engine, the data, the utilities or an encounter. If a module needs
   something that is still in the chunk, move that thing out first
