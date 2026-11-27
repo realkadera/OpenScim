@@ -1,0 +1,9 @@
+{
+  "name": "chat-rejected.muted",
+  "direction": "server",
+  "when": "an operator has muted this user",
+  "body": {
+    "t": "chat_rejected",
+    "reason": "muted"
+  }
+}

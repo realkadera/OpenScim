@@ -69,11 +69,16 @@ count, and the server never parses them. Over the limit is `too_long`, never
 truncated. The limit is `welcome.limits.chat_max_chars` (80).
 
 One line per user every `welcome.limits.chat_interval_ms` (4000), across
-tabs and reconnects; sooner is `chat_rejected{reason: "rate_limited",
-retry_in_ms}`. Only refused-by-rate lines carry `retry_in_ms`.
+tabs and reconnects, and at most one line a second per client address
+across accounts; sooner is `chat_rejected{reason: "rate_limited",
+retry_in_ms}`. Only refused-by-rate lines carry `retry_in_ms`. A refused
+line spends no interval.
 
 `chat_rejected{rid?, reason}` names the refusal: `too_long`, `empty`,
-`rate_limited`, `chat_off` or `not_joined`. `welcome.features.chat` says
+`rate_limited`, `chat_off`, `not_joined` or `muted` (an operator muted the
+user). The checks, in order: chat off (`chat_off`), not in a room
+(`not_joined`), raw size (`too_long`), muted (`muted`), the rate
+(`rate_limited`), then the cleaning rule (`empty`, `too_long`). `welcome.features.chat` says
 whether chat is on; `notice{kind: "chat_off"}` and `notice{kind: "chat_on"}`
 switch it while connected. No styling comes over the network: names and
 texts are plain text, never markup or game tags.

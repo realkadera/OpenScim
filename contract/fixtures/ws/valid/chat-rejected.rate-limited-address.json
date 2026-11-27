@@ -1,0 +1,11 @@
+{
+  "name": "chat-rejected.rate-limited-address",
+  "direction": "server",
+  "when": "another account on the same address chatted within the last second",
+  "body": {
+    "t": "chat_rejected",
+    "rid": 2,
+    "reason": "rate_limited",
+    "retry_in_ms": 1000
+  }
+}

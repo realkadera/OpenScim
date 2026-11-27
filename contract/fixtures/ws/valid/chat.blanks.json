@@ -1,0 +1,9 @@
+{
+  "name": "chat.blanks",
+  "direction": "client",
+  "when": "braille blanks are typed text here; the server makes the 50 of them one space",
+  "body": {
+    "t": "chat",
+    "text": "buying gf⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀free items"
+  }
+}
