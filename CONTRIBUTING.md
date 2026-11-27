@@ -68,7 +68,7 @@ issue instead.
 node tools/determinism/harness.mjs   # every scenario "ok"
 node tools/check-import-graph.mjs    # exit 0
 node tools/check-test-markers.mjs    # 0 lost
-npm test                             # all files pass, about 7 minutes
+npm test                             # all files pass, about 2 minutes
 npm run build
 ```
 

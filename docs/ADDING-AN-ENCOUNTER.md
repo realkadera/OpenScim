@@ -746,7 +746,9 @@ same is open to you:
    `http://127.0.0.1:5173/<slug>/`. A browser test on the pattern of
    `test/test-fixture-encounter.mjs` (it loads the route, waits for the
    scene, fights, waits for the victory screen) keeps it working.
-4. `npm test` (all tests, about seven minutes) and `npm run build`, then
+4. `npm test` (all tests, about two minutes; `npm test -- --changed` while
+   you work, which leaves out the other fights' browser tests) and
+   `npm run build`, then
    `npm run preview` and the route again: the bundled site orders modules
    differently from the unbundled one.
 

@@ -24,8 +24,12 @@ docs/ADDING-AN-ENCOUNTER.md.
     node tools/determinism/harness.mjs     # every scenario "ok"
     node tools/check-import-graph.mjs      # exit 0, 0 imports of a chunk
     node tools/check-test-markers.mjs      # 0 lost
-    npm test                               # all files pass, about 7 minutes
+    npm test                               # all files pass, about 2 minutes
     npm run build
+
+While you work on a fight, `npm test -- --changed` is enough: every test
+without a browser, and the browser tests of the fights you changed. Run the
+whole `npm test` once, before the pull request.
 
 A scenario of another encounter that turns "DIFFERENT" is a bug you caused,
 not a digest to re-record. Record only your own:
@@ -67,7 +71,11 @@ not a digest to re-record. Record only your own:
 
 ## Pitfalls
 
-- npm test uses port 8791; a second run at the same time fails at once.
+- npm test may run in any number of worktrees at once; they share the
+  machine, so each is slower. A browser test opens process.env.TEST_ORIGIN,
+  never a port of its own choosing.
+- A file listed under "passed the second time only" failed under load. If it
+  is yours, it waits on real time too tightly: fix it.
 - Only test/test-*.mjs are tests; helpers under test/ must not match that.
 - In a browser test, ticking inside page.evaluate shows nothing on screen:
   tick to the moment you need, then let the app's own loop run.
