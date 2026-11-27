@@ -376,6 +376,22 @@ The encounter never holds the engine. It is handed context objects:
 - the command and run-start contexts: `world`, `spawnNpc`, `despawnNpc`
   (and `tick`, `playerPos` for commands, `placePlayer` at the run's start).
 
+Tick-context `inputs.targetTile` is the current walk or interaction destination
+tile `[x, y]`, available after queued player inputs and before NPC turns. Treat
+it as read-only (null when no movement is pending).
+
+Encounter and combat rules provide three generic engine options:
+- `plan.minHit`: In NPC attack plans, sets a damage floor on accurate hits.
+  Defaults to 0 when unset.
+- `retaliation.startsOutOfCombat`: When `true` on an NPC's combat definition,
+  an opening incoming hit delays its next action tick via standard retaliation
+  even if an aggressive target was pre-selected, provided the NPC has not yet
+  attacked or taken hits. When unset or `false`, pre-targeted NPCs do not delay
+  their next action upon being hit.
+- `inputs.targetTile`: Exposes player pathing destination to tick hooks,
+  enabling interaction-based mechanics (such as Red-X suppression) without
+  polling client state.
+
 `world` is the `WorldState`: `tick`, `actors` (a Map by id; the player is
 `"player"`), `pendingHits`, `areaEffects`, `groundItems`, `occupancy`, and the
 lookups `getPlayer()` (player), `getNpc(id)` (NPC by id), `getNpcs()` (all NPCs).
