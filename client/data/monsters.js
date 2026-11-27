@@ -88918,8 +88918,8 @@ var monsters = [
     attackSpeed: 5,
     immunities: {
       burn: null,
-      cannon: false,
-      thrall: false,
+      cannon: true, // WIKI: Vorkath, immunecannon Yes (the table had false)
+      thrall: true, // WIKI: Vorkath, immunethrall Yes (the table had false)
       poison: 100,
       venom: 100,
       freeze: 0,
@@ -88965,8 +88965,8 @@ var monsters = [
     attackSpeed: 5,
     immunities: {
       burn: null,
-      cannon: false,
-      thrall: false,
+      cannon: true, // WIKI: Vorkath, immunecannon Yes (the table had false)
+      thrall: true, // WIKI: Vorkath, immunethrall Yes (the table had false)
       poison: 100,
       venom: 100,
       freeze: 0,
