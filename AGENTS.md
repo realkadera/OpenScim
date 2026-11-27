@@ -74,6 +74,10 @@ not a digest to re-record. Record only your own:
 - npm test may run in any number of worktrees at once; they share the
   machine, so each is slower. A browser test opens process.env.TEST_ORIGIN,
   never a port of its own choosing.
+- A browser test starts its browser with chromium.launch(browserOptions)
+  (tools/browser.mjs), never with the path of an installed Chrome: on Windows
+  each start of one fails a logon of the user's account, and a run of the
+  tests locks it.
 - A file listed under "passed the second time only" failed under load. If it
   is yours, it waits on real time too tightly: fix it.
 - Only test/test-*.mjs are tests; helpers under test/ must not match that.
