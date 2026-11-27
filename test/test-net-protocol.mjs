@@ -9,7 +9,9 @@ import {
   DEFAULT_LIMITS,
   ITEM_ID_MAX,
   SERVER_MESSAGE_MAX_CHARS,
+  CHAT_REJECT_REASONS,
   buildAppearance,
+  buildChat,
   buildHello,
   buildJoin,
   buildLeave,
@@ -34,6 +36,7 @@ const rebuild = {
   appearance: (body) => buildAppearance(body.appearance, body.equipment, body.combat),
   presence: ({ t, ...fields }) => buildPresence(fields),
   ping: (body) => buildPing(body.ts),
+  chat: (body) => buildChat(body.text, body.rid),
 };
 
 for (const fixture of valid) {
@@ -57,10 +60,11 @@ for (const fixture of valid) {
 const acceptedByDesign = {
   "welcome.extra-field": "motd",
   "member-join.segments": "segments",
+  "chat.segments": "segments",
 };
 // Invalid client messages that no builder can make at all.
 const noBuilder = {
-  "chat.reserved": "chat is reserved; protocol 1 has no client builder for it",
+  "report.reserved": "report is reserved; protocol 1 has no client builder for it",
   "ls-cmd.reserved": "lockstep is reserved; no builder",
   "emote.unknown-type": "not a protocol 1 type; no builder",
   "no-t": "every builder sets t",
@@ -101,7 +105,7 @@ for (const fixture of invalid) {
   cannotMake.push(fixture.name);
 }
 // Which ones those are: each has a field or kind the builders never write.
-assert.deepEqual(cannotMake.sort(), ["hello.extra-field", "hello.missing-enc", "join.party", "join.room-missing", "join.room-unknown-kind", "leave.extra-field"]);
+assert.deepEqual(cannotMake.sort(), ["chat.color-field", "hello.extra-field", "hello.missing-enc", "join.party", "join.room-missing", "join.room-unknown-kind", "leave.extra-field"]);
 assert.ok(Object.keys(acceptedByDesign).every((name) => invalid.some((fixture) => fixture.name === name)));
 assert.ok(Object.keys(noBuilder).every((name) => invalid.some((fixture) => fixture.name === name)));
 
@@ -187,8 +191,8 @@ for (const text of ["", "null", "1", '"x"', "[]", "{", '{"t":null}', '{"t":{}}',
   assert.equal(typeof parsed.reason, "string");
 }
 assert.equal(parseServerMessage('{"t":"pong","ts":1,"server_tick":2,' + `"pad":"${"x".repeat(SERVER_MESSAGE_MAX_CHARS)}"}`).ok, false, "oversized text");
-// Unknown types are dropped and said to be unknown, for a later chat.
-assert.equal(parseServerMessage('{"t":"chat","text":"hi"}').unknownType, true);
+// Unknown types are dropped and said to be unknown.
+assert.equal(parseServerMessage('{"t":"emote","id":1}').unknownType, true);
 // Names: 1 to 24 characters, counted as characters, not UTF-16 units; markup stays text.
 const member = (name) => parseServerMessage(JSON.stringify({ t: "member_join", member: { id: 3, name, appearance: null, equipment: null, tile: null, facing: null } }));
 assert.equal(member("😀".repeat(24)).ok, true);
@@ -219,4 +223,50 @@ for (const [code, retry] of Object.entries(expected)) assert.equal(retryPolicy(N
 assert.equal(retryPolicy(1011), "soon", "a code nobody listed is a dropped connection");
 assert.deepEqual(Object.keys(closeCodes).map(Number), Object.keys(expected).map(Number));
 assert.match(closeCodes[4010].meaning, /refresh/);
+// Chat: the welcome's limits and features, the line, its refusals, the notices.
+const chatWelcome = parseServerMessage(JSON.stringify(welcome)).msg;
+assert.equal(chatWelcome.limits.chat_max_chars, 80);
+assert.equal(chatWelcome.limits.chat_interval_ms, 4000);
+assert.equal(chatWelcome.features.chat, true);
+assert.equal(parseServerMessage(JSON.stringify(fixtureBody("valid", "welcome.chat-off"))).msg.features.chat, false);
+const { chat_max_chars, chat_interval_ms, ...oldLimits } = welcome.limits;
+assert.deepEqual(parseServerMessage(JSON.stringify({ ...welcome, limits: oldLimits })).msg.limits, oldLimits, "a welcome without chat limits leaves them out");
+assert.equal(parseServerMessage(JSON.stringify({ ...welcome, limits: { ...welcome.limits, chat_max_chars: 0 } })).ok, false);
+assert.equal(parseServerMessage(JSON.stringify({ ...welcome, limits: { ...welcome.limits, chat_interval_ms: -1 } })).ok, false);
+assert.equal(DEFAULT_LIMITS.chat_max_chars, 80);
+assert.equal(DEFAULT_LIMITS.chat_interval_ms, 4000);
+
+const line = fixtureBody("valid", "chat");
+const chatLine = (fields, options) => parseServerMessage(JSON.stringify({ ...line, ...fields }), options);
+assert.equal(chatLine({ text: "x".repeat(80) }).ok, true);
+assert.equal(chatLine({ text: "x".repeat(81) }).ok, false, "over the default 80");
+assert.equal(chatLine({ text: "😀".repeat(80) }).ok, true, "counted as characters, not UTF-16 units");
+assert.equal(chatLine({ text: "x".repeat(81) }, { limits: { chat_max_chars: 100 } }).ok, true, "the welcome's limit");
+assert.equal(chatLine({ text: "xx" }, { limits: { chat_max_chars: 1 } }).ok, false);
+assert.equal(chatLine({ name: "" }).ok, false);
+assert.equal(chatLine({ name: "x".repeat(24) }).ok, true);
+assert.equal(chatLine({ id: 0 }).ok, false);
+assert.equal(chatLine({ tick: -1 }).ok, false);
+assert.equal(chatLine({ text: null }).ok, false);
+// Markup and game tags are text, kept exactly.
+for (const text of ["<col=ff0000>red</col>", "<img=1>", "a<br>b", "&amp; <b>x</b> > <"]) assert.equal(chatLine({ text }).msg.text, text);
+assert.equal(chatLine({ name: "<col=ff0000>" }).msg.name, "<col=ff0000>");
+assert.deepEqual(Object.keys(chatLine({ color: "#f00" }).msg), ["t", "id", "name", "text", "tick"], "no styling from the network");
+
+const rejected = (fields) => parseServerMessage(JSON.stringify({ t: "chat_rejected", ...fields }));
+for (const reason of CHAT_REJECT_REASONS) assert.equal(rejected(reason === "rate_limited" ? { reason, retry_in_ms: 0 } : { reason }).ok, true, reason);
+assert.equal(rejected({ reason: "muted" }).ok, true, "muted is taken already");
+assert.equal(rejected({ reason: "rate_limited", retry_in_ms: 1.5 }).ok, false);
+assert.equal(rejected({ reason: "rate_limited", retry_in_ms: -1 }).ok, false);
+assert.equal(rejected({ reason: "empty", rid: -1 }).ok, false);
+assert.equal(rejected({}).ok, false);
+assert.deepEqual(parseServerMessage(JSON.stringify(fixtureBody("valid", "notice.chat-off"))).msg, { t: "notice", kind: "chat_off" });
+
+assert.deepEqual(buildChat("gz"), { t: "chat", text: "gz" });
+assert.equal(JSON.stringify(buildChat("gz", 9)), JSON.stringify(fixtureBody("valid", "chat.with-rid")));
+assert.throws(() => buildChat(7), TypeError);
+assert.throws(() => buildChat("x", -1), TypeError);
+assert.throws(() => buildChat("x", 2 ** 32), TypeError);
+assert.equal(checkClientMessage({ t: "chat", text: "hi", segments: [] }).ok, false);
+
 console.log(`ok: ${valid.length} valid and ${invalid.length} invalid fixtures`);

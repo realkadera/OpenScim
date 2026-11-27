@@ -11,15 +11,17 @@
 //   build*(...)               each client message, built from checked values
 //                             only; throws a TypeError on anything else
 //   checkClientMessage(body)  { ok, reason }: would the server take this body
-//   parseServerMessage(text)  { ok: true, msg } | { ok: false, reason }; never
+//   parseServerMessage(text, { limits }?)
+//                             { ok: true, msg } | { ok: false, reason }; never
 //                             throws. Lenient: unknown fields are ignored and
 //                             left out of msg, but every field msg carries is
 //                             checked. An unknown type is { ok: false }, and
 //                             the session drops it like any refused message.
 //   retryPolicy(code)         "never" | "soon" | "slow" for a close code
 //
-// Names are untrusted text, kept as plain strings of 1 to 24 characters.
-// Nothing here reads them as markup, and whoever shows one must not either.
+// Names and chat text are untrusted, kept as plain strings (names 1 to 24
+// characters). Nothing here reads them as markup or game tags (<col=...>,
+// <img=...>, <br>), and whoever shows one must not either.
 
 export const PROTOCOL_VERSION = 1;
 export const ENCODING = "json";
@@ -34,6 +36,8 @@ export const DEFAULT_LIMITS = Object.freeze({
   tile_min: 0,
   tile_max: 63,
   steps_max: 2,
+  chat_max_chars: 80,
+  chat_interval_ms: 4000,
 });
 export const TILE_MIN = 0;
 export const TILE_MAX = 63;
@@ -49,6 +53,19 @@ export const NAME_MAX_CHARS = 24;
 export const COMBAT_MIN = 3;
 export const COMBAT_MAX = 126;
 export const ERROR_MSG_MAX_CHARS = 200;
+// Chat. The welcome sets the limit and the interval (80 characters, one line
+// every 4 s, WIKI-like and confirmed by the maintainer); a welcome without
+// them leaves DEFAULT_LIMITS. A chat line from the server is 1 to
+// chat_max_chars characters, counted as Unicode scalar values.
+// CHAT_MAX_CHARS_CAP bounds what a welcome may set at all.
+export const CHAT_MAX_CHARS_CAP = 1000;
+export const CHAT_RETRY_MAX_MS = 86_400_000;
+// Why the server refused a chat line. "muted" is announced by the server
+// and taken already; only rate_limited carries retry_in_ms.
+export const CHAT_REJECT_REASONS = Object.freeze(["too_long", "empty", "rate_limited", "chat_off", "not_joined", "muted"]);
+// The notices that switch chat off and on for the whole server.
+export const NOTICE_CHAT_OFF = "chat_off";
+export const NOTICE_CHAT_ON = "chat_on";
 export const ITEM_ID_MAX = 65535;
 export const INSTANCE_MAX = 999;
 export const RID_MAX = 4294967295;
@@ -193,6 +210,16 @@ export function buildJoin({ rid, instance } = {}) {
 
 export const buildLeave = () => ({ t: "leave" });
 
+// One public chat line, only while joined. The server cleans and measures
+// the text itself (chatText.js mirrors it); this takes any string, as the
+// server does, and the session sends what prepareOutgoing made of it.
+// Effect prefixes ("red:wave:") are plain text here.
+export function buildChat(text, rid) {
+  if (typeof text !== "string") fail("chat: text must be a string");
+  if (rid !== undefined && !isInt(rid, 0, RID_MAX)) fail("chat: rid must be an integer 0..2^32-1");
+  return rid === undefined ? { t: "chat", text } : { t: "chat", rid, text };
+}
+
 // appearance: every field of APPEARANCE_FIELDS, nothing else. equipment:
 // slot -> item id; a slot that is absent, null or undefined is empty.
 // combat: optional, the player's combat level (COMBAT_MIN..COMBAT_MAX); left
@@ -275,6 +302,10 @@ export function checkClientMessage(body) {
         if (!("run" in fields)) fail("presence: run is missing");
         buildPresence(fields);
         break;
+      case "chat":
+        onlyKeys(fields, ["rid", "text"], "chat");
+        buildChat(fields.text, fields.rid);
+        break;
       case "ping":
         onlyKeys(fields, ["ts"], "ping");
         buildPing(fields.ts);
@@ -321,6 +352,9 @@ function readDelta(value) {
   return { id: value.id, tile: [value.tile[0], value.tile[1]], steps: value.steps.map((step) => [step[0], step[1]]), run: value.run, facing: value.facing };
 }
 
+// The limits every welcome carries; the chat limits are optional.
+const REQUIRED_LIMITS = Object.keys(DEFAULT_LIMITS).filter((field) => !field.startsWith("chat_"));
+
 const optionalRid = (value) => value === undefined || isInt(value, 0, RID_MAX);
 const withRid = (msg, rid) => (rid === undefined ? msg : { ...msg, rid });
 
@@ -336,13 +370,19 @@ const readers = {
     // The builders never send more than STEPS_PER_PRESENCE_MAX, whatever this says.
     if (!isInt(limits.steps_max, 0, 64)) return "steps_max is out of range";
     if (!isInt(body.server_tick, 0, Number.MAX_SAFE_INTEGER)) return "server_tick is not a tick";
+    const chatLimits = {};
+    for (const [field, min, max] of [["chat_max_chars", 1, CHAT_MAX_CHARS_CAP], ["chat_interval_ms", 0, CHAT_RETRY_MAX_MS]]) {
+      if (limits[field] === undefined) continue;
+      if (!isInt(limits[field], min, max)) return `${field} is out of range`;
+      chatLimits[field] = limits[field];
+    }
     const features = {};
     if (isObject(body.features)) for (const [name, on] of Object.entries(body.features)) if (typeof on === "boolean") features[name] = on;
     return {
       t: "welcome",
       proto: body.proto,
       you: { id: body.you.id, name: body.you.name },
-      limits: Object.fromEntries(Object.keys(DEFAULT_LIMITS).map((field) => [field, limits[field]])),
+      limits: { ...Object.fromEntries(REQUIRED_LIMITS.map((field) => [field, limits[field]])), ...chatLimits },
       features,
       server_tick: body.server_tick,
     };
@@ -388,6 +428,25 @@ const readers = {
     if (!isInt(body.ts, 0, Number.MAX_SAFE_INTEGER) || !isInt(body.server_tick, 0, Number.MAX_SAFE_INTEGER)) return "ts or server_tick is not valid";
     return { t: "pong", ts: body.ts, server_tick: body.server_tick };
   },
+  // Plain text, shown as received: never markup, never game tags.
+  chat(body, { limits }) {
+    const max = isInt(limits?.chat_max_chars, 1, CHAT_MAX_CHARS_CAP) ? limits.chat_max_chars : DEFAULT_LIMITS.chat_max_chars;
+    if (!isId(body.id) || !isName(body.name)) return "id or name is not valid";
+    if (typeof body.text !== "string" || body.text.length === 0 || charCount(body.text) > max) return `text is not 1 to ${max} characters`;
+    if (!isInt(body.tick, 0, Number.MAX_SAFE_INTEGER)) return "tick is not a tick";
+    return { t: "chat", id: body.id, name: body.name, text: body.text, tick: body.tick };
+  },
+  chat_rejected(body) {
+    if (!CHAT_REJECT_REASONS.includes(body.reason)) return "reason is not a chat refusal";
+    if (!optionalRid(body.rid)) return "rid is not a request id";
+    const rateLimited = body.reason === "rate_limited";
+    if (rateLimited !== (body.retry_in_ms !== undefined)) return "retry_in_ms comes with rate_limited, and only with it";
+    if (rateLimited && !isInt(body.retry_in_ms, 0, CHAT_RETRY_MAX_MS)) return "retry_in_ms is not a delay";
+    const msg = withRid({ t: "chat_rejected" }, body.rid);
+    msg.reason = body.reason;
+    if (rateLimited) msg.retry_in_ms = body.retry_in_ms;
+    return msg;
+  },
   notice(body) {
     if (typeof body.kind !== "string" || body.kind.length === 0) return "kind is not a string";
     if (body.in_sec !== undefined && !isInt(body.in_sec, 0, 86400)) return "in_sec is not a number of seconds";
@@ -395,7 +454,9 @@ const readers = {
   },
 };
 
-export function parseServerMessage(text) {
+// options.limits: the welcome's limits, for the length of a chat line
+// (DEFAULT_LIMITS when not given).
+export function parseServerMessage(text, { limits = DEFAULT_LIMITS } = {}) {
   if (typeof text !== "string") return { ok: false, reason: "not a text frame" };
   if (text.length > SERVER_MESSAGE_MAX_CHARS) return { ok: false, reason: "too long" };
   let body;
@@ -407,6 +468,6 @@ export function parseServerMessage(text) {
   if (!isObject(body)) return { ok: false, reason: "not an object" };
   if (typeof body.t !== "string") return { ok: false, reason: "t is not a string" };
   if (!Object.hasOwn(readers, body.t)) return { ok: false, reason: `unknown type ${JSON.stringify(body.t.slice(0, 32))}`, unknownType: true };
-  const msg = readers[body.t](body);
+  const msg = readers[body.t](body, { limits });
   return typeof msg === "string" ? { ok: false, reason: `${body.t}: ${msg}` } : { ok: true, msg };
 }
