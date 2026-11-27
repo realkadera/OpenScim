@@ -33689,12 +33689,12 @@ function getInventoryActions(itemId, inventoryActions) {
   }
   const definition = getEquipmentDefinition(itemId);
   if (definition) {
+    // No action is undefined, as in the cache's own list, never null: the inventory's left click takes the first
+    // entry that is not undefined (Grid.js), and a null first left items the cache gives no actions (the Torva
+    // platebody 30303) with a "Wear" that only the right-click menu reached.
     return [
-      null,
+      undefined,
       definition.slot === "weapon" || definition.slot === "shield" ? "Wield" : "Wear",
-      null,
-      null,
-      null,
     ];
   } else {
     return inventoryActions;

@@ -152,16 +152,18 @@ for (const { baseId: baseId, variantIds: variantIds } of [
     variantIds: [27253],
   },
   {
+    // 30302 to 30304 are the Torva pieces the cache gives no bonuses and no "Wear" (CACHE: items 30302 to 30304);
+    // the item list offers them under the same names, so they count as the restored pieces.
     baseId: 26382,
-    variantIds: [28254],
+    variantIds: [28254, 30302],
   },
   {
     baseId: 26384,
-    variantIds: [28256],
+    variantIds: [28256, 30303],
   },
   {
     baseId: 26386,
-    variantIds: [28258],
+    variantIds: [28258, 30304],
   },
   {
     baseId: 21012,
