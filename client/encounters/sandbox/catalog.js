@@ -106,6 +106,18 @@ export const sandboxCatalogExclusions = {
   14709: "the Doom of Mokhaiotl burrowed: the Doom himself under the floor, between his shield and his surfacing",
   15742: "the Maggot King fights from behind a row of bones, and most of his attacks are his floor's (bile, carrion, slams): he is fought in his own lair",
   15743: "the Ur-maggot larvae have no attack of their own: they fly in from the King's screeches and leech a player under them",
+  11278: "Nex fights a team: her targeting, her attacks at everyone and her specials are her chamber's, and her phases follow her mages: she is fought in her own chamber",
+  11279: "Nex rising: only drawn for her intro, and has no attack",
+  11280: "Nex under Soul Split: a form of her Zaros phase, fought in her own chamber",
+  11281: "Nex under Deflect Melee: a form of her Zaros phase, fought in her own chamber",
+  11282: "Nex dying: only drawn as she dies",
+  11283: "Fumus, Nex's mage: it cannot be harmed until she calls it, and never moves",
+  11284: "Umbra, Nex's mage: as above",
+  11285: "Cruor, Nex's mage: as above",
+  11286: "Glacies, Nex's mage: as above",
+  11294: "a blood reaver of Nex: it comes with her siphon and heals her when the next comes",
+  14153: "the stand-in for a stalagmite of Nex's ice prison: it has no attack, and breaks to a stab or a crush",
+  8636: "a teammate of the Nex fight, drawn as the Third Age Ranger: it fights beside the player",
 };
 
 export const sandboxNpcCatalog = curatedNpcCatalog;
