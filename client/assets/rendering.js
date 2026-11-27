@@ -19592,6 +19592,17 @@ var PicoGLRenderer = class {
       const c = a.modelMatrix[14] - d;
       return i * i + g * g + c * c - (n * n + s * s + r * r);
     });
+    // The sorted meshes (the players' bodies) are coloured without writing depth, one after the other: with more
+    // than one, the farthest from the camera first, so that a nearer player covers a farther one.
+    if (sorted.length > 1) {
+      const far = (e) => {
+        const x = e.modelMatrix[12] - l;
+        const y = e.modelMatrix[13] - o;
+        const z = e.modelMatrix[14] - d;
+        return x * x + y * y + z * z;
+      };
+      sorted.sort((e, a) => far(a) - far(e));
+    }
     const opaqueRuns2 = this.opaqueRuns;
     const transparentRuns2 = this.transparentRuns;
     opaqueRuns2.length = 0;
@@ -54707,8 +54718,14 @@ var LobbySceneCompositor = class extends SceneCompositor {
     const z = ground + (rig.minHeight + (ctrl?._w() ?? 0)) / 128;
     ctrl?.ZL(-z * 128);
     this.createPlayerModelMatrix(1 / 128, x, y, z, angle, r.modelMatrix);
-    for (const m of rig.meshCommands) {
-      n.commands.push(ME({ ...m, modelMatrix: r.modelMatrix }));
+    // On the local player's tile the local player is the one seen: the other is not drawn, and stays in the menu
+    // (its matrix and hit data are kept).
+    const local = this.playerModelMatrix;
+    r.covered = !!local && Math.abs(local[12] - x) < 0.5 && Math.abs(local[13] - y) < 0.5;
+    if (!r.covered) {
+      for (const m of rig.meshCommands) {
+        n.commands.push(ME({ ...m, modelMatrix: r.modelMatrix }));
+      }
     }
     r.overheadAnchor = uiCamera
       ? this.uiOverlayRenderer.playerOverheadBase(uiCamera, r.position, ctrl?.posedModelHeight)
