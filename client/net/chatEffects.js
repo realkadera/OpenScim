@@ -4,12 +4,14 @@
 // the line's display, the time since it was said and the page's clock.
 //
 //   overheadChatText(display, elapsedMs, clockMs)
-//     { text, textColor, segments?, transform?, clipPath? }:
+//     { text, textColor, segments?, transform?, clipPath?, scrollCycles?, slideDy? }:
 //     segments  one per character, { text, dx, dy } in pixels, for the
 //               effects that move each character (wave, wave2, shake)
 //     transform the CSS transform of the whole text, from its anchor (the
 //               point under the middle of the text); scroll and slide
 //     clipPath  the CSS clip-path of the whole text; scroll and slide
+//     scrollCycles, slideDy   the same two effects as numbers: the cycles
+//               the scroll has run (0..150), the slide's pixels down
 //
 // The text is the line's own (display.text), never markup: the overlay sets
 // it as textContent.
@@ -133,6 +135,7 @@ export function overheadChatText(display, elapsedMs, clockMs) {
       // its left edge in the 150 cycles: the text's left edge at
       // 50 - (elapsed / 150) * (width + 100) from the anchor, the rest of
       // the text cut off outside the window. 100% is the text's own width.
+      out.scrollCycles = Math.min(elapsed, OVERHEAD_CYCLES); // for a drawer that works in pixels (overheadBitmap.js)
       const f = Math.min(elapsed, OVERHEAD_CYCLES) / OVERHEAD_CYCLES;
       const offset = `${f} * (100% + 100px)`;
       out.transform = `translate(calc(50px - ${offset}), -100%)`;
@@ -144,6 +147,7 @@ export function overheadChatText(display, elapsedMs, clockMs) {
       // last 25, cut off 1 px above the text's place and 5 px below its
       // baseline (the line's bottom is 4 px under the baseline).
       const y = elapsed < 25 ? elapsed - 25 : elapsed > 125 ? elapsed - 125 : 0;
+      out.slideDy = y; // for a drawer that works in pixels (overheadBitmap.js)
       out.transform = `translate(-50%, calc(-100% + ${y}px))`;
       out.clipPath = `inset(${Math.max(0, -1 - y)}px 0 ${Math.max(0, y - 1)}px 0)`;
       break;

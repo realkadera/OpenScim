@@ -120,4 +120,19 @@ assert.deepEqual(overheadChatText(parseChatEffects("wave:éx"), 0, 0).segments.
 // Nothing throws on what is not a display.
 assert.deepEqual(overheadChatText(null, NaN, NaN), { text: "", textColor: "#ffff00" });
 
+
+
+// Texts above the heads that overlap are stacked. OBS (the game's client): a text is moved up to the top of an
+// earlier one (its baseline less the ascent, 12) while they overlap; texts apart keep their place.
+{
+  const { stackOverheadTexts, BOLD12_ASCENT, OVERHEAD_TEXT_LIMIT } = await import("../client/net/overheadBitmap.js");
+  assert.equal(BOLD12_ASCENT, 12);
+  assert.equal(OVERHEAD_TEXT_LIMIT, 50);
+  assert.deepEqual(stackOverheadTexts([{ x: 100, y: 200, half: 30 }]), [200]);
+  assert.deepEqual(stackOverheadTexts([{ x: 100, y: 200, half: 30 }, { x: 110, y: 203, half: 30 }]), [200, 188], "pushed above the first");
+  assert.deepEqual(stackOverheadTexts([{ x: 100, y: 200, half: 30 }, { x: 110, y: 203, half: 30 }, { x: 105, y: 201, half: 10 }]), [200, 188, 176], "and above the second");
+  assert.deepEqual(stackOverheadTexts([{ x: 100, y: 200, half: 30 }, { x: 200, y: 200, half: 30 }]), [200, 200], "side by side");
+  assert.deepEqual(stackOverheadTexts([{ x: 100, y: 200, half: 30 }, { x: 110, y: 240, half: 30 }]), [200, 240], "one well below the other");
+  assert.deepEqual(stackOverheadTexts([{ x: 100, y: 200, half: 30 }, { x: 110, y: 190, half: 30 }]), [200, 188], "a later one a little higher still moves to the top");
+}
 console.log("chatEffects passed");

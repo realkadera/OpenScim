@@ -54709,15 +54709,17 @@ var LobbySceneCompositor = class extends SceneCompositor {
       // OBS (the game's client, drawActor2d): the text's baseline is 2 px under the point of the model's top. The
       // overlay hangs the bottom of a 16 px line (baseline 4 px above it) on its point, so the point is 6 px lower;
       // whole pixels, so the letters and their shadow are not smeared.
-      n.overheadTexts.push({ screenX: Math.round(point.x), screenY: Math.round(point.y) + 6, ...text, fontSize: UIOverlayRenderer.OSRS_OVERHEAD_TEXT_FONT_SIZE, key: key });
+      // bitmap: drawn as the game's client draws it, 1-bit glyphs with a hard shadow (client/net/overheadBitmap.js).
+      n.overheadTexts.push({ screenX: Math.round(point.x), screenY: Math.round(point.y) + 6, ...text, fontSize: UIOverlayRenderer.OSRS_OVERHEAD_TEXT_FONT_SIZE, key: key, bitmap: true });
     };
+    // OBS (the game's client): the other players' texts first, then our own; a later one that overlaps is pushed up.
+    for (const r of drawn) {
+      push("lobby-chat-" + r.id, r.chatAnchor, lobbyChatOverheadText(r.id, now));
+    }
     const own = lobbyChatOverheadText(null, now);
     const center = this.lastPlayerVisualCenter;
     if (own && center) {
       push("lobby-chat-local", this.uiOverlayRenderer.playerChatAnchor(uiCamera, [center[0] - 0.5, center[1] - 0.5], this.playerAnimController?.posedModelHeight), own);
-    }
-    for (const r of drawn) {
-      push("lobby-chat-" + r.id, r.chatAnchor, lobbyChatOverheadText(r.id, now));
     }
   }
   drawRemotePlayer(n, r, camera, uiCamera, deltaMs, standingTiles) {
@@ -58241,6 +58243,7 @@ import {scaleToaAccuracyRoll} from "/toa/zebak/rules.js";
 import {gatewayMeshes, gatewayPortals, gatewayCovers, gatewayFloor, extendLobbyArena, loadGatewayObjects, drawGatewayObjects} from "/lobby/gateways.js";
 import {createRemotePlayers, getRemotePlayersSource, localFaceAngle} from "/net/remotePlayers.js";
 import {lobbyChatOverheadText} from "/net/lobbyChat.js";
+import {drawOverheadBitmapTexts} from "/net/overheadBitmap.js";
 import {toaFragmentShader} from "/toa/shader.js";
 import {getAttackRangeOverlay} from "/plugins/attackRanges.js";
 import {overrideProjectile} from "/plugins/projectileOverride.js";
@@ -60909,6 +60912,8 @@ var dZ = ({
       return;
     }
     let t = current21.querySelector("[data-overhead-texts]");
+    // The lobby's chat is drawn on a canvas (client/net/overheadBitmap.js); its spans stay, unseen, while it is.
+    const bitmapDrawn = drawOverheadBitmapTexts(current21, e, Hy);
     if (e.length !== 0) {
       for (
         t ||
@@ -60951,6 +60956,7 @@ var dZ = ({
         s.style.fontSize = `${n.fontSize}px`;
         s.style.transform = n.transform ?? "translate(-50%, -100%)"; // Defence Tracker says how its text hangs from its point
         s.style.clipPath = n.clipPath ?? ""; // the lobby's chat effects cut their text to a window
+        s.style.visibility = n.bitmap && bitmapDrawn ? "hidden" : "";
         iZ(s, n);
       }
     } else if (t) {
@@ -62807,6 +62813,8 @@ var bZ = ({
       return;
     }
     let t = current49.querySelector("[data-overhead-texts]");
+    // The lobby's chat is drawn on a canvas (client/net/overheadBitmap.js); its spans stay, unseen, while it is.
+    const bitmapDrawn = drawOverheadBitmapTexts(current49, e, Hy);
     if (e.length !== 0) {
       for (
         t ||
@@ -62849,6 +62857,7 @@ var bZ = ({
         s.style.fontSize = `${n.fontSize}px`;
         s.style.transform = n.transform ?? "translate(-50%, -100%)"; // Defence Tracker says how its text hangs from its point
         s.style.clipPath = n.clipPath ?? ""; // the lobby's chat effects cut their text to a window
+        s.style.visibility = n.bitmap && bitmapDrawn ? "hidden" : "";
         iZ(s, n);
       }
     } else if (t) {

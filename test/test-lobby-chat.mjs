@@ -182,6 +182,33 @@ try {
     const overhead = (text) =>
       page.waitForFunction((text) => [...document.querySelectorAll("[data-overhead-texts] > span")].find((s) => s.textContent === text), text, { timeout: 10000 }).then((h) => h.evaluate((s) => ({ color: getComputedStyle(s).color, parts: s.children.length })));
     assert.deepEqual(await overhead("Hello world"), { color: "rgb(255, 255, 0)", parts: 0 });
+    // It is drawn as the game's client draws it: 1-bit glyphs on a canvas (every pixel on or off), yellow, each
+    // with a black pixel one right and one down where no glyph pixel is; the span of the text is not seen.
+    const bitmap = await page.waitForFunction(() => {
+      const canvas = document.querySelector("canvas[data-overhead-bitmap]");
+      const text = canvas?.drawnTexts?.find((drawn) => drawn.text === "Hello world");
+      if (!text) return null;
+      const { data, width } = canvas.getContext("2d").getImageData(text.left - 2, text.baseline - 16, text.width + 6, 24);
+      const at = (x, y) => [...data.slice((y * width + x) * 4, (y * width + x) * 4 + 4)].join();
+      let yellow = 0;
+      let black = 0;
+      let soft = 0;
+      let unshadowed = 0;
+      for (let y = 0; y < 23; y++) {
+        for (let x = 0; x < width - 1; x++) {
+          const pixel = at(x, y);
+          if (pixel === "255,255,0,255") {
+            yellow++;
+            if (at(x + 1, y + 1) === "0,0,0,0") unshadowed++;
+          } else if (pixel === "0,0,0,255") black++;
+          else if (pixel !== "0,0,0,0") soft++;
+        }
+      }
+      const span = [...document.querySelectorAll("[data-overhead-texts] > span")].find((s) => s.textContent === "Hello world");
+      return { yellow, black, soft, unshadowed, width: text.width, spanSeen: getComputedStyle(span).visibility !== "hidden" };
+    }, null, { timeout: 10000 }).then((handle) => handle.jsonValue());
+    assert.ok(bitmap.yellow > 100 && bitmap.black > 50, JSON.stringify(bitmap));
+    assert.deepEqual({ soft: bitmap.soft, unshadowed: bitmap.unshadowed, spanSeen: bitmap.spanSeen }, { soft: 0, unshadowed: 0, spanSeen: false }, JSON.stringify(bitmap));
 
     // Another player says something red and waving.
     await page.evaluate(() => window.apiWs.reply({ t: "chat", id: 8, name: "Remote", text: "red:wave:Hi there", tick: 2 }));
