@@ -22012,11 +22012,11 @@ function useSimulationWiring({
         }
         const i7 = fE.current ?? state11.playerPosition;
         current44.advanceTick(i7);
-        // A follower that stands faces its leader (client/net/lobbyLink.js); null when not following.
-        const lobbyFace = lobbyFollowFacing(state11.playerPosition, current44.getState().playerPosition);
-        const lobbyFollower = lobbyFace && current44.player?.();
+        // A follower faces its leader (client/net/lobbyLink.js); null when not following.
+        const lobbyFace = lobbyFollowFacing(current44.getState().playerPosition);
+        const lobbyFollower = lobbyFace !== null && current44.player?.();
         if (lobbyFollower) {
-          lobbyFollower.facing = current44.computeFacingFromDelta(lobbyFace[0], lobbyFace[1], lobbyFollower.facing);
+          lobbyFollower.facing = lobbyFace;
         }
         if (current44.isLastTickInputLocked()) {
           fE.current = null;

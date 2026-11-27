@@ -169,6 +169,19 @@ const readSteps = (steps) => {
 };
 const sameTile = (a, b) => a[0] === b[0] && a[1] === b[1];
 
+// The angle (0..2047: 0 south, 512 west, 1024 north, 1536 east) at which an
+// actor at `from` faces one at `to`, both visual positions in tiles; `keep`
+// when they are on the same point. OBS, the game's client: every client cycle
+// an actor with a target takes atan2(x - target.x, y - target.y) * 1024 / pi,
+// cut to an integer, from the two drawn positions in 1/128 tile, also while
+// it walks, and keeps its angle when the two are equal.
+export function faceAngle(from, to, keep = null) {
+  const dx = Math.trunc(from[0] * 128) - Math.trunc(to[0] * 128);
+  const dy = Math.trunc(from[1] * 128) - Math.trunc(to[1] * 128);
+  if (dx === 0 && dy === 0) return keep;
+  return Math.trunc((Math.atan2(dx, dy) * 1024) / Math.PI) & 2047;
+}
+
 function safeCall(fn) {
   try {
     return fn();
@@ -186,6 +199,21 @@ export function setRemotePlayersSource(next) {
 export const getRemotePlayersSource = () => source;
 // The entries the lobby scene drew last (for tests and diagnostics).
 export const presentedRemotePlayers = () => presented?.drawn() ?? [];
+
+// Whom the local player keeps facing: a function that gives a remote player's
+// id or null (lobbyLink.js: the leader while following).
+let localFace = () => null;
+export function setLocalFaceTarget(fn) {
+  localFace = typeof fn === "function" ? fn : () => null;
+}
+// The angle for the local player, drawn at `position`, to face that player
+// this frame (faceAngle; `current` when on the same point), or null: nobody
+// to face.
+export function localFaceAngle(position, current) {
+  const id = safeCall(localFace);
+  const target = Number.isSafeInteger(id) ? presented?.positionOf(id) : null;
+  return target ? faceAngle(position, target, current) : null;
+}
 
 export function createRemotePlayers({ buildRig, makeTracker, isValidKit, releaseRig, now = () => Date.now(), maxDrawn = REMOTE_DRAW_MAX, onError } = {}) {
   if (typeof buildRig !== "function" || typeof makeTracker !== "function") throw new TypeError("createRemotePlayers: buildRig and makeTracker are needed");
@@ -207,6 +235,7 @@ export function createRemotePlayers({ buildRig, makeTracker, isValidKit, release
   const place = (entry, tile, facing) => {
     entry.tracker = makeTracker(tile[0], tile[1]);
     entry.tracker.facingAngle = facing;
+    entry.faced = false;
   };
 
   // A new move of the store's record goes to the tracker once: its steps over
@@ -261,7 +290,8 @@ export function createRemotePlayers({ buildRig, makeTracker, isValidKit, release
   const brokenReported = new Set();
 
   const api = {
-    update(records, { localPosition = null, deltaMs = 0 } = {}) {
+    // ownId and localVisual: our own player's id and drawn position, for the remotes that face us.
+    update(records, { localPosition = null, deltaMs = 0, ownId = null, localVisual = null } = {}) {
       presented = api;
       const seen = new Set();
       for (const record of Array.isArray(records) ? records : []) {
@@ -274,7 +304,7 @@ export function createRemotePlayers({ buildRig, makeTracker, isValidKit, release
           const facing = readFacing(record.facing);
           let entry = entries.get(id);
           if (!entry) {
-            entry = { id, name: "Player", combat: null, tile, facing, position: [tile[0], tile[1]], facingAngle: facing, state: null, lastTick: record.lastTick, moves: 0, appearance: null, equipment: {}, rig: null, rigKey: null, builtAt: -Infinity, brokenAt: null, brokenKey: null, hit: null, modelMatrix: new Float32Array(16), overheadAnchor: null, tracker: null };
+            entry = { id, name: "Player", combat: null, tile, facing, face: null, faced: false, position: [tile[0], tile[1]], facingAngle: facing, state: null, lastTick: record.lastTick, moves: 0, appearance: null, equipment: {}, rig: null, rigKey: null, builtAt: -Infinity, brokenAt: null, brokenKey: null, hit: null, modelMatrix: new Float32Array(16), overheadAnchor: null, tracker: null };
             place(entry, tile, facing);
             entries.set(id, entry);
           } else {
@@ -284,6 +314,7 @@ export function createRemotePlayers({ buildRig, makeTracker, isValidKit, release
           entry.combat = isInt(record.combat, COMBAT_MIN, COMBAT_MAX) ? record.combat : null;
           entry.tile = tile;
           entry.facing = facing;
+          entry.face = Number.isSafeInteger(record.face) && record.face > 0 ? record.face : null;
           entry.appearance = record.appearance ? appearanceFromWire(record.appearance, isValidKit) : null;
           entry.equipment = equipmentFromWire(record.equipment);
         } catch (error) {
@@ -299,6 +330,18 @@ export function createRemotePlayers({ buildRig, makeTracker, isValidKit, release
       for (const entry of entries.values()) {
         try {
           entry.tracker.setTargetAngle(entry.facing); // the record's facing, once it stands
+          // A player that keeps facing another (faceAngle) turns to it every frame, walking too. As the
+          // game's client has it for an actor with a target (OBS): not slowed while it turns.
+          const faced = entry.face === null ? null : entry.face === ownId ? localVisual : entries.get(entry.face)?.position;
+          if (Array.isArray(faced)) {
+            entry.tracker.setInteracting(true);
+            entry.tracker.setForcedFacingAngle(faceAngle(entry.position, faced, entry.tracker.currentTurnTarget()));
+            entry.faced = true;
+          } else if (entry.faced) {
+            entry.faced = false;
+            entry.tracker.setInteracting(false);
+            entry.tracker.setForcedFacingAngle(null);
+          }
           entry.state = entry.tracker.advance(deltaMs, 1);
           entry.position = entry.state.position;
           entry.facingAngle = entry.state.facingAngle;
@@ -354,6 +397,8 @@ export function createRemotePlayers({ buildRig, makeTracker, isValidKit, release
       }
     },
     drawn: () => drawn,
+    // Where a player is drawn ([x, y] in tiles), drawn or not; undefined when not placed.
+    positionOf: (id) => entries.get(id)?.position,
     hitTestData() {
       const out = [];
       for (const entry of drawn) {

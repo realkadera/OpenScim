@@ -54637,15 +54637,18 @@ var LobbySceneCompositor = class extends SceneCompositor {
       onError: (error, id) => logger.warn("Lobby", "A remote player could not be drawn" + (id === undefined ? "" : " (id " + id + ")"), error),
     });
     const deltaMs = e.frameDeltaMs ?? 0;
+    const local = this.playerModelMatrix;
     const drawn = this.remotePlayers.update(source.list(), {
       localPosition: e.simulationState.playerPosition,
       deltaMs: deltaMs,
+      // For the remotes that keep facing us (Follow).
+      ownId: source.ownId ?? null,
+      localVisual: local ? [local[12] - 0.5, local[13] - 0.5] : null,
     });
     const camera = this.sorterCamera;
     const uiCamera = overlayCamera(a, n, e.options?.overlayGameScale);
     // The tiles a standing player was drawn on this frame, the local player's first.
     const standingTiles = new Set();
-    const local = this.playerModelMatrix;
     if (local && Number.isInteger(local[12] - 0.5) && Number.isInteger(local[13] - 0.5)) {
       standingTiles.add(local[12] - 0.5 + "," + (local[13] - 0.5));
     }
@@ -58205,7 +58208,7 @@ var iV = {
 import { presentationBuilders } from "../encounters/presentations.js";
 import {scaleToaAccuracyRoll} from "/toa/zebak/rules.js";
 import {gatewayMeshes, gatewayPortals, gatewayCovers, gatewayFloor, extendLobbyArena, loadGatewayObjects, drawGatewayObjects} from "/lobby/gateways.js";
-import {createRemotePlayers, getRemotePlayersSource} from "/net/remotePlayers.js";
+import {createRemotePlayers, getRemotePlayersSource, localFaceAngle} from "/net/remotePlayers.js";
 import {lobbyChatOverheadText} from "/net/lobbyChat.js";
 import {toaFragmentShader} from "/toa/shader.js";
 import {getAttackRangeOverlay} from "/plugins/attackRanges.js";
@@ -63366,6 +63369,18 @@ var bZ = ({
         tracker2.setForcedFacingAngle(h.attackTarget ? h.playerFacingAngle : null);
       } else if (R) {
         P = tracker2.snapToUnwalkedPlacement(h.playerPosition, h.playerFacingAngle);
+      }
+      // Follow in the lobby (client/net/remotePlayers.js localFaceAngle): the follower faces its leader
+      // every frame, walking too, and is not slowed while it turns; null everywhere else.
+      const lobbyFace = n ? null : localFaceAngle([tracker2.worldXFloat / 128, tracker2.worldYFloat / 128], tracker2.currentTurnTarget());
+      if (lobbyFace !== null) {
+        aa.current.lobbyFacing = true;
+        tracker2.setInteracting(true);
+        tracker2.setForcedFacingAngle(lobbyFace);
+      } else if (aa.current.lobbyFacing) {
+        aa.current.lobbyFacing = false;
+        tracker2.setInteracting(!!h.attackTarget);
+        tracker2.setForcedFacingAngle(h.attackTarget ? h.playerFacingAngle : null);
       }
       const _ = Qe.current.getPrimaryAnimMovementBlock?.() ?? {
         blocksRunning: false,

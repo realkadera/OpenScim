@@ -121,6 +121,26 @@ try {
     await page.evaluate(() => clearInterval(window.lobbyFake.timer));
     const end = await local();
     assert.ok(end[0] < start[0], `walked west after her: ${start} -> ${end}`);
+    // The follower keeps facing her (OBS: the game client's angle to an actor's target), and so does another
+    // player whose record names her as the one it faces, though its own facing says south.
+    const angles = await page.evaluate(async (engines) => {
+      const { remotes, players } = window.lobbyFake;
+      const alice = players.get(1).tile;
+      players.set(7, { ...players.get(2), id: 7, name: "Turned", tile: [alice[0] + 2, alice[1] + 1], fromTile: [alice[0] + 2, alice[1] + 1], facing: 0, face: 1 });
+      await new Promise((done) => setTimeout(done, 1500));
+      const at = eval(engines).getState().playerPosition;
+      return {
+        local: eval(engines).getState().playerFacingAngle,
+        localWant: remotes.faceAngle(at, alice),
+        remote: remotes.presentedRemotePlayers().find((e) => e.id === 7)?.state,
+        remoteWant: remotes.faceAngle([alice[0] + 2, alice[1] + 1], alice),
+      };
+    }, liveEngine);
+    assert.equal(angles.local, angles.localWant, "the follower's facing is the angle to its leader");
+    assert.equal(angles.remoteWant, Math.trunc((Math.atan2(256, 128) * 1024) / Math.PI) & 2047, "an angle that is not one of eight");
+    assert.equal(angles.remote?.targetAngle, angles.remoteWant, "a remote player turns to the player it faces");
+    assert.equal(angles.remote.facingAngle, angles.remoteWant, "and has turned");
+    await page.evaluate(() => window.lobbyFake.players.delete(7));
 
     // Another player on the local player's own tile is not drawn over it (the local player is the one seen), and
     // one on the next tile is drawn.
@@ -239,6 +259,11 @@ try {
       .waitForFunction((engines) => eval(engines).getState().playerPosition.join() === "34,22", liveEngine, { timeout: 15000 })
       .catch(async () => assert.fail("the follower did not end behind the leader: " + JSON.stringify(await followState())));
     assert.equal((await followState()).leader, 8, "still following");
+    // While it follows, every presence names the leader it faces, and none did before.
+    const presences = (await page.evaluate(() => window.apiWsFrames)).filter((msg) => msg.t === "presence");
+    assert.equal(presences[0].face, undefined);
+    assert.equal(presences.at(-1).face, 8);
+    assert.equal(presences.at(-1).facing, 1536, "behind a leader that walked east: facing east");
 
     assert.deepEqual(errors, []);
     await page.close();

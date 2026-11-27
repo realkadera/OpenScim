@@ -23,7 +23,7 @@
 import { createLobbyPresence } from "./index.js";
 import { COMBAT_MAX, COMBAT_MIN, STEPS_PER_PRESENCE_MAX, isAdjacent, tilesEqual } from "./protocol.js";
 import { createFollow } from "./follow.js";
-import { appearanceToWire, equipmentToWire, getRemotePlayersSource, setRemotePlayersSource } from "./remotePlayers.js";
+import { appearanceToWire, equipmentToWire, faceAngle, getRemotePlayersSource, setLocalFaceTarget, setRemotePlayersSource } from "./remotePlayers.js";
 import { getLobbyChatSource, setLobbyChatSource } from "./lobbyChat.js";
 
 // hello.build of this client, the one place it is set.
@@ -177,6 +177,8 @@ export function createLobbyLink({
           steps,
           run: steps.length > 0 && after.playerIsRunning === true,
           facing: (Number.isSafeInteger(after.playerFacingAngle) ? after.playerFacingAngle : 0) & 2047,
+          // While following: the leader, for the others to draw us facing it.
+          ...(follow.leaderId === null ? null : { face: follow.leaderId }),
         }),
       );
       if (startPending) {
@@ -193,12 +195,13 @@ export const setLobbyPresenceActive = (active) => lobbyLink.setActive(active);
 export const lobbyBeforeTick = (kind, state, engineOverride) => lobbyLink.beforeTick(kind, state, engineOverride);
 export const lobbyAfterTick = (kind, before, after, appearance, combat) => lobbyLink.afterTick(kind, before, after, appearance, combat);
 export const followRemotePlayer = (id) => lobbyLink.follow.start(id);
-// While following and standing: [dx, dy] from our tile to the leader's, for the follower to face it (the
-// servers that copy the game turn a follower to its leader every tick); null otherwise.
-export function lobbyFollowFacing(before, after) {
-  if (!isTile(before) || !isTile(after) || before[0] !== after[0] || before[1] !== after[1]) return null;
+// The renderer turns the follower to its leader every frame (remotePlayers.js localFaceAngle).
+setLocalFaceTarget(() => lobbyLink.follow.leaderId);
+// While following: the angle from our tile (`after`) to the leader's, for the engine's facing after each
+// tick, so the facing we send, and the one we keep when Follow ends, is the one drawn (the servers that
+// copy the game set a follower's target every tick); null when not following or on the leader's tile.
+export function lobbyFollowFacing(after) {
   const leader = lobbyLink.follow.leaderTile();
-  if (!leader || (leader[0] === after[0] && leader[1] === after[1])) return null;
-  return [leader[0] - after[0], leader[1] - after[1]];
+  return leader && isTile(after) ? faceAngle(after, leader) : null;
 }
 export const stopLobbyFollow = (reason = "walk") => lobbyLink.follow.cancel(reason);

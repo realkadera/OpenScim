@@ -5,7 +5,7 @@
 import assert from "node:assert/strict";
 
 import { createFollow, followDestination, followRuns } from "../client/net/follow.js";
-import { LOBBY_BUILD, createLobbyLink, presenceSteps } from "../client/net/lobbyLink.js";
+import { LOBBY_BUILD, createLobbyLink, lobbyFollowFacing, lobbyLink, presenceSteps } from "../client/net/lobbyLink.js";
 
 const leader = (tile, more = {}) => ({ id: 9, name: "Leader", tile, fromTile: tile, steps: [], run: false, snapped: true, ...more });
 
@@ -211,6 +211,15 @@ function fakePresence() {
     return result;
   };
   assert.deepEqual(tick(state), { tile: [31, 29], ctrlClickOverride: true, changed: true }, "Run on, a walking leader one step ahead: walk");
+  // While following, the presence names the leader, for the others to draw us facing it.
+  {
+    const sendPresence = fake.presence.session.sendPresence;
+    fake.presence.session.sendPresence = (p) => fake.sent.push(["presence", p]);
+    fake.sent.length = 0;
+    link.afterTick("lobby", state, { ...state, playerFacingAngle: 1024 }, null);
+    assert.deepEqual(fake.sent.at(-1), ["presence", { tile: [31, 28], steps: [], run: false, facing: 1024, face: 9 }]);
+    fake.presence.session.sendPresence = sendPresence;
+  }
   assert.deepEqual(tick(state), { tile: [31, 29], ctrlClickOverride: true, changed: false });
   // The engine resets its flag (a Run toggle): it is set again.
   flag = false;
@@ -331,3 +340,11 @@ function fakePresence() {
 }
 
 console.log("Follow and the lobby link passed");
+
+// The engine's facing of a follower after each tick: the angle from its tile to the leader's.
+{
+  assert.equal(lobbyFollowFacing([31, 28]), null, "not following");
+  lobbyLink.follow.start(9);
+  assert.equal(lobbyFollowFacing([31, 28]), null, "no leader known");
+  lobbyLink.follow.cancel();
+}

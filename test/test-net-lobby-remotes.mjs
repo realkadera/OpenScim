@@ -15,9 +15,12 @@ import {
   appearanceToWire,
   createRemotePlayers,
   equipmentToWire,
+  faceAngle,
   getRemotePlayersSource,
+  localFaceAngle,
   presentedRemotePlayers,
   safeName,
+  setLocalFaceTarget,
   setRemotePlayersSource,
 } from "../client/net/remotePlayers.js";
 
@@ -53,6 +56,13 @@ function fakeTracker(x, y) {
     setTargetAngle(value) {
       if (!path.length) angle = value;
     },
+    setInteracting(value) {
+      calls.push(["interacting", value]);
+    },
+    setForcedFacingAngle(value) {
+      calls.push(["force", value]);
+    },
+    currentTurnTarget: () => angle,
     advance(ms) {
       // One tile per 600 ms is enough for these checks: the whole path at once.
       const moving = path.length > 0;
@@ -313,6 +323,52 @@ const moved = (p, steps, { run = false, tick, facing = p.facing, snapped = false
   p = Object.freeze({ ...p, facing: 1536, lastTick: 107, steps: [], fromTile: [40, 40], snapped: true });
   remotes.update([p], { deltaMs: 16 });
   assert.equal(remotes.get(5).facingAngle, 1536);
+}
+
+// --- a player that keeps facing another: the game client's angle, every frame --------------
+{
+  // OBS (the game's client): atan2(x - target.x, y - target.y) * 1024 / pi, cut to an integer.
+  assert.equal(faceAngle([10, 10], [10, 11]), 1024, "north");
+  assert.equal(faceAngle([10, 10], [11, 10]), 1536, "east");
+  assert.equal(faceAngle([10, 10], [10, 9]), 0, "south");
+  assert.equal(faceAngle([10, 10], [9, 10]), 512, "west");
+  assert.equal(faceAngle([10, 10], [11, 11]), 1280, "north-east");
+  assert.equal(faceAngle([10, 10], [12, 11]), Math.trunc((Math.atan2(-256, -128) * 1024) / Math.PI) & 2047, "not one of eight");
+  assert.equal(faceAngle([10, 10], [10.5, 10]), 1536, "between tiles");
+  assert.equal(faceAngle([10, 10], [10, 10], 77), 77, "on the same point it keeps its angle");
+  assert.equal(faceAngle([10, 10], [10, 10]), null);
+
+  const { remotes, trackers } = setup();
+  const leader = player(1, [10, 12]);
+  let p = player(2, [10, 10], { face: 1 });
+  remotes.update([leader, p], { deltaMs: 16 });
+  const tracker = trackers.get("10,10");
+  assert.deepEqual(tracker.calls.slice(1), [["interacting", true], ["force", 1024]]);
+  // Walking too, every frame.
+  p = moved(p, [[11, 10]], { tick: 1 });
+  tracker.calls.length = 0;
+  remotes.update([leader, p], { deltaMs: 0 });
+  assert.deepEqual(tracker.calls, [["walk", 1, [[11, 10]], false], ["interacting", true], ["force", 1024]]);
+  // It faces us: our id and where we are drawn.
+  p = Object.freeze({ ...p, face: 99 });
+  tracker.calls.length = 0;
+  remotes.update([leader, p], { deltaMs: 0, ownId: 99, localVisual: [9.5, 10] });
+  assert.deepEqual(tracker.calls, [["interacting", true], ["force", 512]]);
+  // The faced player gone, or no face any more: once, back to its own facing.
+  tracker.calls.length = 0;
+  remotes.update([leader, p], { deltaMs: 0 });
+  remotes.update([leader, Object.freeze({ ...p, face: null })], { deltaMs: 0 });
+  assert.deepEqual(tracker.calls, [["interacting", false], ["force", null]]);
+
+  // The local player's angle to the player it follows, by the entries drawn last.
+  assert.equal(localFaceAngle([10, 10], 5), null, "nobody to face");
+  setLocalFaceTarget(() => 1);
+  assert.equal(localFaceAngle([10, 10], 5), 1024);
+  assert.equal(localFaceAngle([10, 12], 5), 5, "on the same point");
+  setLocalFaceTarget(() => 42);
+  assert.equal(localFaceAngle([10, 10], 5), null, "not in the lobby");
+  setLocalFaceTarget(null);
+  assert.equal(localFaceAngle([10, 10], 5), null);
 }
 
 // --- at most REMOTE_DRAW_MAX drawn, the nearest; rigs built a few a frame -----------------
