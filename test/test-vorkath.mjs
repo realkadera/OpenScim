@@ -36,12 +36,12 @@ try {
   await page.locator(".loading-screen").waitFor({ state: "hidden", timeout: 60000 });
   assert.equal(new URL(page.url()).pathname, "/vorkath/");
 
-  // The wiki's crossbow setup (loadouts.js): the dragon hunter crossbow and a dragonfire ward, ruby dragon bolts (e).
+  // The wiki's best ranged setup (loadouts.js): the two-handed Ascension crossbows with their diamond bolts (e).
   const setup = await page.evaluate(() => {
     const { equipment, inventory, combatSupplies } = engine.player();
-    return { weapon: equipment.weapon, shield: equipment.shield, ammo: combatSupplies.equippedAmmo.id, items: inventory.filter(Boolean).length };
+    return { weapon: equipment.weapon, shield: equipment.shield ?? null, ammo: combatSupplies.equippedAmmo.id, items: inventory.filter(Boolean).length };
   });
-  assert.deepEqual(setup, { weapon: 21012, shield: 22002, ammo: 21944, items: 28 });
+  assert.deepEqual(setup, { weapon: 34681, shield: null, ammo: 34696, items: 28 });
 
   // Through her specials: acid on the floor drawn as the game's acid, and a
   // freeze that holds the player while the spawn is up.
