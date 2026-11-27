@@ -46608,9 +46608,10 @@ var SceneCompositor = class e {
   GD() {
     return this.lastPlayerVisualCenter ?? [0, 0];
   }
-  RD(e) {
-    if (this.cachedPlayerMeshes.length !== 0) {
-      for (const a of this.cachedPlayerMeshes) {
+  // `meshes`: the local player's by default; a remote player of the lobby passes its own.
+  RD(e, meshes = this.cachedPlayerMeshes) {
+    if (meshes.length !== 0) {
+      for (const a of meshes) {
         a.uploadVersion = ++meshUploadVersion;
         const t = a.meshId.endsWith("-opaque") ? e.opaque : e.transparent;
         if (t) {
@@ -47074,7 +47075,8 @@ var SceneCompositor = class e {
     }
     return a;
   }
-  PD(e) {
+  // `meshIdPrefix`: the local player's ids by default; a remote player of the lobby passes its own.
+  PD(e, meshIdPrefix = `player-model-v${this.playerMeshVersion}`) {
     const a = 1 / 128;
     const t = new Float32Array([
       a,
@@ -47108,7 +47110,7 @@ var SceneCompositor = class e {
     if (s.opaque) {
       r.push({
         kind: "mesh3d",
-        meshId: `player-model-v${this.playerMeshVersion}-opaque`,
+        meshId: `${meshIdPrefix}-opaque`,
         materialId: "osrs-npc",
         modelMatrix: t,
         positions: s.opaque.positions,
@@ -47127,7 +47129,7 @@ var SceneCompositor = class e {
     if (s.transparent) {
       r.push({
         kind: "mesh3d",
-        meshId: `player-model-v${this.playerMeshVersion}-transparent`,
+        meshId: `${meshIdPrefix}-transparent`,
         materialId: "osrs-npc",
         modelMatrix: t,
         positions: s.transparent.positions,
@@ -47146,12 +47148,13 @@ var SceneCompositor = class e {
     }
     return r;
   }
-  createPlayerModelMatrix(e, a, t, n, s) {
+  // `out`: the local player's matrix by default; a remote player of the lobby passes its own.
+  createPlayerModelMatrix(e, a, t, n, s, out = this.playerModelMatrix) {
     const r = e;
     const i = (s / 2048) * 2 * Math.PI;
     const l = Math.cos(i);
     const o = Math.sin(i);
-    const playerModelMatrix2 = this.playerModelMatrix;
+    const playerModelMatrix2 = out;
     playerModelMatrix2[0] = r * l;
     playerModelMatrix2[1] = -r * o;
     playerModelMatrix2[2] = 0;
@@ -47793,6 +47796,8 @@ var SceneCompositor = class e {
           pitchSin: g,
           pitchCos: d,
         };
+        // The camera's part of the projection, kept for the lobby's remote players (LobbySceneCompositor).
+        this.sorterCamera = p;
         this.playerAnimController?.setSorterProjection({
           cameraX: p.cameraX,
           cameraY: p.cameraY,
@@ -47825,6 +47830,7 @@ var SceneCompositor = class e {
           pitchCos: p.pitchCos,
         });
       } else {
+        this.sorterCamera = null;
         this.playerAnimController?.setSorterProjection(null);
         this.npcInstanceManager.setSorterProjection(null);
         this.spotAnimRenderer.setSorterProjection(null);
@@ -54260,7 +54266,7 @@ var LobbyArenaRenderer = class {
 };
 function ME(e) {
   if (
-    !e.meshId.startsWith("player-model-") ||
+    !(e.meshId.startsWith("player-model-") || e.meshId.startsWith("remote-player-")) ||
     !e.meshId.endsWith("-transparent")
   ) {
     return e;
@@ -54341,6 +54347,7 @@ var LobbySceneCompositor = class extends SceneCompositor {
   }
   dispose() {
     super.dispose();
+    this.remotePlayers?.clear();
     this.forcedTerrain = null;
     this.celShadedCache.clear();
     this.footprintCache.clear();
@@ -54548,10 +54555,124 @@ var LobbySceneCompositor = class extends SceneCompositor {
       }
     })(this.npcInstanceManager, this.celShadedCache, this.footprintCache);
     this.renderNpcModels(n);
+    this.drawRemotePlayers(n, e, a);
     if (e.options.showNpcClickbox) {
       this.FH(n);
     }
     return n;
+  }
+  // The other players of the lobby (client/net/remotePlayers.js): asked of the source each frame, none
+  // without one. Each has its own rig, built as the local player's is (buildPlayerRig), its own mesh ids,
+  // tracker and model matrix, and is drawn and sorted as the local player is.
+  drawRemotePlayers(n, e, a) {
+    const source = getRemotePlayersSource();
+    if (!source || !this.remotePlayerLoader || !this.playerAnimationSystem) {
+      this.remotePlayers?.clear();
+      return;
+    }
+    this.remotePlayers ??= createRemotePlayers({
+      buildRig: (appearance, equipment, id) => this.buildRemotePlayerRig(appearance, equipment, id),
+      makeTracker: (x, y) => new PlayerVisualTracker(x, y),
+      isValidKit: (kit, bodyPart) => {
+        const k = this.remotePlayerLoader.identKitLoader.load(kit);
+        return !!k && k.bodyPartId >= 0 && k.bodyPartId % 7 === bodyPart && k.models.length > 0;
+      },
+      onError: (error) => logger.warn("Lobby", "A remote player could not be drawn", error),
+    });
+    const deltaMs = e.frameDeltaMs ?? 0;
+    const drawn = this.remotePlayers.update(source.list(), {
+      localPosition: e.simulationState.playerPosition,
+      deltaMs: deltaMs,
+    });
+    const camera = this.sorterCamera;
+    const uiCamera = overlayCamera(a, n, e.options?.overlayGameScale);
+    for (const r of drawn) {
+      const { rig: rig, state: s } = r;
+      const ctrl = rig.controller;
+      const x = r.position[0] + 0.5;
+      const y = r.position[1] + 0.5;
+      const ground = -Nb(this.terrainHeights, x, y) / 128;
+      const angle = s?.facingAngle ?? r.facing;
+      if (ctrl) {
+        ctrl.stanceName = null;
+        ctrl.setSorterProjection(
+          camera
+            ? {
+                cameraX: camera.cameraX,
+                cameraY: camera.cameraY,
+                cameraZ: camera.cameraZ,
+                yawSin: camera.yawSin,
+                yawCos: camera.yawCos,
+                pitchSin: camera.pitchSin,
+                pitchCos: camera.pitchCos,
+                orientation: angle,
+                modelX: x * 128,
+                modelY: -(ground + (rig.minHeight + ctrl._w()) / 128) * 128,
+                modelZ: y * 128,
+              }
+            : null,
+        );
+        ctrl.updatePlayerAnimation({
+          deltaMs: deltaMs,
+          isMoving: !!s?.isVisuallyMoving,
+          simIsMoving: !!s?.simIsMoving,
+          isRunning: !!s?.isRunning,
+          locomotionState: s?.locomotionState ?? null,
+          visualAngle: angle,
+          targetAngle: s?.targetAngle ?? angle,
+          speedMultiplier: 1,
+          isTurning: !!s?.isTurning,
+        });
+      }
+      const z = ground + (rig.minHeight + (ctrl?._w() ?? 0)) / 128;
+      ctrl?.ZL(-z * 128);
+      this.createPlayerModelMatrix(1 / 128, x, y, z, angle, r.modelMatrix);
+      for (const m of rig.meshCommands) {
+        n.commands.push(ME({ ...m, modelMatrix: r.modelMatrix }));
+      }
+      r.overheadAnchor = uiCamera
+        ? this.uiOverlayRenderer.playerOverheadBase(uiCamera, r.position, ctrl?.posedModelHeight)
+        : null;
+    }
+  }
+  // One remote player's rig (buildPlayerRig with no controller to reuse), its meshes under its own ids.
+  buildRemotePlayerRig(appearance, equipment, id) {
+    const holder = { meshes: [], controller: null };
+    const rig = this.buildPlayerRig(
+      this.remotePlayerLoader,
+      appearance,
+      equipment,
+      null,
+      () => holder.controller?.buildPlayerAnimatedMesh() ?? null,
+      (e) => this.RD(e, holder.meshes),
+    );
+    if (!rig) {
+      return null;
+    }
+    this.remotePlayerMeshVersion = (this.remotePlayerMeshVersion ?? 0) + 1;
+    holder.meshes = this.PD(rig.meshData, `remote-player-${id}-v${this.remotePlayerMeshVersion}`);
+    holder.controller = rig.controller;
+    rig.controller?.applyInitialAnimationFrame();
+    const model = rig.modelData.mergedModel;
+    return {
+      meshCommands: holder.meshes,
+      controller: rig.controller,
+      minHeight: rig.minHeight,
+      hitModel: {
+        verticesX: model.verticesX,
+        verticesY: model.verticesY,
+        verticesZ: model.verticesZ,
+        verticesCount: model.verticesCount,
+        indices1: model.indices1,
+        indices2: model.indices2,
+        indices3: model.indices3,
+        faceCount: model.faceCount,
+        faceColors3: null,
+      },
+    };
+  }
+  getRemotePlayerHitTestData() {
+    return this.remotePlayers?.hitTestData() ?? [];
   }
   getAllNpcHitTestData() {
     return super
@@ -54678,6 +54799,8 @@ var LobbySceneBuilder = class {
     return this.npcLoaded;
   }
   async loadPlayer(e, a, t) {
+    // The remote players' rigs are built with the local player's model loader.
+    this.compositor.remotePlayerLoader = e;
     await this.compositor.loadPlayer(e, a, t);
   }
   isPlayerLoaded() {
@@ -54691,6 +54814,9 @@ var LobbySceneBuilder = class {
   }
   getResidentMeshSources() {
     return this.compositor.getResidentMeshSources();
+  }
+  getRemotePlayerHitTestData() {
+    return this.compositor.getRemotePlayerHitTestData();
   }
   async loadLocs(e, a) {}
   isLocsLoaded() {
@@ -57954,6 +58080,7 @@ var iV = {
 import { presentationBuilders } from "../encounters/presentations.js";
 import {scaleToaAccuracyRoll} from "/toa/zebak/rules.js";
 import {gatewayMeshes, gatewayPortals, gatewayCovers, gatewayFloor, extendLobbyArena, loadGatewayObjects, drawGatewayObjects} from "/lobby/gateways.js";
+import {createRemotePlayers, getRemotePlayersSource} from "/net/remotePlayers.js";
 import {toaFragmentShader} from "/toa/shader.js";
 import {getAttackRangeOverlay} from "/plugins/attackRanges.js";
 import {overrideProjectile} from "/plugins/projectileOverride.js";
