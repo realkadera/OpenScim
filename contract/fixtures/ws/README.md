@@ -18,6 +18,11 @@ message exactly, and `test/test-net-protocol.mjs` checks that it does.
   `status`, `body` in the standard error envelope). A browser sees each of
   them as a failed connection, without the status.
 
+A client message is at most 4096 bytes (`welcome.limits.max_message_bytes`);
+a bigger one closes the socket with `1009`. Server messages can be larger.
+`error` `room_closed` means the client is in no room any more and sends
+`join` again.
+
 ## Coordinates
 
 Tiles are `[x, y]`: integers in the lobby's 64×64 grid, `0..=63` on each

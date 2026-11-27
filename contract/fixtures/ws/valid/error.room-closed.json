@@ -1,0 +1,11 @@
+{
+  "name": "error.room-closed",
+  "direction": "server",
+  "when": "a refused message: room_closed",
+  "body": {
+    "t": "error",
+    "code": "room_closed",
+    "rid": 3,
+    "msg": "The room closed; join again."
+  }
+}

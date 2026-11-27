@@ -10,7 +10,7 @@
       "name": "Player-0420"
     },
     "limits": {
-      "max_message_bytes": 16384,
+      "max_message_bytes": 4096,
       "msg_per_sec": 20,
       "msg_burst": 40,
       "tick_ms": 600,
