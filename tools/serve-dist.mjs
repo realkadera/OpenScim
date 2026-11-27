@@ -33,7 +33,7 @@ const TYPES = {
 const COMPRESSIBLE = /\.(html|js|css|json|svg|wasm|ttf|dat|bin)$/;
 
 export const defaultDist = path.resolve(import.meta.dirname, "..", "dist");
-export const chromePath = process.env.CHROME_PATH || "C:/Program Files/Google/Chrome/Application/chrome.exe";
+export { browserPath as chromePath } from "./browser.mjs";
 /** Chrome flags for a machine without a GPU the page accepts, and for the self-signed certificate. */
 export const chromeArgs = ["--use-angle=swiftshader", "--enable-unsafe-swiftshader", "--ignore-gpu-blocklist", "--ignore-certificate-errors"];
 

@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import {chromium} from "playwright-core";
+import { browserOptions } from "../tools/browser.mjs";
 import {createRequire} from "node:module";
 import path from "node:path";
 import {CloudMotion} from "../client/toa/zebak/cloud-motion.js";
@@ -14,10 +15,7 @@ assert.deepEqual(turn.sample([1,1],[1,0],2,62),[1,0]);
 assert.deepEqual(turn.sample([1,1],[1,0],2,63),[1,4/128]);
 assert.deepEqual(turn.sample([0,0],[0,0],0,0),[0,0]);
 
-const browser = await chromium.launch({
-  executablePath: process.env.CHROME_PATH || "C:/Program Files/Google/Chrome/Application/chrome.exe",
-  args: ["--enable-unsafe-swiftshader"],
-});
+const browser = await chromium.launch(browserOptions);
 try {
   const page = await browser.newPage({viewport:{width:1280,height:850}});
   for (const [url, marker, probe] of [

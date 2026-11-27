@@ -1,9 +1,6 @@
 import { chromium } from "playwright-core";
-const browser = await chromium.launch({
-  executablePath:
-    process.env.CHROME_PATH ||
-    "C:/Program Files/Google/Chrome/Application/chrome.exe",
-});
+import { browserOptions } from "./browser.mjs";
+const browser = await chromium.launch(browserOptions);
 try {
   const times = [];
   for (let i = 0; i < 3; i++) {

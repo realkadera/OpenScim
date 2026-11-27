@@ -1,6 +1,7 @@
 import {chromium} from 'playwright-core';
+import { browserOptions } from "./browser.mjs";
 import fs from 'node:fs/promises';
-const browser=await chromium.launch({executablePath:process.env.CHROME_PATH||'C:/Program Files/Google/Chrome/Application/chrome.exe'});
+const browser=await chromium.launch(browserOptions);
 try {
   const page=await browser.newPage();
   const missing=[],errors=[];

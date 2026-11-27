@@ -1,10 +1,9 @@
 // An item icon that is not in client/assets/items/ must load from the remote icon host.
 import assert from "node:assert/strict";
 import { chromium } from "playwright-core";
+import { browserOptions } from "../tools/browser.mjs";
 
-const browser = await chromium.launch({
-  executablePath: process.env.CHROME_PATH || "C:/Program Files/Google/Chrome/Application/chrome.exe",
-});
+const browser = await chromium.launch(browserOptions);
 try {
   const page = await browser.newPage();
   // Pretend the local copy is missing, whatever is on disk.

@@ -1,10 +1,7 @@
 ﻿import fs from "node:fs/promises";
 import { chromium } from "playwright-core";
-const browser = await chromium.launch({
-  executablePath:
-    process.env.CHROME_PATH ||
-    "C:/Program Files/Google/Chrome/Application/chrome.exe",
-});
+import { browserOptions } from "./browser.mjs";
+const browser = await chromium.launch(browserOptions);
 try {
   for (let round = 0; round < 80; round++) {
     const page = await browser.newPage();

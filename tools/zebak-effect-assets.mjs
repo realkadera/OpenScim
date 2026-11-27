@@ -1,10 +1,7 @@
 import { chromium } from "playwright-core";
+import { browserOptions } from "./browser.mjs";
 import fs from "node:fs/promises";
-const b = await chromium.launch({
-  executablePath:
-    process.env.CHROME_PATH ||
-    "C:/Program Files/Google/Chrome/Application/chrome.exe",
-});
+const b = await chromium.launch(browserOptions);
 try {
   const p = await b.newPage();
   await p.goto("http://127.0.0.1:5173/zebak/");

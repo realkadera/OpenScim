@@ -34,6 +34,7 @@ import path from "node:path";
 import test from "node:test";
 import JSZip from "jszip";
 import { chromium } from "playwright-core";
+import { browserOptions } from "../tools/browser.mjs";
 import { unpack, unzipCache } from "../tools/assets/cache.mjs";
 import { readCacheGroups } from "../tools/assets/cache-groups.mjs";
 import { SAMPLE_RATE, soundEffectWav, synthesizeSoundEffect } from "../client/audio/soundEffects.js";
@@ -99,7 +100,7 @@ async function readRecordings() {
 
 // Chrome decodes the Ogg files: id -> Float32Array at 22,050 Hz.
 async function decodeRecordings(files) {
-  const browser = await chromium.launch({ executablePath: process.env.CHROME_PATH || "C:/Program Files/Google/Chrome/Application/chrome.exe" });
+  const browser = await chromium.launch(browserOptions);
   try {
     const page = await browser.newPage();
     const decoded = new Map();

@@ -7,6 +7,7 @@
 // a shared replay (application.js).
 import assert from "node:assert/strict";
 import { chromium } from "playwright-core";
+import { browserOptions } from "../tools/browser.mjs";
 
 const origin = process.env.TEST_ORIGIN;
 
@@ -25,10 +26,7 @@ const exposed = {
 
 /** Opens the Colosseum. `settings` are the application's (Grid.js, "osrs-yama-settings"). */
 export async function openColosseum(settings = {}) {
-  const browser = await chromium.launch({
-    executablePath: process.env.CHROME_PATH || "C:/Program Files/Google/Chrome/Application/chrome.exe",
-    args: ["--enable-unsafe-swiftshader"],
-  });
+  const browser = await chromium.launch(browserOptions);
   const page = await browser.newPage({ viewport: { width: 1280, height: 850 } });
   const errors = [];
   page.on("pageerror", (error) => errors.push(error.stack));

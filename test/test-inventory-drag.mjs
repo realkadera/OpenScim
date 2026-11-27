@@ -3,6 +3,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { chromium } from "playwright-core";
+import { browserOptions } from "../tools/browser.mjs";
 import {
   DRAG_DEAD_TIME_MS,
   dragPosition,
@@ -50,10 +51,7 @@ test("the held slot keeps its grab offset and stays in the inventory", () => {
 // The same rules through the real panel, with Anti Drag off as it is by
 // default: a hold of 400ms is well past the dead time, one of 30ms well short.
 test("the inventory panel drags as the client does", async () => {
-  const browser = await chromium.launch({
-    executablePath: process.env.CHROME_PATH || "C:/Program Files/Google/Chrome/Application/chrome.exe",
-    args: ["--enable-unsafe-swiftshader"],
-  });
+  const browser = await chromium.launch(browserOptions);
   try {
     const page = await browser.newPage({ viewport: { width: 1600, height: 900 } });
     await page.goto(process.env.TEST_ORIGIN + "/zebak/");

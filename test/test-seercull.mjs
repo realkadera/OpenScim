@@ -5,6 +5,7 @@
 import assert from "node:assert/strict";
 import { register } from "node:module";
 import { chromium } from "playwright-core";
+import { browserOptions } from "../tools/browser.mjs";
 
 // The client's import graph reaches a stylesheet; the harness's hooks make it an empty module.
 register("../tools/determinism/node-hooks.mjs", import.meta.url);
@@ -68,10 +69,7 @@ assert.deepEqual(soulshot(99, 55, { headId: 11865 }).maxHit, { kind: "fixed", ma
 assert.equal(selectPlayerAttackProfile({ weaponId: SEERCULL, formulaStyle: "ranged", resources: { kind: "ammo", ammoId: arrows.amethyst }, targetAttributes: [] }).maxHit.kind, "base");
 
 // In the fight, against Zebak (Magic 100).
-const browser = await chromium.launch({
-  executablePath: process.env.CHROME_PATH || "C:/Program Files/Google/Chrome/Application/chrome.exe",
-  args: ["--enable-unsafe-swiftshader"],
-});
+const browser = await chromium.launch(browserOptions);
 try {
   const page = await browser.newPage();
   const errors = [];

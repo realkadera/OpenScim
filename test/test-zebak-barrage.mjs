@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import {chromium} from "playwright-core";
+import { browserOptions } from "../tools/browser.mjs";
 import {zebakDefinition} from "../client/toa/zebak/native.js";
 
 for (const path of [0, 2, 3, 4, 6]) {
@@ -38,10 +39,7 @@ for (const path of [0, 2, 3, 4, 6]) {
   assert.equal(encounter.pendingBarrages.size,0);
 }
 
-const browser = await chromium.launch({
-  executablePath: process.env.CHROME_PATH || "C:/Program Files/Google/Chrome/Application/chrome.exe",
-  args: ["--enable-unsafe-swiftshader"],
-});
+const browser = await chromium.launch(browserOptions);
 try {
   const page = await browser.newPage({viewport:{width:1280,height:850}});
   const errors = [];

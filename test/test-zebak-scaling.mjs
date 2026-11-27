@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import {chromium} from "playwright-core";
+import { browserOptions } from "../tools/browser.mjs";
 import {soloZebakHitpoints, zebakAutoMaxHit} from "../client/toa/zebak/rules.js";
 import {zebakDefinition} from "../client/toa/zebak/native.js";
 
@@ -22,10 +23,7 @@ const raidChoice = zebakDefinition({seedRandom: () => () => 0.5, walkable: () =>
   .controls.mechanicsToggles.find(toggle => toggle.key === "other");
 assert.equal(raidChoice.label, "Invocation level");
 
-const browser = await chromium.launch({
-  executablePath: process.env.CHROME_PATH || "C:/Program Files/Google/Chrome/Application/chrome.exe",
-  args: ["--enable-unsafe-swiftshader"],
-});
+const browser = await chromium.launch(browserOptions);
 try {
   const page = await browser.newPage();
   const errors = [];

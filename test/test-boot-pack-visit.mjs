@@ -7,6 +7,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { chromium } from "playwright-core";
+import { browserOptions } from "../tools/browser.mjs";
 import { unzipCache } from "../tools/assets/cache.mjs";
 
 const origin = process.env.TEST_ORIGIN;
@@ -15,10 +16,7 @@ const manifest = JSON.parse(fs.readFileSync(path.join(repo, "client/osrs-cache/m
 const whole = await unzipCache(fs.readFileSync(path.join(repo, "client/osrs-cache/disk.zip")));
 assert.ok(manifest.bootPacks?.lobby, "client/osrs-cache has no boot pack for the lobby: npm run assets");
 
-const browser = await chromium.launch({
-  executablePath: process.env.CHROME_PATH || "C:/Program Files/Google/Chrome/Application/chrome.exe",
-  args: ["--enable-unsafe-swiftshader"],
-});
+const browser = await chromium.launch(browserOptions);
 
 try {
   const page = await browser.newPage({ viewport: { width: 1280, height: 850 } });

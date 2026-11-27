@@ -8,6 +8,7 @@
 // had as the application's are carried into its own store, once.
 import assert from "node:assert/strict";
 import { chromium } from "playwright-core";
+import { browserOptions } from "../tools/browser.mjs";
 import { createPluginStore } from "../client/plugins/pluginStore.js";
 import { attackTimerMetronomeOptions, carryOverLegacySettings } from "../client/plugins/attackTimerMetronome.js";
 
@@ -47,10 +48,7 @@ assert.equal(carryOver({ ...old, attackTimerMetronomeEnabled: true }, JSON.strin
 assert.equal(carryOver({}).carried, false);
 
 const origin = process.env.TEST_ORIGIN;
-const browser = await chromium.launch({
-  executablePath: process.env.CHROME_PATH || "C:/Program Files/Google/Chrome/Application/chrome.exe",
-  args: ["--enable-unsafe-swiftshader"],
-});
+const browser = await chromium.launch(browserOptions);
 const cyan = "rgb(0, 255, 255)";
 const yellow = "rgb(255, 255, 0)";
 const red = "rgb(255, 0, 0)";

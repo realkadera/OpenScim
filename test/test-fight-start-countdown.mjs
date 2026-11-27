@@ -4,12 +4,10 @@
 // is loaded as he is, and once more with the field put into his descriptor.
 import assert from "node:assert/strict";
 import { chromium } from "playwright-core";
+import { browserOptions } from "../tools/browser.mjs";
 
 const origin = process.env.TEST_ORIGIN;
-const browser = await chromium.launch({
-  executablePath: process.env.CHROME_PATH || "C:/Program Files/Google/Chrome/Application/chrome.exe",
-  args: ["--enable-unsafe-swiftshader"],
-});
+const browser = await chromium.launch(browserOptions);
 
 // Loads the Maggot King's route and says whether a countdown was shown and on
 // which tick the engine stood once the page had run for a while.

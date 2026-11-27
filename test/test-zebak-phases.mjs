@@ -1,11 +1,7 @@
 import { chromium } from "playwright-core";
+import { browserOptions } from "../tools/browser.mjs";
 import assert from "node:assert/strict";
-const b = await chromium.launch({
-  executablePath:
-    process.env.CHROME_PATH ||
-    "C:/Program Files/Google/Chrome/Application/chrome.exe",
-  args: ["--enable-unsafe-swiftshader"],
-});
+const b = await chromium.launch(browserOptions);
 try {
   const p = await b.newPage({ viewport: { width: 1280, height: 850 } }),
     errors = [];

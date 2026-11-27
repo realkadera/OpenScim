@@ -16,10 +16,11 @@ it still has short machine names. See `ROADMAP.md` for the plan.
 
 ## Run
 
-Requires Node 22+ and, for the tests, Chrome.
+Requires Node 22+.
 
 ```sh
 npm install
+npx playwright-core install chromium-headless-shell   # the browser of the tests, once
 npm run assets       # game cache and media from public sources (about 230 MB download, once)
 npm run dev          # http://127.0.0.1:5173/
 ```
@@ -80,7 +81,10 @@ recordings the project used to ship. They are not in the repository; set
 `OpenScim-assets-backup.zip` next to the repository). Without them that
 comparison is skipped.
 
-Set `CHROME_PATH` if Chrome is not in `C:/Program Files/Google/Chrome/Application/`.
+The tests run in Playwright's headless shell (`tools/browser.mjs`). Set
+`CHROME_PATH` to run them in another browser. Not in an installed Chrome on
+Windows: each start of it fails one logon of your Windows account, and a run of
+the tests is enough of them to lock the account for ten minutes.
 
 ## Layout
 
