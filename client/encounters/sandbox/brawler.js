@@ -23,7 +23,6 @@
 import { canNpcActAtTick, isActorAlive, isNpcAlive } from "../../engine/npcState.js";
 import { getProjectileFlightCycles } from "../../engine/projectiles.js";
 import { getNpcPursuitMoves, isArenaFootprintWalkable } from "../shared/npcMovement.js";
-import { findNpcRouteToMeleeRange } from "../shared/npcRoutes.js";
 import { defineNpc } from "../shared/npcDefinitions.js";
 import { rollNpcAttack, isNpcInAttackRange, getDistanceFromNpcCentre } from "../shared/npcAttack.js";
 import { scheduleNextActionTick, buildNpcProjectileVisual, getProjectileSourcePosition, buildActorVisualTarget, faceActorToward } from "../shared/npcHelpers.js";
@@ -264,32 +263,6 @@ function buildPlan(attack, maxHitOverride, attacker, target) {
   return { plan, visual, graphics };
 }
 
-// When the straight walk is blocked (a pillar, a wall between them and no
-// line of sight), one step along the route search toward the target, as the
-// Colosseum's minotaur does with its modifier Red Flag (colosseum/minotaur.js).
-function routeAround(actor, target, context) {
-  const occupancy = context.world.occupancy;
-  const [ownX, ownY] = actor.position;
-  const isOwnTile = (x, y) => x >= ownX && x < ownX + actor.size && y >= ownY && y < ownY + actor.size;
-  const isClearOfOthers = ([x, y], size) => {
-    for (let dx = 0; dx < size; dx++) {
-      for (let dy = 0; dy < size; dy++) {
-        if (occupancy.isBlocked(x + dx, y + dy) && !isOwnTile(x + dx, y + dy)) return false;
-      }
-    }
-    return true;
-  };
-  const route = findNpcRouteToMeleeRange({
-    source: actor.position,
-    destination: [...target.position],
-    size: actor.size,
-    canOccupy: (tile, size) => isArenaFootprintWalkable(tile, size) && isClearOfOthers(tile, size),
-    moveNear: true,
-  });
-  const step = route.kind === "failed" ? undefined : route.steps[0];
-  return step ? [{ npcId: actor.id, path: [step] }] : [];
-}
-
 export const brawlerNpcDefinition = defineNpc({
   id: "sandbox-brawler",
   // The scene plays the death; the encounter takes the body away (encounter.js).
@@ -307,8 +280,7 @@ export const brawlerNpcDefinition = defineNpc({
     if (support) {
       actor.combat.targetId = null;
       if (entry.immobile || isNpcInAttackRange(actor, support, entry.supports.reach)) return [];
-      const moves = getNpcPursuitMoves(actor, context, support);
-      return moves.length > 0 ? moves : routeAround(actor, support, context);
+      return getNpcPursuitMoves(actor, context, support);
     }
     // An NPC that never moves in its own fight (TzKal-Zuk) stays where it was placed.
     if (entry.immobile) {
@@ -320,9 +292,10 @@ export const brawlerNpcDefinition = defineNpc({
     if (!target) return [];
     // Still while an attack of tiles is on its way (special: Sol Heredit's spear and shield).
     if (context.tick < (actor.state.immobileUntilTick ?? 0)) return [];
-    const moves = getNpcPursuitMoves(actor, context, target);
-    if (moves.length > 0 || isNpcInAttackRange(actor, target, actor.combat.attackRange)) return moves;
-    return routeAround(actor, target, context);
+    // The straight walk only, as in the monsters' own fights: one whose step
+    // is blocked (a boulder, a wall, another monster) stands still. It does
+    // not find a way round, so that it can be stuck behind an obstacle.
+    return getNpcPursuitMoves(actor, context, target);
   },
   tick: ({ actor, context, config }) => {
     const idle = { environmentalDamages: [] };

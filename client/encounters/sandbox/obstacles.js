@@ -9,7 +9,7 @@
 // Each is an NPC that never acts and cannot be attacked (toa/zebak/phases.js
 // loads both the same way, with no sequence), and its tile is flagged in
 // the arena's collision (encounter.js, refineArenaConfig), so that the
-// player and every monster walk around it. The line of sight
+// player walks around it and a monster is stopped by it. The line of sight
 // (engine/attackRange.js) asks the projectile flags only.
 import { CollisionFlag, createCollisionMap } from "../../engine/collision.js";
 import { defineNpc } from "../shared/npcDefinitions.js";

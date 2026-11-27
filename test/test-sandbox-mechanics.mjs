@@ -120,6 +120,20 @@ const spectating = { mode: "ffa", options: { ffaIncludesPlayer: false } };
   assert.ok(engine.worldState.getNpc("meleer").position[1] < 37, "it comes up on the player's side");
 }
 
+// A monster that does not dig finds no way round: the jaguar behind the same
+// wall walks up to it and stays there, as in its own fight.
+{
+  const wall = [];
+  for (let x = 18; x <= 36; x++) wall.push([x, 37]);
+  const positions = [];
+  const { engine } = run({ mode: "versus", obstacles: wall, npcs: [{ id: "jaguar", npc: "colosseum.jaguar", position: [26, 40] }] }, 70, {
+    each: (engine) => positions.push([...engine.worldState.getNpc("jaguar").position]),
+  });
+  assert.ok(engine.getState().playerPosition[1] < 37, "the player is on the other side");
+  assert.ok(positions.every(([, y]) => y > 37), "it never comes to the player's side");
+  assert.deepEqual(positions.slice(-30), Array.from({ length: 30 }, () => positions.at(-1)), "it stands still at the wall");
+}
+
 // Vardorvis heals half of what he deals, to the player and to a monster.
 {
   const { heals } = run({ mode: "versus", npcs: [{ id: "vard", npc: "vardorvis", position: [27, 33] }] }, 40, {

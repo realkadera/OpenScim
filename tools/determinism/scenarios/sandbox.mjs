@@ -81,7 +81,7 @@ export async function scenarios() {
       script: shootNearest((npc) => !allies.has(npc.id)),
     },
     {
-      // Walls of boulders: the monsters walk around them, and the player shoots past them.
+      // Walls of boulders: the monsters are stopped by them, and the player shoots past them.
       name: "sandbox/obstacles",
       kind: sandboxVariantKind("colosseum"),
       seed: 13,
