@@ -16,7 +16,7 @@ try {
     assert.ok(body.includes(marker));
     await route.fulfill({response, body:body.replace(marker, marker + "window.engine=this;window.weaponStyles=getWeaponCategoryDefinition;")});
   });
-  await page.goto("http://127.0.0.1:8791/zebak/");
+  await page.goto(process.env.TEST_ORIGIN + "/zebak/");
   await page.waitForFunction(() => window.engine?.objTypeLoader && engine.worldState.actors.has("zebak"));
   const result = await page.evaluate(() => {
     const p = engine.player();

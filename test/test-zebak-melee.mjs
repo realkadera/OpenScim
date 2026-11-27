@@ -16,7 +16,7 @@ try {
     assert.ok(body.includes(marker));
     await route.fulfill({response,body:body.replace(marker, marker + "if(options.encounter.kind==='zebak')window.engine=this;")});
   });
-  await page.goto("http://127.0.0.1:8791/zebak/");
+  await page.goto(process.env.TEST_ORIGIN + "/zebak/");
   await page.waitForFunction(() => document.body.innerText.includes("580/580"));
   await page.getByText(/Did you know\?/).first().waitFor({state:"hidden",timeout:45000});
   await page.mouse.click(600,360);

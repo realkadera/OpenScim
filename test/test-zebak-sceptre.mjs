@@ -22,7 +22,7 @@ try {
       ),
     });
   });
-  await page.goto("http://127.0.0.1:8791/zebak/");
+  await page.goto(process.env.TEST_ORIGIN + "/zebak/");
   await page.waitForFunction(() => document.body.innerText.includes("580/580"));
   const result = await page.evaluate(() => {
     const player = engine.player();

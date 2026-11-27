@@ -8,7 +8,7 @@ import { readdirSync } from "node:fs";
 import { chromium } from "playwright-core";
 import { serveFixture } from "./fixtures/register.mjs";
 
-const origin = "http://127.0.0.1:8791";
+const origin = process.env.TEST_ORIGIN;
 const browser = await chromium.launch({
   executablePath: process.env.CHROME_PATH || "C:/Program Files/Google/Chrome/Application/chrome.exe",
   args: ["--enable-unsafe-swiftshader"],

@@ -43,7 +43,7 @@ try {
       await route.fulfill({response, body: source.replace(marker, marker + extra)});
     });
   }
-  await page.goto("http://127.0.0.1:8791/zebak/");
+  await page.goto(process.env.TEST_ORIGIN + "/zebak/");
   await page.waitForFunction(() => document.body.innerText.includes("580/580"));
   await page.mouse.click(640, 425);
   for (const enraged of [false, true]) {

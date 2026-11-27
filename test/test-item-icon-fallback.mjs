@@ -9,7 +9,7 @@ try {
   const page = await browser.newPage();
   // Pretend the local copy is missing, whatever is on disk.
   await page.route("**/assets/items/4151.png", route => route.fulfill({ status: 404 }));
-  await page.goto("http://127.0.0.1:8791/");
+  await page.goto(process.env.TEST_ORIGIN + "/");
   await page.waitForFunction(() => document.querySelector("#root")?.childElementCount > 0);
   const result = await page.evaluate(() => new Promise(resolve => {
     const image = new Image();

@@ -56,7 +56,7 @@ test("the inventory panel drags as the client does", async () => {
   });
   try {
     const page = await browser.newPage({ viewport: { width: 1600, height: 900 } });
-    await page.goto("http://127.0.0.1:8791/zebak/");
+    await page.goto(process.env.TEST_ORIGIN + "/zebak/");
     await page.waitForSelector('button[aria-label^="Item "]');
     await page.waitForTimeout(1500);
     const read = () =>

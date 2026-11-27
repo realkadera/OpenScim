@@ -8,7 +8,7 @@
 import assert from "node:assert/strict";
 import { chromium } from "playwright-core";
 
-const origin = "http://127.0.0.1:8791";
+const origin = process.env.TEST_ORIGIN;
 
 const probes = [
   ["**/engine/SimulationEngine.js*", "this.encounter = options.encounter;", (marker) => marker + "if (options.encounter.kind === 'colosseum') window.engine = this;"],

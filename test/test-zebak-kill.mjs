@@ -40,7 +40,7 @@ try {
   }
   for (const action of ["Push", "Pull", "Wave"]) {
     const kind = action === "Wave" ? "waves" : "roar";
-    await page.goto("http://127.0.0.1:8791/zebak/");
+    await page.goto(process.env.TEST_ORIGIN + "/zebak/");
     await page.waitForFunction(() => document.body.innerText.includes("580/580"));
     await page.waitForTimeout(2500);
     let bossPoint;

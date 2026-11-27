@@ -7,7 +7,7 @@ const browser = await chromium.launch({
 });
 try {
   const page = await browser.newPage();
-  await page.goto("http://127.0.0.1:8791/zebak/?sound=toa_zebak");
+  await page.goto(process.env.TEST_ORIGIN + "/zebak/?sound=toa_zebak");
   const rows = page.locator(".cache-explorer-modal .sidebar-item");
   await page.waitForFunction(() => document.querySelectorAll(".cache-explorer-modal .sidebar-item").length === 105);
   const decoded = await page.evaluate(async () => {

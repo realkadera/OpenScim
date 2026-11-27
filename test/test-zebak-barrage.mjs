@@ -80,7 +80,7 @@ try {
       await route.fulfill({response:res,body:source});
     });
   }
-  await page.goto("http://127.0.0.1:8791/zebak/");
+  await page.goto(process.env.TEST_ORIGIN + "/zebak/");
   await page.waitForFunction(() => document.body.innerText.includes("580/580"));
   await page.getByText(/Did you know\?/).first().waitFor({state:"hidden",timeout:45000});
   await page.waitForTimeout(300);

@@ -3,7 +3,7 @@
 import assert from "node:assert/strict";
 import { chromium } from "playwright-core";
 
-const origin = "http://127.0.0.1:8791";
+const origin = process.env.TEST_ORIGIN;
 const TICK_MS = 600; // WIKI: a game tick is 0.6 s
 const browser = await chromium.launch({
   executablePath: process.env.CHROME_PATH || "C:/Program Files/Google/Chrome/Application/chrome.exe",

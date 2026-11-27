@@ -33,7 +33,7 @@ try {
       assert.ok(body.includes(marker));
       await route.fulfill({response,body:body.replace(marker,marker + "window.engine = this;")});
     });
-    await page.goto("http://127.0.0.1:8791/" + fight + "/");
+    await page.goto(process.env.TEST_ORIGIN + "/" + fight + "/");
     const orb = page.locator('canvas[aria-label="Special Attack"]');
     await orb.first().waitFor();
     await page.locator('.loading-screen').waitFor({state:'hidden'});

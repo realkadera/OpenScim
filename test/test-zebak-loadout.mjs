@@ -23,7 +23,7 @@ try {
     assert.ok(code.includes("function adjustEquipmentStatsForAttack("));
     await route.fulfill({ response, body: code + "\nwindow.effectiveGearStats = adjustEquipmentStatsForAttack;" });
   });
-  await page.goto("http://127.0.0.1:8791/zebak/");
+  await page.goto(process.env.TEST_ORIGIN + "/zebak/");
   await page.waitForFunction(() => document.body.innerText.includes("580/580"));
   const gear = { head:21018, cape:21791, amulet:12002, weapon:27275, body:21021,
     legs:21024, hands:31106, boots:31097, ring:28313 };

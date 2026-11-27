@@ -67,7 +67,7 @@ assert.equal(nameNewAutoMarkers(new Set(["wave 4", "healers 90"]), reached), nul
 replayMarkerStore.setSettings({ ...replayMarkerStore.getState().settings, autoMarkers: false });
 assert.equal(nameNewAutoMarkers(new Set(), reached), null);
 
-const origin = "http://127.0.0.1:8791";
+const origin = process.env.TEST_ORIGIN;
 const browser = await chromium.launch({
   executablePath: process.env.CHROME_PATH || "C:/Program Files/Google/Chrome/Application/chrome.exe",
   args: ["--enable-unsafe-swiftshader"],
