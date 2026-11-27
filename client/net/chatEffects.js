@@ -101,10 +101,11 @@ export function overheadChatText(display, elapsedMs, clockMs) {
     }
     case "slide": {
       // Drops in from above in the first 25 cycles and out below in the
-      // last 25, cut off 1 px above the text's place and 5 px below it.
+      // last 25, cut off 1 px above the text's place and 5 px below its
+      // baseline (the line's bottom is 4 px under the baseline).
       const y = elapsed < 25 ? elapsed - 25 : elapsed > 125 ? elapsed - 125 : 0;
       out.transform = `translate(-50%, calc(-100% + ${y}px))`;
-      out.clipPath = `inset(${Math.max(0, -1 - y)}px 0 ${Math.max(0, y - 5)}px 0)`;
+      out.clipPath = `inset(${Math.max(0, -1 - y)}px 0 ${Math.max(0, y - 1)}px 0)`;
       break;
     }
   }

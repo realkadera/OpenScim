@@ -54672,7 +54672,10 @@ var LobbySceneCompositor = class extends SceneCompositor {
         return;
       }
       n.overheadTexts ||= [];
-      n.overheadTexts.push({ screenX: point.x, screenY: point.y, ...text, fontSize: UIOverlayRenderer.OSRS_OVERHEAD_TEXT_FONT_SIZE, key: key });
+      // OBS (the game's client, drawActor2d): the text's baseline is 2 px under the point of the model's top. The
+      // overlay hangs the bottom of a 16 px line (baseline 4 px above it) on its point, so the point is 6 px lower;
+      // whole pixels, so the letters and their shadow are not smeared.
+      n.overheadTexts.push({ screenX: Math.round(point.x), screenY: Math.round(point.y) + 6, ...text, fontSize: UIOverlayRenderer.OSRS_OVERHEAD_TEXT_FONT_SIZE, key: key });
     };
     const own = lobbyChatOverheadText(null, now);
     const center = this.lastPlayerVisualCenter;

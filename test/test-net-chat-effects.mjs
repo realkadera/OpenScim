@@ -85,7 +85,7 @@ assert.deepEqual(overheadChatText(parseChatEffects("wave:éx"), 0, 0).segments.
   assert.equal(at(60).transform, "translate(-50%, calc(-100% + 0px))");
   assert.equal(at(60).clipPath, "inset(0px 0 0px 0)");
   assert.equal(at(140).transform, "translate(-50%, calc(-100% + 15px))");
-  assert.equal(at(140).clipPath, "inset(0px 0 10px 0)");
+  assert.equal(at(140).clipPath, "inset(0px 0 14px 0)");
 }
 
 // Nothing throws on what is not a display.
