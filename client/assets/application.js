@@ -4489,6 +4489,12 @@ var ITEM_WIELD_REQUIREMENTS = {
   29801: {
     hitpoints: 90,
   },
+  33639: { // Necklace of rupture (WIKI: Necklace of rupture)
+    hitpoints: 90,
+  },
+  30955: { // Arkan blade (WIKI: Arkan blade)
+    attack: 60,
+  },
   29804: {
     hitpoints: 90,
   },
