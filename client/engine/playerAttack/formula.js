@@ -67,6 +67,7 @@ function getDragonHunterStages(formulaStageInput) {
   };
 }
 var twistedBowIdSet = new Set([20997, 28540]);
+var XERICIAN_ATTRIBUTE = "xerician";
 var crystalBowIdSet = new Set([23983, 24123, 25865, 25867, 27187]);
 var CRYSTAL_HELM_ID = 23971;
 var CRYSTAL_BODY_ID = 23975;
@@ -141,9 +142,13 @@ function getTwistedBowStages(formulaStageInput) {
   if (formulaStageInput.weaponId === undefined || !twistedBowIdSet.has(formulaStageInput.weaponId)) {
     return null;
   }
+  // WIKI (Twisted bow): the target's Magic counts up to 250, and up to 350
+  // "within the Chambers of Xeric" (12 April 2018). Inferred: the monster
+  // table's attribute "xerician" is what marks a monster of the Chambers.
+  const magicCap = formulaStageInput.targetAttributes.includes(XERICIAN_ATTRIBUTE) ? 350 : 250;
   const targetMagic = Math.min(
     Math.max(formulaStageInput.targetMagicLevel, formulaStageInput.targetMagicAttackBonus),
-    250,
+    magicCap,
   );
   const accuracyPercent = twistedBowScalingPercent(targetMagic, true);
   const damagePercent = twistedBowScalingPercent(targetMagic, false);
