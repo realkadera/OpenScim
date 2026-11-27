@@ -4,6 +4,7 @@ import { attackRangesDefaults, readAttackRangesSettings, isAttackDragProtected }
 import { projectileOverrideDefaults, readProjectileOverrideSettings } from "/plugins/projectileOverride.js";
 import { getDefenceTrackerInfoboxes } from "/plugins/defenceTracker.js";
 import { pickLobbyObject } from "/lobby/gateways.js";
+import { lobbyBeforeTick, lobbyAfterTick } from "/net/lobbyLink.js";
 import { replayMarkerStore, findUndoFrameIndex, addMarker, isOnTimeline, pickMarker, pickAutoMarker, nameNewAutoMarkers, describeMarker, isRollbackHeld, holdAfterRollback, releaseRollback, showReplayMessage } from "/replay/markers.js";
 import { createTickLogPanel } from "/replay/tickLogPanel.js";
 import { createTraceStrip } from "/replay/traceStrip.js";
@@ -21983,6 +21984,19 @@ function useSimulationWiring({
         h5();
         gd.current.flush(i2);
         const state11 = current44.getState();
+        // Follow in the lobby (client/net/lobbyLink.js): the leader's tile each tick, by the click-to-walk
+        // path. Null in every other scene, and in the lobby when not following.
+        const lobbyFollow = lobbyBeforeTick(current44.getEncounterKind(), state11);
+        if (lobbyFollow) {
+          fE.current = lobbyFollow.tile;
+          if (lobbyFollow.changed) {
+            gM.recordAction({
+              type: "ctrlClick",
+              ctrlKey: lobbyFollow.ctrlClickOverride,
+            });
+            current44.setCtrlClickOverride(lobbyFollow.ctrlClickOverride);
+          }
+        }
         const i7 = fE.current ?? state11.playerPosition;
         current44.advanceTick(i7);
         if (current44.isLastTickInputLocked()) {
@@ -22089,6 +22103,9 @@ function useSimulationWiring({
         hE.fwbxk(gx);
         gK(state12);
         rse.publish(state12.currentTick, i9);
+        // The lobby's presence (client/net/lobbyLink.js): the local player after this tick; a no-op
+        // outside the lobby and without a presence.
+        lobbyAfterTick(encounterKind2, state11, state12, playerConfig.appearance);
         ERe.QN(state12.currentTick, i2, hG);
         gM.recordFrameTiming({
           lateByMs: i2 - i4,
