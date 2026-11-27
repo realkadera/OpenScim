@@ -140,6 +140,20 @@ try {
     assert.equal(angles.remoteWant, Math.trunc((Math.atan2(256, 128) * 1024) / Math.PI) & 2047, "an angle that is not one of eight");
     assert.equal(angles.remote?.targetAngle, angles.remoteWant, "a remote player turns to the player it faces");
     assert.equal(angles.remote.facingAngle, angles.remoteWant, "and has turned");
+    // Stepping away from the player it faces, it walks backward (OBS: the game's client chooses the walk by the
+    // step's direction against the drawn angle); toward it, forward.
+    const stepOf7 = (dx) =>
+      page.evaluate((dx) => {
+        const p = window.lobbyFake.players.get(7);
+        const tile = [p.tile[0] + dx, p.tile[1]];
+        window.lobbyFake.players.set(7, { ...p, fromTile: p.tile, steps: [tile], tile, run: false, snapped: false, lastTick: 1000 + tile[0] });
+      }, dx);
+    const walks7 = (how) => page.waitForFunction((how) => window.lobbyFake.remotes.presentedRemotePlayers().find((e) => e.id === 7)?.state?.locomotionState === how, how, { timeout: 10000, polling: "raf" });
+    await stepOf7(1);
+    await walks7("walkBack");
+    await page.waitForTimeout(900);
+    await stepOf7(-1);
+    await walks7("walk");
     await page.evaluate(() => window.lobbyFake.players.delete(7));
 
     // Another player on the local player's own tile is not drawn over it (the local player is the one seen), and

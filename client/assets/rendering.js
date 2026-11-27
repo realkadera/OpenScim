@@ -35730,7 +35730,8 @@ var PlayerVisualTracker = class {
   }
   computeMovementSpeed(e) {
     let a = 4;
-    if (this.currentTurnTarget() !== this._renderAngle && this.turnSpeed !== 0 && !this.isEffectivelyInteracting()) {
+    // OBS (the game's client): half speed while the drawn angle is not yet the step's direction, only without a target.
+    if (this._targetAngle !== this._renderAngle && this.turnSpeed !== 0 && !this.isEffectivelyInteracting()) {
       a = 2;
     }
     if (this.pathLength > 2) {
@@ -35787,7 +35788,9 @@ var PlayerVisualTracker = class {
     if (this.pathLength === 0) {
       return null;
     }
-    const e = (this.currentTurnTarget() - this._renderAngle) & zW;
+    // OBS (the game's client): the walk, sideways or backward sequence is chosen by the step's direction
+    // against the drawn angle, not by a faced target's: a player stepping away from its target walks back.
+    const e = (this._targetAngle - this._renderAngle) & zW;
     const a = e > wW ? e - yW : e;
     if (a >= -256 && a <= 256) {
       return "walk";
