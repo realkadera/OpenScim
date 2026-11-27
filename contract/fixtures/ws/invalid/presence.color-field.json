@@ -1,0 +1,24 @@
+{
+  "name": "presence.color-field",
+  "direction": "client",
+  "why": "no styling from the network: an extra color field",
+  "expect": {
+    "error": "invalid_message"
+  },
+  "body": {
+    "t": "presence",
+    "tile": [
+      31,
+      26
+    ],
+    "steps": [
+      [
+        31,
+        26
+      ]
+    ],
+    "run": false,
+    "facing": 1024,
+    "color": "#ff0000"
+  }
+}

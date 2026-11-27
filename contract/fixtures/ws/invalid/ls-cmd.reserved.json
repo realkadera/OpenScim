@@ -1,0 +1,12 @@
+{
+  "name": "ls-cmd.reserved",
+  "direction": "client",
+  "why": "lockstep is reserved but not served",
+  "expect": {
+    "error": "unsupported"
+  },
+  "body": {
+    "t": "ls_cmd",
+    "cmds": []
+  }
+}

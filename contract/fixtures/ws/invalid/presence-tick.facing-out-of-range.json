@@ -1,0 +1,21 @@
+{
+  "name": "presence-tick.facing-out-of-range",
+  "direction": "server",
+  "why": "facing above 2047",
+  "body": {
+    "t": "presence_tick",
+    "tick": 1,
+    "d": [
+      {
+        "id": 7,
+        "tile": [
+          31,
+          26
+        ],
+        "steps": [],
+        "run": false,
+        "facing": 4096
+      }
+    ]
+  }
+}

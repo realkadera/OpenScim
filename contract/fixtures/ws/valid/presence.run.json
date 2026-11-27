@@ -1,0 +1,24 @@
+{
+  "name": "presence.run",
+  "direction": "client",
+  "when": "one tick running north-east: two steps",
+  "body": {
+    "t": "presence",
+    "tile": [
+      33,
+      27
+    ],
+    "steps": [
+      [
+        32,
+        26
+      ],
+      [
+        33,
+        27
+      ]
+    ],
+    "run": true,
+    "facing": 1280
+  }
+}

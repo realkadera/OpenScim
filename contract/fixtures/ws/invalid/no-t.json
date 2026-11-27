@@ -1,0 +1,11 @@
+{
+  "name": "no-t",
+  "direction": "client",
+  "why": "no t",
+  "expect": {
+    "error": "invalid_message"
+  },
+  "body": {
+    "proto": 1
+  }
+}

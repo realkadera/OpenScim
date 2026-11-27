@@ -1,0 +1,14 @@
+{
+  "name": "hello.proto-2",
+  "direction": "client",
+  "why": "proto is not 1: a newer client",
+  "expect": {
+    "close": 4010
+  },
+  "body": {
+    "t": "hello",
+    "proto": 2,
+    "build": "a4e56ed",
+    "enc": "json"
+  }
+}

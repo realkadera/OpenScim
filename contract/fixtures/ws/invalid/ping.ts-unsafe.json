@@ -1,0 +1,12 @@
+{
+  "name": "ping.ts-unsafe",
+  "direction": "client",
+  "why": "ts above 2^53 - 1",
+  "expect": {
+    "error": "invalid_message"
+  },
+  "body": {
+    "t": "ping",
+    "ts": 9007199254740992
+  }
+}

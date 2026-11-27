@@ -1,0 +1,9 @@
+{
+  "name": "ping",
+  "direction": "client",
+  "when": "application ping every 10 s; ts is the client's clock in whole ms",
+  "body": {
+    "t": "ping",
+    "ts": 1800000000000
+  }
+}

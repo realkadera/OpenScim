@@ -1,0 +1,12 @@
+{
+  "name": "join.lobby",
+  "direction": "client",
+  "when": "join the lobby; the server picks the instance",
+  "body": {
+    "t": "join",
+    "rid": 1,
+    "room": {
+      "kind": "lobby"
+    }
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "name": "member-join.fresh",
+  "direction": "server",
+  "when": "someone joined before sending appearance or presence",
+  "body": {
+    "t": "member_join",
+    "member": {
+      "id": 8,
+      "name": "Zezima",
+      "appearance": null,
+      "equipment": null,
+      "tile": null,
+      "facing": null
+    }
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "name": "presence.tile-three-coords",
+  "direction": "client",
+  "why": "a tile is [x, y], not [x, y, plane]",
+  "expect": {
+    "error": "invalid_message"
+  },
+  "body": {
+    "t": "presence",
+    "tile": [
+      31,
+      26,
+      0
+    ],
+    "steps": [],
+    "run": false,
+    "facing": 1024
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "name": "emote.unknown-type",
+  "direction": "client",
+  "why": "a type protocol 1 does not name: a newer client",
+  "expect": {
+    "error": "unknown_type"
+  },
+  "body": {
+    "t": "emote",
+    "rid": 5,
+    "kind": "wave"
+  }
+}

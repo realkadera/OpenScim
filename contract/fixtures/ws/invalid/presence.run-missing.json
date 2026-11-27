@@ -1,0 +1,17 @@
+{
+  "name": "presence.run-missing",
+  "direction": "client",
+  "why": "run is missing",
+  "expect": {
+    "error": "invalid_message"
+  },
+  "body": {
+    "t": "presence",
+    "tile": [
+      31,
+      26
+    ],
+    "steps": [],
+    "facing": 1024
+  }
+}

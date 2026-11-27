@@ -1,0 +1,10 @@
+{
+  "name": "presence-tick.empty",
+  "direction": "server",
+  "why": "empty ticks are not sent",
+  "body": {
+    "t": "presence_tick",
+    "tick": 1,
+    "d": []
+  }
+}

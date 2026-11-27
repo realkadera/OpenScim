@@ -1,0 +1,14 @@
+{
+  "name": "hello.build-too-long",
+  "direction": "client",
+  "why": "build is longer than 64 characters",
+  "expect": {
+    "error": "invalid_message"
+  },
+  "body": {
+    "t": "hello",
+    "proto": 1,
+    "build": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "enc": "json"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "name": "join.room-missing",
+  "direction": "client",
+  "why": "room is missing",
+  "expect": {
+    "error": "invalid_message"
+  },
+  "body": {
+    "t": "join",
+    "rid": 1
+  }
+}

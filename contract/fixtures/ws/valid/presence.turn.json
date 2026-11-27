@@ -1,0 +1,15 @@
+{
+  "name": "presence.turn",
+  "direction": "client",
+  "when": "standing still, facing south",
+  "body": {
+    "t": "presence",
+    "tile": [
+      31,
+      25
+    ],
+    "steps": [],
+    "run": false,
+    "facing": 0
+  }
+}

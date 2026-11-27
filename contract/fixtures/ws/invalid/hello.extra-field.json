@@ -1,0 +1,15 @@
+{
+  "name": "hello.extra-field",
+  "direction": "client",
+  "why": "an unknown field",
+  "expect": {
+    "error": "invalid_message"
+  },
+  "body": {
+    "t": "hello",
+    "proto": 1,
+    "build": "a4e56ed",
+    "enc": "json",
+    "token": "x"
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "name": "member-leave.id-string",
+  "direction": "server",
+  "why": "id is a number",
+  "body": {
+    "t": "member_leave",
+    "id": "7"
+  }
+}

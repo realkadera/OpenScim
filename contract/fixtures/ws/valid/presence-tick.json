@@ -1,0 +1,40 @@
+{
+  "name": "presence-tick",
+  "direction": "server",
+  "when": "the members that moved this tick",
+  "body": {
+    "t": "presence_tick",
+    "tick": 1235,
+    "d": [
+      {
+        "id": 7,
+        "tile": [
+          33,
+          27
+        ],
+        "steps": [
+          [
+            32,
+            26
+          ],
+          [
+            33,
+            27
+          ]
+        ],
+        "run": true,
+        "facing": 1280
+      },
+      {
+        "id": 8,
+        "tile": [
+          30,
+          25
+        ],
+        "steps": [],
+        "run": false,
+        "facing": 512
+      }
+    ]
+  }
+}

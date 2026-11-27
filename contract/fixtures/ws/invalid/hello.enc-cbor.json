@@ -1,0 +1,14 @@
+{
+  "name": "hello.enc-cbor",
+  "direction": "client",
+  "why": "enc is not json",
+  "expect": {
+    "close": 4010
+  },
+  "body": {
+    "t": "hello",
+    "proto": 1,
+    "build": "a4e56ed",
+    "enc": "cbor"
+  }
+}

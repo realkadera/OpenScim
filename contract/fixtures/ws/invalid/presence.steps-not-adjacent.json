@@ -1,0 +1,27 @@
+{
+  "name": "presence.steps-not-adjacent",
+  "direction": "client",
+  "why": "consecutive steps more than one tile apart",
+  "expect": {
+    "error": "invalid_message"
+  },
+  "body": {
+    "t": "presence",
+    "tile": [
+      31,
+      28
+    ],
+    "steps": [
+      [
+        31,
+        26
+      ],
+      [
+        31,
+        28
+      ]
+    ],
+    "run": false,
+    "facing": 1024
+  }
+}

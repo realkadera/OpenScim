@@ -1,0 +1,12 @@
+{
+  "name": "ping.ts-float",
+  "direction": "client",
+  "why": "ts is not whole milliseconds",
+  "expect": {
+    "error": "invalid_message"
+  },
+  "body": {
+    "t": "ping",
+    "ts": 1.5
+  }
+}

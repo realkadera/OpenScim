@@ -1,0 +1,415 @@
+{
+  "name": "joined.too-many-members",
+  "direction": "server",
+  "why": "more than 49 others",
+  "body": {
+    "t": "joined",
+    "room": {
+      "id": "lobby-1",
+      "kind": "lobby",
+      "instance": 1
+    },
+    "members": [
+      {
+        "id": 1,
+        "name": "Zezima",
+        "appearance": null,
+        "equipment": null,
+        "tile": null,
+        "facing": null
+      },
+      {
+        "id": 2,
+        "name": "Zezima",
+        "appearance": null,
+        "equipment": null,
+        "tile": null,
+        "facing": null
+      },
+      {
+        "id": 3,
+        "name": "Zezima",
+        "appearance": null,
+        "equipment": null,
+        "tile": null,
+        "facing": null
+      },
+      {
+        "id": 4,
+        "name": "Zezima",
+        "appearance": null,
+        "equipment": null,
+        "tile": null,
+        "facing": null
+      },
+      {
+        "id": 5,
+        "name": "Zezima",
+        "appearance": null,
+        "equipment": null,
+        "tile": null,
+        "facing": null
+      },
+      {
+        "id": 6,
+        "name": "Zezima",
+        "appearance": null,
+        "equipment": null,
+        "tile": null,
+        "facing": null
+      },
+      {
+        "id": 7,
+        "name": "Zezima",
+        "appearance": null,
+        "equipment": null,
+        "tile": null,
+        "facing": null
+      },
+      {
+        "id": 8,
+        "name": "Zezima",
+        "appearance": null,
+        "equipment": null,
+        "tile": null,
+        "facing": null
+      },
+      {
+        "id": 9,
+        "name": "Zezima",
+        "appearance": null,
+        "equipment": null,
+        "tile": null,
+        "facing": null
+      },
+      {
+        "id": 10,
+        "name": "Zezima",
+        "appearance": null,
+        "equipment": null,
+        "tile": null,
+        "facing": null
+      },
+      {
+        "id": 11,
+        "name": "Zezima",
+        "appearance": null,
+        "equipment": null,
+        "tile": null,
+        "facing": null
+      },
+      {
+        "id": 12,
+        "name": "Zezima",
+        "appearance": null,
+        "equipment": null,
+        "tile": null,
+        "facing": null
+      },
+      {
+        "id": 13,
+        "name": "Zezima",
+        "appearance": null,
+        "equipment": null,
+        "tile": null,
+        "facing": null
+      },
+      {
+        "id": 14,
+        "name": "Zezima",
+        "appearance": null,
+        "equipment": null,
+        "tile": null,
+        "facing": null
+      },
+      {
+        "id": 15,
+        "name": "Zezima",
+        "appearance": null,
+        "equipment": null,
+        "tile": null,
+        "facing": null
+      },
+      {
+        "id": 16,
+        "name": "Zezima",
+        "appearance": null,
+        "equipment": null,
+        "tile": null,
+        "facing": null
+      },
+      {
+        "id": 17,
+        "name": "Zezima",
+        "appearance": null,
+        "equipment": null,
+        "tile": null,
+        "facing": null
+      },
+      {
+        "id": 18,
+        "name": "Zezima",
+        "appearance": null,
+        "equipment": null,
+        "tile": null,
+        "facing": null
+      },
+      {
+        "id": 19,
+        "name": "Zezima",
+        "appearance": null,
+        "equipment": null,
+        "tile": null,
+        "facing": null
+      },
+      {
+        "id": 20,
+        "name": "Zezima",
+        "appearance": null,
+        "equipment": null,
+        "tile": null,
+        "facing": null
+      },
+      {
+        "id": 21,
+        "name": "Zezima",
+        "appearance": null,
+        "equipment": null,
+        "tile": null,
+        "facing": null
+      },
+      {
+        "id": 22,
+        "name": "Zezima",
+        "appearance": null,
+        "equipment": null,
+        "tile": null,
+        "facing": null
+      },
+      {
+        "id": 23,
+        "name": "Zezima",
+        "appearance": null,
+        "equipment": null,
+        "tile": null,
+        "facing": null
+      },
+      {
+        "id": 24,
+        "name": "Zezima",
+        "appearance": null,
+        "equipment": null,
+        "tile": null,
+        "facing": null
+      },
+      {
+        "id": 25,
+        "name": "Zezima",
+        "appearance": null,
+        "equipment": null,
+        "tile": null,
+        "facing": null
+      },
+      {
+        "id": 26,
+        "name": "Zezima",
+        "appearance": null,
+        "equipment": null,
+        "tile": null,
+        "facing": null
+      },
+      {
+        "id": 27,
+        "name": "Zezima",
+        "appearance": null,
+        "equipment": null,
+        "tile": null,
+        "facing": null
+      },
+      {
+        "id": 28,
+        "name": "Zezima",
+        "appearance": null,
+        "equipment": null,
+        "tile": null,
+        "facing": null
+      },
+      {
+        "id": 29,
+        "name": "Zezima",
+        "appearance": null,
+        "equipment": null,
+        "tile": null,
+        "facing": null
+      },
+      {
+        "id": 30,
+        "name": "Zezima",
+        "appearance": null,
+        "equipment": null,
+        "tile": null,
+        "facing": null
+      },
+      {
+        "id": 31,
+        "name": "Zezima",
+        "appearance": null,
+        "equipment": null,
+        "tile": null,
+        "facing": null
+      },
+      {
+        "id": 32,
+        "name": "Zezima",
+        "appearance": null,
+        "equipment": null,
+        "tile": null,
+        "facing": null
+      },
+      {
+        "id": 33,
+        "name": "Zezima",
+        "appearance": null,
+        "equipment": null,
+        "tile": null,
+        "facing": null
+      },
+      {
+        "id": 34,
+        "name": "Zezima",
+        "appearance": null,
+        "equipment": null,
+        "tile": null,
+        "facing": null
+      },
+      {
+        "id": 35,
+        "name": "Zezima",
+        "appearance": null,
+        "equipment": null,
+        "tile": null,
+        "facing": null
+      },
+      {
+        "id": 36,
+        "name": "Zezima",
+        "appearance": null,
+        "equipment": null,
+        "tile": null,
+        "facing": null
+      },
+      {
+        "id": 37,
+        "name": "Zezima",
+        "appearance": null,
+        "equipment": null,
+        "tile": null,
+        "facing": null
+      },
+      {
+        "id": 38,
+        "name": "Zezima",
+        "appearance": null,
+        "equipment": null,
+        "tile": null,
+        "facing": null
+      },
+      {
+        "id": 39,
+        "name": "Zezima",
+        "appearance": null,
+        "equipment": null,
+        "tile": null,
+        "facing": null
+      },
+      {
+        "id": 40,
+        "name": "Zezima",
+        "appearance": null,
+        "equipment": null,
+        "tile": null,
+        "facing": null
+      },
+      {
+        "id": 41,
+        "name": "Zezima",
+        "appearance": null,
+        "equipment": null,
+        "tile": null,
+        "facing": null
+      },
+      {
+        "id": 42,
+        "name": "Zezima",
+        "appearance": null,
+        "equipment": null,
+        "tile": null,
+        "facing": null
+      },
+      {
+        "id": 43,
+        "name": "Zezima",
+        "appearance": null,
+        "equipment": null,
+        "tile": null,
+        "facing": null
+      },
+      {
+        "id": 44,
+        "name": "Zezima",
+        "appearance": null,
+        "equipment": null,
+        "tile": null,
+        "facing": null
+      },
+      {
+        "id": 45,
+        "name": "Zezima",
+        "appearance": null,
+        "equipment": null,
+        "tile": null,
+        "facing": null
+      },
+      {
+        "id": 46,
+        "name": "Zezima",
+        "appearance": null,
+        "equipment": null,
+        "tile": null,
+        "facing": null
+      },
+      {
+        "id": 47,
+        "name": "Zezima",
+        "appearance": null,
+        "equipment": null,
+        "tile": null,
+        "facing": null
+      },
+      {
+        "id": 48,
+        "name": "Zezima",
+        "appearance": null,
+        "equipment": null,
+        "tile": null,
+        "facing": null
+      },
+      {
+        "id": 49,
+        "name": "Zezima",
+        "appearance": null,
+        "equipment": null,
+        "tile": null,
+        "facing": null
+      },
+      {
+        "id": 50,
+        "name": "Zezima",
+        "appearance": null,
+        "equipment": null,
+        "tile": null,
+        "facing": null
+      }
+    ]
+  }
+}

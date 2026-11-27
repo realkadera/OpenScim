@@ -1,0 +1,9 @@
+{
+  "name": "error.missing-code",
+  "direction": "server",
+  "why": "code is missing",
+  "body": {
+    "t": "error",
+    "msg": "Invalid message."
+  }
+}

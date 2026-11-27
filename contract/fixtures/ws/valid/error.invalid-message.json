@@ -1,0 +1,11 @@
+{
+  "name": "error.invalid-message",
+  "direction": "server",
+  "when": "a refused message: invalid_message",
+  "body": {
+    "t": "error",
+    "code": "invalid_message",
+    "rid": 3,
+    "msg": "Invalid message."
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "name": "ws-upgrade.origin-rejected",
+  "route": "/api/ws",
+  "method": "GET",
+  "status": 403,
+  "kind": "response",
+  "schema": "apiErrorSchema",
+  "when": "Origin missing or not exactly the public origin",
+  "exact": [
+    "/error/code"
+  ],
+  "body": {
+    "error": {
+      "code": "origin_rejected",
+      "message": "This connection was refused."
+    }
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "name": "notice.in-sec-negative",
+  "direction": "server",
+  "why": "in_sec is negative",
+  "body": {
+    "t": "notice",
+    "kind": "shutdown",
+    "in_sec": -1
+  }
+}

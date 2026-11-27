@@ -1,0 +1,10 @@
+{
+  "name": "notice.shutdown",
+  "direction": "server",
+  "when": "the server stops; close 1001 follows in in_sec seconds",
+  "body": {
+    "t": "notice",
+    "kind": "shutdown",
+    "in_sec": 5
+  }
+}

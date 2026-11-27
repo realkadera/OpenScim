@@ -1,0 +1,16 @@
+{
+  "name": "join.party",
+  "direction": "client",
+  "why": "party rooms are reserved, not served in this phase",
+  "expect": {
+    "error": "unsupported"
+  },
+  "body": {
+    "t": "join",
+    "rid": 1,
+    "room": {
+      "kind": "party",
+      "invite": "abc"
+    }
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "name": "join.without-rid",
+  "direction": "client",
+  "when": "rid is optional",
+  "body": {
+    "t": "join",
+    "room": {
+      "kind": "lobby"
+    }
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "name": "t-number",
+  "direction": "client",
+  "why": "t is not a string",
+  "expect": {
+    "error": "invalid_message"
+  },
+  "body": {
+    "t": 1
+  }
+}

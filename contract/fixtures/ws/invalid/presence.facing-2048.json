@@ -1,0 +1,23 @@
+{
+  "name": "presence.facing-2048",
+  "direction": "client",
+  "why": "facing above 2047",
+  "expect": {
+    "error": "invalid_message"
+  },
+  "body": {
+    "t": "presence",
+    "tile": [
+      31,
+      26
+    ],
+    "steps": [
+      [
+        31,
+        26
+      ]
+    ],
+    "run": false,
+    "facing": 2048
+  }
+}

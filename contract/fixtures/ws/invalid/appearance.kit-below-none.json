@@ -1,0 +1,39 @@
+{
+  "name": "appearance.kit-below-none",
+  "direction": "client",
+  "why": "a kit below -1",
+  "expect": {
+    "error": "invalid_message"
+  },
+  "body": {
+    "t": "appearance",
+    "appearance": {
+      "gender": 0,
+      "hair_kit": -2,
+      "jaw_kit": 10,
+      "torso_kit": 18,
+      "arms_kit": 26,
+      "hands_kit": 33,
+      "legs_kit": 36,
+      "feet_kit": 42,
+      "hair_color": 0,
+      "torso_color": 0,
+      "legs_color": 0,
+      "feet_color": 0,
+      "skin_color": 0
+    },
+    "equipment": {
+      "head": 10828,
+      "cape": 6570,
+      "amulet": 6585,
+      "weapon": 4151,
+      "body": 10551,
+      "shield": 8850,
+      "legs": 1079,
+      "hands": 7462,
+      "boots": 11840,
+      "ring": 6737,
+      "ammo": 892
+    }
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "name": "presence-tick.five-steps",
+  "direction": "server",
+  "why": "at most 4 merged steps",
+  "body": {
+    "t": "presence_tick",
+    "tick": 1,
+    "d": [
+      {
+        "id": 7,
+        "tile": [
+          31,
+          30
+        ],
+        "steps": [
+          [
+            31,
+            26
+          ],
+          [
+            31,
+            27
+          ],
+          [
+            31,
+            28
+          ],
+          [
+            31,
+            29
+          ],
+          [
+            31,
+            30
+          ]
+        ],
+        "run": true,
+        "facing": 1024
+      }
+    ]
+  }
+}

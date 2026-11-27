@@ -1,0 +1,8 @@
+{
+  "name": "leave",
+  "direction": "client",
+  "when": "leave the room, keep the socket",
+  "body": {
+    "t": "leave"
+  }
+}

@@ -1,0 +1,51 @@
+{
+  "name": "joined",
+  "direction": "server",
+  "when": "the snapshot for a joiner: everyone else in the instance",
+  "body": {
+    "t": "joined",
+    "rid": 1,
+    "room": {
+      "id": "lobby-1",
+      "kind": "lobby",
+      "instance": 1
+    },
+    "members": [
+      {
+        "id": 7,
+        "name": "Player-0420",
+        "appearance": {
+          "gender": 0,
+          "hair_kit": 0,
+          "jaw_kit": 10,
+          "torso_kit": 18,
+          "arms_kit": 26,
+          "hands_kit": 33,
+          "legs_kit": 36,
+          "feet_kit": 42,
+          "hair_color": 0,
+          "torso_color": 0,
+          "legs_color": 0,
+          "feet_color": 0,
+          "skin_color": 0
+        },
+        "equipment": {
+          "weapon": 4151
+        },
+        "tile": [
+          31,
+          25
+        ],
+        "facing": 1024
+      },
+      {
+        "id": 8,
+        "name": "Zezima",
+        "appearance": null,
+        "equipment": null,
+        "tile": null,
+        "facing": null
+      }
+    ]
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "name": "join.instance-zero",
+  "direction": "client",
+  "why": "instances count from 1",
+  "expect": {
+    "error": "invalid_message"
+  },
+  "body": {
+    "t": "join",
+    "room": {
+      "kind": "lobby",
+      "instance": 0
+    }
+  }
+}

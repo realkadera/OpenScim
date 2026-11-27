@@ -1,0 +1,13 @@
+{
+  "name": "join.lobby-instance",
+  "direction": "client",
+  "when": "ask for one lobby instance",
+  "body": {
+    "t": "join",
+    "rid": 2,
+    "room": {
+      "kind": "lobby",
+      "instance": 2
+    }
+  }
+}

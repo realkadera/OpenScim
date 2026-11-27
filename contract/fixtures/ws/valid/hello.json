@@ -1,0 +1,11 @@
+{
+  "name": "hello",
+  "direction": "client",
+  "when": "the first message on every socket",
+  "body": {
+    "t": "hello",
+    "proto": 1,
+    "build": "a4e56ed",
+    "enc": "json"
+  }
+}

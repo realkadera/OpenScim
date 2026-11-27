@@ -1,0 +1,11 @@
+{
+  "name": "error.lobby-full",
+  "direction": "server",
+  "when": "a refused message: lobby_full",
+  "body": {
+    "t": "error",
+    "code": "lobby_full",
+    "rid": 3,
+    "msg": "The lobby is full."
+  }
+}

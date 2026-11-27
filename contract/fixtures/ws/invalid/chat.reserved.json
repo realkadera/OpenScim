@@ -1,0 +1,13 @@
+{
+  "name": "chat.reserved",
+  "direction": "client",
+  "why": "chat is reserved in protocol 1 but not served in this phase",
+  "expect": {
+    "error": "unsupported"
+  },
+  "body": {
+    "t": "chat",
+    "rid": 4,
+    "text": "hello"
+  }
+}

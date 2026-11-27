@@ -1,0 +1,10 @@
+{
+  "name": "error.msg-empty",
+  "direction": "server",
+  "why": "msg is empty",
+  "body": {
+    "t": "error",
+    "code": "out_of_bounds",
+    "msg": ""
+  }
+}

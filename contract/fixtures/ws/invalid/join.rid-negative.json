@@ -1,0 +1,15 @@
+{
+  "name": "join.rid-negative",
+  "direction": "client",
+  "why": "rid is not a u32",
+  "expect": {
+    "error": "invalid_message"
+  },
+  "body": {
+    "t": "join",
+    "rid": -1,
+    "room": {
+      "kind": "lobby"
+    }
+  }
+}

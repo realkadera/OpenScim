@@ -1,0 +1,14 @@
+{
+  "name": "joined.room-id-mismatch",
+  "direction": "server",
+  "why": "room.id is not lobby-<instance>",
+  "body": {
+    "t": "joined",
+    "room": {
+      "id": "lobby-2",
+      "kind": "lobby",
+      "instance": 1
+    },
+    "members": []
+  }
+}

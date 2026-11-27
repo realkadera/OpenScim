@@ -1,0 +1,20 @@
+{
+  "name": "presence.walk-north",
+  "direction": "client",
+  "when": "one tick walking north from the start tile [31, 25]: y grows",
+  "body": {
+    "t": "presence",
+    "tile": [
+      31,
+      26
+    ],
+    "steps": [
+      [
+        31,
+        26
+      ]
+    ],
+    "run": false,
+    "facing": 1024
+  }
+}

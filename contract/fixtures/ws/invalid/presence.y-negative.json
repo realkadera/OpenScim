@@ -1,0 +1,18 @@
+{
+  "name": "presence.y-negative",
+  "direction": "client",
+  "why": "y is -1",
+  "expect": {
+    "error": "out_of_bounds"
+  },
+  "body": {
+    "t": "presence",
+    "tile": [
+      31,
+      -1
+    ],
+    "steps": [],
+    "run": false,
+    "facing": 1024
+  }
+}

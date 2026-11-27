@@ -1,0 +1,11 @@
+{
+  "name": "error.rate-limited",
+  "direction": "server",
+  "when": "a refused message: rate_limited",
+  "body": {
+    "t": "error",
+    "code": "rate_limited",
+    "rid": 3,
+    "msg": "Too many messages; this one was dropped."
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "name": "join.room-unknown-kind",
+  "direction": "client",
+  "why": "room kind is neither lobby nor party",
+  "expect": {
+    "error": "invalid_message"
+  },
+  "body": {
+    "t": "join",
+    "room": {
+      "kind": "arena"
+    }
+  }
+}

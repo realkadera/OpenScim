@@ -1,0 +1,30 @@
+{
+  "name": "presence-tick.walk-north",
+  "direction": "server",
+  "when": "two client ticks merged into one server tick, walking north: y grows",
+  "body": {
+    "t": "presence_tick",
+    "tick": 1236,
+    "d": [
+      {
+        "id": 7,
+        "tile": [
+          31,
+          27
+        ],
+        "steps": [
+          [
+            31,
+            26
+          ],
+          [
+            31,
+            27
+          ]
+        ],
+        "run": false,
+        "facing": 1024
+      }
+    ]
+  }
+}

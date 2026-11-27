@@ -1,0 +1,23 @@
+{
+  "name": "presence.step-out-of-bounds",
+  "direction": "client",
+  "why": "a step is off the grid",
+  "expect": {
+    "error": "out_of_bounds"
+  },
+  "body": {
+    "t": "presence",
+    "tile": [
+      0,
+      0
+    ],
+    "steps": [
+      [
+        -1,
+        0
+      ]
+    ],
+    "run": false,
+    "facing": 1024
+  }
+}

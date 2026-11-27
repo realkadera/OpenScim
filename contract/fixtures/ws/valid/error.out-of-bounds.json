@@ -1,0 +1,11 @@
+{
+  "name": "error.out-of-bounds",
+  "direction": "server",
+  "when": "a refused message: out_of_bounds",
+  "body": {
+    "t": "error",
+    "code": "out_of_bounds",
+    "rid": 3,
+    "msg": "Tile outside the lobby."
+  }
+}

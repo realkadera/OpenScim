@@ -1,0 +1,34 @@
+{
+  "name": "member-join.missing-name",
+  "direction": "server",
+  "why": "a member without a name",
+  "body": {
+    "t": "member_join",
+    "member": {
+      "id": 7,
+      "appearance": {
+        "gender": 0,
+        "hair_kit": 0,
+        "jaw_kit": 10,
+        "torso_kit": 18,
+        "arms_kit": 26,
+        "hands_kit": 33,
+        "legs_kit": 36,
+        "feet_kit": 42,
+        "hair_color": 0,
+        "torso_color": 0,
+        "legs_color": 0,
+        "feet_color": 0,
+        "skin_color": 0
+      },
+      "equipment": {
+        "weapon": 4151
+      },
+      "tile": [
+        31,
+        25
+      ],
+      "facing": 1024
+    }
+  }
+}

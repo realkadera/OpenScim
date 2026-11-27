@@ -1,0 +1,14 @@
+{
+  "name": "hello.build-space",
+  "direction": "client",
+  "why": "build has a character outside [A-Za-z0-9._+-]",
+  "expect": {
+    "error": "invalid_message"
+  },
+  "body": {
+    "t": "hello",
+    "proto": 1,
+    "build": "a b",
+    "enc": "json"
+  }
+}

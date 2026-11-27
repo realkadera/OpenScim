@@ -1,0 +1,12 @@
+{
+  "name": "leave.extra-field",
+  "direction": "client",
+  "why": "leave takes no fields",
+  "expect": {
+    "error": "invalid_message"
+  },
+  "body": {
+    "t": "leave",
+    "room": "lobby-1"
+  }
+}

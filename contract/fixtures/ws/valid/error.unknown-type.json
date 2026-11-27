@@ -1,0 +1,11 @@
+{
+  "name": "error.unknown-type",
+  "direction": "server",
+  "when": "a refused message: unknown_type",
+  "body": {
+    "t": "error",
+    "code": "unknown_type",
+    "rid": 3,
+    "msg": "Unknown message type."
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "name": "join.instance-too-big",
+  "direction": "client",
+  "why": "instance above 999",
+  "expect": {
+    "error": "invalid_message"
+  },
+  "body": {
+    "t": "join",
+    "room": {
+      "kind": "lobby",
+      "instance": 1000
+    }
+  }
+}

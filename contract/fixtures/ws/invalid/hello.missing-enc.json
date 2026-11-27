@@ -1,0 +1,13 @@
+{
+  "name": "hello.missing-enc",
+  "direction": "client",
+  "why": "enc is missing",
+  "expect": {
+    "error": "invalid_message"
+  },
+  "body": {
+    "t": "hello",
+    "proto": 1,
+    "build": "dev"
+  }
+}

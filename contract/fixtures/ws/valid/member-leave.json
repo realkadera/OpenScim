@@ -1,0 +1,9 @@
+{
+  "name": "member-leave",
+  "direction": "server",
+  "when": "someone left (or their grace ran out)",
+  "body": {
+    "t": "member_leave",
+    "id": 7
+  }
+}

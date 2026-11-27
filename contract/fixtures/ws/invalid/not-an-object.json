@@ -1,0 +1,14 @@
+{
+  "name": "not-an-object",
+  "direction": "client",
+  "why": "the frame is a JSON array",
+  "expect": {
+    "error": "invalid_message"
+  },
+  "body": [
+    {
+      "t": "ping",
+      "ts": 1
+    }
+  ]
+}

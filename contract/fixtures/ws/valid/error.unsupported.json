@@ -1,0 +1,11 @@
+{
+  "name": "error.unsupported",
+  "direction": "server",
+  "when": "a refused message: unsupported",
+  "body": {
+    "t": "error",
+    "code": "unsupported",
+    "rid": 3,
+    "msg": "Not available on this server."
+  }
+}

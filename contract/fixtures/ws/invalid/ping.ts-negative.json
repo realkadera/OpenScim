@@ -1,0 +1,12 @@
+{
+  "name": "ping.ts-negative",
+  "direction": "client",
+  "why": "ts is negative",
+  "expect": {
+    "error": "invalid_message"
+  },
+  "body": {
+    "t": "ping",
+    "ts": -1
+  }
+}

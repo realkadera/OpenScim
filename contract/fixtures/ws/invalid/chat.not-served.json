@@ -1,0 +1,12 @@
+{
+  "name": "chat.not-served",
+  "direction": "server",
+  "why": "this phase has no chat messages",
+  "body": {
+    "t": "chat",
+    "id": 7,
+    "from": 7,
+    "name": "Player-0420",
+    "text": "hi"
+  }
+}

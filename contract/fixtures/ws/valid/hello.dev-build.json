@@ -1,0 +1,11 @@
+{
+  "name": "hello.dev-build",
+  "direction": "client",
+  "when": "a dev build of the client",
+  "body": {
+    "t": "hello",
+    "proto": 1,
+    "build": "dev",
+    "enc": "json"
+  }
+}

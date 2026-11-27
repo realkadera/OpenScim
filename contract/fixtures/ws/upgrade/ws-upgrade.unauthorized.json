@@ -1,0 +1,18 @@
+{
+  "name": "ws-upgrade.unauthorized",
+  "route": "/api/ws",
+  "method": "GET",
+  "status": 401,
+  "kind": "response",
+  "schema": "apiErrorSchema",
+  "when": "no session cookie, or the session is gone or banned",
+  "exact": [
+    "/error/code"
+  ],
+  "body": {
+    "error": {
+      "code": "unauthorized",
+      "message": "Sign in first."
+    }
+  }
+}

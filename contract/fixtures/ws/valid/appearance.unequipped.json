@@ -1,0 +1,24 @@
+{
+  "name": "appearance.unequipped",
+  "direction": "client",
+  "when": "nothing worn; female, no jaw kit",
+  "body": {
+    "t": "appearance",
+    "appearance": {
+      "gender": 1,
+      "hair_kit": 0,
+      "jaw_kit": -1,
+      "torso_kit": 18,
+      "arms_kit": 26,
+      "hands_kit": 33,
+      "legs_kit": 36,
+      "feet_kit": 42,
+      "hair_color": 0,
+      "torso_color": 0,
+      "legs_color": 0,
+      "feet_color": 0,
+      "skin_color": 7
+    },
+    "equipment": {}
+  }
+}

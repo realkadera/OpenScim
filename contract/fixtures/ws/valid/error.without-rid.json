@@ -1,0 +1,10 @@
+{
+  "name": "error.without-rid",
+  "direction": "server",
+  "when": "a refused message that had no rid",
+  "body": {
+    "t": "error",
+    "code": "out_of_bounds",
+    "msg": "Tile outside the lobby."
+  }
+}

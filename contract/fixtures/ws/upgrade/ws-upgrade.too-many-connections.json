@@ -1,0 +1,18 @@
+{
+  "name": "ws-upgrade.too-many-connections",
+  "route": "/api/ws",
+  "method": "GET",
+  "status": 429,
+  "kind": "response",
+  "schema": "apiErrorSchema",
+  "when": "the client address already has the most open sockets",
+  "exact": [
+    "/error/code"
+  ],
+  "body": {
+    "error": {
+      "code": "too_many_connections",
+      "message": "Too many open connections from this address."
+    }
+  }
+}

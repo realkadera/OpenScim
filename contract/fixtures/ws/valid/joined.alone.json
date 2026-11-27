@@ -1,0 +1,14 @@
+{
+  "name": "joined.alone",
+  "direction": "server",
+  "when": "the first member of an instance, no rid sent",
+  "body": {
+    "t": "joined",
+    "room": {
+      "id": "lobby-2",
+      "kind": "lobby",
+      "instance": 2
+    },
+    "members": []
+  }
+}

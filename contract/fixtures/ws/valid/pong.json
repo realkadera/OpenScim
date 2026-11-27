@@ -1,0 +1,10 @@
+{
+  "name": "pong",
+  "direction": "server",
+  "when": "the answer to ping",
+  "body": {
+    "t": "pong",
+    "ts": 1800000000000,
+    "server_tick": 1237
+  }
+}
