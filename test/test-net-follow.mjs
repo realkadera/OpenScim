@@ -34,6 +34,11 @@ const leader = (tile, more = {}) => ({ id: 9, name: "Leader", tile, fromTile: ti
   assert.equal(followRuns(true, false), false, "walks behind a walking leader");
   assert.equal(followRuns(false, true), false, "never runs with Run off");
   assert.equal(followRuns(false, false), false);
+  // More than one step from its tile behind a walking leader: runs to catch up, with Run on only.
+  assert.equal(followRuns(true, false, 1), false, "one step behind: walks");
+  assert.equal(followRuns(true, false, 2), true, "further: runs to catch up");
+  assert.equal(followRuns(false, false, 5), false, "never with Run off");
+  assert.equal(followRuns(false, true, 5), false);
 }
 
 // --- one follower: a tile each tick, and every cancel ----------------------------------
@@ -44,12 +49,15 @@ const leader = (tile, more = {}) => ({ id: 9, name: "Leader", tile, fromTile: ti
   assert.equal(tick([10, 5]), null, "not following");
   assert.equal(follow.start("9"), false);
   assert.equal(follow.start(9), true);
-  assert.deepEqual(tick([10, 5]), { tile: [10, 9], run: false });
-  // Each tick the tile follows the leader.
+  // Four tiles behind a standing leader, Run on: it runs to catch up; Run off, it walks.
+  assert.deepEqual(tick([10, 5]), { tile: [10, 9], run: true });
+  assert.deepEqual(tick([10, 5], { runEnabled: false }), { tile: [10, 9], run: false });
+  // Each tick the tile follows the leader; one step behind a walking leader it walks.
   players.set(9, leader([10, 11], { fromTile: [10, 10], steps: [[10, 11]] }));
-  assert.deepEqual(tick([10, 6]), { tile: [10, 10], run: false });
+  assert.deepEqual(tick([10, 9]), { tile: [10, 10], run: false });
+  assert.deepEqual(tick([10, 6]), { tile: [10, 10], run: true }, "far behind: catches up");
   players.set(9, leader([10, 13], { fromTile: [10, 11], steps: [[10, 12], [10, 13]], run: true }));
-  assert.deepEqual(tick([10, 7]), { tile: [10, 12], run: true });
+  assert.deepEqual(tick([10, 11]), { tile: [10, 12], run: true }, "the leader runs");
   // Run toggled off while following: still following, walking.
   assert.deepEqual(tick([10, 8], { runEnabled: false }), { tile: [10, 12], run: false });
   assert.equal(follow.leaderId, 9);
@@ -186,9 +194,11 @@ function fakePresence() {
   // Follow through the link: the leader is read from the scene's source.
   fake.players.set(9, leader([31, 30], { fromTile: [31, 29], steps: [[31, 30]], run: false }));
   link.follow.start(9);
-  const state = { playerPosition: [31, 26], isRunEnabled: true, playerEquipment: {} };
-  assert.deepEqual(link.beforeTick("lobby", state), { tile: [31, 29], ctrlClickOverride: true, changed: true }, "Run on, a walking leader: walk");
+  const state = { playerPosition: [31, 28], isRunEnabled: true, playerEquipment: {} };
+  assert.deepEqual(link.beforeTick("lobby", state), { tile: [31, 29], ctrlClickOverride: true, changed: true }, "Run on, a walking leader one step ahead: walk");
   assert.deepEqual(link.beforeTick("lobby", state), { tile: [31, 29], ctrlClickOverride: true, changed: false });
+  assert.deepEqual(link.beforeTick("lobby", { ...state, playerPosition: [31, 25] }), { tile: [31, 29], ctrlClickOverride: false, changed: true }, "far behind: runs to catch up");
+  assert.deepEqual(link.beforeTick("lobby", state), { tile: [31, 29], ctrlClickOverride: true, changed: true });
   fake.players.set(9, leader([31, 32], { fromTile: [31, 30], steps: [[31, 31], [31, 32]], run: true }));
   assert.deepEqual(link.beforeTick("lobby", state), { tile: [31, 31], ctrlClickOverride: false, changed: true }, "runs when the leader runs");
   assert.deepEqual(link.beforeTick("lobby", { ...state, isRunEnabled: false }), { tile: [31, 31], ctrlClickOverride: false, changed: false }, "Run off: no override, it walks");
@@ -219,6 +229,21 @@ function fakePresence() {
   source = other;
   link.setActive(false);
   assert.equal(source, other);
+}
+
+// --- the combat level goes with the look, once per change -----------------------------
+{
+  const fake = fakePresence();
+  const calls = [];
+  fake.presence.session.setAppearance = (...args) => calls.push(args);
+  const link = createLobbyLink({ createPresence: () => fake.presence, setSource: () => {}, getSource: () => null });
+  link.setActive(true);
+  const at = { playerPosition: [31, 25], playerMovementPath: [], playerFacingAngle: 0, playerEquipment: {} };
+  link.afterTick("lobby", at, at, null, 90);
+  link.afterTick("lobby", at, at, null, 90);
+  link.afterTick("lobby", at, at, null, 91);
+  link.afterTick("lobby", at, at, null, 500); // not a level: sent without one
+  assert.deepEqual(calls.map((args) => args[2]), [90, 91, undefined]);
 }
 
 console.log("Follow and the lobby link passed");

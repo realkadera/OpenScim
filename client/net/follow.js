@@ -36,9 +36,12 @@ export function followDestination(leader, self) {
   return [at[0] + Math.sign(dx), at[1] + Math.sign(dy)];
 }
 
-// Does the follower run this tick? Only with Run on, and only when the leader
-// runs (see the top of the file).
-export const followRuns = (runEnabled, leaderRuns) => runEnabled === true && leaderRuns === true;
+// Does the follower run this tick? Only with Run on: when the leader runs
+// (see the top of the file), and, to catch up, when the tile it walks to is
+// more than one step away (`gap`, in tiles) though the leader walks
+// (inferred: so a follower that starts far behind closes the gap). Never with
+// Run off.
+export const followRuns = (runEnabled, leaderRuns, gap = 0) => runEnabled === true && (leaderRuns === true || gap > 1);
 
 // The state of one follower: whom it follows, and why it stopped.
 //   const follow = createFollow({ lookup });   lookup(id): the leader's record or undefined
@@ -80,7 +83,8 @@ export function createFollow({ lookup } = {}) {
       if (!leader || !isTile(leader.tile)) return api.cancel("leader left"), null;
       const tile = followDestination(leader, self);
       if (!tile) return api.cancel("no tile"), null;
-      return { tile, run: followRuns(runEnabled, leader.run) };
+      const gap = Math.max(Math.abs(tile[0] - self[0]), Math.abs(tile[1] - self[1]));
+      return { tile, run: followRuns(runEnabled, leader.run, gap) };
     },
     get leaderId() {
       return leaderId;
