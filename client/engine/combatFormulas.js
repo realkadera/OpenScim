@@ -94,11 +94,13 @@ function getEffectiveRangedAttackLevel(attacker, prayerMultipliers) {
 }
 function getEffectiveMagicAttackLevel(attacker, prayerMultipliers) {
   const prayerScaledMagic = Math.floor(attacker.levels.magic * prayerMultipliers.magic);
-  const stanceBonus =
-    attacker.stance === "Accurate" ? 3 : attacker.stance === "Longrange" ? 1 : 0;
+  // WIKI (Damage per second/Magic, step two): the level times the prayer,
+  // rounded down; times 1.45 in Void Magic; "+2 if using Accurate on powered
+  // staves"; "+9". A spell cast and Longrange get the 9 alone.
+  const stanceBonus = attacker.stance === "Accurate" ? 2 : 0;
   const voidMultiplier =
     attacker.voidSet === "magic" || attacker.voidSet === "elite_magic" ? 1.45 : 1;
-  return Math.floor(prayerScaledMagic * voidMultiplier + stanceBonus + 8);
+  return Math.floor(prayerScaledMagic * voidMultiplier + stanceBonus + 9);
 }
 // Eleven switches of this module, from here on, end in a `default:` that
 // returns what was switched on (a formula style, a defence style, a ranged
