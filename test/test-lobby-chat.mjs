@@ -110,6 +110,20 @@ try {
     assert.equal(await field.count(), 1);
     const focused = () => page.evaluate(() => document.activeElement?.classList.contains("chatbox__field") === true);
 
+    // A line longer than the chatbox stays inside it: its start scrolls out to the left, the star stays in view.
+    await page.keyboard.press("h");
+    await page.keyboard.type("W".repeat(79));
+    const box = await page.evaluate(() => {
+      const rect = (selector) => document.querySelector(selector).getBoundingClientRect();
+      const [typing, line, field] = [rect(".chatbox__typing"), rect(".chatbox__typing-line"), rect(".chatbox__field")];
+      return { width: typing.width, max: field.width, startHidden: line.left < typing.left, endShown: Math.abs(line.right - typing.right) < 1 };
+    });
+    assert.ok(box.width <= box.max + 1, `the input line is ${box.width}px wide in a chatbox of ${box.max}px`);
+    assert.ok(box.startHidden && box.endShown, "the end of a long line is the part shown");
+    for (let i = 0; i < 80; i++) await page.keyboard.press("Backspace");
+    await page.keyboard.press("Escape");
+    assert.equal(await inputLine(page), "Player-0420: *");
+
     // A camera key does not start a line; a character no keybind uses does.
     await page.keyboard.press("w");
     assert.equal(await focused(), false);
