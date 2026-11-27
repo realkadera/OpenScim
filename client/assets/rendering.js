@@ -43760,6 +43760,16 @@ var UIOverlayRenderer = class e {
     const a = this.playerBarAnchor(t, s, posedModelHeight);
     return a && { x: a.x, y: a.y - 5 - 2 };
   }
+  // Where a player's overhead chat stands (the bottom of its text): the top of the model as posed, 15 under the
+  // point the health bar hangs from (inferred: the game client draws an actor's overhead text at its height and
+  // its health bar at its height + 15).
+  playerChatAnchor(t, s, posedModelHeight) {
+    return t.tileToScreen({
+      x: s[0] + 0.5,
+      y: s[1] + 0.5,
+      level: -Nb(this.terrainHeights, s[0], s[1]) / 128 + (posedModelHeight || playerLogicalHeight) / 128,
+    });
+  }
   SL(a, t, n, s, posedModelHeight) {
     const r = e.bL(n);
     if (!r) {
@@ -54555,7 +54565,7 @@ var LobbySceneCompositor = class extends SceneCompositor {
       }
     })(this.npcInstanceManager, this.celShadedCache, this.footprintCache);
     this.renderNpcModels(n);
-    this.drawRemotePlayers(n, e, a);
+    this.drawLobbyChat(n, e, a, this.drawRemotePlayers(n, e, a));
     if (e.options.showNpcClickbox) {
       this.FH(n);
     }
@@ -54568,7 +54578,7 @@ var LobbySceneCompositor = class extends SceneCompositor {
     const source = getRemotePlayersSource();
     if (!source || !this.remotePlayerLoader || !this.playerAnimationSystem) {
       this.remotePlayers?.clear();
-      return;
+      return [];
     }
     this.remotePlayers ??= createRemotePlayers({
       buildRig: (appearance, equipment, id) => this.buildRemotePlayerRig(appearance, equipment, id),
@@ -54597,6 +54607,31 @@ var LobbySceneCompositor = class extends SceneCompositor {
       } catch (error) {
         this.remotePlayers.markBroken(r.id, error);
       }
+    }
+    return drawn;
+  }
+  // The lobby's public chat above the speakers' heads (client/net/lobbyChat.js): ours and the drawn remote
+  // players', as the overlay's other overhead texts, each frame; none without the lobby's chat.
+  drawLobbyChat(n, e, a, drawn) {
+    const uiCamera = overlayCamera(a, n, e.options?.overlayGameScale);
+    if (!uiCamera) {
+      return;
+    }
+    const now = Date.now();
+    const push = (key, point, text) => {
+      if (!point || !text) {
+        return;
+      }
+      n.overheadTexts ||= [];
+      n.overheadTexts.push({ screenX: point.x, screenY: point.y, ...text, fontSize: UIOverlayRenderer.OSRS_OVERHEAD_TEXT_FONT_SIZE, key: key });
+    };
+    const own = lobbyChatOverheadText(null, now);
+    const center = this.lastPlayerVisualCenter;
+    if (own && center) {
+      push("lobby-chat-local", this.uiOverlayRenderer.playerChatAnchor(uiCamera, [center[0] - 0.5, center[1] - 0.5], this.playerAnimController?.posedModelHeight), own);
+    }
+    for (const r of drawn) {
+      push("lobby-chat-" + r.id, r.chatAnchor, lobbyChatOverheadText(r.id, now));
     }
   }
   drawRemotePlayer(n, r, camera, uiCamera, deltaMs) {
@@ -54646,6 +54681,7 @@ var LobbySceneCompositor = class extends SceneCompositor {
     r.overheadAnchor = uiCamera
       ? this.uiOverlayRenderer.playerOverheadBase(uiCamera, r.position, ctrl?.posedModelHeight)
       : null;
+    r.chatAnchor = uiCamera ? this.uiOverlayRenderer.playerChatAnchor(uiCamera, r.position, ctrl?.posedModelHeight) : null;
     // The screen point of the middle of the body (a pointer aimed at this player, as the tests aim).
     r.screenCenter = uiCamera
       ? uiCamera.tileToScreen({ x: x, y: y, level: ground + (ctrl?.posedModelHeight || 200) / 256 })
@@ -58107,6 +58143,7 @@ import { presentationBuilders } from "../encounters/presentations.js";
 import {scaleToaAccuracyRoll} from "/toa/zebak/rules.js";
 import {gatewayMeshes, gatewayPortals, gatewayCovers, gatewayFloor, extendLobbyArena, loadGatewayObjects, drawGatewayObjects} from "/lobby/gateways.js";
 import {createRemotePlayers, getRemotePlayersSource} from "/net/remotePlayers.js";
+import {lobbyChatOverheadText} from "/net/lobbyChat.js";
 import {toaFragmentShader} from "/toa/shader.js";
 import {getAttackRangeOverlay} from "/plugins/attackRanges.js";
 import {overrideProjectile} from "/plugins/projectileOverride.js";
@@ -60448,7 +60485,7 @@ var rZ = class {
 function iZ(e, a) {
   const t = a.segments && a.segments.length > 0 ? a.segments : null;
   const n = t
-    ? `s:${t.map((e) => `${e.color ?? ""}\0${e.icon ?? ""}\0${e.text}`).join("")}`
+    ? `s:${t.map((e) => `${e.color ?? ""}\0${e.icon ?? ""}\0${e.dx ?? ""},${e.dy ?? ""}\0${e.text}`).join("")}`
     : `t:${a.text}`;
   if (e.dataset.content !== n) {
     e.dataset.content = n;
@@ -60467,6 +60504,12 @@ function iZ(e, a) {
         t.textContent = a.text;
         if (a.color) {
           t.style.color = a.color;
+        }
+        // A character moved off its place (the lobby's chat effects, client/net/chatEffects.js).
+        if (a.dx || a.dy) {
+          t.style.position = "relative";
+          t.style.left = `${a.dx ?? 0}px`;
+          t.style.top = `${a.dy ?? 0}px`;
         }
         e.appendChild(t);
       }
@@ -60810,6 +60853,7 @@ var dZ = ({
         s.style.color = n.textColor;
         s.style.fontSize = `${n.fontSize}px`;
         s.style.transform = n.transform ?? "translate(-50%, -100%)"; // Defence Tracker says how its text hangs from its point
+        s.style.clipPath = n.clipPath ?? ""; // the lobby's chat effects cut their text to a window
         iZ(s, n);
       }
     } else if (t) {
@@ -62707,6 +62751,7 @@ var bZ = ({
         s.style.color = n.textColor;
         s.style.fontSize = `${n.fontSize}px`;
         s.style.transform = n.transform ?? "translate(-50%, -100%)"; // Defence Tracker says how its text hangs from its point
+        s.style.clipPath = n.clipPath ?? ""; // the lobby's chat effects cut their text to a window
         iZ(s, n);
       }
     } else if (t) {
