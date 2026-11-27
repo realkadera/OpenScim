@@ -5,6 +5,7 @@ import { projectileOverrideDefaults, readProjectileOverrideSettings } from "/plu
 import { getDefenceTrackerInfoboxes } from "/plugins/defenceTracker.js";
 import { pickLobbyObject } from "/lobby/gateways.js";
 import { lobbyBeforeTick, lobbyAfterTick, followRemotePlayer } from "/net/lobbyLink.js";
+import { combatLevelColor } from "/util/combatLevelColor.js";
 import { replayMarkerStore, findUndoFrameIndex, addMarker, isOnTimeline, pickMarker, pickAutoMarker, nameNewAutoMarkers, describeMarker, isRollbackHeld, holdAfterRollback, releaseRollback, showReplayMessage } from "/replay/markers.js";
 import { createTickLogPanel } from "/replay/tickLogPanel.js";
 import { createTraceStrip } from "/replay/traceStrip.js";
@@ -22105,7 +22106,13 @@ function useSimulationWiring({
         rse.publish(state12.currentTick, i9);
         // The lobby's presence (client/net/lobbyLink.js): the local player after this tick; a no-op
         // outside the lobby and without a presence.
-        lobbyAfterTick(encounterKind2, state11, state12, playerConfig.appearance);
+        lobbyAfterTick(
+          encounterKind2,
+          state11,
+          state12,
+          playerConfig.appearance,
+          state12.stats ? getCombatLevel(state12.stats) : undefined,
+        );
         ERe.QN(state12.currentTick, i2, hG);
         gM.recordFrameTiming({
           lateByMs: i2 - i4,
@@ -29863,6 +29870,21 @@ var ContextMenuOverlay = () => {
                           },
                           children: fz.target,
                         }),
+                      // Optional: a part of the target in a colour of its own (a lobby player's "(level-N)").
+                      fz.target &&
+                        fz.targetSuffix &&
+                        (0, wn.jsx)("span", {
+                          style: {
+                            fontFamily: '"RuneScape Bold 12", sans-serif',
+                            fontSize: Math.round(18 * f0) + "px",
+                            color: disabled2
+                              ? fx.disabled
+                              : (fz.targetSuffixColor ?? fz.targetColor ?? fx.target),
+                            textShadow: "1px 1px 0 rgba(0, 0, 0, 0.7)",
+                            marginLeft: Math.round(f0 * 4) + "px",
+                          },
+                          children: fz.targetSuffix,
+                        }),
                       fz.submenu &&
                         fz.submenu.length > 0 &&
                         (0, wn.jsx)("span", {
@@ -29886,6 +29908,7 @@ var ContextMenuOverlay = () => {
                   fz.action +
                     ":" +
                     (fz.target ?? "") +
+                    (fz.targetSuffix ?? "") +
                     ":" +
                     (fz.targetColor ?? "") +
                     ":" +
@@ -30257,6 +30280,7 @@ function rLe(ez) {
   } = ez;
   const eN = [];
   const eO = [];
+  let remotePlayersPicked = 0;
   if (entityContext) {
     sLe(
       (function (eS, eT, eU, eV, eW, eX, eY, eZ) {
@@ -30335,18 +30359,26 @@ function rLe(ez) {
       eN,
       eO,
     );
-    // The lobby's other players (client/net/remotePlayers.js): "Follow <name>", one entry each. The name is
-    // another player's text: a plain string child of the menu, never parsed for <col> tags (lLe), drawn white
-    // as the game draws a player's name in a menu (inferred). No combat level: these players have none.
+    // The lobby's other players (client/net/remotePlayers.js), nearest first: "Walk here <name> (level-N)" then
+    // "Follow <name> (level-N)" for each, in place of the plain "Walk here" (maintainer, 2026-11-27; in OSRS
+    // "Walk here" names no target). The name is another player's text: a plain string child of the menu,
+    // never parsed for <col> tags (lLe), drawn white as the game draws a player's name (inferred); the level
+    // is coloured by its difference to the local player's (combatLevelColor), and left out when unknown.
     if (eE && screenPx && entityContext.pickRemotePlayers) {
+      const remotes = entityContext.pickRemotePlayers(eE, screenPx);
+      remotePlayersPicked = remotes.length;
       sLe(
-        entityContext.pickRemotePlayers(eE, screenPx).map(({ id: id, name: name }) => ({
-          action: "Follow",
-          target: name,
-          targetColor: "#ffffff",
-          onClick: () => entityContext.onFollowRemotePlayer?.(id),
-          clickType: "red",
-        })),
+        remotes.flatMap(({ id: id, name: name, combat: combat, levelColor: levelColor }) => {
+          const named = {
+            target: name,
+            targetColor: "#ffffff",
+            ...(combat == null ? {} : { targetSuffix: "(level-" + combat + ")", targetSuffixColor: levelColor }),
+          };
+          return [
+            { action: "Walk here", ...named, onClick: tile ? () => onTileClick?.(tile) : undefined, clickType: "yellow" },
+            { action: "Follow", ...named, onClick: () => entityContext.onFollowRemotePlayer?.(id), clickType: "red" },
+          ];
+        }),
         eN,
         eO,
       );
@@ -30440,7 +30472,8 @@ function rLe(ez) {
       eO,
     );
   }
-  const eQ = tile
+  // Over another player of the lobby, its own "Walk here <name>" stands for this one.
+  const eQ = tile && remotePlayersPicked === 0
     ? {
         action: "Walk here",
         onClick: () => onTileClick?.(tile),
@@ -53494,6 +53527,27 @@ var ViewportEntityBridge = ({
         eW("npc-no-action:" + picked.actorId, null, "yellow", null);
         return;
       }
+      // Over another player of the lobby: its menu's first entry, "Walk here <name> (level-N)", as text.
+      const remote = entityContext.pickRemotePlayers?.(eX, eV)[0];
+      if (remote) {
+        eW(
+          "remote:" + remote.id + ":" + remote.name + ":" + remote.combat + ":" + remote.levelColor,
+          {
+            lines: [
+              {
+                spans: [
+                  { text: "Walk here ", color: TOOLTIP_COLORS.action },
+                  { text: remote.name, color: "#ffffff" },
+                  ...(remote.combat == null ? [] : [{ text: " (level-" + remote.combat + ")", color: remote.levelColor }]),
+                ],
+              },
+            ],
+          },
+          "yellow",
+          null,
+        );
+        return;
+      }
       const f2 = (entityContext.pickGroundItems?.(eV) ?? [])[0];
       if (f2) {
         eW(
@@ -55044,7 +55098,9 @@ var Grid = (ez) => {
       if (n5.length === 0) {
         return [];
       }
-      const names = new Map(n5.map((n6) => [n6.actorId, n6.name]));
+      const players = new Map(n5.map((n6) => [n6.actorId, n6]));
+      // The local player's level, from its base levels (playerState.js getCombatLevel).
+      const ownLevel = simulationState.stats ? getCombatLevel(simulationState.stats) : undefined;
       const current154 = lp.current;
       return ct(
         n3,
@@ -55055,9 +55111,12 @@ var Grid = (ez) => {
         current154.viewport.width,
         current154.viewport.height,
         (n6) => ({ actorId: n6 }),
-      ).map((n6) => ({ id: n6.actorId, name: names.get(n6.actorId) }));
+      ).map((n6) => {
+        const { name: name, combat: combat } = players.get(n6.actorId);
+        return { id: n6.actorId, name: name, combat: combat, levelColor: combat == null ? undefined : combatLevelColor(ownLevel, combat) };
+      });
     },
-    [lm],
+    [lm, simulationState.stats],
   );
   const lW = (0, pn.useCallback)(
     (n2) => {

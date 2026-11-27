@@ -35,10 +35,10 @@ try {
     const remotes = await import("/net/remotePlayers.js");
     const look = { gender: 0, hair_kit: 0, jaw_kit: 10, torso_kit: 18, arms_kit: 26, hands_kit: 33, legs_kit: 36, feet_kit: 42, hair_color: 0, torso_color: 0, legs_color: 0, feet_color: 0, skin_color: 0 };
     const players = new Map();
-    const add = (id, name, tile, facing, equipment) =>
-      players.set(id, { id, name, appearance: look, equipment, tile, facing, run: false, fromTile: tile, steps: [], snapped: true, lastTick: null });
-    add(1, "Alice", [28, 22], 0, {});
-    add(2, "<col=ff0000>Bob", [34, 22], 1536, { weapon: 22325 });
+    const add = (id, name, tile, facing, equipment, combat) =>
+      players.set(id, { id, name, appearance: look, equipment, combat, tile, facing, run: false, fromTile: tile, steps: [], snapped: true, lastTick: null });
+    add(1, "Alice", [28, 22], 0, {}, 100);
+    add(2, "<col=ff0000>Bob", [34, 22], 1536, { weapon: 22325 }, null);
     let tick = 0;
     window.lobbyFake = {
       remotes,
@@ -59,17 +59,27 @@ try {
   assert.equal(drawn.find((e) => e.id === 2).name, "col=ff0000Bob");
   for (const e of drawn) assert.ok(e.meshIds.every((id) => id.startsWith(`remote-player-${e.id}-`)), "its own mesh ids");
 
-  // A right click on Alice: "Follow Alice" above "Walk here".
+  // Bob sent no level: his name alone, as text (no "<", no ">").
+  const menuItems = page.locator('[role="menuitem"]');
+  const bob = drawn.find((e) => e.id === 2);
+  await page.mouse.click(bob.anchor.x, bob.anchor.y + 45, { button: "right" });
+  await menuItems.first().waitFor();
+  assert.deepEqual(await menuItems.evaluateAll((els) => els.map((el) => [...el.querySelectorAll("span")].map((s) => s.textContent).join(" "))), ["Walk here col=ff0000Bob", "Follow col=ff0000Bob", "Cancel"]);
+  const cancelBox = await menuItems.last().boundingBox();
+  await page.mouse.click(cancelBox.x + cancelBox.width / 2, cancelBox.y + cancelBox.height / 2);
+  await menuItems.first().waitFor({ state: "detached" });
+
+  // A right click on Alice (level 100, the local player's is 126): exactly her two entries and Cancel,
+  // the level coloured by the difference (client/util/combatLevelColor.js: 26 lower is #00ff00).
   const alice = drawn.find((e) => e.id === 1);
   await page.mouse.click(alice.anchor.x, alice.anchor.y + 45, { button: "right" });
   const items = page.locator('[role="menuitem"]');
   await items.first().waitFor();
-  const entries = (await items.allInnerTexts()).map((text) => text.replace(/\s+/g, " ").trim());
-  const follow = entries.indexOf("Follow Alice");
-  assert.ok(follow >= 0, "Follow Alice in " + JSON.stringify(entries));
-  assert.ok(follow < entries.indexOf("Walk here"), "above Walk here: " + JSON.stringify(entries));
-  assert.equal(entries.filter((entry) => entry.startsWith("Follow")).length, 1);
-  assert.ok(!entries.some((entry) => /Trade|Report/.test(entry)));
+  const spans = () => items.evaluateAll((els) => els.map((el) => [...el.querySelectorAll("span")].map((s) => [s.textContent, getComputedStyle(s).color])));
+  const menu = await spans();
+  assert.deepEqual(menu.map((entry) => entry.map(([text]) => text).join(" ")), ["Walk here Alice (level-100)", "Follow Alice (level-100)", "Cancel"]);
+  assert.equal(menu[0][2][1], "rgb(0, 255, 0)");
+  const follow = 1;
 
   // Follow her while she walks west: the local player walks after her.
   const box = await items.nth(follow).boundingBox();
