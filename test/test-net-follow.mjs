@@ -4,7 +4,7 @@
 // is made active).
 import assert from "node:assert/strict";
 
-import { createFollow, followDestination, followRuns } from "../client/net/follow.js";
+import { createFollow, followDestination } from "../client/net/follow.js";
 import { LOBBY_BUILD, createLobbyLink, lobbyFollowFacing, lobbyLink, presenceSteps } from "../client/net/lobbyLink.js";
 
 const leader = (tile, more = {}) => ({ id: 9, name: "Leader", tile, fromTile: tile, steps: [], run: false, snapped: true, ...more });
@@ -17,11 +17,18 @@ const leader = (tile, more = {}) => ({ id: 9, name: "Leader", tile, fromTile: ti
   assert.deepEqual(followDestination(leader([10, 12], { fromTile: [10, 10], steps: [[10, 11], [10, 12]], run: true }), [10, 5]), [10, 11]);
   // Standing since it came (snapped, no steps): next to it on the follower's side...
   assert.deepEqual(followDestination(leader([10, 10]), [10, 5]), [10, 9]);
-  assert.deepEqual(followDestination(leader([10, 10]), [14, 14]), [11, 10], "west, east, south or north of it, never a corner");
+  assert.deepEqual(followDestination(leader([10, 10]), [14, 14]), [10, 11], "south, north, west or east of it, never a corner; north before east among equals");
+  assert.deepEqual(followDestination(leader([10, 10]), [14, 10]), [11, 10]);
+  // A diagonal counts as one tile: from the south-west, south and west are equal, and south is first.
+  assert.deepEqual(followDestination(leader([10, 10]), [8, 8]), [10, 9]);
+  // A blocked tile is never taken.
+  const blocked = (tiles) => (tile) => tiles.some((b) => b[0] === tile[0] && b[1] === tile[1]);
+  assert.deepEqual(followDestination(leader([10, 10]), [10, 5], undefined, false, blocked([[10, 9]])), [9, 10]);
+  assert.deepEqual(followDestination(leader([10, 10]), [10, 10], undefined, false, blocked([[10, 9], [10, 11], [9, 10]])), [11, 10]);
   // ...and where the follower is next to it already, it stays.
   assert.deepEqual(followDestination(leader([10, 10]), [11, 9]), [11, 9]);
-  // On the leader's tile: it steps off, west first.
-  assert.deepEqual(followDestination(leader([10, 10]), [10, 10]), [9, 10]);
+  // On the leader's tile: it steps off, south first.
+  assert.deepEqual(followDestination(leader([10, 10]), [10, 10]), [10, 9]);
   // Next to a leader that walks on, it takes the tile the leader left; a trail remembered while the leader stands
   // is still the tile (it ends right behind, not beside).
   assert.deepEqual(followDestination(leader([10, 12], { fromTile: [10, 11], steps: [[10, 12]] }), [11, 11]), [10, 11]);
@@ -32,38 +39,22 @@ const leader = (tile, more = {}) => ({ id: 9, name: "Leader", tile, fromTile: ti
   assert.equal(followDestination(leader([1, 1]), null), null);
 }
 
-// --- run: only with Run on, and only when the leader runs ------------------------------
-{
-  assert.equal(followRuns(true, true), true);
-  assert.equal(followRuns(true, false), false, "walks behind a walking leader");
-  assert.equal(followRuns(false, true), false, "never runs with Run off");
-  assert.equal(followRuns(false, false), false);
-  // More than one step from its tile behind a walking leader: runs to catch up, with Run on only.
-  assert.equal(followRuns(true, false, 1), false, "one step behind: walks");
-  assert.equal(followRuns(true, false, 2), true, "further: runs to catch up");
-  assert.equal(followRuns(false, false, 5), false, "never with Run off");
-  assert.equal(followRuns(false, true, 5), false);
-}
-
 // --- one follower: a tile each tick, and every cancel ----------------------------------
 {
   const players = new Map([[9, leader([10, 10])]]);
   const follow = createFollow({ lookup: (id) => players.get(id) });
-  const tick = (self, more = {}) => follow.tick({ self, runEnabled: true, equipment: {}, ...more });
+  const tick = (self, more = {}) => follow.tick({ self, equipment: {}, ...more });
   assert.equal(tick([10, 5]), null, "not following");
   assert.equal(follow.start("9"), false);
   assert.equal(follow.start(9), true);
-  // Four tiles behind a standing leader, Run on: it runs to catch up; Run off, it walks.
-  assert.deepEqual(tick([10, 5]), { tile: [10, 9], run: true });
-  assert.deepEqual(tick([10, 5], { runEnabled: false }), { tile: [10, 9], run: false });
-  // Each tick the tile follows the leader; one step behind a walking leader it walks.
+  // The tile only: the pace is the player's own Run setting, as for any walk.
+  assert.deepEqual(tick([10, 5]), { tile: [10, 9] });
+  // Each tick the tile follows the leader.
   players.set(9, leader([10, 11], { fromTile: [10, 10], steps: [[10, 11]] }));
-  assert.deepEqual(tick([10, 9]), { tile: [10, 10], run: false });
-  assert.deepEqual(tick([10, 6]), { tile: [10, 10], run: true }, "far behind: catches up");
+  assert.deepEqual(tick([10, 9]), { tile: [10, 10] });
+  assert.deepEqual(tick([10, 6]), { tile: [10, 10] });
   players.set(9, leader([10, 13], { fromTile: [10, 11], steps: [[10, 12], [10, 13]], run: true }));
-  assert.deepEqual(tick([10, 11]), { tile: [10, 12], run: true }, "the leader runs");
-  // Run toggled off while following: still following, walking.
-  assert.deepEqual(tick([10, 8], { runEnabled: false }), { tile: [10, 12], run: false });
+  assert.deepEqual(tick([10, 11]), { tile: [10, 12] });
   assert.equal(follow.leaderId, 9);
   // A walk cancels it.
   assert.equal(follow.cancel("walk"), true);
@@ -203,14 +194,8 @@ function fakePresence() {
   fake.players.set(9, leader([31, 30], { fromTile: [31, 29], steps: [[31, 30]], run: false }));
   link.follow.start(9);
   const state = { playerPosition: [31, 28], isRunEnabled: true, playerEquipment: {} };
-  // The engine's ctrl-click flag, as Grid.js reads it and sets it when `changed`.
-  let flag = false;
-  const tick = (s, kind = "lobby") => {
-    const result = link.beforeTick(kind, s, flag);
-    if (result?.changed) flag = result.ctrlClickOverride;
-    return result;
-  };
-  assert.deepEqual(tick(state), { tile: [31, 29], ctrlClickOverride: true, changed: true }, "Run on, a walking leader one step ahead: walk");
+  const tick = (s, kind = "lobby") => link.beforeTick(kind, s);
+  assert.deepEqual(tick(state), { tile: [31, 29] }, "the tile the leader left; nothing about the pace");
   // While following, the presence names the leader, for the others to draw us facing it.
   {
     const sendPresence = fake.presence.session.sendPresence;
@@ -220,30 +205,23 @@ function fakePresence() {
     assert.deepEqual(fake.sent.at(-1), ["presence", { tile: [31, 28], steps: [], run: false, facing: 1024, face: 9 }]);
     fake.presence.session.sendPresence = sendPresence;
   }
-  assert.deepEqual(tick(state), { tile: [31, 29], ctrlClickOverride: true, changed: false });
-  // The engine resets its flag (a Run toggle): it is set again.
-  flag = false;
-  assert.deepEqual(tick(state), { tile: [31, 29], ctrlClickOverride: true, changed: true });
-  assert.deepEqual(tick({ ...state, playerPosition: [31, 25] }), { tile: [31, 29], ctrlClickOverride: false, changed: true }, "far behind: runs to catch up");
-  assert.deepEqual(tick(state), { tile: [31, 29], ctrlClickOverride: true, changed: true });
+  assert.deepEqual(tick({ ...state, playerPosition: [31, 25] }), { tile: [31, 29] });
   fake.players.set(9, leader([31, 32], { fromTile: [31, 30], steps: [[31, 31], [31, 32]], run: true }));
-  assert.deepEqual(tick(state), { tile: [31, 31], ctrlClickOverride: false, changed: true }, "runs when the leader runs");
-  assert.deepEqual(tick({ ...state, isRunEnabled: false }), { tile: [31, 31], ctrlClickOverride: false, changed: false }, "Run off: no override, it walks");
-  // An item put on between ticks cancels it (the link sees it after the tick): once, a stop with the
-  // override off and no tile, so the player does not walk on to the last tile; then nothing.
+  assert.deepEqual(tick(state), { tile: [31, 31] });
+  assert.deepEqual(tick({ ...state, isRunEnabled: false }), { tile: [31, 31] });
+  // An item put on between ticks cancels it (the link sees it after the tick): once, a stop with no
+  // tile, so the player does not walk on to the last tile; then nothing.
   fake.players.set(9, leader([31, 30], { fromTile: [31, 29], steps: [[31, 30]], run: false }));
-  assert.equal(tick(state).ctrlClickOverride, true);
+  assert.ok(tick(state));
   link.afterTick("lobby", state, { ...state, playerEquipment: { head: 1 } }, null);
-  assert.deepEqual(tick({ ...state, playerEquipment: { head: 1 } }), { tile: null, ctrlClickOverride: false, changed: true });
-  assert.equal(flag, false);
+  assert.deepEqual(tick({ ...state, playerEquipment: { head: 1 } }), { tile: null });
   assert.equal(tick({ ...state, playerEquipment: { head: 1 } }), null);
   assert.equal(link.follow.lastCancel, "equipment");
   // The leader gone: the same stop.
   link.follow.start(9);
   assert.ok(tick(state));
   fake.players.delete(9);
-  assert.equal(flag, true);
-  assert.deepEqual(tick(state), { tile: null, ctrlClickOverride: false, changed: true });
+  assert.deepEqual(tick(state), { tile: null });
   assert.equal(link.follow.lastCancel, "leader left");
   fake.players.set(9, leader([31, 30], { fromTile: [31, 29], steps: [[31, 30]], run: false }));
   // A click: no stop from the link (the click sets its own tile and override).

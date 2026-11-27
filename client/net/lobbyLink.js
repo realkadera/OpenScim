@@ -9,11 +9,10 @@
 //                                    when false. Its players and its chat
 //                                    are the sources of remotePlayers.js and
 //                                    lobbyChat.js while it is active.
-//   lobbyBeforeTick(kind, state, engineOverride)
-//                                    Grid.js live loop, before advanceTick:
-//                                    { tile, ctrlClickOverride, changed } while
-//                                    following; { tile: null, ... } once after
-//                                    Follow ends otherwise than by a click
+//   lobbyBeforeTick(kind, state)     Grid.js live loop, before advanceTick:
+//                                    { tile } while following; { tile: null }
+//                                    once after Follow ends otherwise than by
+//                                    a click
 //   lobbyAfterTick(kind, before, after, appearance, combat)
 //                                    Grid.js live loop, after advanceTick
 //   followRemotePlayer(id)           the menu's "Follow <name>"
@@ -23,6 +22,8 @@
 import { createLobbyPresence } from "./index.js";
 import { COMBAT_MAX, COMBAT_MIN, STEPS_PER_PRESENCE_MAX, isAdjacent, tilesEqual } from "./protocol.js";
 import { createFollow } from "./follow.js";
+import { getArenaCollisionMap, isArenaTileWalkable } from "../engine/arena.js";
+import { CollisionFlag } from "../engine/collision.js";
 import { appearanceToWire, equipmentToWire, faceAngle, getRemotePlayersSource, setLocalFaceTarget, setRemotePlayersSource } from "./remotePlayers.js";
 import { getLobbyChatSource, setLobbyChatSource } from "./lobbyChat.js";
 
@@ -71,6 +72,8 @@ export function createLobbyLink({
       const players = getSource();
       return players?.getById?.(id) ?? players?.list().find((player) => player.id === id);
     },
+    // A tile of the scene nobody can stand on: outside its floor, or under an object.
+    isBlocked: ([x, y]) => !isArenaTileWalkable(x, y) || getArenaCollisionMap()?.hasFlag(x, y, CollisionFlag.OBJECT | CollisionFlag.FLOOR_BLOCKED) === true,
   });
 
   const quiet = (fn) => {
@@ -130,38 +133,33 @@ export function createLobbyLink({
       return finalStop;
     },
     follow,
-    // Before the tick: the leader's tile, by the click-to-walk path, and the
-    // ctrl-click override that walks where Run is on and the follower should
-    // walk; `changed` against the engine's own flag (`engineOverride`), which
-    // the engine also changes (a Run toggle resets it). Once, after Follow
-    // ends otherwise than by a click: { tile: null, ctrlClickOverride: false }
-    // so the player stops where it is and the override is off again; a click
-    // sets its own tile and override.
-    beforeTick(kind, state, engineOverride = false) {
+    // Before the tick: the tile to walk to, by the click-to-walk path; the
+    // player's own Run setting decides the pace (follow.js). Once, after
+    // Follow ends otherwise than by a click: { tile: null } so the player
+    // stops where it is; a click sets its own tile.
+    beforeTick(kind, state) {
       const step =
         follow.leaderId === null
           ? null
           : follow.tick({
               inLobby: kind === "lobby",
               self: state?.playerPosition,
-              runEnabled: state?.isRunEnabled === true,
               equipment: equipmentToWire(state?.playerEquipment),
             });
       if (!step) {
         const stopped = following && kind === "lobby" && follow.lastCancel !== "walk";
         following = false;
-        return stopped ? { tile: null, ctrlClickOverride: false, changed: engineOverride !== false } : null;
+        return stopped ? { tile: null } : null;
       }
       following = true;
-      const ctrlClickOverride = state?.isRunEnabled === true && !step.run;
-      return { tile: step.tile, ctrlClickOverride, changed: engineOverride !== ctrlClickOverride };
+      return { tile: step.tile };
     },
     // After the tick: the look (and the combat level, from the player's base
     // levels) when it changed, and the tile, steps, run and facing.
     afterTick(kind, before, after, appearance, combat) {
       if (kind !== "lobby") return;
       const equipment = equipmentToWire(after?.playerEquipment);
-      if (follow.leaderId !== null) follow.tick({ inLobby: true, self: after?.playerPosition, runEnabled: after?.isRunEnabled === true, equipment, observe: false });
+      if (follow.leaderId !== null) follow.tick({ inLobby: true, self: after?.playerPosition, equipment, observe: false });
       if (!presence || !active || !isTile(after?.playerPosition)) return;
       const look = appearanceToWire(appearance);
       const level = Number.isSafeInteger(combat) && combat >= COMBAT_MIN && combat <= COMBAT_MAX ? combat : undefined;
@@ -192,7 +190,7 @@ export function createLobbyLink({
 
 export const lobbyLink = createLobbyLink();
 export const setLobbyPresenceActive = (active) => lobbyLink.setActive(active);
-export const lobbyBeforeTick = (kind, state, engineOverride) => lobbyLink.beforeTick(kind, state, engineOverride);
+export const lobbyBeforeTick = (kind, state) => lobbyLink.beforeTick(kind, state);
 export const lobbyAfterTick = (kind, before, after, appearance, combat) => lobbyLink.afterTick(kind, before, after, appearance, combat);
 export const followRemotePlayer = (id) => lobbyLink.follow.start(id);
 // The renderer turns the follower to its leader every frame (remotePlayers.js localFaceAngle).

@@ -5,11 +5,13 @@
 //
 // What Follow does is the game's (OSRS): the follower goes wherever the
 // leader goes; clicking to walk anywhere, and putting on or taking off an
-// item, cancels it; with Run on the follower walks behind a walking leader
-// and runs when the leader runs, with Run off it never runs, and Run can be
-// toggled while following. Source: inferred. The wiki page the task names,
+// item, cancels it. Its own Run setting alone decides its pace, as for any
+// walk (the servers that copy the game read nothing of the leader's pace): two
+// tiles a tick when Run is on and the way is two tiles or longer, so right
+// behind a walking leader it walks and behind a running one it runs; Run can
+// be toggled while following. The wiki page the task names,
 // https://oldschool.runescape.wiki/w/Follow, redirects to "Pet" and states
-// none of it; this is the game's behaviour as described for the task.
+// none of it.
 // Cancelled too, as this client needs: when the leader leaves the lobby
 // instance (member_leave, or not in the store any more), on leaving the lobby
 // and on signing out.
@@ -29,14 +31,17 @@ export function trailTile(leader) {
   return behind && !sameTile(behind, at) ? [behind[0], behind[1]] : null;
 }
 
-// The tile west, east, south or north of the leader that is nearest to the
-// follower (west first among equals).
-function nearestCardinal(at, self) {
+// The tile south, north, west or east of the leader that is nearest to the
+// follower, in tiles with a diagonal counted as one; among equals the first
+// in that order; a blocked tile is never taken (the order, the distance and
+// the skipping are those of the Elvarg line's follow routine).
+function nearestCardinal(at, self, isBlocked) {
   let best = null;
   let bestGap = Infinity;
-  for (const [dx, dy] of [[-1, 0], [1, 0], [0, -1], [0, 1]]) {
+  for (const [dx, dy] of [[0, -1], [0, 1], [-1, 0], [1, 0]]) {
     const tile = [at[0] + dx, at[1] + dy];
-    const gap = Math.hypot(tile[0] - self[0], tile[1] - self[1]);
+    if (isBlocked?.(tile)) continue;
+    const gap = distance(tile, self);
     if (gap < bestGap) [best, bestGap] = [tile, gap];
   }
   return best;
@@ -51,13 +56,13 @@ function nearestCardinal(at, self) {
 //     while the leader stands), so it ends right behind the leader, and stays
 //     once it is on it;
 //   - with no such tile, or on it already though not behind, or further than
-//     a step away with a trail that is not next to the leader: the tile west,
-//     east, south or north of the leader nearest to it (so a follower on the
-//     leader's own tile steps off it).
+//     a step away with a trail that is not next to the leader: the tile
+//     south, north, west or east of the leader nearest to it that is not
+//     blocked (so a follower on the leader's own tile steps off it, south).
 // `trail` and `moving` default to what the leader's record says alone.
-// No collision is read here: the click-to-walk path the tile is given to finds
-// the way, or the nearest tile it can reach.
-export function followDestination(leader, self, trail = trailTile(leader), moving = Array.isArray(leader?.steps) && leader.steps.length > 0) {
+// `isBlocked(tile)`: can nobody stand on the tile? The way to the tile is
+// found by the click-to-walk path it is given to.
+export function followDestination(leader, self, trail = trailTile(leader), moving = Array.isArray(leader?.steps) && leader.steps.length > 0, isBlocked = null) {
   const at = leader?.tile;
   if (!isTile(at) || !isTile(self)) return null;
   const gap = distance(self, at);
@@ -65,24 +70,18 @@ export function followDestination(leader, self, trail = trailTile(leader), movin
   let tile = isTile(trail) && !sameTile(trail, at) ? [trail[0], trail[1]] : null;
   const trails = tile !== null && distance(tile, at) === 1;
   if (trails && sameTile(tile, self)) return tile;
-  if (tile === null || sameTile(tile, self) || (gap > 1 && !trails)) tile = nearestCardinal(at, self) ?? tile;
+  if (tile === null || sameTile(tile, self) || (gap > 1 && !trails)) tile = nearestCardinal(at, self, isBlocked) ?? tile;
   return tile;
 }
 
-// Does the follower run this tick? Only with Run on: when the leader runs
-// (see the top of the file), and, to catch up, when the tile it walks to is
-// more than one step away (`gap`, in tiles) though the leader walks
-// (inferred: so a follower that starts far behind closes the gap). Never with
-// Run off.
-export const followRuns = (runEnabled, leaderRuns, gap = 0) => runEnabled === true && (leaderRuns === true || gap > 1);
-
 // The state of one follower: whom it follows, and why it stopped.
-//   const follow = createFollow({ lookup });   lookup(id): the leader's record or undefined
+//   const follow = createFollow({ lookup, isBlocked });   lookup(id): the leader's record or undefined;
+//                                                        isBlocked(tile): see followDestination
 //   follow.start(id); follow.cancel(reason);
-//   follow.tick({ inLobby, self, runEnabled, equipment })
-//     -> { tile, run } to walk this tick, or null (not following, or just cancelled)
+//   follow.tick({ inLobby, self, equipment })
+//     -> { tile } to walk to this tick, or null (not following, or just cancelled)
 //   follow.leaderId, follow.lastCancel
-export function createFollow({ lookup } = {}) {
+export function createFollow({ lookup, isBlocked = null } = {}) {
   let leaderId = null;
   let worn = null; // the equipment, as JSON, at the last tick
   let lastCancel = null;
@@ -106,7 +105,7 @@ export function createFollow({ lookup } = {}) {
       return true;
     },
     // `observe: false` (the check after a tick) leaves the leader's latest move for the next tick to see.
-    tick({ inLobby = true, self, runEnabled = false, equipment = null, observe = true } = {}) {
+    tick({ inLobby = true, self, equipment = null, observe = true } = {}) {
       if (leaderId === null) return null;
       if (!inLobby) return api.cancel("left the lobby"), null;
       const key = JSON.stringify(equipment ?? {});
@@ -128,10 +127,9 @@ export function createFollow({ lookup } = {}) {
         else if (leader.snapped === true && seen !== null) trail = null;
         seen = leader;
       }
-      const tile = followDestination(leader, self, trail ?? (seen === leader ? null : trailTile(leader)), moving);
+      const tile = followDestination(leader, self, trail ?? (seen === leader ? null : trailTile(leader)), moving, isBlocked);
       if (!tile) return api.cancel("no tile"), null;
-      const gap = Math.max(Math.abs(tile[0] - self[0]), Math.abs(tile[1] - self[1]));
-      return { tile, run: followRuns(runEnabled, leader.run, gap) };
+      return { tile };
     },
     get leaderId() {
       return leaderId;
