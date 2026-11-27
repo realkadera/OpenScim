@@ -4,7 +4,7 @@ import { attackRangesDefaults, readAttackRangesSettings, isAttackDragProtected }
 import { projectileOverrideDefaults, readProjectileOverrideSettings } from "/plugins/projectileOverride.js";
 import { getDefenceTrackerInfoboxes } from "/plugins/defenceTracker.js";
 import { pickLobbyObject } from "/lobby/gateways.js";
-import { lobbyBeforeTick, lobbyAfterTick } from "/net/lobbyLink.js";
+import { lobbyBeforeTick, lobbyAfterTick, followRemotePlayer } from "/net/lobbyLink.js";
 import { replayMarkerStore, findUndoFrameIndex, addMarker, isOnTimeline, pickMarker, pickAutoMarker, nameNewAutoMarkers, describeMarker, isRollbackHeld, holdAfterRollback, releaseRollback, showReplayMessage } from "/replay/markers.js";
 import { createTickLogPanel } from "/replay/tickLogPanel.js";
 import { createTraceStrip } from "/replay/traceStrip.js";
@@ -30335,6 +30335,22 @@ function rLe(ez) {
       eN,
       eO,
     );
+    // The lobby's other players (client/net/remotePlayers.js): "Follow <name>", one entry each. The name is
+    // another player's text: a plain string child of the menu, never parsed for <col> tags (lLe), drawn white
+    // as the game draws a player's name in a menu (inferred). No combat level: these players have none.
+    if (eE && screenPx && entityContext.pickRemotePlayers) {
+      sLe(
+        entityContext.pickRemotePlayers(eE, screenPx).map(({ id: id, name: name }) => ({
+          action: "Follow",
+          target: name,
+          targetColor: "#ffffff",
+          onClick: () => entityContext.onFollowRemotePlayer?.(id),
+          clickType: "red",
+        })),
+        eN,
+        eO,
+      );
+    }
     sLe(
       (function (eS, eT, eU, eV) {
         if (!eU.locs || 0 === eU.locs.length) {
@@ -55021,6 +55037,28 @@ var Grid = (ez) => {
       lT,
     ],
   );
+  // The lobby's other players under the pointer (client/net/remotePlayers.js), nearest first: [{ id, name }].
+  const pickRemotePlayers = (0, pn.useCallback)(
+    (n2, n3) => {
+      const n5 = lm.getRemotePlayerHitTestData?.() ?? [];
+      if (n5.length === 0) {
+        return [];
+      }
+      const names = new Map(n5.map((n6) => [n6.actorId, n6.name]));
+      const current154 = lp.current;
+      return ct(
+        n3,
+        n2,
+        n5,
+        current154.getViewMatrix(),
+        current154.getProjectionMatrix(),
+        current154.viewport.width,
+        current154.viewport.height,
+        (n6) => ({ actorId: n6 }),
+      ).map((n6) => ({ id: n6.actorId, name: names.get(n6.actorId) }));
+    },
+    [lm],
+  );
   const lW = (0, pn.useCallback)(
     (n2) => {
       const n3 = lm.getAllGroundItemHitTestData?.() ?? [];
@@ -55164,6 +55202,8 @@ var Grid = (ez) => {
       npcActorId: lQ,
       locs: m4,
       pickNpcs: lV,
+      pickRemotePlayers: pickRemotePlayers,
+      onFollowRemotePlayer: followRemotePlayer,
       attackTargetActorId: simulationState.attackTarget,
       pickGroundItems: lX,
       objTypeLoader: objTypeLoader,
@@ -55181,6 +55221,7 @@ var Grid = (ez) => {
       lQ,
       m4,
       lV,
+      pickRemotePlayers,
       simulationState.attackTarget,
       lX,
       objTypeLoader,
