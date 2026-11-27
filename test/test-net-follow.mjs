@@ -159,10 +159,12 @@ function fakePresence() {
   link.setActive(true);
   assert.deepEqual(made, [{ build: LOBBY_BUILD }]);
   assert.equal(LOBBY_BUILD, "web");
-  assert.equal(fake.presence.started, 1);
+  assert.equal(fake.presence.started, 0, "not yet: the look and the tile are not known");
   assert.equal(source, fake.presence.players);
-  // After a lobby tick: the look first (snake_case, equipment), then the presence.
+  // After a lobby tick: the look first (snake_case, equipment), then the presence, then the start,
+  // so both are set when the session says hello.
   link.afterTick("lobby", before, after, { gender: 0, hairKit: 3, jawKit: 10, torsoKit: 18, armsKit: 26, handsKit: 33, legsKit: 36, feetKit: 42, hairColor: 0, torsoColor: 0, legsColor: 0, feetColor: 0, skinColor: 0 });
+  assert.equal(fake.presence.started, 1);
   assert.deepEqual(fake.sent, [
     ["appearance", { gender: 0, hair_kit: 3, jaw_kit: 10, torso_kit: 18, arms_kit: 26, hands_kit: 33, legs_kit: 36, feet_kit: 42, hair_color: 0, torso_color: 0, legs_color: 0, feet_color: 0, skin_color: 0 }, { weapon: 4151 }],
     ["presence", { tile: [31, 26], steps: [[31, 26]], run: false, facing: 1024 }],
@@ -174,6 +176,7 @@ function fakePresence() {
   fake.sent.length = 0;
   link.afterTick("lobby", after, after, null);
   assert.deepEqual(fake.sent, [["presence", { tile: [31, 26], steps: [], run: false, facing: 1024 }]]);
+  assert.equal(fake.presence.started, 1, "started once");
   fake.sent.length = 0;
   link.afterTick("lobby", after, { ...after, playerEquipment: {}, playerFacingAngle: 5000 }, null);
   assert.deepEqual(fake.sent, [["appearance", fake.sent[0][1], {}], ["presence", { tile: [31, 26], steps: [], run: false, facing: 5000 & 2047 }]]);
@@ -251,9 +254,9 @@ function fakePresence() {
   fake.presence.session.sendPresence = (p) => fake.sent.push(["presence", p]);
   link.setActive(true);
   assert.equal(made.length, 1);
-  assert.equal(fake.presence.started, 2);
   link.afterTick("lobby", after, after, null);
   assert.deepEqual(fake.sent.map(([t]) => t), ["appearance", "presence"]);
+  assert.equal(fake.presence.started, 2);
   // A source someone else set is left alone on stop.
   const other = { list: () => [] };
   source = other;
@@ -290,7 +293,9 @@ function fakePresence() {
   });
   let source = null;
   const link = createLobbyLink({ createPresence: () => fake.presence, setSource: (s) => (source = s), getSource: () => source });
+  const here = { playerPosition: [31, 25], playerMovementPath: [], playerFacingAngle: 0, playerEquipment: {} };
   link.setActive(true);
+  link.afterTick("lobby", here, here, null);
   assert.equal(fake.presence.started, 1);
   // member_leave of the leader, then member_join of the same id in the same tick.
   fake.players.set(9, leader([31, 30]));
@@ -316,6 +321,7 @@ function fakePresence() {
   link.setActive(false);
   for (const fn of sessionListeners) fn();
   link.setActive(true);
+  link.afterTick("lobby", here, here, null);
   assert.equal(link.finalStop, "replaced");
   assert.equal(fake.presence.started, 1, "not started again until a reload");
 }

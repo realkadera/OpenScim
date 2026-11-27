@@ -3,8 +3,10 @@
 // every lobby tick, and Follow. Each call is a no-op outside that.
 //
 //   setLobbyPresenceActive(active)   application.js: signed in, the lobby
-//                                    shown, no replay. Creates and starts the
-//                                    presence once; stops it when false.
+//                                    shown, no replay. Creates the presence
+//                                    once and starts it after the next lobby
+//                                    tick (look and tile known); stops it
+//                                    when false.
 //   lobbyBeforeTick(kind, state, engineOverride)
 //                                    Grid.js live loop, before advanceTick:
 //                                    { tile, ctrlClickOverride, changed } while
@@ -53,6 +55,7 @@ export function createLobbyLink({ createPresence = createLobbyPresence, build = 
   let sentLook = null;
   let following = false; // a step was given since Follow started
   let finalStop = null; // a stop reason of FINAL_STOPS, once seen
+  let startPending = false; // active, to be started after the next lobby tick
   const follow = createFollow({
     lookup: (id) => {
       const players = getSource();
@@ -93,8 +96,11 @@ export function createLobbyLink({ createPresence = createLobbyPresence, build = 
         if (finalStop) return;
         sentLook = null;
         setSource(presence.players);
-        presence.start();
+        // Started after the next lobby tick has set the look and the tile, so
+        // both go out before join and the others never see us half made.
+        startPending = true;
       } else {
+        startPending = false;
         follow.cancel("left the lobby");
         if (presence) {
           presence.stop();
@@ -161,6 +167,10 @@ export function createLobbyLink({ createPresence = createLobbyPresence, build = 
           facing: (Number.isSafeInteger(after.playerFacingAngle) ? after.playerFacingAngle : 0) & 2047,
         }),
       );
+      if (startPending) {
+        startPending = false;
+        presence.start();
+      }
     },
   };
   return api;
