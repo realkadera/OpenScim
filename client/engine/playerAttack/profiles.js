@@ -18,10 +18,7 @@ var purgingStaffSpecialIdSet = new Set([29594]);
 var scorchingBowIdSet = new Set([29591]);
 var burningClawsIdSet = new Set([29577]);
 var abyssalBludgeonIdSet = new Set([13263]);
-// The dragon hunter weapons whose bonus against dragons is not modelled: an
-// attack with one on a dragon is refused (no profile). The crossbow and the
-// lance have theirs in formula.js (getDragonHunterStages).
-var dragonHunterWeaponIdSet = new Set([30070]); // Dragon hunter wand
+var dragonHunterCrossbowIdSet = new Set([21012, 25916, 25918]); // Dragon hunter crossbow, (t), (b)
 var eclipseAtlatlIdSet = new Set([29000, 29851]);
 var zaryteCrossbowIdSet = new Set([26374, 27186]); // Zaryte crossbow, and its Last Man Standing copy
 // Enchanted bolts against monsters (WIKI: Enchanted bolts, and each bolt's
@@ -620,14 +617,6 @@ function buildSoulreaperProfile(soulreaperStacks) {
     };
   }
 }
-function isDragonHunterWeaponAgainstDragon(canonicalInput) {
-  const targetAttributes = canonicalInput.targetAttributes ?? [];
-  return (
-    canonicalInput.weaponId !== undefined &&
-    targetAttributes.includes("dragon") &&
-    dragonHunterWeaponIdSet.has(canonicalInput.weaponId)
-  );
-}
 function buildOsmumtensFangProfile(canonicalInput) {
   const formulaStages = computeFormulaStages(toFormulaStageInput(canonicalInput));
   const attackRollStages = formulaStages.attackRollStages;
@@ -752,10 +741,6 @@ function selectBaseProfile(canonicalInput) {
   }
   if ("spell" === canonicalInput.resources?.kind) {
     return buildStandardSingleHitProfile(canonicalInput);
-  } else if (
-    isDragonHunterWeaponAgainstDragon(canonicalInput)
-  ) {
-    return null;
   } else if (canonicalInput.weaponId === OSMUMTENS_FANG_ID) {
     return buildOsmumtensFangProfile(canonicalInput);
   } else if (canonicalInput.weaponId === undefined) {
@@ -845,6 +830,34 @@ function applyScorchingBowSlayerHelm(profile, slayerHelmRatio) {
     },
   };
 }
+// WIKI (Dragon hunter crossbow): against a dragon its bonus "stacks additively with the Slayer helm (i)", accuracy
+// and damage both (Mod Ash there: "adding the percentages (e.g. 15 + 30) and multiplying up by the resulting
+// percentage"): 45% and 40%, not 49.5% and 43.75%.
+function applyDragonHunterCrossbowSlayerHelm(profile, slayerHelmRatio) {
+  if (
+    profile.kind !== "singleHit" ||
+    "staged" !== profile.maxHit.kind ||
+    profile.maxHit.stages.length !== 1 ||
+    "standard" !== profile.hit.accuracy.kind ||
+    1 !== profile.hit.accuracy.attackRollStages?.length
+  ) {
+    return prependProfileMultiplierStage(profile, slayerHelmRatio);
+  }
+  return {
+    ...profile,
+    maxHit: {
+      kind: "staged",
+      stages: [getAdditiveMaxHitRatio(profile.maxHit.stages[0], slayerHelmRatio)],
+    },
+    hit: {
+      ...profile.hit,
+      accuracy: {
+        ...profile.hit.accuracy,
+        attackRollStages: [getAdditiveMaxHitRatio(profile.hit.accuracy.attackRollStages[0], slayerHelmRatio)],
+      },
+    },
+  };
+}
 function adjustProfileForSlayerHelm(profile, canonicalInput) {
   const slayerHelmRatio = getSlayerHelmRatio(canonicalInput.headId, canonicalInput.formulaStyle, canonicalInput.weaponId);
   if (slayerHelmRatio === null) {
@@ -855,6 +868,13 @@ function adjustProfileForSlayerHelm(profile, canonicalInput) {
     true === canonicalInput.targetAttributes?.includes("demon")
   ) {
     return applyScorchingBowSlayerHelm(profile, slayerHelmRatio);
+  } else if (
+    canonicalInput.weaponId !== undefined &&
+    dragonHunterCrossbowIdSet.has(canonicalInput.weaponId) &&
+    "spell" !== canonicalInput.resources?.kind &&
+    true === canonicalInput.targetAttributes?.includes("dragon")
+  ) {
+    return applyDragonHunterCrossbowSlayerHelm(profile, slayerHelmRatio);
   } else if (undefined !== canonicalInput.weaponId && crystalBowIdSet.has(getBaseItemId(canonicalInput.weaponId))) {
     return appendProfileMultiplierStage(profile, slayerHelmRatio);
   } else {

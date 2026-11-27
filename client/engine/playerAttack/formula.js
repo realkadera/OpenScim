@@ -41,15 +41,18 @@ var NO_FORMULA_STAGES = {
   maxHitStages: [],
 };
 // Dragon hunter weapons against a dragon (the monster table's attribute
-// "dragon"): [accuracy, damage] percent added. WIKI (Dragon hunter crossbow):
-// +30% accuracy and +25% damage, its ornament kits' alike; (Dragon hunter
-// lance): +20% and +20%. The dragon hunter wand is not here: profiles.js
-// still refuses it against a dragon until its numbers are checked.
+// "dragon", which Elvarg, the revenant dragon and Zulrah do not have, as
+// WIKI: Draconic (attribute) excludes them): [accuracy, damage] percent
+// added. WIKI (Dragon hunter crossbow): +30% accuracy and +25% damage, its
+// ornament kits' alike; (Dragon hunter lance): +20% and +20%; (Dragon hunter
+// wand): +75% and +40%, on the spells it casts and not on a blow with it.
+var DRAGON_HUNTER_WAND_ID = 30070;
 var dragonHunterPercentsByWeaponId = new Map([
   [21012, [30, 25]], // Dragon hunter crossbow
   [25916, [30, 25]], // Dragon hunter crossbow (t)
   [25918, [30, 25]], // Dragon hunter crossbow (b)
   [22978, [20, 20]], // Dragon hunter lance
+  [DRAGON_HUNTER_WAND_ID, [75, 40]],
 ]);
 var DRAGON_ATTRIBUTE = "dragon";
 function getDragonHunterStages(formulaStageInput) {
@@ -58,7 +61,10 @@ function getDragonHunterStages(formulaStageInput) {
     return null;
   }
   const percents = dragonHunterPercentsByWeaponId.get(weaponId) ?? dragonHunterPercentsByWeaponId.get(getBaseItemId(weaponId));
-  if (undefined === percents) {
+  // The wand's is a spell's bonus and the others' a shot's or a blow's: a spell cast by hand with the crossbow
+  // on, or a blow with the wand, has none.
+  const isSpell = formulaStageInput.resources?.kind === "spell";
+  if (undefined === percents || isSpell !== (percents === dragonHunterPercentsByWeaponId.get(DRAGON_HUNTER_WAND_ID))) {
     return null;
   }
   return {
@@ -217,7 +223,7 @@ function computeFormulaStages(formulaStageInput) {
     return demonbaneSpellStages;
   }
   if (formulaStageInput.resources?.kind === "spell") {
-    return NO_FORMULA_STAGES;
+    return getDragonHunterStages(formulaStageInput) ?? NO_FORMULA_STAGES;
   }
   const twistedBowStages = getTwistedBowStages(formulaStageInput);
   if (null !== twistedBowStages) {
