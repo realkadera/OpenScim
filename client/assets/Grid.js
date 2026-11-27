@@ -4,7 +4,7 @@ import { attackRangesDefaults, readAttackRangesSettings, isAttackDragProtected }
 import { projectileOverrideDefaults, readProjectileOverrideSettings } from "/plugins/projectileOverride.js";
 import { getDefenceTrackerInfoboxes } from "/plugins/defenceTracker.js";
 import { pickLobbyObject } from "/lobby/gateways.js";
-import { lobbyBeforeTick, lobbyAfterTick, followRemotePlayer } from "/net/lobbyLink.js";
+import { lobbyBeforeTick, lobbyAfterTick, followRemotePlayer, lobbyLink } from "/net/lobbyLink.js";
 import { subscribeLobbyChat, getLobbyChatSnapshot, setLobbyChatDraft, sendLobbyChat, chatKeyStartsTyping, createChatboxMerge } from "/net/lobbyChat.js";
 import { combatLevelColor } from "/util/combatLevelColor.js";
 import { replayMarkerStore, findUndoFrameIndex, addMarker, isOnTimeline, pickMarker, pickAutoMarker, nameNewAutoMarkers, describeMarker, isRollbackHeld, holdAfterRollback, releaseRollback, showReplayMessage } from "/replay/markers.js";
@@ -20574,7 +20574,9 @@ function useSimulationWiring({
     QNxeW: "entry",
     UZLUJ: "holding",
   };
-  const fg = Iae(pauseWhenUnfocused);
+  // In the lobby with the other players (client/net/lobbyLink.js) the game goes on unfocused or hidden: the others
+  // still see this player. Read when the focus changes, which is when this renders.
+  const fg = Iae(pauseWhenUnfocused) && !lobbyLink.active;
   const fh = (0, pn.useRef)(fg);
   fh.current = fg;
   (0, pn.useLayoutEffect)(() => {
