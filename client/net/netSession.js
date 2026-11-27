@@ -75,6 +75,8 @@ export const SLOW_RETRY_MAX_MS = 300_000;
 // The server keeps a player whose socket dropped for 20 s: back within that,
 // the same id comes back and nobody saw us leave. Past it, the room is gone.
 export const ROOM_GRACE_MS = 20_000;
+// Joined this long, a room is taken as stable again: room_closed backs off from 1 s.
+export const STABLE_ROOM_MS = 30_000;
 // After notice{shutdown}, the close comes in in_sec (5 s if not said).
 export const SHUTDOWN_NOTICE_MS = 5_000;
 export const SHUTDOWN_SLACK_MS = 5_000;
@@ -172,6 +174,7 @@ export function createNetSession({
   let generation = 0; // a new attempt or stop() makes every older callback a no-op
   let socket = null;
   let failures = 0; // attempts since the last joined, for the backoff
+  let roomClosures = 0; // room_closed errors since a welcome or STABLE_ROOM_MS joined
   let ridCounter = 0;
   let joinRid = null;
   let wantedAppearance = null, wantedPresence = null; // built messages, latest wins
@@ -254,8 +257,8 @@ export function createNetSession({
   };
 
   // --- the connection.
-  const backoff = () => {
-    const base = Math.min(BACKOFF_CAP_MS, BACKOFF_START_MS * 2 ** Math.min(failures, 30));
+  const backoff = (count = failures) => {
+    const base = Math.min(BACKOFF_CAP_MS, BACKOFF_START_MS * 2 ** Math.min(count, 30));
     return Math.round(base / 2 + (random() * base) / 2);
   };
 
@@ -390,6 +393,7 @@ export function createNetSession({
       case "welcome": {
         if (welcomed) return;
         welcomed = true;
+        roomClosures = 0;
         disarm("welcome");
         const before = snapshot.you;
         update({ state: "open", you: Object.freeze({ ...msg.you }), limits: Object.freeze({ ...msg.limits }) });
@@ -407,6 +411,7 @@ export function createNetSession({
         failures = 0;
         disarm("grace");
         disarm("rejoin");
+        arm("stable", STABLE_ROOM_MS, () => (roomClosures = 0));
         update({ state: "joined", room: Object.freeze({ ...msg.room }) });
         emit({ type: "message", msg });
         flush();
@@ -421,11 +426,14 @@ export function createNetSession({
         // The room closed under us (fixture error.room-closed): we are in no
         // room, the others are gone, and join is sent again after a short wait,
         // the look and the tile first, as after a welcome.
+        // A room that keeps closing is joined again ever more slowly: the count
+        // goes back to 0 after STABLE_ROOM_MS joined, or with a new welcome.
         else if (msg.code === "room_closed" && snapshot.state === "joined") {
+          disarm("stable");
           update({ state: "open", room: null });
           roomLost("room_closed");
           emit({ type: "message", msg });
-          arm("rejoin", backoff(), () => {
+          arm("rejoin", backoff(roomClosures++), () => {
             sentAppearance = sentPresence = null;
             flush({ beforeJoin: true });
             sendJoin();

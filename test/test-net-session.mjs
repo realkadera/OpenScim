@@ -10,6 +10,7 @@ import {
   ROOM_GRACE_MS,
   SLOW_RETRY_MAX_MS,
   SLOW_RETRY_MIN_MS,
+  STABLE_ROOM_MS,
   WELCOME_TIMEOUT_MS,
   createNetSession,
 } from "../client/net/netSession.js";
@@ -483,10 +484,47 @@ for (const [code, retry] of Object.entries(policies).map(([code, retry]) => [Num
   assert.equal(ws.sockets.length, 1, "the same socket");
   assert.equal(socket.messages.filter((msg) => msg.t === "join").length, joinsBefore + 1);
   // Not in a room (before joined): room_closed changes nothing.
+  // (The second room_closed waits longer: 1.5 s.)
   socket.receive(fixtureBody("valid", "error.room-closed"));
   socket.receive(fixtureBody("valid", "error.room-closed"));
-  await clock.advance(1000);
+  await clock.advance(1500);
   assert.equal(socket.messages.filter((msg) => msg.t === "join").length, joinsBefore + 2);
+  session.stop();
+  assert.equal(clock.pending(), 0);
+}
+
+// --- room_closed again and again: the re-join backs off, and is fast again after 30 s joined ---
+{
+  const { clock, ws, session, connect, joinedFor } = setup();
+  const socket = await connect();
+  const joins = () => socket.messages.filter((msg) => msg.t === "join").length;
+  // random() is 0.5: each wait is 3/4 of 1 s, 2 s, 4 s, ...
+  // How long after room_closed the join goes out (the send may also wait for the rate bucket).
+  const closeAndRejoin = async (wait) => {
+    const before = joins();
+    socket.receive(fixtureBody("valid", "error.room-closed"));
+    await clock.advance(wait - 1);
+    assert.equal(joins(), before, `not before ${wait} ms`);
+    let waited = wait - 1;
+    while (joins() === before && waited < 60_000) {
+      await clock.advance(50);
+      waited += 50;
+    }
+    assert.equal(joins(), before + 1, `a join after about ${wait} ms`);
+    socket.receive(joinedFor({ messages: socket.messages.filter((msg) => msg.t === "join").slice(-1) }));
+    assert.equal(session.getSnapshot().state, "joined");
+    return waited;
+  };
+  assert.ok((await closeAndRejoin(750)) < 1500);
+  await closeAndRejoin(1500);
+  await closeAndRejoin(3000);
+  // Joined for STABLE_ROOM_MS (the pings answered): back to the first wait.
+  for (let ms = 0; ms < STABLE_ROOM_MS; ms += PING_INTERVAL_MS) {
+    await clock.advance(PING_INTERVAL_MS);
+    socket.receive({ t: "pong", ts: 1, server_tick: 1 });
+  }
+  assert.equal(ws.sockets.length, 1);
+  assert.ok((await closeAndRejoin(750)) < 1500, "fast again");
   session.stop();
   assert.equal(clock.pending(), 0);
 }
