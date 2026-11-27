@@ -14,8 +14,13 @@
 // What a monster does besides (catalog.js names each, its own fight's
 // module the numbers): a healer heals one of its side until something hits
 // it (`supports`); the meleer digs (`digs`); the mager brings back the dead
-// (`revives`); the blob reads the prayer (`readsPrayer`). Summons, splits and
-// heals from damage are the encounter's, as they make or hurt others
+// (`revives`); the blob reads the prayer (`readsPrayer`); the Corrupted
+// Hunllef keeps to one style for a few attacks (`rotation`) and calls
+// tornadoes (`tornadoes`); the Maggot King screeches (an attack's
+// `screech`); a larva leeches (an attack's `leech`); the Ruptura Araxyte
+// blows up (`explodes`). Summons, splits, heals from damage, the Hunllef's
+// prayer, the tornadoes themselves, the blasts and what a body brings along
+// (`companion`) are the encounter's, as they make or hurt others
 // (encounter.js).
 //
 // Random numbers come from `context.random`, the encounter's seeded
@@ -23,6 +28,7 @@
 import { canNpcActAtTick, isActorAlive, isNpcAlive } from "../../engine/npcState.js";
 import { getProjectileFlightCycles } from "../../engine/projectiles.js";
 import { getNpcPursuitMoves, isArenaFootprintWalkable } from "../shared/npcMovement.js";
+import { findNpcRouteToMeleeRange } from "../shared/npcRoutes.js";
 import { defineNpc } from "../shared/npcDefinitions.js";
 import { rollNpcAttack, isNpcInAttackRange, getDistanceFromNpcCentre } from "../shared/npcAttack.js";
 import { scheduleNextActionTick, buildNpcProjectileVisual, getProjectileSourcePosition, buildActorVisualTarget, faceActorToward } from "../shared/npcHelpers.js";
@@ -44,6 +50,14 @@ const cyclesPerTick = 30;
 // inferred: a graphic on a target tile at a body's height, as JalTok-Jad's ranged
 // graphic (inferno/jad.js) and Zuk's (inferno/zukFight.js) are drawn.
 const defaultTargetGraphicHeight = 92;
+
+// inferred: no defence at all, for a target the monster table has no stats of.
+const undefendedStats = {
+  burnImmunity: null, freezeResistance: 0, poisonResistance: 0, attributes: [],
+  levels: { attack: 1, strength: 1, defence: 1, ranged: 1, magic: 1 },
+  offensive: { atk: 0, ranged: 0, magic: 0, str: 0, rangedStr: 0, magicStr: 0 },
+  defensive: { stab: 0, slash: 0, crush: 0, rangedLight: 0, rangedStandard: 0, rangedHeavy: 0, magic: 0 },
+};
 
 /** The reach that brings an NPC close enough for its longest attack. */
 export const getApproachRange = (entry) => Math.max(...entry.attacks.map((attack) => attack.range));
@@ -263,6 +277,105 @@ function buildPlan(attack, maxHitOverride, attacker, target) {
   return { plan, visual, graphics };
 }
 
+// --- the Maggot King's screech (an attack's `screech`, maggot-king/encounter.js) ---
+// An attack of its own place in the count: he screeches, and the encounter
+// says what it does (a player praying is hurt; below a mark a larva comes).
+// He waits the screech's own time after it (the attack's attackSpeed).
+function screech(actor, target, attack, context, config) {
+  faceActorToward(actor, target);
+  animate(actor, attack.clip, context, attack.screech.graphic ? [{ spotAnimId: attack.screech.graphic, on: actor, height: 0 }] : []);
+  config.onScreech(actor, target, attack.screech, context);
+  actor.combat.lastAttackTick = context.tick;
+  scheduleNextActionTick(actor.combat, context.tick, attack.attackSpeed ?? actor.combat.attackSpeed);
+  return { environmentalDamages: [] };
+}
+
+// --- the Ruptura Araxyte's blast (`explodes`, araxxor/encounter.js) --------
+// It walks up to its target; beside it, it lights its fuse and stands, and
+// `fuseTicks` later it blows up where it is: the encounter hurts all around
+// it by how far they are, and it dies.
+function fuseTick(actor, explodes, context, config) {
+  const idle = { environmentalDamages: [] };
+  const state = actor.state;
+  if (state.fuseAt !== undefined) {
+    if (context.tick >= state.fuseAt && !state.blown) {
+      state.blown = true;
+      config.blast(actor, explodes, context);
+    }
+    return idle;
+  }
+  const target = config.selectTarget(actor, context);
+  actor.combat.targetId = target?.id ?? null;
+  if (!target || context.tick < actor.combat.nextActionTick || !isNpcInAttackRange(actor, target, 1)) return idle;
+  state.fuseAt = context.tick + explodes.fuseTicks;
+  faceActorToward(actor, target);
+  animate(actor, explodes.clip, context);
+  return idle;
+}
+
+// When the straight walk is blocked by the arena (a wall, a tree, a pillar of
+// the map) or by other monsters, one step along the route search toward the
+// target, as the Colosseum's minotaur does with its modifier Red Flag
+// (colosseum/minotaur.js), so that a monster that can walk is never frozen
+// by the room. A boulder of the scenario's in its way (`config.isObstacleAt`)
+// still holds it, as in its own fight: those are the player's safespots.
+function routeAround(actor, target, context) {
+  const occupancy = context.world.occupancy;
+  const [ownX, ownY] = actor.position;
+  const isOwnTile = (x, y) => x >= ownX && x < ownX + actor.size && y >= ownY && y < ownY + actor.size;
+  const isClearOfOthers = ([x, y], size) => {
+    for (let dx = 0; dx < size; dx++) {
+      for (let dy = 0; dy < size; dy++) {
+        if (occupancy.isBlocked(x + dx, y + dy) && !isOwnTile(x + dx, y + dy)) return false;
+      }
+    }
+    return true;
+  };
+  const route = findNpcRouteToMeleeRange({
+    source: actor.position,
+    destination: [...target.position],
+    size: actor.size,
+    canOccupy: (tile, size) => isArenaFootprintWalkable(tile, size) && isClearOfOthers(tile, size),
+    moveNear: true,
+  });
+  const step = route.kind === "failed" ? undefined : route.steps[0];
+  return step ? [{ npcId: actor.id, path: [step] }] : [];
+}
+// A boulder beside its footprint on the side of its target.
+function isBoulderInTheWay(actor, target, config) {
+  if (!config.isObstacleAt) return false;
+  const [x, y] = actor.position;
+  const size = actor.size;
+  const stepX = Math.sign(target.position[0] - x) * (target.position[0] >= x && target.position[0] < x + size ? 0 : 1);
+  const stepY = Math.sign(target.position[1] - y) * (target.position[1] >= y && target.position[1] < y + size ? 0 : 1);
+  for (let n = -1; n <= size; n++) {
+    if (stepX !== 0 && config.isObstacleAt(stepX > 0 ? x + size : x - 1, y + n)) return true;
+    if (stepY !== 0 && config.isObstacleAt(x + n, stepY > 0 ? y + size : y - 1)) return true;
+  }
+  return false;
+}
+// The straight walk; when it is blocked by anything but a boulder, around
+// (routeAround), and from then on along the route until it is in reach of
+// that target (`routeTargetId`): back on the straight walk it would step
+// into the same wall again, and to and fro.
+function walkTo(actor, target, context, config, range) {
+  const state = actor.state;
+  if (isNpcInAttackRange(actor, target, range)) {
+    delete state.routeTargetId;
+    return getNpcPursuitMoves(actor, context, target);
+  }
+  if (state.routeTargetId === target.id) {
+    const routed = routeAround(actor, target, context);
+    if (routed.length > 0) return routed;
+    delete state.routeTargetId;
+  }
+  const moves = getNpcPursuitMoves(actor, context, target);
+  if (moves.length > 0 || isBoulderInTheWay(actor, target, config)) return moves;
+  const routed = routeAround(actor, target, context);
+  if (routed.length > 0) state.routeTargetId = target.id;
+  return routed;
+}
+
 export const brawlerNpcDefinition = defineNpc({
   id: "sandbox-brawler",
   // The scene plays the death; the encounter takes the body away (encounter.js).
@@ -272,15 +385,15 @@ export const brawlerNpcDefinition = defineNpc({
   },
   move: ({ actor, context, config }) => {
     if (!canNpcActAtTick(actor, context.tick) || !isActorAlive(actor)) return [];
-    // Under the floor, or just come up from it (the meleer's dig).
-    if (actor.state.dig || context.tick < (actor.state.walkFromTick ?? 0)) return [];
+    // Under the floor, or just come up from it (the meleer's dig); a lit fuse (the Ruptura's).
+    if (actor.state.dig || context.tick < (actor.state.walkFromTick ?? 0) || actor.state.fuseAt !== undefined) return [];
     const entry = config.entryOf(actor);
     // A healer goes to the one it heals, and stops in reach of it.
     const support = supportTargetOf(actor, entry, context, config);
     if (support) {
       actor.combat.targetId = null;
       if (entry.immobile || isNpcInAttackRange(actor, support, entry.supports.reach)) return [];
-      return getNpcPursuitMoves(actor, context, support);
+      return walkTo(actor, support, context, config, entry.supports.reach);
     }
     // An NPC that never moves in its own fight (TzKal-Zuk) stays where it was placed.
     if (entry.immobile) {
@@ -292,16 +405,25 @@ export const brawlerNpcDefinition = defineNpc({
     if (!target) return [];
     // Still while an attack of tiles is on its way (special: Sol Heredit's spear and shield).
     if (context.tick < (actor.state.immobileUntilTick ?? 0)) return [];
-    // The straight walk only, as in the monsters' own fights: one whose step
-    // is blocked (a boulder, a wall, another monster) stands still. It does
-    // not find a way round, so that it can be stuck behind an obstacle.
-    return getNpcPursuitMoves(actor, context, target);
+    // The straight walk, as in the monsters' own fights; blocked by the room
+    // or by other monsters it goes round, but a boulder holds it (walkTo).
+    return walkTo(actor, target, context, config, actor.combat.attackRange);
   },
   tick: ({ actor, context, config }) => {
     const idle = { environmentalDamages: [] };
     if (!canNpcActAtTick(actor, context.tick) || !isActorAlive(actor)) return idle;
     const own = config.entryOf(actor);
     if (own.digs && digTick(actor, own.digs, context, config)) return idle;
+    if (own.explodes) return fuseTick(actor, own.explodes, context, config);
+    // The cue of a new style of a rotation, the tick after the last attack of the old one.
+    if (actor.state.switchClipAt !== undefined && context.tick >= actor.state.switchClipAt) {
+      const clip = own.rotation?.switchClips?.[actor.state.rotationStyle];
+      delete actor.state.switchClipAt;
+      if (clip) {
+        animate(actor, clip, context);
+        config.echo?.(actor, clip, context);
+      }
+    }
     const support = supportTargetOf(actor, own, context, config);
     if (support) return supportTick(actor, support, own.supports, context, config);
     // A charged volley (the manticore's) runs on every tick: it draws its charge.
@@ -324,14 +446,51 @@ export const brawlerNpcDefinition = defineNpc({
       const uncovered = plain.filter((attack) => !isCorrectProtectionPrayer(planOfStyle[attack.style].damageType, target.activePrayer));
       if (uncovered.length > 0) plain = uncovered;
     }
+    // Come in to fight beside its target (the Maggot King's near phase): beside it, only melee.
+    if (actor.state.closedIn) {
+      const melee = plain.filter((attack) => attack.style === "melee");
+      if (melee.length > 0) plain = melee;
+    }
+    // A rotation (the Corrupted Hunllef's): `every` attacks of one style, then
+    // as many of the next.
+    // A form it has taken (`forms`: the Alchemical Hydra's) may change how often it switches.
+    const form = entry.forms?.[actor.state.formIndex];
+    const every = form?.rotationEvery ?? entry.rotation?.every;
+    const rotationStyle = entry.rotation ? entry.rotation.styles[Math.floor((count - 1) / every) % entry.rotation.styles.length] : null;
+    if (rotationStyle) {
+      const ofStyle = plain.filter((attack) => attack.style === rotationStyle);
+      if (ofStyle.length > 0) plain = ofStyle;
+    }
     if (!due && plain.length === 0) {
       // Out of reach: a healer heals one of its side instead (the minotaur).
       return entry.heal ? heal(actor, target, entry.heal, context, config) : idle;
     }
     actor.state.attackCount = count;
-    const attack = due ?? (plain.length === 1 ? plain[0] : plain[Math.floor(context.random() * plain.length)]);
+    if (rotationStyle) {
+      actor.state.rotationStyle = rotationStyle;
+      // The next attack is of another style: its cue next tick.
+      const next = entry.rotation.styles[Math.floor(count / every) % entry.rotation.styles.length];
+      if (next !== rotationStyle) {
+        actor.state.rotationStyle = next;
+        actor.state.switchClipAt = context.tick + 1;
+      }
+    }
+    // Tornadoes, when they are due, in place of an attack (they count as one).
+    if (entry.tornadoes && context.tick >= (actor.state.nextTornadoTick ??= context.tick + entry.tornadoes.firstTicks)) {
+      actor.state.nextTornadoTick = context.tick + entry.tornadoes.everyTicks;
+      animate(actor, entry.tornadoes.clip, context);
+      config.echo?.(actor, entry.tornadoes.clip, context);
+      config.summonTornadoes(actor, target, context);
+      actor.combat.lastAttackTick = context.tick;
+      scheduleNextActionTick(actor.combat, context.tick, actor.combat.attackSpeed);
+      return idle;
+    }
+    const drawn = due ?? (plain.length === 1 ? plain[0] : plain[Math.floor(context.random() * plain.length)]);
+    // Its form's max hit and hits for that style (`forms`), over the attack's.
+    const attack = form?.attacks?.[drawn.style] ? { ...drawn, ...form.attacks[drawn.style] } : drawn;
     if (entry.revives && tryRevive(actor, entry.revives, context, config)) return idle;
     if (attack.special) return special(actor, target, attack, context, config);
+    if (attack.screech) return screech(actor, target, attack, context, config);
     // One attack may be several hits, each rolled on its own and with a
     // hitsplat of its own: `hits` at once (the jaguar's three claws), or a
     // `volley` a tick apart (the manticore's three orbs). The engine
@@ -342,25 +501,46 @@ export const brawlerNpcDefinition = defineNpc({
     const npcAttacks = [];
     const visual = [];
     const graphics = [];
+    let firstImpactTicks;
     for (const part of parts) {
       const built = buildPlan(part, actor.state.maxHit, actor, target);
-      const rolled = rollNpcAttack({ attacker: actor, target, plan: built.plan, random: context.random });
+      // A target without stats of its own (Phosani's Nightmare's totems: the
+      // table has none) is rolled against as one with no defence (inferred).
+      const rolledAt = target.kind === "npc" && !target.formulaStats ? { ...target, formulaStats: undefendedStats } : target;
+      let rolled = rollNpcAttack({ attacker: actor, target: rolledAt, plan: built.plan, random: context.random });
       // Null when an NPC has no stats: the catalog holds only NPCs of the monster table.
       if (!rolled) return idle;
-      npcAttacks.push(npcAttacks.length === 0 ? rolled : { ...rolled, isContinuation: true });
+      // A target whose prayer turns this style away (the Corrupted Hunllef's): nothing.
+      if (config.isProtected?.(target, part.style)) rolled = { ...rolled, accuracySucceeded: false, rolledDamage: 0 };
+      // A leech (a larva's): one more each attack on the same target while it
+      // stays where it is (up to `max`), through any prayer, and its summoner
+      // heals as much (maggot-king/larvae.js: stepping off starts it again).
+      if (part.leech) {
+        const state = actor.state;
+        const at = `${target.id}@${target.position.join(",")}`;
+        state.leech = state.leechAt === at ? Math.min(part.leech.max, state.leech + 1) : part.leech.start;
+        state.leechAt = at;
+        rolled = { ...rolled, accuracySucceeded: true, rolledDamage: state.leech, prayerReduction: { type: "reduce", value: 1 } };
+        if (state.summonerId) config.queueHeal({ at: context.tick + rolled.impactDelayTicks, healerId: actor.id, targetId: state.summonerId, amount: state.leech });
+      }
+      firstImpactTicks ??= rolled.impactDelayTicks;
       visual.push(...built.visual);
       graphics.push(...built.graphics);
+      // A host's NPC takes it by its fight's own rules as it lands, as it
+      // takes the player's (encounter.js, deferToHost): not the engine's hit.
+      if (config.deferToHost?.(actor, target, rolled, context)) continue;
+      npcAttacks.push(npcAttacks.length === 0 ? rolled : { ...rolled, isContinuation: true });
     }
-    const npcAttack = npcAttacks[0];
     emitInfernoNpcAttack(context, {
       actor,
       target,
       clipId: attack.clip,
       kind: `sandbox_${attack.style}`,
-      impactDelayTicks: npcAttack.impactDelayTicks,
+      impactDelayTicks: firstImpactTicks,
       projectiles: visual,
     });
     if (graphics.length > 0) emitInfernoVisual(context.tickEvents, { animations: [], projectiles: [], graphics });
+    config.echo?.(actor, attack.clip, context);
     emitColosseumVisual(context.tickEvents, {
       animations: [{ actorId: actor.id, clipId: attack.clip, delayCycles: 0 }],
       projectiles: visual,

@@ -4,9 +4,9 @@
 // footprint stands on walkable tiles of its arena, clear of the others and
 // of the host boss's NPCs: test/test-sandbox-examples.mjs checks it.
 //
-// Twenty: ten against the player and ten free-for-alls, mixing the
-// catalog's monsters, boulders (obstacles.js) and, in four, the arena's own
-// boss with all its mechanics (the host).
+// Twenty-six: thirteen against the player and thirteen free-for-alls,
+// mixing the catalog's monsters, boulders (obstacles.js) and, in seven, the
+// arena's own boss with all its mechanics (the host).
 import { normalizeScenario } from "./scenario.js";
 
 // Item ids (the game's object ids, as tools/determinism/scenarios/common.mjs has them).
@@ -142,6 +142,19 @@ export const sandboxExamples = [
     npc("vardorvis", "vardorvis", 31, 37),
     npc("manticore", "colosseum.manticore", 24, 33),
   ], {}, [...wall(26, 25, 2, 0, 1), ...wall(36, 25, 2, 0, 1), ...wall(28, 30, 2, 1, 0), ...wall(33, 30, 2, 1, 0)]),
+  example("spiders-nest", { name: "Spider's Nest", description: "Araxxor in his lair with all his mechanics, and a Mirrorback and a Ruptura Araxyte already out of their eggs." }, "araxxor", "versus", meleeGear, [
+    npc("mirrorback", "araxxor.mirrorback", 56, 20),
+    npc("ruptura", "araxxor.ruptura", 58, 26),
+  ], { bossMechanics: true }),
+  example("corrupted-storm", { name: "Corrupted Storm", description: "The Corrupted Hunllef in the Colosseum: four of a style and a switch, a prayer you have to hit around, and its tornadoes; two shamans on the flanks." }, "colosseum", "versus", mageGear, [
+    npc("hunllef", "corrupted_hunllef", 30, 42),
+    npc("shaman-1", "colosseum.shaman", 18, 32),
+    npc("shaman-2", "colosseum.shaman", 45, 32),
+  ]),
+  example("maggot-feast", { name: "Maggot Feast", description: "The Maggot King in his lair with all his mechanics, and two of his larvae already on the floor." }, "maggot_king", "versus", rangedGear, [
+    npc("larva-1", "maggot_king.larva", 26, 34),
+    npc("larva-2", "maggot_king.larva", 36, 34),
+  ], { bossMechanics: true }),
 
   // --- free for all ----------------------------------------------------------
   example("inferno-vs-colosseum", { name: "Inferno vs Colosseum", description: "The Inferno's monsters (team 1) against the Colosseum's (team 2). You watch." }, "colosseum", "ffa", rangedGear, [
@@ -235,6 +248,23 @@ export const sandboxExamples = [
     npc("vardorvis", "vardorvis", 40, 19, team("4")),
     npc("manticore", "colosseum.manticore", 37, 22, team("4")),
   ], { ffaIncludesPlayer: false, playerStart: [30, 26] }, [...wall(27, 31, 7, 1, 0), ...wall(30, 28, 3, 0, 1), ...wall(30, 32, 3, 0, 1)]),
+  example("immovable-titans", { name: "Immovable Titans", description: "The Leviathan (1), Zebak with his tail (2) and Duke Sucellus (3) never move from where they stand; the Corrupted Hunllef (4) walks among them with its tornadoes. You watch." }, "colosseum", "ffa", mageGear, [
+    npc("leviathan", "leviathan", 18, 30, team("1")),
+    npc("zebak", "zebak", 37, 30, team("2")),
+    npc("duke", "duke_sucellus", 29, 44, team("3")),
+    npc("hunllef", "corrupted_hunllef", 29, 20, team("4")),
+  ], { ffaIncludesPlayer: false, playerStart: [32, 27] }),
+  example("brood-war", { name: "Brood War", description: "Araxxor and his araxytes (team 1) against the Maggot King and his larvae (team 2). You watch." }, "colosseum", "ffa", rangedGear, [
+    npc("araxxor", "araxxor", 19, 30, team("1")),
+    npc("acidic", "araxxor.acidic", 21, 39, team("1")),
+    npc("maggot-king", "maggot_king", 39, 31, team("2")),
+    npc("larva-1", "maggot_king.larva", 37, 38, team("2")),
+    npc("larva-2", "maggot_king.larva", 38, 26, team("2")),
+  ], { ffaIncludesPlayer: false, playerStart: [32, 22] }),
+  example("hunllef-hunting-party", { name: "Hunllef Hunting Party", description: "The Corrupted Hunllef in its room with all its mechanics, and a jaguar and a minotaur fighting on your side." }, "corrupted_hunllef", "ffa", rangedGear, [
+    npc("jaguar", "colosseum.jaguar", 52, 52, team("player")),
+    npc("minotaur", "colosseum.minotaur", 59, 51, team("player")),
+  ], { bossMechanics: true }),
 ];
 
 export const getSandboxExample = (key) => sandboxExamples.find((entry) => entry.key === key);

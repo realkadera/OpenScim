@@ -11,12 +11,12 @@ import { loadEnvironment } from "../tools/determinism/harness.mjs";
 
 const { prepareArena, rendering, engineModule, objTypeLoader } = await loadEnvironment();
 const { sandboxExamples } = await import("../client/encounters/sandbox/examples.js");
-const { sandboxVariantKind } = await import("../client/encounters/sandbox/arenas.js");
+const { getSandboxArena, sandboxVariantKind } = await import("../client/encounters/sandbox/arenas.js");
 const { getSandboxNpcEntry } = await import("../client/encounters/sandbox/catalog.js");
 const { libraryScenarios, libraryScenarioFiles } = await import("../client/encounters/sandbox/scenarios/index.js");
 const { normalizeScenario } = await import("../client/encounters/sandbox/scenario.js");
 
-assert.equal(sandboxExamples.length, 20);
+assert.equal(sandboxExamples.length, 26);
 // The library: every JSON file listed, every one a scenario.
 const libraryDirectory = new URL("../client/encounters/sandbox/scenarios/", import.meta.url);
 const libraryFiles = readdirSync(libraryDirectory).filter((name) => name.endsWith(".json")).sort();
@@ -29,7 +29,8 @@ assert.equal(libraryScenarios.length, libraryFiles.length);
 for (const { key, scenario } of [...sandboxExamples, ...libraryScenarios]) {
   const kind = sandboxVariantKind(scenario.arena);
   await prepareArena(kind);
-  const walkable = rendering.getRegisteredArenaConfig("sandbox").walkableTiles;
+  // The arena's own floor when it has one (arenas.js, arenaConfig: the Leviathan's bridge, the Hunllef's room).
+  const walkable = getSandboxArena(scenario.arena).arenaConfig?.().walkableTiles ?? rendering.getRegisteredArenaConfig("sandbox").walkableTiles;
   // The engine as the application builds it: the run's start sets the host up.
   const engine = engineModule.createSimulationEngine({
     encounterConfig: { kind, mechanics: {}, options: { scenario } },
@@ -37,7 +38,8 @@ for (const { key, scenario } of [...sandboxExamples, ...libraryScenarios]) {
     inventory: engineModule.createEmptyInventory(), equipment: {}, combatSupplies: engineModule.createEmptyCombatSupplies(), attackStylePerCategory: {},
   });
   const start = engine.runStartPosition;
-  const actors = engine.worldState.getNpcs();
+  // What a monster brings along stands on its tiles (sandbox/bodies.js: Zebak's tail).
+  const actors = engine.worldState.getNpcs().filter((actor) => actor.definition?.id !== "sandbox-companion");
   const own = new Set(scenario.npcs.map((npc) => npc.id));
   assert.equal(actors.filter((actor) => own.has(actor.id)).length, scenario.npcs.length, `${key}: every monster is placed`);
   if (scenario.options.bossMechanics) assert.ok(actors.length > scenario.npcs.length, `${key}: the host boss is there`);
@@ -81,5 +83,5 @@ for (const { key, scenario } of [...sandboxExamples, ...libraryScenarios]) {
   assert.equal(ids.length, hostIds.length + 1, "the clashing monster is placed");
   assert.ok(ids.includes(`${hostIds[0]}-2`), "under a new id");
 }
-console.log(`sandbox examples: 20 placed; library: ${libraryScenarios.length} placed`);
+console.log(`sandbox examples: 26 placed; library: ${libraryScenarios.length} placed`);
 process.exit(0);

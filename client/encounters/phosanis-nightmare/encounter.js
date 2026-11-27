@@ -782,7 +782,8 @@ class PhosanisNightmareEncounter {
 }
 
 // The floor of plane 3 as an arena: every tile that is not floor blocked.
-function buildArena() {
+// The sandbox's arena of her dream is this one too (sandbox/arenas.js).
+export function buildArena() {
   const size = 64;
   const flags = new Int32Array(size * size);
   const walkableTiles = new Set();

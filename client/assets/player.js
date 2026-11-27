@@ -1186,7 +1186,8 @@ var CacheManager = class {
         await this.hydration;
       }
       // The nexus (55,80) opens Zebak's setup window, whose portrait needs the model.
-      if ((Math.abs(x-61)<=1 && Math.abs(y-84)<=1) || (x===55 && y===80)) await prepareZebak();
+      // The sandbox may place Zebak in any of its arenas (encounters/tombs-of-amascut/sandbox.js).
+      if ((Math.abs(x-61)<=1 && Math.abs(y-84)<=1) || (x===55 && y===80) || location.pathname.startsWith("/sandbox")) await prepareZebak();
       return readMap(x,y);
     };
     e.end("CacheManager.MapLoader.init");

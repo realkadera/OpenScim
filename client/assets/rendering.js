@@ -62494,7 +62494,9 @@ var bZ = ({
     if (
       locModelLoader &&
       mapLocs &&
-      mapLocs.length > 0 &&
+      // A square with no map object still loads them when the encounter
+      // draws objects of its own (the sandbox's open arena: its wall).
+      (mapLocs.length > 0 || sceneBuilder.sceneObjectController) &&
       je &&
       sceneBuilder.isTerrainLoaded() &&
       !sceneBuilder.isLocsLoaded()

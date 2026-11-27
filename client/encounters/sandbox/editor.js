@@ -9,13 +9,18 @@
 //                Another arena is another route (/sandbox/<arena>): the
 //                application enters it (bridge.js) and the editor opens
 //                again at step 2.
-//   2 Monsters   a map of the arena's walkable tiles. Monsters and boulders
-//                (obstacles.js) are dragged from the list onto the map and
-//                moved by dragging them; a monster is edited below the map.
-//                In a free-for-all each monster shows its team's number, and
-//                a right click gives it the next team; a right click on a
-//                boulder takes it away. The player's starting tile is the "P"
-//                marker, dragged the same way.
+//   2 Monsters   a map of the arena's walkable tiles on the left, the tools
+//                on the right. Monsters and boulders (obstacles.js) are
+//                dragged from the list onto the map and moved by dragging
+//                them; a monster is edited beside the map. The wheel zooms
+//                the map at the pointer, and dragging an empty tile then pans
+//                it. Alt+drag copies a monster, Shift+click on a free tile
+//                places another like the selected one, Ctrl+D duplicates it
+//                and Delete removes it; a tooltip says what is under the
+//                pointer and what can be done with it. In a free-for-all each
+//                monster shows its team's number, and a right click gives it
+//                the next team; a right click on a boulder takes it away. The
+//                player's starting tile is the "P" marker, dragged the same way.
 //   3 Gear & share   the scenario's gear (chosen in the application's setup
 //                window), save in this browser, export a file, copy a share
 //                code or a link.
@@ -65,7 +70,7 @@ const style = `
 .sbx-result { align-self: center; padding: 3px 8px; font: 13px "RuneScape Bold 12", sans-serif; color: var(--color-heading, #ff981f);
   background: var(--color-bg-solid, #1e1812); border: 1px solid var(--color-primary, #ff981f); border-radius: 3px; }
 .sbx-result[hidden] { display: none; }
-.sbx-panel { position: fixed; top: 48px; right: 12px; z-index: 40; width: min(440px, calc(100vw - 24px)); max-height: calc(100vh - 64px);
+.sbx-panel { position: fixed; top: 48px; right: 12px; z-index: 40; width: min(1080px, calc(100vw - 24px)); max-height: calc(100vh - 64px);
   display: flex; flex-direction: column; color: var(--color-text-body, #e6dcc8); background: var(--color-bg-solid, #1e1812);
   border: 1px solid var(--modal-card-border, var(--color-border, #5d5245)); border-radius: var(--modal-radius, 6px);
   box-shadow: 0 8px 24px rgb(0 0 0 / 0.5); font: 14px/18px "RuneScape Plain 12", sans-serif; }
@@ -85,6 +90,7 @@ const style = `
 .sbx-panel textarea { resize: vertical; min-height: 48px; }
 .sbx-row { display: flex; gap: 6px; flex-wrap: wrap; align-items: end; }
 .sbx-row > label { flex: 1; }
+.sbx-panel label.sbx-row { display: flex; align-items: center; gap: 8px; color: var(--color-text-body, #e6dcc8); font-size: 13px; }
 .sbx-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(124px, 1fr)); gap: 6px; }
 .sbx-card { display: grid; gap: 2px; text-align: left; padding: 6px 8px; cursor: pointer; color: inherit; font: inherit;
   background: var(--color-surface, #2a221a); border: 1px solid var(--color-border, #5d5245); border-radius: 4px; }
@@ -95,12 +101,43 @@ const style = `
 .sbx-list { display: grid; gap: 4px; }
 .sbx-list .sbx-row { align-items: center; }
 .sbx-list .sbx-row span { flex: 1; }
-.sbx-map-wrap { position: relative; }
-.sbx-map { display: block; width: 100%; touch-action: none; cursor: crosshair; border: 1px solid var(--color-border, #5d5245); border-radius: 3px; }
-.sbx-palette { display: grid; grid-template-columns: repeat(auto-fill, minmax(128px, 1fr)); gap: 4px; max-height: 172px; overflow: auto; }
+.sbx-monsters { display: grid; grid-template-columns: minmax(0, 3fr) minmax(300px, 2fr); gap: 14px; align-items: start; }
+.sbx-monsters-map { position: sticky; top: 0; display: grid; gap: 6px; padding-top: 8px; background: var(--color-bg-solid, #1e1812); }
+.sbx-monsters-tools { min-width: 0; }
+@media (max-width: 760px) { .sbx-monsters { grid-template-columns: minmax(0, 1fr); } .sbx-monsters-map { position: static; } }
+.sbx-map-view { position: relative; display: grid; height: clamp(260px, calc(100vh - 330px), 760px); overflow: auto; overscroll-behavior: contain;
+  background: var(--color-surface-inset, #14100c); border: 1px solid var(--color-border, #5d5245); border-radius: 3px; }
+.sbx-map { display: block; margin: auto; touch-action: none; cursor: crosshair; outline: none; }
+.sbx-map.is-panning { cursor: grabbing; }
+.sbx-map-bar { display: flex; align-items: center; gap: 4px; font-size: 12px; color: var(--color-text-dim, #8f826d); }
+.sbx-map-bar .sbx-grow { flex: 1; }
+.sbx-keys { display: flex; flex-wrap: wrap; gap: 4px 10px; font-size: 11px; color: var(--color-text-dim, #8f826d); }
+.sbx-keys kbd { font: 11px "RuneScape Bold 12", sans-serif; padding: 0 4px; color: var(--color-text-body, #e6dcc8);
+  background: var(--color-surface, #2a221a); border: 1px solid var(--color-border, #5d5245); border-radius: 3px; }
+.sbx-tip { position: fixed; z-index: 100002; pointer-events: none; max-width: 260px; padding: 5px 8px; font: 12px/16px "RuneScape Plain 12", sans-serif;
+  color: var(--color-text-body, #e6dcc8); background: rgb(14 11 8 / 0.94); border: 1px solid var(--color-primary, #ff981f); border-radius: 3px;
+  box-shadow: 0 4px 12px rgb(0 0 0 / 0.5); }
+.sbx-tip[hidden] { display: none; }
+.sbx-tip b { font: 13px "RuneScape Bold 12", sans-serif; color: var(--color-heading, #ff981f); }
+.sbx-tip small { display: block; color: var(--color-text-dim, #8f826d); }
+.sbx-tip span { display: block; }
+.sbx-filter { width: 100%; margin-bottom: 6px; box-sizing: border-box; }
+.sbx-palette { display: grid; grid-template-columns: repeat(auto-fill, minmax(128px, 1fr)); gap: 4px; max-height: 240px; overflow: auto; }
+.sbx-placed { display: grid; gap: 3px; max-height: 196px; overflow: auto; }
+.sbx-placed-row { display: flex; align-items: center; gap: 6px; padding: 2px 4px 2px 6px; font-size: 12px; cursor: pointer;
+  background: var(--color-surface, #2a221a); border: 1px solid var(--color-border, #5d5245); border-radius: 3px; }
+.sbx-placed-row:hover { background: var(--color-surface-hover, #352b21); }
+.sbx-placed-row[aria-selected="true"] { border-color: var(--color-primary, #ff981f); }
+.sbx-placed-row i { width: 10px; height: 10px; border-radius: 2px; flex: none; }
+.sbx-placed-row span { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sbx-placed-row small { color: var(--color-text-dim, #8f826d); }
+.sbx-icon { min-width: 24px; padding: 0 5px; font: 13px "RuneScape Bold 12", sans-serif; line-height: 18px; cursor: pointer; color: inherit;
+  background: transparent; border: 1px solid transparent; border-radius: 3px; }
+.sbx-icon:hover { border-color: var(--color-border, #5d5245); background: var(--color-surface-inset, #14100c); }
 .sbx-chip { display: flex; align-items: center; gap: 6px; padding: 3px 6px; cursor: grab; user-select: none; touch-action: none; font-size: 12px;
   background: var(--color-surface, #2a221a); border: 1px solid var(--color-border, #5d5245); border-radius: 3px; }
 .sbx-chip:hover { background: var(--color-surface-hover, #352b21); }
+.sbx-chip[hidden] { display: none; }
 .sbx-chip i { width: 10px; height: 10px; border-radius: 2px; flex: none; }
 .sbx-chip--player i { background: var(--color-spawn-player, #2ec4ff); }
 .sbx-note { margin: 6px 0; font-size: 12px; color: var(--color-text-dim, #8f826d); }
@@ -136,6 +173,11 @@ const ui = {
   tilesFor: null,
   bounds: null,
   canvas: null,
+  mapView: null,
+  mapScroll: null,
+  zoom: 1,
+  tip: null,
+  filter: "",
   drag: null,
   hover: null,
 };
@@ -173,7 +215,9 @@ function commit(render = true) {
   else drawMap();
 }
 const draftNpc = (id) => ui.draft.npcs.find((npc) => npc.id === id);
-const playerStartOf = (scenario) => scenario.options.playerStart ?? getSandboxArena(scenario.arena).playerStart;
+// The player's tile: the scenario's own, else where the arena's boss puts him
+// when it is on (the run's snapshot: encounter.js, hostStart), else the arena's.
+const playerStartOf = (scenario) => scenario.options.playerStart ?? (scenario === ui.draft ? hostStartOnMap() : null) ?? getSandboxArena(scenario.arena).playerStart;
 const isDraftInThisArena = () => ui.draft.arena === ui.arena.id;
 
 function loadDraft(scenario, savedId = null) {
@@ -285,9 +329,52 @@ const columns = () => ui.bounds.maxX - ui.bounds.minX + 1;
 const rows = () => ui.bounds.maxY - ui.bounds.minY + 1;
 const tilePixels = () => ui.canvas.width / columns();
 
+// The map's zoom: 1 fits the whole arena in its view; the wheel (or the
+// buttons above the map) zooms in up to maxZoom, about the pointer.
+const maxZoom = 8;
+const clampZoom = (zoom) => Math.min(maxZoom, Math.max(1, Math.round(zoom * 100) / 100));
+function fitTileSize() {
+  const view = ui.mapView;
+  const width = Math.max(120, (view?.clientWidth || 400) - 2);
+  const height = Math.max(120, (view?.clientHeight || 400) - 2);
+  return Math.min(width / columns(), height / rows());
+}
+// Zoom to `zoom`, keeping the map's point under (clientX, clientY), or the
+// view's middle, where it is.
+function setZoom(zoom, clientX, clientY) {
+  const view = ui.mapView;
+  const next = clampZoom(zoom);
+  if (!view || !ui.canvas || next === ui.zoom) return;
+  const viewRect = view.getBoundingClientRect();
+  const canvasRect = ui.canvas.getBoundingClientRect();
+  const anchorX = clientX ?? viewRect.left + viewRect.width / 2;
+  const anchorY = clientY ?? viewRect.top + viewRect.height / 2;
+  const fractionX = (anchorX - canvasRect.left) / canvasRect.width;
+  const fractionY = (anchorY - canvasRect.top) / canvasRect.height;
+  ui.zoom = next;
+  drawMap();
+  const after = ui.canvas.getBoundingClientRect();
+  view.scrollLeft += after.left + fractionX * after.width - anchorX;
+  view.scrollTop += after.top + fractionY * after.height - anchorY;
+  syncZoomLabel();
+}
+function syncZoomLabel() {
+  if (ui.zoomLabel) ui.zoomLabel.textContent = `${Math.round(ui.zoom * 100)}%`;
+}
+function onMapWheel(event) {
+  event.preventDefault();
+  hideTip();
+  // A trackpad's small steps zoom little, a wheel's notch about a fifth.
+  const step = Math.min(0.5, Math.abs(event.deltaY) / (event.deltaMode === 1 ? 15 : 500));
+  setZoom(ui.zoom * (event.deltaY < 0 ? 1 + step : 1 / (1 + step)), event.clientX, event.clientY);
+}
+
+// The tile under the pointer, on the part of the map its view shows.
 function tileAtPointer(event) {
   const rect = ui.canvas.getBoundingClientRect();
   if (event.clientX < rect.left || event.clientX >= rect.right || event.clientY < rect.top || event.clientY >= rect.bottom) return null;
+  const view = ui.mapView?.getBoundingClientRect();
+  if (view && (event.clientX < view.left || event.clientX >= view.right || event.clientY < view.top || event.clientY >= view.bottom)) return null;
   const x = ui.bounds.minX + Math.floor(((event.clientX - rect.left) / rect.width) * columns());
   const y = ui.bounds.maxY - Math.floor(((event.clientY - rect.top) / rect.height) * rows());
   return [x, y];
@@ -351,6 +438,11 @@ function bossesOnMap() {
   if (!ui.draft.options.bossMechanics || !getSandboxArena(ui.draft.arena).hostKind || sandbox?.arena !== ui.draft.arena) return [];
   return sandbox.bosses ?? [];
 }
+function hostStartOnMap() {
+  const sandbox = ui.simulationState?.encounter?.sandbox;
+  if (!ui.draft.options.bossMechanics || !getSandboxArena(ui.draft.arena).hostKind || sandbox?.arena !== ui.draft.arena) return null;
+  return sandbox.hostStart ?? null;
+}
 const bossAt = (tile) => bossesOnMap().find((boss) => covers(boss.position, boss.size, tile)) ?? null;
 function cycleBossTeam(boss) {
   const { bossTeam, ...rest } = ui.draft.options;
@@ -358,6 +450,105 @@ function cycleBossTeam(boss) {
   ui.draft.options = next === undefined ? rest : { ...rest, bossTeam: next };
   setStatus(`${boss.name}: ${next === undefined ? "a team of its own" : next === playerTeam ? "on your side" : `team ${next}`}.`);
   commit();
+}
+
+// What stands on a tile, the topmost first: the player's start, a monster,
+// the boss, a boulder; null for a free tile.
+function thingAt(tile) {
+  const start = playerStartOf(ui.draft);
+  if (tile[0] === start[0] && tile[1] === start[1]) return { kind: "player", position: start, size: 1 };
+  const npc = npcAt(tile);
+  if (npc) return { kind: "npc", npc, position: npc.position, size: getSandboxNpcEntry(npc.npc).size };
+  const boss = bossAt(tile);
+  if (boss) return { kind: "boss", boss, position: boss.position, size: boss.size };
+  const rock = obstacleAt(tile);
+  if (rock >= 0) return { kind: "rock", index: rock, position: ui.draft.obstacles[rock], size: obstacleSize };
+  return null;
+}
+
+// The tooltip: what is under the pointer and what can be done with it.
+const teamText = (team) => (team === undefined ? "no team" : team === playerTeam ? "your side (A)" : `team ${team}`);
+function describeTile(tile) {
+  const thing = thingAt(tile);
+  const ffa = ui.draft.mode === "ffa";
+  const where = `Tile ${tile[0]}, ${tile[1]}`;
+  if (!thing) {
+    const selected = ui.selectedId ? draftNpc(ui.selectedId) : null;
+    if (!isWalkable(tile[0], tile[1])) return { title: "Blocked", lines: [where] };
+    return {
+      title: "Free tile",
+      lines: [where],
+      hints: [selected ? `Shift+click: place another ${getSandboxNpcEntry(selected.npc).name}` : null, ui.zoom > 1 ? "Drag: pan the map" : null, "Wheel: zoom"],
+    };
+  }
+  if (thing.kind === "player") return { title: "Player start", lines: [where], hints: ["Drag: move it"] };
+  if (thing.kind === "boss") {
+    return {
+      title: thing.boss.name,
+      lines: ["The arena's boss: starts where its fight puts it", ffa ? `Team: ${ui.draft.options.bossTeam === undefined ? "its own" : teamText(ui.draft.options.bossTeam)}` : null],
+      hints: [ffa ? "Right click: next team" : null],
+    };
+  }
+  if (thing.kind === "rock") {
+    const low = thing.position[2] === "low";
+    return { title: low ? "Jug (low obstacle)" : "Boulder", lines: [where], hints: ["Drag: move", "Alt+drag: copy", "Right click: remove"] };
+  }
+  const { npc } = thing;
+  const entry = getSandboxNpcEntry(npc.npc);
+  const stats = [
+    npc.hp !== undefined ? `HP ${npc.hp}` : null,
+    npc.maxHit !== undefined ? `max hit ${npc.maxHit}` : null,
+    npc.attackSpeed !== undefined ? `speed ${npc.attackSpeed}` : null,
+  ].filter(Boolean);
+  return {
+    title: entry.name,
+    lines: [
+      `${entry.group} · ${entry.size}×${entry.size} · ${npc.position[0]}, ${npc.position[1]}`,
+      ffa ? `Team: ${teamText(npc.team)}` : null,
+      stats.length > 0 ? stats.join(" · ") : null,
+    ],
+    hints: ["Drag: move · Alt+drag: copy", ffa ? "Right click: next team" : null, npc.id === ui.selectedId ? "Ctrl+D: duplicate · Del: remove" : "Click: edit"],
+  };
+}
+function showTip(event, tile) {
+  if (!ui.tip) return;
+  const { title, lines = [], hints = [] } = describeTile(tile);
+  ui.tip.replaceChildren(
+    el("b", { text: title }),
+    ...lines.filter(Boolean).map((line) => el("span", { text: line })),
+    ...hints.filter(Boolean).map((hint) => el("small", { text: hint })),
+  );
+  ui.tip.hidden = false;
+  const margin = 14;
+  const { innerWidth, innerHeight } = globalThis;
+  const width = ui.tip.offsetWidth;
+  const height = ui.tip.offsetHeight;
+  const left = event.clientX + margin + width > innerWidth ? event.clientX - margin - width : event.clientX + margin;
+  const top = event.clientY + margin + height > innerHeight ? event.clientY - margin - height : event.clientY + margin;
+  ui.tip.style.left = `${Math.max(4, left)}px`;
+  ui.tip.style.top = `${Math.max(4, top)}px`;
+}
+function hideTip() {
+  if (ui.tip) ui.tip.hidden = true;
+}
+function onMapPointerMove(event) {
+  if (ui.drag || ui.pan) return;
+  const tile = tileAtPointer(event);
+  if (!tile) {
+    onMapPointerLeave();
+    return;
+  }
+  showTip(event, tile);
+  if (ui.hover?.[0] !== tile[0] || ui.hover?.[1] !== tile[1]) {
+    ui.hover = tile;
+    drawMap();
+  }
+}
+function onMapPointerLeave() {
+  hideTip();
+  if (ui.drag || !ui.hover) return;
+  ui.hover = null;
+  drawMap();
 }
 
 function cssColour(name, fallback) {
@@ -368,10 +559,12 @@ function cssColour(name, fallback) {
 function drawMap() {
   const canvas = ui.canvas;
   if (!canvas || !canvas.isConnected) return;
-  const width = canvas.clientWidth || 400;
+  const cssTile = fitTileSize() * ui.zoom;
   const ratio = globalThis.devicePixelRatio || 1;
-  canvas.width = Math.round(width * ratio);
-  canvas.height = Math.round((width * ratio * rows()) / columns());
+  canvas.style.width = `${Math.round(cssTile * columns())}px`;
+  canvas.style.height = `${Math.round(cssTile * rows())}px`;
+  canvas.width = Math.round(cssTile * columns() * ratio);
+  canvas.height = Math.round(cssTile * rows() * ratio);
   const size = tilePixels();
   const g = canvas.getContext("2d");
   const toPixel = (x, y) => [(x - ui.bounds.minX) * size, (ui.bounds.maxY - y) * size];
@@ -385,7 +578,7 @@ function drawMap() {
       g.fillRect(px + 0.5, py + 0.5, size - 1, size - 1);
     }
   }
-  const font = Math.max(9, Math.round(size * 0.7));
+  const font = Math.min(18 * ratio, Math.max(9, Math.round(size * 0.7)));
   g.textAlign = "center";
   g.textBaseline = "middle";
   (ui.draft.obstacles ?? []).forEach((position, index) => {
@@ -464,6 +657,16 @@ function drawMap() {
     g.font = `${font}px "RuneScape Bold 12", sans-serif`;
     g.fillText("P", px + size / 2, py + size / 2);
   }
+  // The footprint under the pointer, when nothing is being dragged.
+  if (!ui.drag && ui.hover) {
+    const under = thingAt(ui.hover);
+    const position = under?.position ?? ui.hover;
+    const side = under?.size ?? 1;
+    const [px, py] = toPixel(position[0], position[1] + side - 1);
+    g.strokeStyle = "rgba(255, 255, 255, 0.7)";
+    g.lineWidth = 1 * ratio;
+    g.strokeRect(px + 0.5, py + 0.5, side * size - 1, side * size - 1);
+  }
   if (ui.drag?.moved && ui.hover) {
     const position = [ui.hover[0] - ui.drag.offset[0], ui.hover[1] - ui.drag.offset[1]];
     const ok = canPlace(position, ui.drag.size, ui.drag.id);
@@ -477,6 +680,7 @@ function drawMap() {
 // `id` is an NPC's, or "player" for the start tile, or null for a new monster.
 function startDrag(event, drag) {
   event.preventDefault();
+  hideTip();
   ui.drag = { ...drag, startX: event.clientX, startY: event.clientY, moved: drag.id === null };
   const ghost = el("div", { class: "sbx-ghost", text: drag.label });
   ui.drag.ghost = ghost;
@@ -532,6 +736,8 @@ function drop(drag, position) {
   } else if (drag.id) {
     draftNpc(drag.id).position = position;
     ui.selectedId = drag.id;
+  } else if (drag.copyOf) {
+    if (!placeCopy(draftNpc(drag.copyOf), position)) return;
   } else {
     if (ui.draft.npcs.length >= maxScenarioNpcs) {
       setStatus(`At most ${maxScenarioNpcs} monsters.`, true);
@@ -585,38 +791,89 @@ function onMapContextMenu(event) {
 function onMapPointerDown(event) {
   // The right button is the context menu's (onMapContextMenu).
   if (event.button === 2) return;
+  // The middle button pans, as does the left on a free tile.
+  if (event.button === 1) {
+    startPan(event, false);
+    return;
+  }
   const tile = tileAtPointer(event);
   if (!tile) return;
-  const start = playerStartOf(ui.draft);
-  if (tile[0] === start[0] && tile[1] === start[1]) {
-    startDrag(event, { id: playerTeam, size: 1, offset: [0, 0], label: "Player start" });
+  ui.canvas.focus({ preventScroll: true });
+  const thing = thingAt(tile);
+  const offset = thing ? [tile[0] - thing.position[0], tile[1] - thing.position[1]] : [0, 0];
+  if (thing?.kind === "player") {
+    startDrag(event, { id: playerTeam, size: 1, offset, label: "Player start" });
     return;
   }
-  const npc = npcAt(tile);
-  const boss = npc ? null : bossAt(tile);
-  if (boss) {
-    setStatus(`${boss.name} starts here, where its own fight puts it; it cannot be moved.${ui.draft.mode === "ffa" ? " Right click: its team." : ""}`);
+  if (thing?.kind === "boss") {
+    setStatus(`${thing.boss.name} starts here, where its own fight puts it; it cannot be moved.${ui.draft.mode === "ffa" ? " Right click: its team." : ""}`);
     return;
   }
-  const rock = npc ? -1 : obstacleAt(tile);
-  if (rock >= 0) {
-    const position = ui.draft.obstacles[rock];
-    startDrag(event, { id: obstacleId(rock), size: obstacleSize, offset: [tile[0] - position[0], tile[1] - position[1]], label: "Boulder" });
+  if (thing?.kind === "rock") {
+    const low = thing.position[2] === "low";
+    // Alt+drag: a new one like it.
+    if (event.altKey) startDrag(event, { id: null, obstacle: true, low, size: obstacleSize, offset, label: low ? "Jug" : "Boulder" });
+    else startDrag(event, { id: obstacleId(thing.index), size: obstacleSize, offset, label: low ? "Jug" : "Boulder" });
     return;
   }
-  if (!npc) {
-    if (ui.selectedId) {
-      ui.selectedId = null;
-      renderBody();
+  if (!thing) {
+    // Shift+click: another like the selected monster, here.
+    const selected = ui.selectedId ? draftNpc(ui.selectedId) : null;
+    if (event.shiftKey && selected) {
+      event.preventDefault();
+      const size = getSandboxNpcEntry(selected.npc).size;
+      const half = Math.floor((size - 1) / 2);
+      if (placeCopy(selected, [tile[0] - half, tile[1] - half])) commit();
+      return;
     }
+    startPan(event, true);
     return;
   }
+  const { npc } = thing;
   const entry = getSandboxNpcEntry(npc.npc);
+  if (event.altKey) {
+    startDrag(event, { id: null, copyOf: npc.id, size: entry.size, offset, label: `${entry.name} (copy)` });
+    return;
+  }
   if (ui.selectedId !== npc.id) {
     ui.selectedId = npc.id;
     renderBody();
   }
-  startDrag(event, { id: npc.id, size: entry.size, offset: [tile[0] - npc.position[0], tile[1] - npc.position[1]], label: entry.name });
+  startDrag(event, { id: npc.id, size: entry.size, offset, label: entry.name });
+}
+
+// Dragging the view of a zoomed map; a click on a free tile without a drag
+// leaves the selection (`deselect`).
+function startPan(event, deselect) {
+  event.preventDefault();
+  hideTip();
+  const view = ui.mapView;
+  ui.pan = { x: event.clientX, y: event.clientY, left: view.scrollLeft, top: view.scrollTop, moved: false };
+  const move = (moveEvent) => {
+    const dx = moveEvent.clientX - ui.pan.x;
+    const dy = moveEvent.clientY - ui.pan.y;
+    if (Math.hypot(dx, dy) > 3) {
+      ui.pan.moved = true;
+      ui.canvas?.classList.add("is-panning");
+    }
+    view.scrollLeft = ui.pan.left - dx;
+    view.scrollTop = ui.pan.top - dy;
+  };
+  const end = () => {
+    document.removeEventListener("pointermove", move);
+    document.removeEventListener("pointerup", end);
+    document.removeEventListener("pointercancel", end);
+    ui.canvas?.classList.remove("is-panning");
+    const moved = ui.pan.moved;
+    ui.pan = null;
+    if (!moved && deselect && ui.selectedId) {
+      ui.selectedId = null;
+      renderBody();
+    }
+  };
+  document.addEventListener("pointermove", move);
+  document.addEventListener("pointerup", end);
+  document.addEventListener("pointercancel", end);
 }
 
 // --- the steps ---------------------------------------------------------------
@@ -725,45 +982,107 @@ function stepMonsters() {
     nodes.push(button(`Go to ${getSandboxArena(draft.arena).name}`, () => goToArena(draft.arena, 2)));
     return nodes;
   }
-  nodes.push(el("p", { class: "sbx-note", text: draft.mode === "ffa"
-    ? "Drag a monster, a rock or the player (P) onto the map; drag to move, click to edit. Right-click a monster for its next team (the number; A is your side), a rock to take it away."
-    : "Drag a monster, a rock or the player (P) onto the map; drag to move, click to edit. Right-click a rock to take it away." }));
-  ui.canvas = el("canvas", { class: "sbx-map", onpointerdown: onMapPointerDown, oncontextmenu: onMapContextMenu });
-  nodes.push(el("div", { class: "sbx-map-wrap" }, ui.canvas));
-  if (!ui.tiles) nodes.push(el("p", { class: "sbx-note", text: "The arena's tiles are still loading; every tile is shown as open." }));
+  // Left: the map, its zoom and the keys.
+  ui.canvas = el("canvas", {
+    class: "sbx-map", tabindex: 0, "aria-label": "Arena map",
+    onpointerdown: onMapPointerDown, onpointermove: onMapPointerMove, onpointerleave: onMapPointerLeave, oncontextmenu: onMapContextMenu,
+  });
+  ui.mapView = el("div", { class: "sbx-map-view" }, ui.canvas);
+  ui.mapView.addEventListener("wheel", onMapWheel, { passive: false });
+  ui.mapView.addEventListener("scroll", hideTip);
+  ui.zoomLabel = el("span", { text: `${Math.round(ui.zoom * 100)}%` });
+  const zoomButton = (text, title, onclick) => button(text, onclick, "ghost", { class: "osrs-btn osrs-btn--ghost osrs-btn--small", title });
+  const bar = el("div", { class: "sbx-map-bar" }, [
+    zoomButton("−", "Zoom out (-)", () => setZoom(ui.zoom / 1.5)),
+    ui.zoomLabel,
+    zoomButton("+", "Zoom in (+)", () => setZoom(ui.zoom * 1.5)),
+    zoomButton("Fit", "The whole arena (0)", () => setZoom(1)),
+    el("span", { class: "sbx-grow" }),
+    el("span", { text: `${draft.npcs.length}/${maxScenarioNpcs} monsters · ${(draft.obstacles ?? []).length}/${maxScenarioObstacles} rocks` }),
+  ]);
+  const key = (keys, text) => el("span", {}, [...keys.map((name) => el("kbd", { text: name })), ` ${text}`]);
+  const keys = el("div", { class: "sbx-keys" }, [
+    key(["Wheel"], "zoom"),
+    key(["Drag"], "move / pan"),
+    key(["Alt", "Drag"], "copy"),
+    key(["Shift", "Click"], "place another"),
+    key(["Ctrl", "D"], "duplicate"),
+    key(["Del"], "remove"),
+    draft.mode === "ffa" ? key(["Right click"], "next team (A: your side)") : key(["Right click"], "remove a rock"),
+  ]);
+  const mapColumn = el("div", { class: "sbx-monsters-map" }, [
+    bar,
+    ui.mapView,
+    keys,
+    ui.tiles ? null : el("p", { class: "sbx-note", text: "The arena's tiles are still loading; every tile is shown as open." }),
+  ]);
 
-  nodes.push(el("h3", { text: "Drag onto the map" }));
+  // Right: what to drag, what is placed, the selected monster.
+  const tools = [];
+  tools.push(el("h3", { text: "Drag onto the map" }));
   const chips = [el("div", {
-    class: "sbx-chip sbx-chip--player",
+    class: "sbx-chip sbx-chip--player", "data-name": "player start",
     onpointerdown: (event) => startDrag(event, { id: playerTeam, size: 1, offset: [0, 0], label: "Player start" }),
   }, [el("i"), "Player start"]),
   el("div", {
-    class: "sbx-chip", title: "A boulder: blocks the way and the line of sight. Several make a wall.",
+    class: "sbx-chip", title: "A boulder: blocks the way and the line of sight. Several make a wall.", "data-name": "boulder obstacle rock",
     onpointerdown: (event) => startDrag(event, { id: null, obstacle: true, size: obstacleSize, offset: [0, 0], label: "Boulder" }),
   }, [el("i", { style: "background: #6b6157" }), "Boulder (obstacle)"]),
   el("div", {
-    class: "sbx-chip", title: "A jug: blocks the way, but attacks from afar pass over it, as over a table.",
+    class: "sbx-chip", title: "A jug: blocks the way, but attacks from afar pass over it, as over a table.", "data-name": "jug low obstacle rock",
     onpointerdown: (event) => startDrag(event, { id: null, obstacle: true, low: true, size: obstacleSize, offset: [0, 0], label: "Jug" }),
   }, [el("i", { style: "background: #b07a48" }), "Jug (low obstacle)"])];
   for (const entry of sandboxNpcCatalog) {
     chips.push(el("div", {
-      class: "sbx-chip", title: `${entry.group} · ${entry.size}×${entry.size}`,
+      class: "sbx-chip", title: `${entry.group} · ${entry.size}×${entry.size}`, "data-name": `${entry.name} ${entry.group}`.toLowerCase(),
       onpointerdown: (event) => startDrag(event, { id: null, entryId: entry.id, size: entry.size, offset: [Math.floor((entry.size - 1) / 2), Math.floor((entry.size - 1) / 2)], label: entry.name }),
     }, [el("i", { style: `background: ${colourOf(entry.group)}` }), entry.name]));
   }
-  nodes.push(el("div", { class: "sbx-palette" }, chips));
+  const applyFilter = () => {
+    const words = ui.filter.toLowerCase().split(/\s+/).filter(Boolean);
+    for (const chip of chips) chip.hidden = !words.every((word) => chip.dataset.name.includes(word));
+  };
+  const filter = el("input", {
+    class: "sbx-filter", type: "search", placeholder: "Filter: a name or a fight (jad, colosseum…)", value: ui.filter,
+    oninput: (event) => { ui.filter = event.target.value; applyFilter(); },
+  });
+  tools.push(filter, el("div", { class: "sbx-palette" }, chips));
+  applyFilter();
 
-  nodes.push(el("h3", { text: `Placed (${draft.npcs.length}/${maxScenarioNpcs})` }));
-  nodes.push(draft.npcs.length === 0
+  tools.push(el("h3", { text: `Placed (${draft.npcs.length}/${maxScenarioNpcs})` }));
+  const iconButton = (text, title, onclick) => el("button", {
+    class: "sbx-icon", type: "button", title, text,
+    onclick: (event) => { event.stopPropagation(); onclick(); },
+  });
+  tools.push(draft.npcs.length === 0
     ? el("p", { class: "sbx-note", text: "No monsters yet." })
-    : el("div", { class: "sbx-palette" }, draft.npcs.map((npc) => el("div", {
-        class: "sbx-chip", style: npc.id === ui.selectedId ? "border-color: var(--color-primary, #ff981f)" : "",
+    : el("div", { class: "sbx-placed" }, draft.npcs.map((npc) => el("div", {
+        class: "sbx-placed-row", "aria-selected": String(npc.id === ui.selectedId),
         onclick: () => { ui.selectedId = npc.id; renderBody(); },
-      }, [el("i", { style: `background: ${npcColour(npc)}` }), `${getSandboxNpcEntry(npc.npc).name}${npc.team ? ` [${npc.team}]` : ""}`]))));
+      }, [
+        el("i", { style: `background: ${npcColour(npc)}` }),
+        el("span", { text: `${getSandboxNpcEntry(npc.npc).name}${npc.team ? ` [${npc.team === playerTeam ? "A" : npc.team}]` : ""}` }),
+        el("small", { text: npc.position.join(", ") }),
+        iconButton("⧉", "Duplicate (Ctrl+D)", () => duplicate(npc)),
+        iconButton("✕", "Remove (Del)", () => removeNpc(npc.id)),
+      ]))));
 
   const selected = ui.selectedId ? draftNpc(ui.selectedId) : null;
-  if (selected) nodes.push(...npcProperties(selected));
-  queueMicrotask(drawMap);
+  if (selected) tools.push(...npcProperties(selected));
+  else tools.push(el("p", { class: "sbx-note", text: "Click a monster on the map or in the list to edit it." }));
+
+  nodes.push(el("div", { class: "sbx-monsters" }, [mapColumn, el("div", { class: "sbx-monsters-tools" }, tools)]));
+  const scroll = ui.mapScroll;
+  const refocus = ui.mapFocused;
+  queueMicrotask(() => {
+    drawMap();
+    // The keys (Ctrl+D, Del) go on working after the map is made again.
+    if (refocus) ui.canvas?.focus({ preventScroll: true });
+    if (scroll && ui.mapView) {
+      ui.mapView.scrollLeft = scroll.left;
+      ui.mapView.scrollTop = scroll.top;
+    }
+  });
   return nodes;
 }
 
@@ -832,14 +1151,44 @@ function npcProperties(npc) {
   });
   nodes.push(el("div", { class: "sbx-row" }, levelInputs));
   nodes.push(el("div", { class: "sbx-row" }, [
-    button("Duplicate", () => duplicate(npc)),
-    button("Remove", () => {
-      ui.draft.npcs = ui.draft.npcs.filter((other) => other.id !== npc.id);
-      ui.selectedId = null;
-      commit();
-    }, "danger"),
+    button("Duplicate", () => duplicate(npc), "default", { title: "Ctrl+D; or Alt+drag it on the map, or Shift+click a free tile" }),
+    button("Remove", () => removeNpc(npc.id), "danger", { title: "Del" }),
   ]));
   return nodes;
+}
+
+function removeNpc(id) {
+  const npc = draftNpc(id);
+  if (!npc) return;
+  ui.draft.npcs = ui.draft.npcs.filter((other) => other.id !== id);
+  if (ui.selectedId === id) ui.selectedId = null;
+  setStatus(`Removed ${getSandboxNpcEntry(npc.npc).name}.`);
+  commit();
+}
+
+// A copy of a monster (its stats and team) at `position`, selected; false
+// when it cannot stand there or the scenario is full. The caller commits.
+function placeCopy(npc, position) {
+  const entry = getSandboxNpcEntry(npc.npc);
+  if (ui.draft.npcs.length >= maxScenarioNpcs) {
+    setStatus(`At most ${maxScenarioNpcs} monsters.`, true);
+    drawMap();
+    return false;
+  }
+  if (!canPlace(position, entry.size, null)) {
+    setStatus("That tile is blocked or taken.", true);
+    drawMap();
+    return false;
+  }
+  const taken = new Set(ui.draft.npcs.map((other) => other.id));
+  const base = npc.id.replace(/-\d+$/, "").slice(0, 28);
+  let n = 2;
+  while (taken.has(`${base}-${n}`)) n++;
+  const copy = { ...structuredClone(npc), id: `${base}-${n}`, position };
+  ui.draft.npcs.push(copy);
+  ui.selectedId = copy.id;
+  setStatus(`Placed a copy of ${entry.name}.`);
+  return true;
 }
 
 // A copy on the nearest free spot around the original.
@@ -851,18 +1200,31 @@ function duplicate(npc) {
         if (Math.max(Math.abs(dx), Math.abs(dy)) !== radius) continue;
         const position = [npc.position[0] + dx * size, npc.position[1] + dy * size];
         if (!canPlace(position, size, null)) continue;
-        const taken = new Set(ui.draft.npcs.map((other) => other.id));
-        let n = 2;
-        while (taken.has(`${npc.id}-${n}`)) n++;
-        const copy = { ...structuredClone(npc), id: `${npc.id}-${n}`.slice(0, 32), position };
-        ui.draft.npcs.push(copy);
-        ui.selectedId = copy.id;
-        commit();
+        if (placeCopy(npc, position)) commit();
         return;
       }
     }
   }
   setStatus("No free spot nearby.", true);
+}
+
+// The keys of step 2, while the focus is in the panel but not in a field.
+function onEditorKey(event) {
+  if (ui.panel.hidden || ui.step !== 2 || event.target.closest?.("input, textarea, select")) return;
+  const selected = ui.selectedId ? draftNpc(ui.selectedId) : null;
+  const key = event.key.toLowerCase();
+  if ((event.ctrlKey || event.metaKey) && key === "d") {
+    event.preventDefault();
+    if (selected) duplicate(selected);
+  } else if ((key === "delete" || key === "backspace") && selected) {
+    event.preventDefault();
+    removeNpc(selected.id);
+  } else if (key === "escape" && selected) {
+    ui.selectedId = null;
+    renderBody();
+  } else if (key === "+" || key === "=") setZoom(ui.zoom * 1.5);
+  else if (key === "-") setZoom(ui.zoom / 1.5);
+  else if (key === "0") setZoom(1);
 }
 
 function gearSection() {
@@ -980,7 +1342,7 @@ function stepStart() {
   nodes.push(el("div", { class: "sbx-grid" }, [
     card("Go on", `"${ui.draft.meta.name}" · ${getSandboxArena(ui.draft.arena).name}`, () => (isDraftInThisArena() ? showStep(2) : goToArena(ui.draft.arena, 2))),
     card("New scenario", `An empty one in ${ui.arena.name}`, () => loadDraft(createEmptyScenario(ui.arena.id))),
-    card("Examples", "Ten against you, ten free-for-alls", () => showStep(1)),
+    card("Examples", "Thirteen against you, thirteen free-for-alls", () => showStep(1)),
   ]));
   return nodes;
 }
@@ -996,7 +1358,12 @@ const steps = [
 function renderBody() {
   if (!ui.body) return;
   const scroll = ui.body.scrollTop;
+  ui.mapScroll = ui.mapView ? { left: ui.mapView.scrollLeft, top: ui.mapView.scrollTop } : null;
+  ui.mapFocused = Boolean(ui.canvas) && document.activeElement === ui.canvas;
   ui.canvas = null;
+  ui.mapView = null;
+  ui.zoomLabel = null;
+  hideTip();
   ui.body.replaceChildren(...steps[ui.step].render());
   ui.body.scrollTop = scroll;
   ui.stepButtons.forEach((node, index) => node.setAttribute("aria-current", index === ui.step ? "step" : "false"));
@@ -1041,7 +1408,14 @@ function create(kind) {
   }, "primary");
   ui.result = el("span", { class: "sbx-result", role: "status", hidden: true });
   ui.countdown = el("div", { class: "sbx-countdown", "aria-live": "polite", hidden: true });
-  ui.root = el("div", { class: "sbx-root" }, [el("div", { class: "sbx-hud" }, [ui.clockButton, ui.toggle, ui.result]), ui.countdown, ui.panel]);
+  ui.tip = el("div", { class: "sbx-tip", role: "tooltip", hidden: true });
+  ui.root = el("div", { class: "sbx-root" }, [el("div", { class: "sbx-hud" }, [ui.clockButton, ui.toggle, ui.result]), ui.countdown, ui.panel, ui.tip]);
+  ui.root.addEventListener("keydown", onEditorKey);
+  // The map fits its view again when the window changes size.
+  ui.onResize = () => {
+    if (ui.step === 2 && !ui.panel.hidden) drawMap();
+  };
+  globalThis.addEventListener("resize", ui.onResize);
   // Keys typed in the panel are the panel's, not the game's hotkeys.
   for (const type of ["keydown", "keyup", "keypress", "wheel"]) ui.root.addEventListener(type, (event) => event.stopPropagation());
   document.body.append(ui.root);
@@ -1073,7 +1447,10 @@ function create(kind) {
 
 function setOpen(open) {
   ui.panel.hidden = !open;
-  if (!open) ui.root.classList.remove("sbx-front");
+  if (!open) {
+    ui.root.classList.remove("sbx-front");
+    hideTip();
+  }
   ui.toggle.textContent = open ? "Hide sandbox editor" : "Sandbox editor";
   if (open) renderBody();
 }
@@ -1131,7 +1508,7 @@ export function syncSandboxEditor(kind, simulationState) {
   if (refreshTiles() && ui.step === 2 && !ui.panel.hidden) renderBody();
   ui.simulationState = simulationState;
   // The map shows the boss once the run that has it is there.
-  const bosses = JSON.stringify(bossesOnMap());
+  const bosses = JSON.stringify([bossesOnMap(), hostStartOnMap()]);
   if (bosses !== ui.bossesDrawn) {
     ui.bossesDrawn = bosses;
     if (ui.step === 2 && !ui.panel.hidden) drawMap();
@@ -1143,7 +1520,8 @@ export function syncSandboxEditor(kind, simulationState) {
 
 export function closeSandboxEditor() {
   if (ui.onOpenRequest) globalThis.removeEventListener("sandbox-open-editor", ui.onOpenRequest);
+  if (ui.onResize) globalThis.removeEventListener("resize", ui.onResize);
   ui.drag?.ghost?.remove();
   ui.root?.remove();
-  Object.assign(ui, { root: null, onOpenRequest: null, toggle: null, result: null, countdown: null, clockButton: null, clockState: null, panel: null, body: null, status: null, kind: null, canvas: null, drag: null });
+  Object.assign(ui, { root: null, onOpenRequest: null, onResize: null, tip: null, mapView: null, zoomLabel: null, pan: null, toggle: null, result: null, countdown: null, clockButton: null, clockState: null, panel: null, body: null, status: null, kind: null, canvas: null, drag: null });
 }

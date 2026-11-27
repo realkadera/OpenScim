@@ -22,7 +22,7 @@ export const mapSquare = { x: 30, y: 88 }; // CACHE: template chunks (246,710) a
 // tsps controller: combat floor begins two tiles into the 16 x 16 room.
 export const arena = { minX: 50, maxX: 61, minY: 50, maxY: 61 };
 export const bossStart = [56, 57]; // supplied arena-local (6,7), 5 x 5 footprint
-const playerStart = [55, 52]; // user-specified practice spawn on a final-phase-safe tile
+export const playerStart = [55, 52]; // user-specified practice spawn on a final-phase-safe tile
 const readyTicks = 4; // inferred simulator grace after the countdown: 2.4 seconds to prepare
 const firstPatternTick = readyTicks + 4; // inferred: preserve the Near-Reality-derived four-tick floor offset
 const patternInterval = 30; // inferred from Near-Reality-derived tsps controller
@@ -66,6 +66,12 @@ const startPhases = [
   { value: "low", label: "Phase 3", phase: 2 },
 ];
 
+// The room's floor, which the sandbox's arena of this room takes too (sandbox/arenas.js).
+export function hunllefFloorArena() {
+  return { bounds: { ...arena, width: 12, height: 12 }, collisionMap: null,
+    walkableTiles: new Set(Array.from({ length: 144 }, (_, i) => `${arena.minX + i % 12},${arena.minY + Math.floor(i / 12)}`)) }; // inferred walkable floor pending collision extraction
+}
+
 export class CorruptedHunllefEncounter {
   kind = kind;
   constructor() { this.reset(); }
@@ -106,10 +112,7 @@ export class CorruptedHunllefEncounter {
   }
   getDefaultPlayerStart() { return [...playerStart]; }
   getIntroConfig() { return null; }
-  getArenaConfig() {
-    return { bounds: { ...arena, width: 12, height: 12 }, collisionMap: null,
-      walkableTiles: new Set(Array.from({ length: 144 }, (_, i) => `${arena.minX + i % 12},${arena.minY + Math.floor(i / 12)}`)) }; // inferred walkable floor pending collision extraction
-  }
+  getArenaConfig() { return hunllefFloorArena(); }
   createNpcs() {
     const hp = getMonsterHitpoints(npcTypeId); // TABLE
     return [{ id: bossId, kind: "npc", role: "boss", npcTypeId: protectionForms[this.protection], archetypeId: kind,

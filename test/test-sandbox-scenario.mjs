@@ -1,6 +1,6 @@
 // The sandbox's scenario format (client/encounters/sandbox/scenario.js):
 // share codes and files read back what was written, bad input is refused
-// with a message, and the ten examples are valid. Plain Node, no browser.
+// with a message, and the twenty-six examples are valid. Plain Node, no browser.
 import assert from "node:assert/strict";
 import { loadEnvironment } from "../tools/determinism/harness.mjs";
 
@@ -12,13 +12,13 @@ const { sandboxArenas } = await import("../client/encounters/sandbox/arenas.js")
 
 const { normalizeScenario, encodeShareCode, decodeShareCode, importScenarioText, scenarioToJson, ScenarioError } = scenario;
 
-// Twenty examples, every one valid, in more than one arena: ten against the
-// player and ten free-for-alls (the editor shows those of the mode chosen).
-assert.equal(sandboxExamples.length, 20);
-assert.equal(new Set(sandboxExamples.map((entry) => entry.key)).size, 20);
+// Twenty-six examples, every one valid, in more than one arena: thirteen against the
+// player and thirteen free-for-alls (the editor shows those of the mode chosen).
+assert.equal(sandboxExamples.length, 26);
+assert.equal(new Set(sandboxExamples.map((entry) => entry.key)).size, 26);
 assert.ok(new Set(sandboxExamples.map((entry) => entry.scenario.arena)).size >= 6);
-assert.equal(sandboxExamples.filter((entry) => entry.scenario.mode === "versus").length, 10);
-assert.equal(sandboxExamples.filter((entry) => entry.scenario.mode === "ffa").length, 10);
+assert.equal(sandboxExamples.filter((entry) => entry.scenario.mode === "versus").length, 13);
+assert.equal(sandboxExamples.filter((entry) => entry.scenario.mode === "ffa").length, 13);
 // Few Sol Heredits and Yamas (their hitpoints make long fights); some with
 // boulders, some with the arena's own boss, some with teams.
 const using = (id) => sandboxExamples.filter((entry) => entry.scenario.npcs.some((npc) => npc.npc === id)).length;

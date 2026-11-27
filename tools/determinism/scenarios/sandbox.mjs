@@ -35,12 +35,20 @@ const hostedArenas = [
   { arena: "doom_deep", npcs: [{ id: "nib", npc: "inferno.nibbler", position: [26, 27] }, { id: "seer", npc: "warband.seer", position: [36, 27] }] },
   { arena: "duke", npcs: [{ id: "nib", npc: "inferno.nibbler", position: [27, 38] }, { id: "jaguar", npc: "colosseum.jaguar", position: [35, 38] }] },
   { arena: "leviathan", npcs: [{ id: "nib", npc: "inferno.nibbler", position: [25, 30] }, { id: "bat", npc: "inferno.bat", position: [41, 30] }] },
+  { arena: "araxxor", npcs: [{ id: "nib", npc: "inferno.nibbler", position: [56, 20] }, { id: "jaguar", npc: "colosseum.jaguar", position: [58, 26] }] },
+  { arena: "maggot_king", npcs: [{ id: "nib", npc: "inferno.nibbler", position: [27, 34] }, { id: "bat", npc: "inferno.bat", position: [35, 34] }] },
+  { arena: "corrupted_hunllef", npcs: [{ id: "nib", npc: "inferno.nibbler", position: [52, 52] }, { id: "jaguar", npc: "colosseum.jaguar", position: [59, 52] }] },
+  { arena: "alchemical_hydra", npcs: [{ id: "nib", npc: "inferno.nibbler", position: [13, 18] }, { id: "jaguar", npc: "colosseum.jaguar", position: [15, 22] }] },
+  { arena: "phosanis_nightmare", npcs: [{ id: "nib", npc: "inferno.nibbler", position: [27, 26] }, { id: "jaguar", npc: "colosseum.jaguar", position: [31, 26] }] },
 ];
 // The arenas whose floor is not the map's as it is (arenas.js: Duke's ice,
-// the Leviathan's bridge), without their boss: a free-for-all over a boulder.
+// the Leviathan's bridge, the Corrupted Hunllef's room, the open arena), without their boss:
+// a free-for-all over a boulder.
 const ownFloorArenas = [
   { arena: "duke", obstacles: [[31, 44]], npcs: [{ id: "jaguar", npc: "colosseum.jaguar", position: [28, 42] }, { id: "minotaur", npc: "colosseum.minotaur", position: [33, 48] }] },
   { arena: "leviathan", obstacles: [[24, 36]], npcs: [{ id: "jaguar", npc: "colosseum.jaguar", position: [24, 41] }, { id: "minotaur", npc: "colosseum.minotaur", position: [39, 34] }] },
+  { arena: "corrupted_hunllef", obstacles: [[55, 55]], npcs: [{ id: "jaguar", npc: "colosseum.jaguar", position: [52, 52] }, { id: "minotaur", npc: "colosseum.minotaur", position: [58, 58] }] },
+  { arena: "open", obstacles: [[31, 31]], npcs: [{ id: "jaguar", npc: "colosseum.jaguar", position: [24, 24] }, { id: "minotaur", npc: "colosseum.minotaur", position: [38, 38] }] },
 ];
 
 // The sandbox's modules reach vendor.js, which Node loads only through the

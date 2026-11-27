@@ -21,10 +21,49 @@ import { closeSandboxEditor, syncSandboxEditor } from "./editor.js";
 import { setActiveScenario } from "./activeScenario.js";
 import { getRunningScenario, isHostedVisit } from "./visit.js";
 import { onTheBridge } from "../leviathan/presentation.js";
+import { plane as dreamPlane } from "../phosanis-nightmare/ids.js";
+
+// In Phosani's dream the actors stand on plane 3, 1,240 above plane 0, as in
+// her fight (phosanis-nightmare/presentation.js, DreamScene).
+const onTheDream = (BaseScene) =>
+  class extends BaseScene {
+    setTerrainHeightsAndBounds(map, bounds) {
+      super.setTerrainHeightsAndBounds(map, bounds);
+      const heights = map.tileHeights?.[dreamPlane];
+      if (!heights) return;
+      this.terrainHeights = heights;
+      this.npcInstanceManager.setTerrainHeights(heights);
+      this.spotAnimRenderer.setTerrainHeights(heights);
+    }
+  };
 
 // The arenas whose scene, without their boss, is not the default one: on the
-// Leviathan's Scar the actors stand on the bridge, as in its fight.
-const sceneOfArena = { leviathan: onTheBridge };
+// Leviathan's Scar the actors stand on the bridge, as in its fight; in
+// Phosani's dream on its plane.
+const sceneOfArena = { leviathan: onTheBridge, phosanis_nightmare: onTheDream };
+
+// The scene draws an NPC as the type it was first drawn as. A monster of the
+// catalog that takes another form (catalog.js: enrage, forms, protects) is
+// taken away and drawn again as the new one, as the Alchemical Hydra's scene
+// does with its own (alchemical-hydra/presentation.js); in every scene of the
+// sandbox, the host's included, but only for the catalog's monsters (an
+// archetype "sandbox_<entry>": encounter.js), the host's own NPCs drawn as
+// its scene draws them.
+function redrawingForms(scene) {
+  const sync = scene.syncNpcInstances?.bind(scene);
+  if (!sync || !scene.npcInstanceManager) return scene;
+  scene.syncNpcInstances = (npcs, ...rest) => {
+    const { instanceRegistry, dyingInstances } = scene.npcInstanceManager;
+    for (const npc of npcs ?? []) {
+      if (!npc.alive || !npc.archetypeId?.startsWith("sandbox_")) continue;
+      const id = scene.getNpcRenderInstanceId(npc.id);
+      const drawn = instanceRegistry?.get(id) ?? dyingInstances?.get(id)?.instance;
+      if (drawn && drawn.npcTypeId !== npc.npcTypeId && scene.isNpcTypeLoaded(npc.npcTypeId)) scene.npcInstanceManager.removeInstance(id);
+    }
+    return sync(npcs, ...rest);
+  };
+  return scene;
+}
 
 // The catalog's monsters and the obstacles' boulder and jug (obstacles.js),
 // which have no sequence (idleSeqId -1, as toa/zebak/phases.js loads them).
@@ -67,7 +106,9 @@ const presentationOf = (arena) => (BaseScene, packHsl, { presentationOf: present
   const kind = sandboxVariantKind(arena.id);
   const ownRenderConfig = {
     terrainMapSquare: arena.mapSquare,
+    ...(arena.mapSquareOffsets ? { mapSquareOffsets: arena.mapSquareOffsets } : {}),
     locRender: arena.locRender,
+    ...(arena.sceneObjects ? { createSceneObjectController: arena.sceneObjects } : {}),
     preloadNpcTypes: sandboxPreloadNpcTypes,
     spotAnimIds: sandboxSpotAnimIds,
   };
@@ -89,9 +130,15 @@ const presentationOf = (arena) => (BaseScene, packHsl, { presentationOf: present
         // (Zebak's, toa/zebak/native.js) gets the sandbox's instead: its own
         // with the catalog's NPCs, so that their attacks play their clips.
         scene.setEncounterRenderConfig?.(hostedRenderConfig());
-        return withEditor(scene, kind, arena, true);
+        return withEditor(redrawingForms(scene), kind, arena, true);
       }
-      return withEditor(buildScene(sceneOfArena[arena.id]?.(BaseScene) ?? BaseScene, ownRenderConfig, context), kind, arena, false);
+      // What the arena draws besides the map (the open arena's wall): the
+      // context's render config is the application's copy, without it (as
+      // corrupted-hunllef/presentation.js hands its floor back).
+      const config = arena.sceneObjects
+        ? { ...(context?.encounterRenderConfig ?? ownRenderConfig), createSceneObjectController: arena.sceneObjects }
+        : context?.encounterRenderConfig ?? ownRenderConfig;
+      return withEditor(redrawingForms(buildScene(sceneOfArena[arena.id]?.(BaseScene) ?? BaseScene, config, { ...context, encounterRenderConfig: config })), kind, arena, false);
     },
     // The host's camera where the arena has one: it looks at the boss.
     get defaultCamera() {
