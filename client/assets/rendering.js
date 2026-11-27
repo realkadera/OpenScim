@@ -54646,6 +54646,10 @@ var LobbySceneCompositor = class extends SceneCompositor {
     r.overheadAnchor = uiCamera
       ? this.uiOverlayRenderer.playerOverheadBase(uiCamera, r.position, ctrl?.posedModelHeight)
       : null;
+    // The screen point of the middle of the body (a pointer aimed at this player, as the tests aim).
+    r.screenCenter = uiCamera
+      ? uiCamera.tileToScreen({ x: x, y: y, level: ground + (ctrl?.posedModelHeight || 200) / 256 })
+      : null;
   }
   // One remote player's rig (buildPlayerRig with no controller to reuse), its meshes under its own ids.
   buildRemotePlayerRig(appearance, equipment, id) {
