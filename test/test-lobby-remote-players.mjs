@@ -131,16 +131,18 @@ try {
         add(3, "Same", [here[0], here[1]]);
         add(4, "Behind", [here[0], here[1] + 1]);
         add(5, "Before", [here[0], here[1] - 1]);
+        add(6, "Stacked", [here[0], here[1] - 1]);
       },
       { here, look },
     );
-    await page.waitForFunction(() => [3, 4, 5].every((id) => window.lobbyFake.remotes.presentedRemotePlayers().some((e) => e.id === id && e.rig && e.screenCenter)), null, { timeout: 30000 });
+    await page.waitForFunction(() => [3, 4, 5, 6].every((id) => window.lobbyFake.remotes.presentedRemotePlayers().some((e) => e.id === id && e.rig && e.screenCenter)), null, { timeout: 30000 });
     // (Once the local player stands: it was still walking after her.)
     await page.waitForFunction(() => window.lobbyFake.remotes.presentedRemotePlayers().find((e) => e.id === 3)?.covered === true, null, { timeout: 30000 });
     const covered = await page.evaluate(() => Object.fromEntries(window.lobbyFake.remotes.presentedRemotePlayers().map((e) => [e.id, e.covered])));
     assert.equal(covered[3], true, "on our tile: not drawn");
     assert.equal(covered[4], false);
     assert.equal(covered[5], false);
+    assert.equal(covered[6], true, "two others standing on one tile: one is drawn (OBS: the game's client, addPlayerToScene)");
     if (process.env.LOBBY_PLAYERS_SCREENSHOT) await page.screenshot({ path: process.env.LOBBY_PLAYERS_SCREENSHOT });
 
     assert.ok(!sockets.some((url) => url.includes("/api/ws")), "signed out: no socket, " + JSON.stringify(sockets));
