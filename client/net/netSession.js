@@ -27,6 +27,8 @@
 //     lastError        the last error message of the server, or null
 //     retryInMs        while waiting, the delay before the next attempt
 //     connectAttempts  sockets opened since start()
+//     chatEnabled      the welcome's features.chat, as notice{chat_off|chat_on}
+//                      and chat_rejected{chat_off} change it since
 //   session.subscribe(fn)        fn() after every snapshot change; returns unsubscribe
 //   session.onRoomEvent(fn)      fn({ type: "message", msg }) for every valid
 //                                message of the server (protocol.js shapes), and
@@ -40,6 +42,16 @@
 //                                joined, at most once a server tick, only when
 //                                it changed. Both throw a TypeError on values
 //                                the protocol refuses (protocol.js builders).
+//   session.sendChat(raw)        one public chat line, as typed: prepared by
+//                                chatText.prepareOutgoing and sent while joined
+//                                with chat on, at most one a chat_interval_ms.
+//                                { ok: true, text, rid } when sent, else
+//                                { ok: false, reason }: "not_joined", "chat_off",
+//                                "empty", "too_long", "rate_limited" (with
+//                                retryInMs) or "not_sent" (the socket or the
+//                                rate of messages would not take it). The
+//                                server is the authority: what it refuses
+//                                comes back as chat_rejected.
 //
 // The states: connecting (checking /api/meta and /api/auth/me, then the
 // socket, hello and the wait for welcome), open (welcome came; the stored
@@ -52,11 +64,15 @@ import {
   buildPing,
   buildPresence,
   buildAppearance,
+  buildChat,
+  NOTICE_CHAT_OFF,
+  NOTICE_CHAT_ON,
   closeCodes,
   describeClose,
   parseServerMessage,
   retryPolicy,
 } from "./protocol.js";
+import { prepareOutgoing } from "./chatText.js";
 
 // The timers of the connection. The server closes a socket that sent nothing
 // for 45 s (4000) and one that sent no hello in 10 s (4002); a ping every 10 s
@@ -144,6 +160,7 @@ export function createNetSession({
     lastError: null,
     retryInMs: null,
     connectAttempts: 0,
+    chatEnabled: false,
   });
   const listeners = new Set();
   const roomListeners = new Set();
@@ -184,6 +201,9 @@ export function createNetSession({
   let tokens = 0, tokensAt = 0;
   let shuttingDown = false;
   let welcomed = false;
+  // The earliest time the next chat line may go. Kept across connections:
+  // the server's interval is per user, across reconnects.
+  let chatAllowedAt = -Infinity;
 
   // --- sending. Half the server's rate, so a burst of ours never meets its limit.
   const bucketSize = () => Math.max(1, Math.floor(snapshot.limits.msg_burst / 2));
@@ -385,7 +405,7 @@ export function createNetSession({
 
   const onFrame = (data) => {
     if (typeof data !== "string") return; // protocol 1 is text only
-    const parsed = parseServerMessage(data);
+    const parsed = parseServerMessage(data, { limits: snapshot.limits });
     if (!parsed.ok) return; // dropped; the socket stays
     const msg = parsed.msg;
     if (!welcomed && msg.t !== "welcome" && msg.t !== "error" && msg.t !== "notice") return;
@@ -396,7 +416,7 @@ export function createNetSession({
         roomClosures = 0;
         disarm("welcome");
         const before = snapshot.you;
-        update({ state: "open", you: Object.freeze({ ...msg.you }), limits: Object.freeze({ ...msg.limits }) });
+        update({ state: "open", you: Object.freeze({ ...msg.you }), limits: Object.freeze({ ...DEFAULT_LIMITS, ...msg.limits }), chatEnabled: msg.features.chat === true });
         tokens = bucketSize();
         tokensAt = now();
         if (before && before.id !== msg.you.id) roomLost("new id");
@@ -441,7 +461,13 @@ export function createNetSession({
           return;
         }
         break;
+      case "chat_rejected":
+        if (msg.reason === "chat_off") update({ chatEnabled: false });
+        if (msg.reason === "rate_limited") chatAllowedAt = Math.max(chatAllowedAt, now() + msg.retry_in_ms);
+        break;
       case "notice":
+        if (msg.kind === NOTICE_CHAT_OFF) update({ chatEnabled: false });
+        if (msg.kind === NOTICE_CHAT_ON) update({ chatEnabled: true });
         if (msg.kind === "shutdown") {
           shuttingDown = true;
           // The close should come; if it does not, the socket is dropped.
@@ -481,6 +507,19 @@ export function createNetSession({
       if (snapshot.state !== "joined") return false;
       flush();
       return true;
+    },
+    sendChat(raw) {
+      if (snapshot.state !== "joined") return { ok: false, reason: "not_joined" };
+      if (!snapshot.chatEnabled) return { ok: false, reason: "chat_off" };
+      const prepared = prepareOutgoing(raw, snapshot.limits);
+      if (!prepared.ok) return prepared;
+      const wait = Math.ceil(chatAllowedAt - now());
+      if (wait > 0) return { ok: false, reason: "rate_limited", retryInMs: wait };
+      ridCounter = (ridCounter % 0xffffffff) + 1;
+      const rid = ridCounter;
+      if (!send(buildChat(prepared.text, rid))) return { ok: false, reason: "not_sent" };
+      chatAllowedAt = now() + snapshot.limits.chat_interval_ms;
+      return { ok: true, text: prepared.text, rid };
     },
     // For tests and diagnostics: the names of the timers that are set.
     pendingTimers: () => [...timers.keys()],

@@ -20,7 +20,12 @@ const WELCOME = fixtureBody("valid", "welcome");
 const LOOK = fixtureBody("valid", "appearance");
 const URL = "wss://openscim.test/api/ws";
 
-function setup({ server = {}, random = () => 0.5, limits } = {}) {
+function memoryStorage(initial = {}) {
+  const items = new Map(Object.entries(initial));
+  return { getItem: (key) => items.get(key) ?? null, setItem: (key, value) => void items.set(key, String(value)), items };
+}
+
+function setup({ server = {}, random = () => 0.5, limits, features, storage = memoryStorage() } = {}) {
   const clock = createClock();
   const ws = createFakeWebSocket();
   const http = createFakeFetch(server);
@@ -33,9 +38,10 @@ function setup({ server = {}, random = () => 0.5, limits } = {}) {
     clearTimeout: clock.clearTimeout,
     build: "a4e56ed",
     random,
+    storage,
   });
   const { session } = presence;
-  const welcome = (id = 7) => ({ ...WELCOME, you: { id, name: "Player-0420" }, limits: { ...WELCOME.limits, ...limits } });
+  const welcome = (id = 7) => ({ ...WELCOME, you: { id, name: "Player-0420" }, limits: { ...WELCOME.limits, ...limits }, features: { ...WELCOME.features, ...features } });
   const joinedFor = (socket, members = []) => {
     const join = socket.messages.find((msg) => msg.t === "join");
     return { t: "joined", rid: join.rid, room: { id: "lobby-1", kind: "lobby", instance: 1 }, members };
@@ -589,6 +595,93 @@ for (const [code, retry] of Object.entries(policies).map(([code, retry]) => [Num
   await connect();
   session.stop();
   assert.equal(clock.pending(), 0);
+}
+
+// --- chat --------------------------------------------------------------------------
+{
+  const { clock, session, presence, connect } = setup();
+  const { chat } = presence;
+  assert.equal(session.getSnapshot().chatEnabled, false);
+  // Not joined: nothing goes out.
+  assert.deepEqual(session.sendChat("hi"), { ok: false, reason: "not_joined" });
+  const socket = await connect();
+  assert.equal(session.getSnapshot().chatEnabled, true, "the welcome's features.chat");
+  assert.equal(session.getSnapshot().limits.chat_max_chars, 80);
+  const chats = () => socket.messages.filter((msg) => msg.t === "chat");
+  // Refused before sending: empty, too long.
+  assert.deepEqual(session.sendChat(" ​ "), { ok: false, reason: "empty" });
+  assert.deepEqual(session.sendChat("x".repeat(81)), { ok: false, reason: "too_long" });
+  assert.equal(chats().length, 0);
+  // Sent cleaned and capitalised; the prefix as typed.
+  const sent = session.sendChat("  red:wave:buying   gf ");
+  assert.equal(sent.ok, true);
+  assert.equal(sent.text, "red:wave:Buying gf");
+  assert.deepEqual(chats(), [{ t: "chat", rid: sent.rid, text: "red:wave:Buying gf" }]);
+  // Too soon: one line every chat_interval_ms, nothing sent.
+  await clock.advance(1000);
+  assert.deepEqual(session.sendChat("again"), { ok: false, reason: "rate_limited", retryInMs: 3000 });
+  assert.equal(chats().length, 1);
+  // The echo of our own line is ours; names and texts stay literal text.
+  socket.receive({ t: "chat", id: 7, name: "Player-0420", text: sent.text, tick: 1241 });
+  socket.receive({ t: "chat", id: 8, name: "<col=ff0000>Bob", text: "<img=1> & <br>", tick: 1241 });
+  const lines = chat.getSnapshot().lines;
+  assert.equal(lines.length, 2);
+  assert.equal(lines[0].mine, true);
+  assert.deepEqual(lines[0].display, { colour: "red", effect: "wave", text: "Buying gf" });
+  assert.equal(lines[1].mine, false);
+  assert.equal(lines[1].name, "<col=ff0000>Bob");
+  assert.equal(lines[1].text, "<img=1> & <br>");
+  assert.equal(chat.overheadFor(8)?.text, "<img=1> & <br>");
+  // A line over the welcome's limit is dropped.
+  socket.receive({ t: "chat", id: 8, name: "Bob", text: "x".repeat(81), tick: 1242 });
+  assert.equal(chat.getSnapshot().lines.length, 2);
+  // After the interval, the next line goes.
+  await clock.advance(3000);
+  assert.equal(session.sendChat("again").ok, true);
+  // The server's refusal: a line of ours, and its retry_in_ms is kept.
+  socket.receive({ t: "chat_rejected", rid: 99, reason: "rate_limited", retry_in_ms: 10_000 });
+  assert.match(chat.getSnapshot().lines.at(-1).text, /too quickly/);
+  assert.equal(chat.getSnapshot().lines.at(-1).kind, "system");
+  await clock.advance(5000);
+  assert.deepEqual(session.sendChat("later"), { ok: false, reason: "rate_limited", retryInMs: 5000 });
+  socket.receive({ t: "chat_rejected", reason: "muted" });
+  assert.equal(chat.getSnapshot().lines.at(-1).text, "You are muted and cannot talk.");
+  // Notices switch chat off and on.
+  socket.receive({ t: "notice", kind: "chat_off" });
+  assert.equal(session.getSnapshot().chatEnabled, false);
+  assert.match(chat.getSnapshot().lines.at(-1).text, /switched off/);
+  await clock.advance(10_000);
+  assert.deepEqual(session.sendChat("hi"), { ok: false, reason: "chat_off" });
+  socket.receive({ t: "notice", kind: "chat_on" });
+  assert.equal(session.getSnapshot().chatEnabled, true);
+  assert.equal(session.sendChat("hi").ok, true);
+  socket.receive({ t: "chat_rejected", reason: "chat_off" });
+  assert.equal(session.getSnapshot().chatEnabled, false);
+  session.stop();
+  assert.equal(chat.getSnapshot().lines.length, 0, "leaving the room clears the log");
+}
+{
+  // A welcome with chat off.
+  const { session, connect } = setup({ features: { chat: false } });
+  await connect();
+  assert.equal(session.getSnapshot().chatEnabled, false);
+  assert.deepEqual(session.sendChat("hi"), { ok: false, reason: "chat_off" });
+  session.stop();
+}
+{
+  // The interval is the welcome's, and holds across a reconnect.
+  const { clock, ws, session, connect } = setup({ limits: { chat_interval_ms: 6000 } });
+  await connect();
+  assert.equal(session.sendChat("one").ok, true);
+  ws.last().serverClose(1006);
+  await clock.advance(2000);
+  await connect();
+  const early = session.sendChat("two");
+  assert.equal(early.reason, "rate_limited");
+  assert.ok(early.retryInMs > 0 && early.retryInMs <= 4000, String(early.retryInMs));
+  await clock.advance(early.retryInMs);
+  assert.equal(session.sendChat("two").ok, true);
+  session.stop();
 }
 
 console.log("ok");
