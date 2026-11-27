@@ -162,7 +162,7 @@ assert.deepEqual(sendLobbyChat(), { ok: false, reason: "chat_off" });
   assert.equal(getLobbyChatSource(), null);
 }
 
-// Keys pressed outside the input line: a character no keybind uses.
+// Keys pressed outside the input line: any printable character, a keybind's too.
 {
   const keybinds = { gamePanel: { inventory: "F3" }, camera: { orbitTiltUp: "w", freeformUp: " " }, ui: { closeOverlay: "Escape" }, plugins: { zukSetTimerReset: "Shift+Z", replayUndo: "Ctrl+Y" } };
   const key = (k, extra = {}) => chatKeyStartsTyping({ key: k, ...extra }, keybinds);
@@ -170,9 +170,9 @@ assert.deepEqual(sendLobbyChat(), { ok: false, reason: "chat_off" });
   assert.equal(key("H", { shiftKey: true }), true);
   assert.equal(key("7"), true);
   assert.equal(key("?"), true);
-  assert.equal(key("w"), false, "a camera key keeps its binding");
-  assert.equal(key("W"), false);
-  assert.equal(key("z"), false, "Shift+Z binds Z");
+  assert.equal(key("w"), true, "a camera key types too");
+  assert.equal(key("W"), true);
+  assert.equal(key("z"), true);
   assert.equal(key("y"), true, "Ctrl+Y does not bind a plain Y");
   assert.equal(key(" "), false);
   assert.equal(key("Enter"), false);

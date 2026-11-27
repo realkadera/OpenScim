@@ -122,8 +122,12 @@ try {
     await page.keyboard.press("Escape");
     assert.equal(await inputLine(page), "Player-0420: *");
 
-    // A camera key does not start a line; a character no keybind uses does.
+    // A camera key starts a line as any character does: the first letter is not lost.
     await page.keyboard.press("w");
+    assert.equal(await focused(), true);
+    assert.equal(await inputLine(page), "Player-0420: w*");
+    await page.keyboard.press("Backspace");
+    await page.keyboard.press("Escape");
     assert.equal(await focused(), false);
     assert.equal(await inputLine(page), "Player-0420: *");
     await page.keyboard.press("h");

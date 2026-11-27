@@ -127,28 +127,16 @@ export function sendLobbyChat() {
   return result;
 }
 
-// A key binding as stored ("a", "Shift+Z", "Ctrl+Z", " ", "F2"): the key it
-// takes, lower case, when it is a character with no Ctrl, Alt or Meta.
-function boundCharacter(binding) {
-  const match = typeof binding === "string" ? /^((?:[A-Za-z]+\+)*)(.+)$/su.exec(binding) : null;
-  if (!match || /(^|\+)(ctrl|control|alt|meta|cmd|command)\+/i.test(match[1])) return null;
-  return [...match[2]].length === 1 ? match[2].toLowerCase() : null;
-}
-
 // Whether a key pressed with focus outside any field types into the input
-// line: one printable character, no Ctrl, Alt or Meta, and no keybind of
-// keybinds (rendering.js's unified keybinds: { gamePanel, camera, ui,
-// plugins }) uses it, Shift or not. Space never starts a line. A bound key
-// keeps its binding; Enter opens the line for any.
-export function chatKeyStartsTyping(event, keybinds) {
+// line: one printable character, no Ctrl, Alt or Meta. Space never starts a
+// line. As in the game, where every letter typed goes to the chat: a letter a
+// keybind also uses (W, A, S, D of the camera, a plugin's X) types too while
+// the lobby's chat is there (the maintainer's, 2026-11-27; it kept its
+// binding before, and the first letter of a line was lost).
+export function chatKeyStartsTyping(event) {
   if (!event || event.ctrlKey || event.altKey || event.metaKey || event.isComposing) return false;
   const key = event.key;
-  if (typeof key !== "string" || [...key].length !== 1 || /\s/u.test(key) || /\p{C}/u.test(key)) return false;
-  const lower = key.toLowerCase();
-  for (const domain of ["gamePanel", "camera", "ui", "plugins"]) {
-    for (const binding of Object.values(keybinds?.[domain] ?? {})) if (boundCharacter(binding) === lower) return false;
-  }
-  return true;
+  return typeof key === "string" && [...key].length === 1 && !/\s/u.test(key) && !/\p{C}/u.test(key);
 }
 
 // The text above player id (null: our own) now, as the overlay's
