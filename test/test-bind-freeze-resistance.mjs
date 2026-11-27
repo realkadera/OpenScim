@@ -1,10 +1,10 @@
 // A bind is a freeze: the scorching bow's special binds for 21 ticks, shortened by the target's freeze resistance as a
-// freeze is, and a target immune to freezes (100%) isn't bound. Before, binds ignored it: the special held the Doom's
-// burrowed form (#145), which the monster table lists as immune.
+// freeze is, and a target immune to freezes (100%) isn't bound. Before, binds ignored it. The numbers are the
+// monster table's; the Doom's fight doesn't come to this rule (see below).
 import assert from "node:assert/strict";
-import { register } from "node:module";
+import { installHooks } from "../tools/determinism/node-hooks.mjs";
 
-register("../tools/determinism/node-hooks.mjs", import.meta.url);
+installHooks();
 globalThis.self ??= globalThis;
 globalThis.location ??= { pathname: "/" };
 const { applySpecialAttackEffects } = await import("../client/engine/specialAttacks.js");
@@ -24,7 +24,10 @@ assert.equal(bound(0), 21, "no resistance: the whole 21 ticks");
 assert.equal(bound(50), 10, "half: floor(21 / 2)");
 assert.equal(bound(100), 0, "immune: not bound");
 
-// TABLE: the Doom's burrowed form is immune; his standing form is not.
+// TABLE: the Doom's burrowed form is immune; his standing form (14707) is not. In his fight the burrowed Doom keeps
+// the standing form's formula stats (burrow.js changes his npcTypeId only), so this rule doesn't reach him there: his
+// burrow drops a bind itself (burrow.js, #156).
+assert.equal(getMonsterFormulaStats(14707, "Delve 1").freezeResistance, 0);
 assert.equal(getMonsterFormulaStats(14709).freezeResistance, 100);
 assert.equal(bound(getMonsterFormulaStats(14709).freezeResistance), 0);
-console.log("Binds: 21 ticks unresisted, 10 at 50%, none on a freeze-immune target such as the burrowed Doom.");
+console.log("Binds: 21 ticks unresisted, 10 at 50%, none on a freeze-immune target.");
