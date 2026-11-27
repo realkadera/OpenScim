@@ -335,7 +335,7 @@ try {
           transform: canvas.style.transform,
           layer: document.querySelector("[data-overhead-texts]").style.transform,
           covers: [Math.round(rect.width - parent.width), Math.round(rect.height - parent.height)],
-          // In game pixels: the baseline 2 px under the point, the text centred on it.
+          // In game pixels: the baseline 2 px under the point and raised by 10 (inferred), the text centred on it.
           dy: text.baseline - Math.round(entry.chatAnchor.y),
           dx: Math.abs(text.left + text.width / 2 - entry.chatAnchor.x) <= 1,
           // On the screen: the game pixel of the baseline is the point's, scaled.
@@ -347,9 +347,9 @@ try {
     assert.equal(scaled.transform, "scale(2)", JSON.stringify(scaled));
     assert.equal(scaled.layer, "scale(2)");
     assert.deepEqual(scaled.covers, [0, 0], "the scaled canvas covers the overlay exactly");
-    assert.equal(scaled.dy, 2);
+    assert.equal(scaled.dy, 2 - 10);
     assert.equal(scaled.dx, true);
-    assert.ok(Math.abs(scaled.screenY - scaled.anchorScreenY - 4) <= 2, JSON.stringify(scaled));
+    assert.ok(Math.abs(scaled.screenY - scaled.anchorScreenY - (2 - 10) * 2) <= 2, JSON.stringify(scaled));
     assert.deepEqual(errors, []);
     await context.close();
   }
