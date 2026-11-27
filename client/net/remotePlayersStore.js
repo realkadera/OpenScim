@@ -17,6 +17,8 @@
 //   equipment     { head?, cape?, ..., ammo? } item ids, or null
 //   combat        the combat level, 3 to 126, or null (not sent)
 //   tile          [x, y] or null (not placed yet); facing 0..2047 or null
+//   face          the id of the player it keeps facing (the leader it
+//                 follows; may be our own id), or null
 //   run           whether the last move was running
 //   fromTile      where the last move started ([x, y] or null)
 //   steps         the tiles of the last move, oldest first, ending at tile:
@@ -51,6 +53,7 @@ export function createRemotePlayersStore({ maxPlayers = OTHERS_MAX } = {}) {
       combat: member.combat ?? null,
       tile: member.tile,
       facing: member.facing,
+      face: member.face ?? null,
       run: false,
       fromTile: member.tile,
       steps: EMPTY,
@@ -73,6 +76,7 @@ export function createRemotePlayersStore({ maxPlayers = OTHERS_MAX } = {}) {
       ...player,
       tile: delta.tile,
       facing: delta.facing,
+      face: delta.face ?? null,
       run: delta.run,
       fromTile: chained ? player.tile : delta.tile,
       steps: chained ? Object.freeze(delta.steps) : EMPTY,

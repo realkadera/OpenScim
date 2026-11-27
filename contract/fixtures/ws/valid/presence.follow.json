@@ -1,0 +1,21 @@
+{
+  "name": "presence.follow",
+  "direction": "client",
+  "when": "walking after player 7, whom it keeps facing",
+  "body": {
+    "t": "presence",
+    "tile": [
+      31,
+      26
+    ],
+    "steps": [
+      [
+        31,
+        26
+      ]
+    ],
+    "run": false,
+    "facing": 1024,
+    "face": 7
+  }
+}

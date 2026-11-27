@@ -1,0 +1,27 @@
+{
+  "name": "presence-tick.face",
+  "direction": "server",
+  "when": "member 8 follows member 7 and keeps facing it",
+  "body": {
+    "t": "presence_tick",
+    "tick": 1236,
+    "d": [
+      {
+        "id": 8,
+        "tile": [
+          31,
+          26
+        ],
+        "steps": [
+          [
+            31,
+            26
+          ]
+        ],
+        "run": false,
+        "facing": 1024,
+        "face": 7
+      }
+    ]
+  }
+}

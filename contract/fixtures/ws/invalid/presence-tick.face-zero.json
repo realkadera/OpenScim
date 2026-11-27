@@ -1,0 +1,22 @@
+{
+  "name": "presence-tick.face-zero",
+  "direction": "server",
+  "why": "face is a player id, 1 or more",
+  "body": {
+    "t": "presence_tick",
+    "tick": 1236,
+    "d": [
+      {
+        "id": 8,
+        "tile": [
+          31,
+          26
+        ],
+        "steps": [],
+        "run": false,
+        "facing": 1024,
+        "face": 0
+      }
+    ]
+  }
+}

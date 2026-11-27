@@ -32,6 +32,12 @@ are exactly what the client's `SimulationEngine.getState()` returns as
 `0..=2047`: `0` south, `512` west, `1024` north, `1536` east
 (`playerFacingAngle`).
 
+`face`, optional on `presence`, on a `presence_tick` delta and on a member,
+is the id of the player the sender keeps facing (the leader it follows). It
+is left out, never `null`, when there is nobody; a `presence` without it ends
+the facing. A client draws that player turned to the faced one every frame,
+also while it walks, and uses `facing` again when `face` is gone.
+
 `presence.walk-north` and `presence-tick.walk-north` pin this: a player
 walking north from the start tile `[31, 25]` arrives with a larger `y`.
 

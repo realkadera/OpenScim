@@ -249,8 +249,10 @@ export function buildAppearance(appearance, equipment, combat) {
 
 // One local tick: the tile now, the tiles stepped onto this tick in order
 // (0 to 2, each next to the one before, the last one the tile), running or
-// not, and the facing angle.
-export function buildPresence({ tile, steps = [], run, facing, ...rest } = {}) {
+// not, and the facing angle. face: optional, the id of the player this one
+// keeps facing (the leader it follows); left out of the message when undefined
+// or null.
+export function buildPresence({ tile, steps = [], run, facing, face, ...rest } = {}) {
   onlyKeys(rest, [], "presence");
   const now = tileCopy(tile, "presence: tile");
   if (!Array.isArray(steps) || steps.length > STEPS_PER_PRESENCE_MAX) fail(`presence: steps must be an array of at most ${STEPS_PER_PRESENCE_MAX} tiles`);
@@ -259,7 +261,9 @@ export function buildPresence({ tile, steps = [], run, facing, ...rest } = {}) {
   if (path.length && !tilesEqual(path[path.length - 1], now)) fail("presence: the last step is not the tile");
   if (typeof run !== "boolean") fail("presence: run must be a boolean");
   if (!isFacing(facing)) fail(`presence: facing must be an integer 0..${FACING_MAX}`);
-  return { t: "presence", tile: now, steps: path, run, facing };
+  if (face === undefined || face === null) return { t: "presence", tile: now, steps: path, run, facing };
+  if (!isId(face)) fail("presence: face must be a player id");
+  return { t: "presence", tile: now, steps: path, run, facing, face };
 }
 
 // ts: the client's clock, whole milliseconds.
@@ -342,6 +346,11 @@ function readMember(value) {
     if (value.combat !== null && !isCombat(value.combat)) return null;
     member.combat = value.combat;
   }
+  // face: the player this one keeps facing; only there while it does.
+  if (value.face !== undefined) {
+    if (!isId(value.face)) return null;
+    member.face = value.face;
+  }
   return member;
 }
 
@@ -349,7 +358,10 @@ function readDelta(value) {
   if (!isObject(value) || !isId(value.id) || !isTile(value.tile) || typeof value.run !== "boolean" || !isFacing(value.facing)) return null;
   // Merged steps need not chain: a dropped or teleporting presence leaves a gap.
   if (!Array.isArray(value.steps) || value.steps.length > MERGED_STEPS_MAX || !value.steps.every(isTile)) return null;
-  return { id: value.id, tile: [value.tile[0], value.tile[1]], steps: value.steps.map((step) => [step[0], step[1]]), run: value.run, facing: value.facing };
+  if (value.face !== undefined && !isId(value.face)) return null;
+  const delta = { id: value.id, tile: [value.tile[0], value.tile[1]], steps: value.steps.map((step) => [step[0], step[1]]), run: value.run, facing: value.facing };
+  if (value.face !== undefined) delta.face = value.face;
+  return delta;
 }
 
 // The limits every welcome carries; the chat limits are optional.

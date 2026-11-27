@@ -1,0 +1,24 @@
+{
+  "name": "presence.face-zero",
+  "direction": "client",
+  "why": "face is a player id, 1 or more",
+  "expect": {
+    "error": "invalid_message"
+  },
+  "body": {
+    "t": "presence",
+    "tile": [
+      31,
+      26
+    ],
+    "steps": [
+      [
+        31,
+        26
+      ]
+    ],
+    "run": false,
+    "facing": 1024,
+    "face": 0
+  }
+}
