@@ -46287,177 +46287,16 @@ var SceneCompositor = class e {
       this.spotAnimRenderer.loadById(this.spotAnimModelLoader, i.projectileId);
     }
     try {
-      const a = e.loadPlayerModel(n, s);
-      const t = this.playerAnimController?.QL() ?? null;
+      const a = this.buildPlayerRig(
+        e,
+        n,
+        s,
+        this.playerAnimController,
+        () => this.playerAnimController?.buildPlayerAnimatedMesh() ?? null,
+        (e) => this.RD(e),
+      );
       if (a) {
-        a.mergedModel.calculateBounds();
-        const minHeight2 = a.mergedModel.minHeight;
-        let r = null;
-        if (this.playerAnimationSystem) {
-          const e = new Int32Array(a.mergedModel.verticesX);
-          const n = new Int32Array(a.mergedModel.verticesY);
-          const i = new Int32Array(a.mergedModel.verticesZ);
-          const l = a.mergedModel.faceAlphas
-            ? new Int8Array(a.mergedModel.faceAlphas)
-            : null;
-          const o = lD(s.weapon);
-          const d = {
-            idle: this.loadFrameBasedSeq(o, "idle"),
-            walk: this.loadFrameBasedSeq(o, "walk"),
-            run: this.loadFrameBasedSeq(o, "run"),
-            turnLeft: this.loadFrameBasedSeq(o, "turnLeft"),
-            turnRight: this.loadFrameBasedSeq(o, "turnRight"),
-            walkBack: this.loadFrameBasedSeq(o, "turn180"),
-            idleTurnLeft: this.loadFrameBasedSeq(o, "standTurn"),
-            idleTurnRight: this.loadFrameBasedSeq(o, "standTurn"),
-          };
-          d.eat = this.BD(829);
-          d.attack = this.loadFrameBasedSeq(o, "attack");
-          d.block = this.createFirstAvailableSequence(cD(s.weapon, s.shield));
-          const g = [ZL];
-          d.unarmed = {
-            idle: this.loadFrameBasedSeq(g, "idle"),
-            walk: this.loadFrameBasedSeq(g, "walk"),
-            run: this.loadFrameBasedSeq(g, "run"),
-            turnLeft: this.loadFrameBasedSeq(g, "turnLeft"),
-            turnRight: this.loadFrameBasedSeq(g, "turnRight"),
-            walkBack: this.loadFrameBasedSeq(g, "turn180"),
-            idleTurnLeft: this.loadFrameBasedSeq(g, "standTurn"),
-            idleTurnRight: this.loadFrameBasedSeq(g, "standTurn"),
-          };
-          // Optional: the other stances an encounter's render config names (`playerStances`: a name to the
-          // sequence of each slot). Its state's `playerStance` picks one each frame; no fight without the
-          // field is changed.
-          const stances = this.encounterRenderConfig?.playerStances;
-          if (stances) {
-            d.stances = {};
-            for (const [name, slots] of Object.entries(stances)) {
-              d.stances[name] = Object.fromEntries(
-                Object.entries(slots).map(([slot, seqId]) => [slot, this.BD(seqId)]),
-              );
-            }
-          }
-          const c = new PlayerModelAdapter(
-            a.mergedModel,
-            e,
-            n,
-            i,
-            l,
-            this.playerAnimationSystem,
-            () => this.playerAnimController?.buildPlayerAnimatedMesh() ?? null,
-            (e) => this.RD(e),
-          );
-          if (this.playerAnimController) {
-            this.playerAnimController.OL({
-              playerModelData: a,
-              animationSet: d,
-              modelAdapter: c,
-            });
-            r = this.playerAnimController;
-          } else {
-            r = new PlayerAnimationController({
-              playerModelData: a,
-              animationSet: d,
-              modelAdapter: c,
-              resolveTextureLayer: re.resolve,
-            });
-            if (t) {
-              try {
-                r.restoreConsumeAnim(t);
-              } catch (e) {
-                logger.warn(
-                  "SceneBuilder",
-                  "Failed to restore consume animation, continuing without it",
-                  e,
-                );
-              }
-            }
-          }
-        }
-        const i = (function (e, a, t) {
-          const mergedModel9 = e.mergedModel;
-          const {
-            faceColors1: faceColors1,
-            faceColors2: faceColors2,
-            faceColors3: faceColors3,
-          } = e.litColors;
-          const l = [];
-          const o = [];
-          const d = [];
-          const g = [];
-          const c = [];
-          mergedModel9.calculateVertexNormals();
-          const m = a;
-          const h = m ? m.length : mergedModel9.faceCount;
-          const f =
-            t !== undefined &&
-            Lm(mergedModel9.faceTextures, mergedModel9.faceCount);
-          const u = f ? [] : undefined;
-          const v = f ? [] : undefined;
-          const p = new Float32Array(6);
-          for (let e = 0; e < h; e++) {
-            const a = m ? m[e] : e;
-            const h = faceColors1[a];
-            let k = faceColors2[a];
-            let S = faceColors3[a];
-            if (S === -2) {
-              continue;
-            }
-            if (S === -1) {
-              S = k = h;
-            }
-            const b = mergedModel9.indices1[a];
-            const y = mergedModel9.indices2[a];
-            const z = mergedModel9.indices3[a];
-            const w = mergedModel9.faceAlphas
-              ? (255 - (mergedModel9.faceAlphas[a] & 255)) / 255
-              : 1;
-            const A = mergedModel9.faceBias
-              ? mergedModel9.faceBias[a] === -1
-                ? 0
-                : mergedModel9.faceBias[a] & 255
-              : 0;
-            const L = [b, y, z];
-            const D = [h, k, S];
-            let H = 0;
-            if (f) {
-              H = Dm(mergedModel9.faceTextures, a, t);
-              if (H > 0) {
-                Mm(mergedModel9, a, p, 0);
-              } else {
-                p.fill(0);
-              }
-            }
-            for (let e = 0; e < 3; e++) {
-              const a = L[e];
-              l.push(mergedModel9.verticesX[a]);
-              l.push(mergedModel9.verticesY[a]);
-              l.push(mergedModel9.verticesZ[a]);
-              bm(mergedModel9.normals, a, Ph, 0);
-              g.push(Ph[0], Ph[1], Ph[2]);
-              o.push(D[e] & 65535);
-              d.push(w);
-              c.push(A);
-              if (u && v) {
-                u.push(p[e * 2], p[e * 2 + 1]);
-                v.push(H);
-              }
-            }
-          }
-          return {
-            positions: new Float32Array(l),
-            hslColors: new Float32Array(o),
-            alphas: new Float32Array(d),
-            normals: new Float32Array(g),
-            faceBias: new Float32Array(c),
-            ...(u && v
-              ? {
-                  uvs: new Float32Array(u),
-                  textureIds: new Float32Array(v),
-                }
-              : {}),
-          };
-        })(a, undefined, re.resolve);
+        const { minHeight: minHeight2, controller: r, meshData: i } = a;
         const l = this.PD(i);
         this.playerAppearance = n;
         this.playerEquipment = s;
@@ -46480,6 +46319,193 @@ var SceneCompositor = class e {
     } finally {
       this.playerLoading = false;
     }
+  }
+  // One player's rig, built from explicit inputs: the model of an appearance and equipment (`e` the
+  // player model loader, `n` the appearance, `s` the equipment), its animation set, the adapter and the
+  // controller that animate it, and the mesh data of its first pose. `playerAnimController` is a
+  // controller to reuse (the local player's, kept across a reload; it is given the new model) or null
+  // for a new one; the adapter takes `buildAnimatedMesh` and `uploadAnimatedMesh` as its mesh source
+  // and sink. No field of the compositor is written. Returns null when the loader builds no model.
+  buildPlayerRig(e, n, s, playerAnimController, buildAnimatedMesh, uploadAnimatedMesh) {
+    const a = e.loadPlayerModel(n, s);
+    const t = playerAnimController?.QL() ?? null;
+    if (a) {
+      a.mergedModel.calculateBounds();
+      const minHeight2 = a.mergedModel.minHeight;
+      let r = null;
+      if (this.playerAnimationSystem) {
+        const e = new Int32Array(a.mergedModel.verticesX);
+        const n = new Int32Array(a.mergedModel.verticesY);
+        const i = new Int32Array(a.mergedModel.verticesZ);
+        const l = a.mergedModel.faceAlphas
+          ? new Int8Array(a.mergedModel.faceAlphas)
+          : null;
+        const o = lD(s.weapon);
+        const d = {
+          idle: this.loadFrameBasedSeq(o, "idle"),
+          walk: this.loadFrameBasedSeq(o, "walk"),
+          run: this.loadFrameBasedSeq(o, "run"),
+          turnLeft: this.loadFrameBasedSeq(o, "turnLeft"),
+          turnRight: this.loadFrameBasedSeq(o, "turnRight"),
+          walkBack: this.loadFrameBasedSeq(o, "turn180"),
+          idleTurnLeft: this.loadFrameBasedSeq(o, "standTurn"),
+          idleTurnRight: this.loadFrameBasedSeq(o, "standTurn"),
+        };
+        d.eat = this.BD(829);
+        d.attack = this.loadFrameBasedSeq(o, "attack");
+        d.block = this.createFirstAvailableSequence(cD(s.weapon, s.shield));
+        const g = [ZL];
+        d.unarmed = {
+          idle: this.loadFrameBasedSeq(g, "idle"),
+          walk: this.loadFrameBasedSeq(g, "walk"),
+          run: this.loadFrameBasedSeq(g, "run"),
+          turnLeft: this.loadFrameBasedSeq(g, "turnLeft"),
+          turnRight: this.loadFrameBasedSeq(g, "turnRight"),
+          walkBack: this.loadFrameBasedSeq(g, "turn180"),
+          idleTurnLeft: this.loadFrameBasedSeq(g, "standTurn"),
+          idleTurnRight: this.loadFrameBasedSeq(g, "standTurn"),
+        };
+        // Optional: the other stances an encounter's render config names (`playerStances`: a name to the
+        // sequence of each slot). Its state's `playerStance` picks one each frame; no fight without the
+        // field is changed.
+        const stances = this.encounterRenderConfig?.playerStances;
+        if (stances) {
+          d.stances = {};
+          for (const [name, slots] of Object.entries(stances)) {
+            d.stances[name] = Object.fromEntries(
+              Object.entries(slots).map(([slot, seqId]) => [slot, this.BD(seqId)]),
+            );
+          }
+        }
+        const c = new PlayerModelAdapter(
+          a.mergedModel,
+          e,
+          n,
+          i,
+          l,
+          this.playerAnimationSystem,
+          buildAnimatedMesh,
+          uploadAnimatedMesh,
+        );
+        if (playerAnimController) {
+          playerAnimController.OL({
+            playerModelData: a,
+            animationSet: d,
+            modelAdapter: c,
+          });
+          r = playerAnimController;
+        } else {
+          r = new PlayerAnimationController({
+            playerModelData: a,
+            animationSet: d,
+            modelAdapter: c,
+            resolveTextureLayer: re.resolve,
+          });
+          if (t) {
+            try {
+              r.restoreConsumeAnim(t);
+            } catch (e) {
+              logger.warn(
+                "SceneBuilder",
+                "Failed to restore consume animation, continuing without it",
+                e,
+              );
+            }
+          }
+        }
+      }
+      const i = (function (e, a, t) {
+        const mergedModel9 = e.mergedModel;
+        const {
+          faceColors1: faceColors1,
+          faceColors2: faceColors2,
+          faceColors3: faceColors3,
+        } = e.litColors;
+        const l = [];
+        const o = [];
+        const d = [];
+        const g = [];
+        const c = [];
+        mergedModel9.calculateVertexNormals();
+        const m = a;
+        const h = m ? m.length : mergedModel9.faceCount;
+        const f =
+          t !== undefined &&
+          Lm(mergedModel9.faceTextures, mergedModel9.faceCount);
+        const u = f ? [] : undefined;
+        const v = f ? [] : undefined;
+        const p = new Float32Array(6);
+        for (let e = 0; e < h; e++) {
+          const a = m ? m[e] : e;
+          const h = faceColors1[a];
+          let k = faceColors2[a];
+          let S = faceColors3[a];
+          if (S === -2) {
+            continue;
+          }
+          if (S === -1) {
+            S = k = h;
+          }
+          const b = mergedModel9.indices1[a];
+          const y = mergedModel9.indices2[a];
+          const z = mergedModel9.indices3[a];
+          const w = mergedModel9.faceAlphas
+            ? (255 - (mergedModel9.faceAlphas[a] & 255)) / 255
+            : 1;
+          const A = mergedModel9.faceBias
+            ? mergedModel9.faceBias[a] === -1
+              ? 0
+              : mergedModel9.faceBias[a] & 255
+            : 0;
+          const L = [b, y, z];
+          const D = [h, k, S];
+          let H = 0;
+          if (f) {
+            H = Dm(mergedModel9.faceTextures, a, t);
+            if (H > 0) {
+              Mm(mergedModel9, a, p, 0);
+            } else {
+              p.fill(0);
+            }
+          }
+          for (let e = 0; e < 3; e++) {
+            const a = L[e];
+            l.push(mergedModel9.verticesX[a]);
+            l.push(mergedModel9.verticesY[a]);
+            l.push(mergedModel9.verticesZ[a]);
+            bm(mergedModel9.normals, a, Ph, 0);
+            g.push(Ph[0], Ph[1], Ph[2]);
+            o.push(D[e] & 65535);
+            d.push(w);
+            c.push(A);
+            if (u && v) {
+              u.push(p[e * 2], p[e * 2 + 1]);
+              v.push(H);
+            }
+          }
+        }
+        return {
+          positions: new Float32Array(l),
+          hslColors: new Float32Array(o),
+          alphas: new Float32Array(d),
+          normals: new Float32Array(g),
+          faceBias: new Float32Array(c),
+          ...(u && v
+            ? {
+                uvs: new Float32Array(u),
+                textureIds: new Float32Array(v),
+              }
+            : {}),
+        };
+      })(a, undefined, re.resolve);
+      return {
+        modelData: a,
+        minHeight: minHeight2,
+        controller: r,
+        meshData: i,
+      };
+    }
+    return null;
   }
   loadFrameBasedSeq(e, a) {
     if (!this.playerAnimationSystem) {
