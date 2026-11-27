@@ -210,6 +210,13 @@ try {
       null,
       { timeout: 30000 },
     );
+    // With the other players, the game goes on while the window is not focused (it pauses there otherwise).
+    const tickNow = () => page.evaluate(`${liveEngine}.getState().currentTick`);
+    await page.evaluate(() => window.dispatchEvent(new Event("blur")));
+    const blurredAt = await tickNow();
+    await page.waitForFunction((args) => eval(args.engines).getState().currentTick >= args.from + 3, { engines: liveEngine, from: blurredAt }, { timeout: 15000 });
+    await page.evaluate(() => window.dispatchEvent(new Event("focus")));
+
     assert.deepEqual(errors, []);
     await page.close();
   }
