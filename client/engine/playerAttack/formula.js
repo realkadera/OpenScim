@@ -128,8 +128,11 @@ function getDemonbaneSpellStages(formulaStageInput) {
       };
     }
   } else {
+    // WIKI (Purging staff): the staff "doubles the base accuracy bonus of
+    // demonbane spells from 20% to 40%", with no Mark of Darkness needed.
+    const purgingStaff = formulaStageInput.weaponId !== undefined && purgingStaffIdSet.has(formulaStageInput.weaponId);
     return {
-      attackRollStages: [toDemonbaneRatio(120)],
+      attackRollStages: [toDemonbaneRatio(purgingStaff ? 140 : 120)],
       maxHitStages: [],
     };
   }
