@@ -19048,6 +19048,10 @@ var TIPS = [
     device: "desktop",
   },
 ];
+var shellTip =
+  typeof document == "undefined"
+    ? null
+    : document.querySelector("#root .loading-tip-text")?.textContent;
 var STAGE_LABELS = {
   downloading: "Downloading Cache",
   extracting: "Extracting Archive",
@@ -19128,9 +19132,11 @@ var LoadingScreen = ({
       })(hp),
     [hp],
   );
-  const [hs, ht] = (0, React.useState)(() =>
-    Math.floor(Math.random() * TIPS.length),
-  );
+  // Starts on the tip index.html has had on screen since before this script.
+  const [hs, ht] = (0, React.useState)(() => {
+    const shown = hr.findIndex((hz) => hz.text === shellTip);
+    return shown >= 0 ? shown : Math.floor(Math.random() * TIPS.length);
+  });
   const [hu, hv] = (0, React.useState)(true);
   const hw = hr[hs % hr.length];
   (0, React.useEffect)(() => {
@@ -48739,6 +48745,8 @@ function AppShell({ devHarness: devHarness } = {}) {
               }
             }
             tP(true);
+            // Started from a boot pack: the whole cache may follow now.
+            cacheManagerRef.current.beginHydration();
             H.summary();
             Lwe();
           }

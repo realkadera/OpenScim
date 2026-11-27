@@ -55,7 +55,7 @@ for (const route of routes) {
   assert.equal(count(/<h1[ >]/g), 1, route.path);
   assert.ok(html.includes(`<link rel="canonical" href="${canonicalUrl(route)}" />`), route.path);
   assert.equal(html.includes('<meta name="robots" content="noindex, follow" />'), route.noindex === true, route.path + ": noindex");
-  assert.ok(!html.includes('<div id="root"></div>'), route.path + ": #root has the page's text");
+  assert.match(html, /<div id="root"><main .*<\/main><div class="loading-screen"/, route.path + ": #root has the page's text, then the loading screen");
   for (const [, json] of html.matchAll(/<script type="application\/ld\+json">(.*?)<\/script>/g)) JSON.parse(json);
 }
 // Text is escaped: an apostrophe and a quote in a title do not end a tag.

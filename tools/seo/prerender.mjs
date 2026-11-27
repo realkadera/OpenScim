@@ -5,9 +5,9 @@
 // engine has to run the application to learn what a page is. Here each route
 // of client/seo/routes.js gets dist/<path>/index.html: the built index.html
 // with the route's own title, description, canonical address, social tags and
-// structured data, and its heading and texts inside #root. The application
-// replaces what is in #root when it starts (createRoot), so a visitor sees the
-// text for as long as the page loads.
+// structured data, and its heading and texts inside #root, under the loading
+// screen index.html has there. The application replaces what is in #root
+// when it starts (createRoot).
 //
 // A route that is not indexed gets its page too, saying "noindex". Nothing
 // here knows the host: the application adds "noindex" at runtime on any host
@@ -117,7 +117,8 @@ export function renderPage(template, route, allRoutes, modules) {
     ...route.jsonLd.map((data) => `<script type="application/ld+json">${jsonForScript(data)}</script>`),
   ];
   html = replaceOnce(html, /<\/head>/, head.map((line) => "  " + line + "\n  ").join("") + "</head>", "</head>");
-  return replaceOnce(html, /<div id="root"><\/div>/, `<div id="root">${renderContent(route, allRoutes, modules)}</div>`, '<div id="root"></div>');
+  // Ahead of the loading screen index.html has in #root, which covers it.
+  return replaceOnce(html, /<div id="root">/, `<div id="root">${renderContent(route, allRoutes, modules)}`, '<div id="root">');
 }
 
 export function renderSitemap(allRoutes, { routes }) {

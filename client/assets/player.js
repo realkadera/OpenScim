@@ -438,7 +438,9 @@ var CacheDownloadClient = class {
         "mirror" === this.mode
           ? this.baseUrl + "/manifest.json"
           : this.baseUrl + "/caches.json";
-      const W = await m(() => v(V));
+      // index.html asked for the manifest while this script was on its way.
+      const early = "mirror" === this.mode ? globalThis.__cacheBoot?.manifest : null;
+      const W = (await early?.catch(() => null)) ?? (await m(() => v(V)));
       let X;
       if ("mirror" === this.mode) {
         if (
@@ -565,6 +567,18 @@ var CacheDownloadClient = class {
       },
       sQjOh: "Cache",
     };
+    // index.html asked for the whole cache while this script was on its way
+    // (a first visit to a route without a boot pack): take over its download.
+    await globalThis.__cacheBoot?.pack?.catch(() => null); // settled: it has decided
+    const early = globalThis.__cacheBoot?.whole;
+    if (early?.url === P) {
+      globalThis.__cacheBoot.whole = null;
+      early.onprogress = () => Q?.(Math.min(99, Math.round((early.loaded / (R.estimatedTotalBytes || 167772160)) * 100)), early.loaded);
+      early.onprogress();
+      try {
+        return await early.bytes;
+      } catch {}
+    }
     const { bytes: bytes, contentType: contentType } = await N(P, {
       onProgress: (V, W) => {
         const X = W ?? (R.estimatedTotalBytes || 167772160);
@@ -664,6 +678,12 @@ var CacheManager = class {
     l(this, "rsCacheInfo", null);
     l(this, "xteaKeys", new Map());
     l(this, "additionalMapSquares", new Map());
+    l(this, "store", null);
+    // While the whole cache is on its way behind a boot pack (bootFromPack):
+    // settles when it is under the loaders.
+    l(this, "hydration", null);
+    // Lets the whole cache start downloading; nothing to do without a boot pack.
+    l(this, "beginHydration", () => {});
     this.storage = P || new CacheDatabase();
     this.client = Q || new CacheDownloadClient();
   }
@@ -802,7 +822,9 @@ var CacheManager = class {
             "Cache " + R + " not found in IndexedDB, downloading...",
           );
         }
-        await this.fC(R);
+        if (!(await this.bootFromPack(R))) {
+          await this.fC(R);
+        }
         e.end("CacheManager.ensureCache");
       } catch (Y) {
         e.end("CacheManager.ensureCache");
@@ -881,6 +903,122 @@ var CacheManager = class {
       throw Y;
     }
   }
+  // A first visit starts from the route's boot pack: a cache of the groups
+  // the route reads on the way to its first frame (tools/boot-packs.mjs), a
+  // fifth of the whole. The whole cache follows behind the running game
+  // (hydrate). False when the route has no pack or it would not load: the
+  // caller downloads the whole cache first, as it always did.
+  async bootFromPack(P) {
+    const name =
+      location.pathname.split("/").filter(Boolean)[0]?.toLowerCase() ?? "lobby";
+    const pack = this.cacheInfo?.bootPacks?.[name];
+    if (!pack || globalThis.__noBootPack) {
+      return false;
+    }
+    try {
+      this.pC("downloading", 0, "Connecting to cache server...");
+      this.setState("DOWNLOADING");
+      const url =
+        this.client.baseUrl + "/boot/" + name + ".zip?v=" + pack.sha256;
+      const totalMB = (pack.bytes / 1048576).toFixed(1);
+      // index.html asked for it while this script was still on its way.
+      const early = await globalThis.__cacheBoot?.pack?.catch(() => null);
+      const bytes =
+        early?.url === url
+          ? early.bytes
+          : (
+              await N(url, {
+                onProgress: (loaded) =>
+                  this.pC(
+                    "downloading",
+                    Math.min(99, Math.round((loaded / pack.bytes) * 100)),
+                    (loaded / 1048576).toFixed(1) + " MB / " + totalMB + " MB",
+                  ),
+              })
+            ).bytes;
+      if (!(await matchesSha256(bytes, pack.sha256))) {
+        throw new Error("it does not match its published checksum");
+      }
+      this.pC("extracting", 0, "Unpacking cache archive...");
+      this.setState("EXTRACTING");
+      await this.initializeCacheSystem(await this.extractZip(bytes));
+    } catch (error) {
+      f.warn(
+        "Cache",
+        "Could not start from boot pack " +
+          name +
+          "; downloading the whole cache first instead:",
+        error,
+      );
+      return false;
+    }
+    // The whole cache waits for the world to be on screen (beginHydration,
+    // which the application calls when its own assets are in): its 24 MB
+    // would take the line from the images the first frame is waiting for.
+    const begun = new Promise((resolve) => {
+      this.beginHydration = resolve;
+    });
+    setTimeout(this.beginHydration, 30000);
+    this.hydration = begun
+      .then(() => this.hydrate(P))
+      .catch((error) => {
+        f.error(
+          "Cache",
+          "Could not load the whole cache behind boot pack " +
+            name +
+            "; what the pack lacks stays missing until a reload:",
+          error,
+        );
+      })
+      .then(() => {
+        this.hydration = null;
+      });
+    this.setState("LOADED");
+    return true;
+  }
+  // Puts the whole cache under the loaders that started from a boot pack.
+  // The pack has the whole cache's reference tables and, for the groups it
+  // holds, the same bytes, so what the loaders have read stays true; a group
+  // the pack left out read as empty and is there from now on.
+  async hydrate(P) {
+    const sha = this.cacheInfo?.diskZipSha256;
+    const size = this.cacheInfo?.size;
+    const { data: data, matchesManifest: matchesManifest } =
+      await this.client.fC(P, () => {}, {
+        ...(size ? { estimatedTotalBytes: size } : {}),
+        ...(sha ? { diskZipSha256: sha } : {}),
+      });
+    const files = await this.extractZip(data);
+    const whole = B.bm("dat2", files, REQUIRED_CACHE_INDEXES).getIndex(
+      REQUIRED_CACHE_INDEXES[0],
+    ).store;
+    this.store.dataFile = whole.dataFile;
+    this.store.indexFiles = whole.indexFiles;
+    this.store.metaFile = whole.metaFile;
+    f.info("Cache", "Whole cache " + P + " is under the boot pack");
+    if (matchesManifest) {
+      // Not awaited: the game has the cache; the next visit wants it stored.
+      this.storeFiles(P, files, true)
+        .then((stored) => stored && this.storeMeta(P))
+        .then((marked) => marked && this.AC(P));
+    }
+  }
+  // Whether a boot pack left this group out and the whole cache, still on its
+  // way, has it: the pack marks its idx entry "size 0, sector 1" (packCache,
+  // tools/assets/cache.mjs).
+  awaitsWholeCache(index, group) {
+    const idx = this.store?.indexFiles[index];
+    if (!this.hydration || !idx || group < 0 || group * 6 + 6 > idx.byteLength) {
+      return false;
+    }
+    const entry = new DataView(idx, group * 6, 6);
+    return (
+      entry.getUint16(0) === 0 &&
+      entry.getUint8(2) === 0 &&
+      entry.getUint16(3) === 0 &&
+      entry.getUint8(5) === 1
+    );
+  }
   async readStoredMeta(P) {
     try {
       return await this.storage.iC(P);
@@ -893,7 +1031,8 @@ var CacheManager = class {
       return null;
     }
   }
-  async storeFiles(P, Q) {
+  // quiet: behind a running game (hydrate), where no loading screen listens.
+  async storeFiles(P, Q, quiet = false) {
     try {
       await this.storage.deleteCacheMeta(P);
       const S = [...Q.entries()];
@@ -901,6 +1040,9 @@ var CacheManager = class {
         const [U, V] = S[T];
         await this.storage.storeCacheFile(U, V, P);
         const W = Math.round(((T + 1) / S.length) * 100);
+        if (quiet) {
+          continue;
+        }
         this.pC(
           "storing",
           W,
@@ -1008,6 +1150,17 @@ var CacheManager = class {
     this.pC("initializing", 18, "Reading cache index files...");
     e.start("CacheManager.CacheSystem.fromMap");
     this.cacheSystem = B.bm("dat2", P, REQUIRED_CACHE_INDEXES);
+    // Every index reads its groups through this one store.
+    this.store = this.cacheSystem.getIndex(REQUIRED_CACHE_INDEXES[0]).store;
+    // tools/boot-packs.mjs sets this to learn which groups a route reads.
+    const recordedReads = globalThis.__cacheReads;
+    if (recordedReads) {
+      const readGroup = this.store.read.bind(this.store);
+      this.store.read = (index, group) => {
+        recordedReads.add(index + ":" + group);
+        return readGroup(index, group);
+      };
+    }
 
     e.end("CacheManager.CacheSystem.fromMap");
     e.start("CacheManager.MapLoader.init");
@@ -1020,7 +1173,18 @@ var CacheManager = class {
     ]).catch(error => { zebakGroups = undefined; throw error; });
     if (location.pathname.replace(/\/+$/, "") === "/zebak") await prepareZebak();
     const readMap = this.mapLoader.loadMapSquare.bind(this.mapLoader);
+    const startupSquares = new Set();
+    let initializing = true;
     this.mapLoader.loadMapSquare = async (x,y) => {
+      // Started from the lobby's boot pack: a fight is entered with the whole
+      // cache, so every square but the lobby's own waits for it. Those are
+      // the squares the pack lacks, and the one read here at start-up for
+      // the arena bounds (TC), which the pack has and is a fight's.
+      if (initializing) startupSquares.add(x + "," + y);
+      else if (this.hydration && (startupSquares.has(x + "," + y) || this.awaitsWholeCache(5, this.mapLoader.af(x, y)))) {
+        this.beginHydration();
+        await this.hydration;
+      }
       // The nexus (55,80) opens Zebak's setup window, whose portrait needs the model.
       if ((Math.abs(x-61)<=1 && Math.abs(y-84)<=1) || (x===55 && y===80)) await prepareZebak();
       return readMap(x,y);
@@ -1152,6 +1316,7 @@ var CacheManager = class {
     if (f.isEnabled(n.DEBUG, "Cache")) {
       await this.kC();
     }
+    initializing = false;
     e.end("CacheManager.initializeCacheSystem");
   }
   async loadMapLocs(P, Q, R) {
