@@ -6,7 +6,11 @@ import { createLobbyPresence } from "../client/net/index.js";
 import { createLobbyLink } from "../client/net/lobbyLink.js";
 import { appearanceToWire } from "../client/net/remotePlayers.js";
 import {
+  CHAT_VIEW_TABS,
+  PUBLIC_CHAT_MODES,
   chatKeyStartsTyping,
+  chatboxTabLines,
+  setLobbyChatTab,
   clampDraft,
   createChatboxMerge,
   getLobbyChatSnapshot,
@@ -71,7 +75,7 @@ async function joinedPresence(welcome = fixtureBody("valid", "welcome")) {
 
 // Without a source: nothing, and the chatbox stays as it was.
 assert.equal(getLobbyChatSource(), null);
-assert.deepEqual(getLobbyChatSnapshot(), { available: false, name: null, maxChars: 0, draft: "", lines: [] });
+assert.deepEqual(getLobbyChatSnapshot(), { available: false, name: null, maxChars: 0, draft: "", lines: [], filter: "on", tab: "all" });
 assert.equal(lobbyChatOverheadText(null), null);
 assert.deepEqual(sendLobbyChat(), { ok: false, reason: "chat_off" });
 
@@ -197,6 +201,30 @@ assert.equal(clampDraft(5, 2), "");
   t = 200;
   const game2 = [...game, { key: "2" }];
   assert.deepEqual(merge(game2, net).map((e) => e.key), ["net:1", "1", "net:2", "2"]);
+}
+
+// --- the stones: the tab shown, and the lines it shows ---------------------------------
+{
+  assert.deepEqual([...CHAT_VIEW_TABS], ["all", "game", "public", "private", "channel", "clan", "trade"]);
+  // WIKI (Chat Interface, Public): the menu's entries, in its order.
+  assert.deepEqual(PUBLIC_CHAT_MODES.map((entry) => [entry.mode, entry.entry, entry.label]), [["on", "Show standard", "On"], ["friends", "Show friends", "Friends"], ["off", "Show none", "Off"], ["hide", "Hide", "Hide"]]);
+  const lines = [{ key: "1", kind: "game" }, { key: "net:1", kind: "public" }, { key: "2" }, { key: "net:2", kind: "game" }];
+  const keys = (view) => chatboxTabLines(lines, view).map((entry) => entry.key);
+  assert.equal(chatboxTabLines(lines, "all"), lines, "all: the lines themselves");
+  assert.deepEqual(keys("game"), ["1", "2", "net:2"], "game: every line that is not a player's, in the order they came");
+  assert.deepEqual(keys("public"), ["net:1"]);
+  for (const view of ["private", "channel", "clan", "trade"]) assert.deepEqual(keys(view), []);
+  assert.equal(chatboxTabLines(lines, "nope"), lines);
+  let told = 0;
+  const off = subscribeLobbyChat(() => told++);
+  assert.equal(setLobbyChatTab("public"), true);
+  assert.equal(getLobbyChatSnapshot().tab, "public");
+  assert.equal(told, 1);
+  assert.equal(setLobbyChatTab("public"), true);
+  assert.equal(told, 1, "the same tab tells nobody");
+  assert.equal(setLobbyChatTab("loud"), false);
+  assert.equal(setLobbyChatTab("all"), true);
+  off();
 }
 
 console.log("lobbyChat passed");

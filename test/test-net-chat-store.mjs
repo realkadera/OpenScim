@@ -195,6 +195,10 @@ assert.equal(CHAT_LOG_MAX, 100);
   assert.equal(createChatStore({ storage }).getSnapshot().filter, "hide", "kept for the next visit");
   storage.setItem(FILTER_STORAGE_KEY, "loud");
   assert.equal(createChatStore({ storage }).getSnapshot().filter, "on", "a stored mode that is none");
+  // "Clear history" of the Public stone: the public lines go, the game line stays.
+  assert.equal(chat.clearHistory("public"), true);
+  assert.deepEqual(chat.getSnapshot().lines.map((line) => line.kind), ["system"]);
+  assert.equal(chat.clearHistory("public"), false, "nothing left to clear");
 }
 
 // --- the block list ------------------------------------------------------------------

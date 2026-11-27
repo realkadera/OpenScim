@@ -64,7 +64,31 @@ export function subscribeLobbyChat(listener) {
   return () => listeners.delete(listener);
 }
 
-const EMPTY = Object.freeze({ available: false, name: null, maxChars: 0, draft: "", lines: Object.freeze([]) });
+const EMPTY = Object.freeze({ available: false, name: null, maxChars: 0, draft: "", lines: Object.freeze([]), filter: "on", tab: "all" });
+
+// The stone whose lines the chatbox shows, left to right as the game has them.
+// OBS (the game's client): one list of messages in the order they came; a tab
+// shows those of its types. Here: "game" every line that is not a player's,
+// "public" the public lines, "all" both; the others have no lines yet.
+export const CHAT_VIEW_TABS = Object.freeze(["all", "game", "public", "private", "channel", "clan", "trade"]);
+let tab = "all";
+export function setLobbyChatTab(next) {
+  if (!CHAT_VIEW_TABS.includes(next)) return false;
+  if (next !== tab) {
+    tab = next;
+    notify();
+  }
+  return true;
+}
+// The merged lines of the chatbox (the fight's and ours) that a tab shows.
+export function chatboxTabLines(lines, view) {
+  if (view === "all" || !CHAT_VIEW_TABS.includes(view)) return lines;
+  if (view === "game") return lines.filter((entry) => entry.kind !== "public");
+  if (view === "public") return lines.filter((entry) => entry.kind === "public");
+  return [];
+}
+// "Clear history" on the Public stone.
+export const clearLobbyChatHistory = (kind = "public") => source?.chat?.clearHistory?.(kind) === true;
 
 function entryOf(line) {
   let entry = entries.get(line);
@@ -80,7 +104,7 @@ function entryOf(line) {
 
 export function getLobbyChatSnapshot() {
   if (snapshot) return snapshot;
-  if (!source) return (snapshot = EMPTY);
+  if (!source) return (snapshot = tab === "all" ? EMPTY : Object.freeze({ ...EMPTY, tab }));
   const session = source.session?.getSnapshot?.() ?? null;
   const lines = source.chat?.getSnapshot?.().lines ?? [];
   const available = !!session && session.chatEnabled === true && !!session.you && session.state !== "stopped";
@@ -92,6 +116,7 @@ export function getLobbyChatSnapshot() {
     lines: Object.freeze(lines.map(entryOf)),
     // The Public stone's mode: "on" | "friends" | "off" | "hide".
     filter: source.chat?.getSnapshot?.().filter ?? "on",
+    tab,
   });
   return snapshot;
 }

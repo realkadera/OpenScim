@@ -6,7 +6,7 @@ import { getDefenceTrackerInfoboxes } from "/plugins/defenceTracker.js";
 import { pickLobbyObject } from "/lobby/gateways.js";
 import { lobbyBeforeTick, lobbyAfterTick, followRemotePlayer, lobbyLink, lobbyFollowFacing } from "/net/lobbyLink.js";
 import { startBackgroundBeat } from "/net/backgroundBeat.js";
-import { subscribeLobbyChat, getLobbyChatSnapshot, setLobbyChatDraft, sendLobbyChat, chatKeyStartsTyping, createChatboxMerge, PUBLIC_CHAT_MODES, setLobbyChatFilter } from "/net/lobbyChat.js";
+import { subscribeLobbyChat, getLobbyChatSnapshot, setLobbyChatDraft, sendLobbyChat, chatKeyStartsTyping, createChatboxMerge, PUBLIC_CHAT_MODES, setLobbyChatFilter, CHAT_VIEW_TABS, setLobbyChatTab, chatboxTabLines, clearLobbyChatHistory } from "/net/lobbyChat.js";
 import { combatLevelColor } from "/util/combatLevelColor.js";
 import { replayMarkerStore, findUndoFrameIndex, addMarker, isOnTimeline, pickMarker, pickAutoMarker, nameNewAutoMarkers, describeMarker, isRollbackHeld, holdAfterRollback, releaseRollback, showReplayMessage } from "/replay/markers.js";
 import { createTickLogPanel } from "/replay/tickLogPanel.js";
@@ -27491,11 +27491,18 @@ var Chatbox = (0, pn.memo)(function ({
   const eM = eC && eD;
   // The Public stone's menu (client/net/lobbyChat.js): one entry a mode, as the game's.
   const publicChatMenu = useContextMenu().bindContextMenu(() => ({
-    entries: PUBLIC_CHAT_MODES.map((entry) => ({
-      action: entry.entry,
-      target: "Public",
-      onClick: () => setLobbyChatFilter(entry.mode),
-    })),
+    entries: [
+      ...PUBLIC_CHAT_MODES.map((entry) => ({
+        action: entry.entry,
+        target: "Public",
+        onClick: () => setLobbyChatFilter(entry.mode),
+      })),
+      {
+        action: "Clear history",
+        target: "Public",
+        onClick: () => clearLobbyChatHistory("public"),
+      },
+    ],
   }));
   const eN = (0, pn.useRef)(null);
   const eO = (0, pn.useRef)(null);
@@ -27991,18 +27998,26 @@ var Chatbox = (0, pn.memo)(function ({
               }),
           ],
         });
-        // The Public stone with the lobby's chat: a right click opens its modes (client/net/lobbyChat.js).
-        if (2 === fD && publicChatMode) {
+        // With the lobby's chat (client/net/lobbyChat.js) a click on a stone shows that stone's lines, and a click
+        // on the stone that is shown folds the chatbox, as the game's stones do; a right click on Public opens
+        // its modes. The stone that is shown is lit (inferred: the game draws another sprite for it).
+        if (publicChatMode) {
+          const view = CHAT_VIEW_TABS[fD];
+          const shown = lobbyChat.tab === view;
           return (0, wn.jsx)(
             "div",
             {
               className: "chatbox__tab",
-              "data-chat-tab": "public",
+              "data-chat-tab": view,
+              "data-chat-tab-shown": shown ? "true" : undefined,
               style: {
                 ...fE,
                 pointerEvents: "auto",
+                cursor: "pointer",
+                background: shown ? "rgba(255, 255, 255, 0.14)" : undefined,
               },
-              ...publicChatMenu,
+              ...(2 === fD ? publicChatMenu : {}),
+              onClick: () => (shown || !visible ? onToggle() : undefined, setLobbyChatTab(view)),
               children: fF,
             },
             CHAT_TABS[fD],
@@ -53159,7 +53174,7 @@ var wBe = (0, pn.memo)(function (ez) {
   // (signed out, out of the lobby) the game lines alone, as before.
   const lobbyChat = (0, pn.useSyncExternalStore)(subscribeLobbyChat, getLobbyChatSnapshot);
   const [mergeLines] = (0, pn.useState)(() => createChatboxMerge());
-  const messages = (0, pn.useMemo)(() => mergeLines(eA, lobbyChat.lines), [mergeLines, eA, lobbyChat.lines]);
+  const messages = (0, pn.useMemo)(() => chatboxTabLines(mergeLines(eA, lobbyChat.lines), lobbyChat.name ? lobbyChat.tab : "all"), [mergeLines, eA, lobbyChat.lines, lobbyChat.name, lobbyChat.tab]);
   return (0, wn.jsx)(Chatbox, {
     ...ez,
     messages: messages,

@@ -249,6 +249,22 @@ try {
       return texts;
     };
     const publicLines = () => page.locator(".chatbox__line--speaker .chatbox__speaker").evaluateAll((els) => els.map((el) => el.textContent));
+    // A click on a stone shows that stone's lines: Game the game lines, Public the players', All both.
+    const shownTab = () => page.locator('[data-chat-tab-shown="true"]').getAttribute("data-chat-tab");
+    const lineKinds = () => page.locator(".chatbox__line").evaluateAll((els) => els.map((el) => (el.classList.contains("chatbox__line--speaker") ? "public" : "game")));
+    assert.equal(await shownTab(), "all");
+    const allKinds = await lineKinds();
+    assert.ok(allKinds.includes("public") && allKinds.includes("game"), JSON.stringify(allKinds));
+    await page.locator('[data-chat-tab="game"]').click();
+    assert.equal(await shownTab(), "game");
+    assert.deepEqual([...new Set(await lineKinds())], ["game"]);
+    await stone.click();
+    assert.equal(await shownTab(), "public");
+    assert.deepEqual([...new Set(await lineKinds())], ["public"]);
+    await page.locator('[data-chat-tab="trade"]').click();
+    assert.deepEqual(await lineKinds(), []);
+    await page.locator('[data-chat-tab="all"]').click();
+    assert.deepEqual(await lineKinds(), allKinds);
     const modes = await chooseMode("Show none");
     assert.deepEqual(["Show standard", "Show friends", "Show none", "Hide"].map((entry) => modes.some((text) => text.includes(entry))), [true, true, true, true]);
     assert.deepEqual(await stoneLabel(), ["Off", "rgb(255, 0, 0)"]);
@@ -262,6 +278,12 @@ try {
     assert.deepEqual(await publicLines(), []);
     await page.waitForFunction(() => [...document.querySelectorAll("[data-overhead-texts] > span")].some((s) => s.textContent === "Unseen"), null, { timeout: 5000 });
     assert.equal(await page.evaluate(() => localStorage.getItem("openscim.chat.public")), "hide");
+    // "Clear history" on the Public stone: back in On, its lines are gone, the game lines are not.
+    await chooseMode("Show standard");
+    assert.ok((await publicLines()).length > 0);
+    await chooseMode("Clear history");
+    assert.deepEqual(await publicLines(), []);
+    assert.ok((await lineKinds()).includes("game"));
     assert.deepEqual(errors, []);
     await page.close();
   }

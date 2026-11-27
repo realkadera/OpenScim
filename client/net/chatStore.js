@@ -21,6 +21,7 @@
 //                           a line of ours for a refusal (the session's own
 //                           sendChat refusals, or the server's)
 //   chat.clear()            the log and the overhead text; not the block list
+//   chat.clearHistory(kind) the log's lines of one kind ("public", "system")
 //
 // ChatLine (frozen): { seq, kind: "public", id, name, text, display, tick,
 //   at, mine }. name and text are the server's, untrusted plain text, shown
@@ -254,5 +255,13 @@ export function createChatStore({ now = Date.now, storage = defaultStorage(), is
     isBlocked: (name) => isName(name) && blockedSet().has(nameKey(name)),
     addSystemLine: (reason) => system(reason, reason),
     clear,
+    // "Clear history" of a tab: the lines of one kind go; texts above the heads stay.
+    clearHistory(kind) {
+      const kept = entries.filter((entry) => entry.kind !== kind);
+      if (kept.length === entries.length) return false;
+      entries = kept;
+      publish();
+      return true;
+    },
   };
 }
