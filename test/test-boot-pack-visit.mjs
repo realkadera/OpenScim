@@ -9,7 +9,7 @@ import { fileURLToPath } from "node:url";
 import { chromium } from "playwright-core";
 import { unzipCache } from "../tools/assets/cache.mjs";
 
-const origin = "http://127.0.0.1:8791";
+const origin = process.env.TEST_ORIGIN;
 const repo = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 const manifest = JSON.parse(fs.readFileSync(path.join(repo, "client/osrs-cache/manifest.json"), "utf8"));
 const whole = await unzipCache(fs.readFileSync(path.join(repo, "client/osrs-cache/disk.zip")));
