@@ -275,5 +275,6 @@ export {
   hasRuneAvailable,
   checkSpellRequirements,
   hasMagicLevelForSpell,
+  getRequiredMagicLevel,
   canCastSpell,
 };

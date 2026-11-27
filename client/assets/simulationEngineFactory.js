@@ -24,6 +24,7 @@ export {
   DEATH_CHARGE_SPELL,
   getSpellRuneTypes,
   hasMagicLevelForSpell,
+  getRequiredMagicLevel,
   RUNE_ITEM_IDS,
   MARK_OF_DARKNESS_SPELL,
   canCastSpell,

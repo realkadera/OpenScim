@@ -309,6 +309,7 @@ import {
   getSpellRuneTypes,
   parseEngineBootstrap,
   hasMagicLevelForSpell,
+  getRequiredMagicLevel,
   RUNE_ITEM_IDS,
   rebuildEngineAtReplayFrame,
   getSoulreaperStacksForWeapon,
@@ -10226,7 +10227,8 @@ function OPe(ez, eA) {
 }
 function getSpellIconPath(ez, eA, eB, eC) {
   const eE = eB >= 40;
-  const eG = eC
+  // The standard spellbook's icons have no "_disabled" files: the grid dims the lit icon instead.
+  const eG = eC || ez.endsWith("/normal_spell")
     ? eE
       ? "_resized"
       : ""
@@ -10541,6 +10543,11 @@ var ANCIENT_GRID = [
 function FPe() {
   return "/assets/ui/packs/" + uie() + "/spells";
 }
+// The standard spellbook: the combat spells the simulator casts, in their order of data/combatSpells.js. The icon
+// pack has these 26 icons only, so the teleports and skilling spells of the game's tab are left out.
+var STANDARD_GRID = getCombatSpellsOfSpellbook("standard").map((ez) =>
+  IPe(getSpellIconName(ez.name), ez.name, "combat", getRequiredMagicLevel(ez.name) ?? 1, getSpellRuneTypes(ez.name) ?? []),
+);
 var SPELLBOOKS = {
   get arceuus() {
     return {
@@ -10562,7 +10569,7 @@ var SPELLBOOKS = {
     return {
       type: "standard",
       iconDir: FPe() + "/normal_spell",
-      grid: [],
+      grid: STANDARD_GRID,
       available: false,
     };
   },
@@ -38582,7 +38589,7 @@ var SpellbookContent = ({
           h: fz.slotSize,
           width: fz.slotSize,
           height: fz.slotSize,
-          opacity: fM * (fi.has(fH.icon) ? 0.3 : 1),
+          opacity: fM * (fi.has(fH.icon) ? 0.3 : 1) * (ez === "standard" && !OPe(fH, runeContext) ? 0.4 : 1),
         };
       });
   const fG = [
