@@ -425,6 +425,21 @@ function launchPlayerAttack(attack) {
       29007 === normalizeOptionalItemId(equipment.legs), // Eclipse Moon tassets
   };
   const primaryLanded = !forcedMiss && primaryHit.accurate;
+  // Sanguinesti staff (the holy one is its variant): 1 in 5 that a successful hit deals 8 more damage and heals half
+  // of what it dealt, the 8 included (WIKI: Sanguinesti staff, as changed on 22 July 2026; its healing formula has
+  // the 8 in the heal). The heal comes at launch, as the blood spells' does here (inferred). The impact is spot
+  // animation 1542 (inferred: the Amulet of blood fury's above; the wiki names no id, only an "upwards spiral").
+  const sanguinestiHeals =
+    getBaseItemId(equipment.weapon) === 22323 &&
+    attack.formulaStyle === "magic" &&
+    !attack.isSpecialAttack &&
+    !attack.spellId &&
+    primaryLanded &&
+    random() < 1 / 5;
+  if (sanguinestiHeals) {
+    primaryHit.damage += 8;
+  }
+  const hitGraphicId = sanguinestiHeals ? BLOOD_FURY_HEAL_GRAPHIC.spotAnimId : attack.hitGraphicId;
   const attackOptions = {
     events: attack.deps.tickEvents,
     infiniteHealth: attack.deps.infiniteHealth,
@@ -451,7 +466,7 @@ function launchPlayerAttack(attack) {
       weaponId: attack.player.equipment.weapon,
       // The item whose special this is, where it is not the weapon (the Rondache's Shield Slam), for its animation.
       ...(attack.attackAnimationId === undefined ? {} : { attackAnimationId: attack.attackAnimationId }),
-      ...(attack.hitGraphicId === undefined ? {} : { hitGraphicId: attack.hitGraphicId }),
+      ...(hitGraphicId === undefined ? {} : { hitGraphicId: hitGraphicId }),
       ...(attack.isSpecialAttack && getEquippedSpecialAttackItemId(attack.player.equipment) !== attack.player.equipment.weapon
         ? { specialAttackItemId: getEquippedSpecialAttackItemId(attack.player.equipment) }
         : {}),
@@ -489,6 +504,9 @@ function launchPlayerAttack(attack) {
             }
           }
         }
+      }
+      if (sanguinestiHeals) {
+        healPlayerFromDamageDealt(attack, { percentOfDamage: 50, minimumHeal: 0 }, primaryHit.damage);
       }
       applyBloodFuryHeal(attack, [
         {
