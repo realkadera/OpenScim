@@ -163,6 +163,22 @@ const small = createRemotePlayersStore({ maxPlayers: 2 });
 small.handle(joined([member(10), member(11), member(12)]));
 assert.deepEqual(small.list().map((player) => player.id), [10, 11]);
 
+// combat: kept on the record, null when not sent; an appearance_set without it keeps the level.
+{
+  const levels = createRemotePlayersStore();
+  levels.handle(welcome(1));
+  levels.handle(joined([{ ...member(5), combat: 99 }, member(6)]));
+  assert.equal(levels.getById(5).combat, 99);
+  assert.equal(levels.getById(6).combat, null);
+  const look = fixtureBody("valid", "appearance").appearance;
+  levels.handle(message({ t: "appearance_set", id: 6, appearance: look, equipment: {}, combat: 87 }));
+  assert.equal(levels.getById(6).combat, 87);
+  levels.handle(message({ t: "appearance_set", id: 6, appearance: look, equipment: { weapon: 4151 } }));
+  assert.equal(levels.getById(6).combat, 87);
+  levels.handle(message({ t: "appearance_set", id: 5, appearance: look, equipment: {}, combat: null }));
+  assert.equal(levels.getById(5).combat, null);
+}
+
 // clear() and unsubscribe.
 const seen = notified;
 unsubscribe();

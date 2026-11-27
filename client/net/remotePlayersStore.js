@@ -15,6 +15,7 @@
 //   id, name      name is untrusted plain text, 1 to 24 characters
 //   appearance    { gender, hair_kit, ..., skin_color } or null, not sent yet
 //   equipment     { head?, cape?, ..., ammo? } item ids, or null
+//   combat        the combat level, 3 to 126, or null (not sent)
 //   tile          [x, y] or null (not placed yet); facing 0..2047 or null
 //   run           whether the last move was running
 //   fromTile      where the last move started ([x, y] or null)
@@ -47,6 +48,7 @@ export function createRemotePlayersStore({ maxPlayers = OTHERS_MAX } = {}) {
       name: member.name,
       appearance: member.appearance,
       equipment: member.equipment,
+      combat: member.combat ?? null,
       tile: member.tile,
       facing: member.facing,
       run: false,
@@ -104,10 +106,11 @@ export function createRemotePlayersStore({ maxPlayers = OTHERS_MAX } = {}) {
       next.delete(id);
       return next;
     },
-    appearance_set({ id, appearance, equipment }) {
+    appearance_set({ id, appearance, equipment, combat }) {
       const player = players.get(id);
       if (!player) return null;
-      return new Map(players).set(id, Object.freeze({ ...player, appearance, equipment }));
+      // A server that sends no combat leaves the level as it was.
+      return new Map(players).set(id, Object.freeze({ ...player, appearance, equipment, combat: combat === undefined ? player.combat : combat }));
     },
     presence_tick({ tick, d }) {
       let next = null;

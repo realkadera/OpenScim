@@ -433,6 +433,29 @@ for (const [code, retry] of Object.entries(policies).map(([code, retry]) => [Num
   session.stop();
 }
 
+// --- the combat level goes with the look, and again only when it changes -----------------
+{
+  const { clock, session, connect } = setup();
+  const socket = await connect();
+  const looks = () => socket.messages.filter((msg) => msg.t === "appearance");
+  session.setAppearance(LOOK.appearance, LOOK.equipment, 90);
+  await clock.advance(1000);
+  assert.equal(looks().length, 1);
+  assert.equal(looks()[0].combat, 90);
+  session.setAppearance(LOOK.appearance, LOOK.equipment, 90);
+  await clock.advance(1000);
+  assert.equal(looks().length, 1, "the same level is not sent again");
+  session.setAppearance(LOOK.appearance, LOOK.equipment, 91);
+  await clock.advance(1000);
+  assert.equal(looks().length, 2);
+  assert.equal(looks()[1].combat, 91);
+  session.setAppearance(LOOK.appearance, LOOK.equipment);
+  await clock.advance(1000);
+  assert.equal("combat" in looks()[2], false, "no level, no field");
+  assert.throws(() => session.setAppearance(LOOK.appearance, LOOK.equipment, 200), TypeError);
+  session.stop();
+}
+
 // --- error room_closed: the others are gone, and join goes out again --------------------
 {
   const { clock, ws, presence, session, connect, joinedFor } = setup();

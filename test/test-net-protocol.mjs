@@ -31,7 +31,7 @@ const rebuild = {
   hello: (body) => buildHello({ build: body.build, proto: body.proto, enc: body.enc }),
   join: (body) => buildJoin({ rid: body.rid, instance: body.room?.instance }),
   leave: () => buildLeave(),
-  appearance: (body) => buildAppearance(body.appearance, body.equipment),
+  appearance: (body) => buildAppearance(body.appearance, body.equipment, body.combat),
   presence: ({ t, ...fields }) => buildPresence(fields),
   ping: (body) => buildPing(body.ts),
 };
@@ -155,6 +155,30 @@ assert.throws(() => buildAppearance({ ...look.appearance }, null), TypeError);
 assert.throws(() => buildAppearance(null, {}), TypeError);
 // A null slot is an empty slot.
 assert.deepEqual(buildAppearance(look.appearance, { weapon: 4151, shield: null }).equipment, { weapon: 4151 });
+
+// combat: optional, 3 to 126, last in the message; absent when not given.
+assert.equal("combat" in buildAppearance(look.appearance, {}), false);
+assert.equal("combat" in buildAppearance(look.appearance, {}, null), false);
+assert.deepEqual(Object.keys(buildAppearance(look.appearance, {}, 126)), ["t", "appearance", "equipment", "combat"]);
+assert.equal(buildAppearance(look.appearance, {}, 3).combat, 3);
+for (const bad of [2, 127, 50.5, "90", -1]) assert.throws(() => buildAppearance(look.appearance, {}, bad), TypeError, String(bad));
+assert.deepEqual(checkClientMessage({ t: "appearance", appearance: look.appearance, equipment: {}, combat: 90 }), { ok: true });
+assert.equal(checkClientMessage({ t: "appearance", appearance: look.appearance, equipment: {}, combat: null }).ok, false);
+assert.equal(checkClientMessage({ t: "appearance", appearance: look.appearance, equipment: {}, combat: 200 }).ok, false);
+// From the server: combat on a member and on appearance_set, a level or null;
+// a message without it parses as before, without the field.
+{
+  const withCombat = (combat) => parseServerMessage(JSON.stringify({ t: "member_join", member: { id: 3, name: "A", appearance: null, equipment: null, tile: null, facing: null, combat } }));
+  assert.equal(withCombat(126).msg.member.combat, 126);
+  assert.equal(withCombat(null).msg.member.combat, null);
+  assert.equal("combat" in withCombat(undefined).msg.member, false);
+  for (const bad of [2, 127, "3", 3.5]) assert.equal(withCombat(bad).ok, false, String(bad));
+  const set = (combat) => parseServerMessage(JSON.stringify({ t: "appearance_set", id: 3, appearance: look.appearance, equipment: {}, combat }));
+  assert.equal(set(70).msg.combat, 70);
+  assert.equal(set(null).msg.combat, null);
+  assert.equal("combat" in set(undefined).msg, false);
+  assert.equal(set(0).ok, false);
+}
 
 // The parser never throws, whatever it is given.
 for (const text of ["", "null", "1", '"x"', "[]", "{", '{"t":null}', '{"t":{}}', "\u0000", undefined, null, 42, {}, '{"t":"welcome"}', '{"t":"joined","room":null}', '{"t":"presence_tick","tick":1,"d":[null]}', '{"t":"member_join","member":{"id":1,"name":{"length":3}}}', '{"t":"toString"}', '{"t":"__proto__"}', '{"t":"constructor"}']) {

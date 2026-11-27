@@ -44,6 +44,10 @@ export const STEPS_PER_PRESENCE_MAX = 2;
 export const MERGED_STEPS_MAX = 4;
 export const BUILD_MAX_CHARS = 64;
 export const NAME_MAX_CHARS = 24;
+// A player's combat level, lowest to highest (WIKI: Combat_level, 3 for a new
+// account and 126 at the most).
+export const COMBAT_MIN = 3;
+export const COMBAT_MAX = 126;
 export const ERROR_MSG_MAX_CHARS = 200;
 export const ITEM_ID_MAX = 65535;
 export const INSTANCE_MAX = 999;
@@ -130,6 +134,7 @@ const charCount = (text) => [...text].length;
 const isName = (value) => typeof value === "string" && charCount(value) >= 1 && charCount(value) <= NAME_MAX_CHARS;
 const isTile = (value) => Array.isArray(value) && value.length === 2 && isInt(value[0], TILE_MIN, TILE_MAX) && isInt(value[1], TILE_MIN, TILE_MAX);
 const isFacing = (value) => isInt(value, 0, FACING_MAX);
+const isCombat = (value) => isInt(value, COMBAT_MIN, COMBAT_MAX);
 // Within one tile of each other, the 8-neighbourhood or the same tile.
 export const isAdjacent = (a, b) => Math.abs(a[0] - b[0]) <= 1 && Math.abs(a[1] - b[1]) <= 1;
 export const tilesEqual = (a, b) => a[0] === b[0] && a[1] === b[1];
@@ -190,7 +195,9 @@ export const buildLeave = () => ({ t: "leave" });
 
 // appearance: every field of APPEARANCE_FIELDS, nothing else. equipment:
 // slot -> item id; a slot that is absent, null or undefined is empty.
-export function buildAppearance(appearance, equipment) {
+// combat: optional, the player's combat level (COMBAT_MIN..COMBAT_MAX); left
+// out of the message when undefined or null.
+export function buildAppearance(appearance, equipment, combat) {
   if (!isObject(appearance)) fail("appearance: not an object");
   onlyKeys(appearance, APPEARANCE_FIELDS, "appearance");
   const look = {};
@@ -208,7 +215,9 @@ export function buildAppearance(appearance, equipment) {
     if (!isInt(item, 0, ITEM_ID_MAX)) fail(`equipment: ${slot} must be an item id 0..${ITEM_ID_MAX}`);
     worn[slot] = item;
   }
-  return { t: "appearance", appearance: look, equipment: worn };
+  if (combat === undefined || combat === null) return { t: "appearance", appearance: look, equipment: worn };
+  if (!isCombat(combat)) fail(`appearance: combat must be an integer ${COMBAT_MIN}..${COMBAT_MAX}`);
+  return { t: "appearance", appearance: look, equipment: worn, combat };
 }
 
 // One local tick: the tile now, the tiles stepped onto this tick in order
@@ -258,8 +267,9 @@ export function checkClientMessage(body) {
         onlyKeys(fields, [], "leave");
         break;
       case "appearance":
-        onlyKeys(fields, ["appearance", "equipment"], "appearance");
-        buildAppearance(fields.appearance, fields.equipment);
+        onlyKeys(fields, ["appearance", "equipment", "combat"], "appearance");
+        if (fields.combat === null) fail("appearance: combat is left out, not null");
+        buildAppearance(fields.appearance, fields.equipment, fields.combat);
         break;
       case "presence":
         if (!("run" in fields)) fail("presence: run is missing");
@@ -295,6 +305,11 @@ function readMember(value) {
   for (const [field, read] of Object.entries(optional)) {
     if (value[field] === undefined || value[field] === null) member[field] = null;
     else if ((member[field] = read(value[field])) === null) return null;
+  }
+  // combat: newer than the other fields, so an older message without it stays as it was.
+  if (value.combat !== undefined) {
+    if (value.combat !== null && !isCombat(value.combat)) return null;
+    member.combat = value.combat;
   }
   return member;
 }
@@ -357,7 +372,9 @@ const readers = {
   appearance_set(body) {
     const appearance = readAppearance(body.appearance), equipment = readEquipment(body.equipment);
     if (!isId(body.id) || !appearance || !equipment) return "id, appearance or equipment is not valid";
-    return { t: "appearance_set", id: body.id, appearance, equipment };
+    if (body.combat === undefined) return { t: "appearance_set", id: body.id, appearance, equipment };
+    if (body.combat !== null && !isCombat(body.combat)) return `combat is not null or an integer ${COMBAT_MIN}..${COMBAT_MAX}`;
+    return { t: "appearance_set", id: body.id, appearance, equipment, combat: body.combat };
   },
   presence_tick(body) {
     if (!isInt(body.tick, 0, Number.MAX_SAFE_INTEGER)) return "tick is not a tick";

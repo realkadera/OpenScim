@@ -32,9 +32,9 @@
 //                                message of the server (protocol.js shapes), and
 //                                fn({ type: "room_lost", reason }) when the room
 //                                we saw is gone; returns unsubscribe
-//   session.setAppearance(appearance, equipment)
-//                                the look to show; kept, sent on every connect
-//                                and whenever it changes
+//   session.setAppearance(appearance, equipment, combat?)
+//                                the look to show, and the combat level; kept,
+//                                sent on every connect and whenever it changes
 //   session.sendPresence({ tile, steps, run, facing })
 //                                the local player after a tick; kept, sent while
 //                                joined, at most once a server tick, only when
@@ -464,8 +464,8 @@ export function createNetSession({
       roomListeners.add(listener);
       return () => roomListeners.delete(listener);
     },
-    setAppearance(appearance, equipment) {
-      wantedAppearance = buildAppearance(appearance, equipment);
+    setAppearance(appearance, equipment, combat) {
+      wantedAppearance = buildAppearance(appearance, equipment, combat);
       flush();
     },
     sendPresence(presence) {
