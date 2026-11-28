@@ -151,9 +151,12 @@ export class Specials {
       return e.random() < (chebyshev(tile, player.position) <= clawNear ? clawNearChance : clawFarChance);
     });
     this.clawSets.push({ at: context.tick + clawHitTicks, tiles: new Set(tiles.map(key)) });
+    // OBS (Outside, five recordings, 1,301 and more portals): every one at the floor's height (-1240), on the dark
+    // floor as on the green. Drawn over the floor (onGround): its tiles and lines are objects of plane 2, which hid
+    // the flat portal under them everywhere but on the green.
     e.visual(context, {
       animations: clip ? [{ clipId: clip, delayCycles }] : [],
-      graphics: tiles.map((position) => ({ spotAnimId: spotAnims.claw, target: { kind: "tile", position: [...position] }, height: 0, delayCycles: 0 })),
+      graphics: tiles.map((position) => ({ spotAnimId: spotAnims.claw, target: { kind: "tile", position: [...position] }, height: 0, delayCycles: 0, onGround: true })),
     });
   }
   // A run of `count` sets (Infinity: her desperation's).

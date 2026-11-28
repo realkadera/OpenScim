@@ -7,6 +7,17 @@ import { phosanisNightmareAudio } from "./audio.js";
 import { phosanisNightmareKind, phosanisNightmareMapSquare, bossActorId } from "./encounter.js";
 import { npcTypeIds, seqIds, spotAnims, locIds, locSeqIds, bossStart, bossSize, plane } from "./ids.js";
 
+// The height of a plane's terrain under a point (its tile corners' heights, [x][y], blended), as the scene finds its own.
+const heightAt = (heights, x, y) => {
+  const tx = Math.max(0, Math.min(63, Math.floor(x)));
+  const ty = Math.max(0, Math.min(63, Math.floor(y)));
+  const fx = Math.max(0, Math.min(1, x - tx));
+  const fy = Math.max(0, Math.min(1, y - ty));
+  const at = (dx, dy) => heights[tx + dx]?.[ty + dy] ?? 0;
+  const south = at(0, 0) + (at(1, 0) - at(0, 0)) * fx;
+  const north = at(0, 1) + (at(1, 1) - at(0, 1)) * fx;
+  return south + (north - south) * fy;
+};
 const identity = new Float32Array([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
 // CACHE: spores and flowers are locs of shape 10, unturned, one a tile.
 const loc = (id, locId, [x, y], seqId = -1, animationStartTick) => ({
@@ -98,6 +109,9 @@ export const phosanisNightmarePresentation = (BaseScene) => ({
         this.terrainHeights = heights;
         this.npcInstanceManager.setTerrainHeights(heights);
         this.spotAnimRenderer.setTerrainHeights(heights);
+        // Projectiles (hers, her minions', the player's) fly from and to the surface the scene resolves, which is
+        // plane 0's unless told otherwise: 1,240 under the floor, so none was seen. Plane 3's heights instead.
+        this.resolveSurfaceHeight = (x, y) => heightAt(heights, x, y);
       }
       // The scene draws an NPC as the type it was first drawn as: when she takes another form, the old one is taken
       // away and drawn again as the new (as the Alchemical Hydra's scene does).

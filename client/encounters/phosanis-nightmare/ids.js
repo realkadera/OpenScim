@@ -74,6 +74,22 @@ export const totemSize = 3;
 export const sleepwalkerTiles = [
   [3863, 9945], [3863, 9957], [3866, 9942], [3866, 9960], [3878, 9942], [3878, 9960], [3881, 9945], [3881, 9957],
 ].map(local);
+// OBS (Outside, five recordings of 2026-11-25 and 26, 15 blasts, 45 sleepwalkers): never two at one totem, and
+// every blast's on one of two rings of these tiles, each a quarter turn of the last round her centre (3872, 9951):
+// after her first phase two across from each other (5 of 5), after her second three of a ring (5 of 5), after her
+// last all four (5 of 5). Each ring here goes round anticlockwise.
+export const sleepwalkerRings = [
+  [[3881, 9945], [3878, 9960], [3863, 9957], [3866, 9942]],
+  [[3881, 9957], [3866, 9960], [3863, 9945], [3878, 9942]],
+].map((ring) => ring.map(local));
+// Where a blast's sleepwalkers rise (sleepwalkerRings): one ring, turned at random; two across from each
+// other, or the first `count` of it.
+export function walkerTiles(count, random) {
+  const ring = sleepwalkerRings[Math.floor(random() * sleepwalkerRings.length)];
+  const turn = Math.floor(random() * ring.length);
+  const steps = count === 2 ? [0, 2] : ring.map((_, n) => n).slice(0, count);
+  return steps.map((step) => ring[(turn + step) % ring.length]);
+}
 
 // tsps, OBS (runelogs: 10 surges, every one on these lanes, 4 ticks from start to end): the tiles her body
 // starts from and ends on, three lanes each way across the dream, either way along.

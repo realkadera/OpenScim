@@ -4387,6 +4387,10 @@ var MINIMAP = {
   get orbHitpointsVenom() {
     return rae("other/minimap_orb_hitpoints_venom.png");
   },
+  // CACHE: sprite 1636, the pink fill (a Nightmare's parasite growing in the player). No pack has one: pack-vanilla's.
+  get orbHitpointsParasite() {
+    return rae("other/minimap_orb_hitpoints_parasite.png");
+  },
   get orbPrayer() {
     return rae("other/minimap_orb_prayer.png");
   },
@@ -43676,6 +43680,7 @@ var MinimapOrbs = ({
   currentHP: currentHP,
   maxHP: maxHP,
   poisonVarp: poisonVarp,
+  hitpointsOrb: hitpointsOrb,
   currentPrayer: currentPrayer,
   isQuickPrayerActive: isQuickPrayerActive,
   hasPredictedPrayer: eM = false,
@@ -43833,8 +43838,11 @@ var MinimapOrbs = ({
         alt: "Hitpoints",
         current: currentHP,
         max: maxHP,
+        // A fill the encounter's snapshot asks for (state.hitpointsOrb: "parasite") before poison's and venom's.
         fillSprite:
-          undefined !== poisonVarp && poisonVarp >= 1000000
+          hitpointsOrb === "parasite"
+            ? MINIMAP.orbHitpointsParasite
+            : undefined !== poisonVarp && poisonVarp >= 1000000
             ? MINIMAP.orbHitpointsVenom
             : fh
               ? MINIMAP.orbHitpointsPoison
@@ -45198,6 +45206,7 @@ var Minimap = (0, pn.forwardRef)(function (
     currentHP: simulationState.playerHP,
     maxHP: simulationState.maxHP,
     poisonVarp: simulationState.poisonVarp,
+    hitpointsOrb: simulationState.encounter?.state?.hitpointsOrb,
     currentPrayer: simulationState.prayerState.points,
     isQuickPrayerActive: isQuickPrayerActive,
     hasPredictedPrayer:

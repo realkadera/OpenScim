@@ -5,7 +5,7 @@ import { defineNpc } from "../shared/npcDefinitions.js";
 import { rollNpcAttack } from "../shared/npcAttack.js";
 import { faceActorToward } from "../shared/npcHelpers.js";
 import {
-  npcTypeIds, totems as totemSpecs, totemSize, sleepwalkerTiles, isFloor, isTotemTile, gapTo, same, spotAnims, sounds,
+  npcTypeIds, totems as totemSpecs, totemSize, sleepwalkerTiles, walkerTiles, isFloor, isTotemTile, gapTo, same, spotAnims, sounds,
 } from "./ids.js";
 
 // --- the totems ------------------------------------------------------------
@@ -461,12 +461,7 @@ export class Minions {
       if (e.epoch !== epoch || this.walk !== state) return;
       e.message(ctx, walkerMessages.charging);
       e.sound(ctx, sounds.sleepwalkers);
-      const tiles = [...sleepwalkerTiles];
-      for (let n = tiles.length - 1; n > 0; n--) {
-        const m = Math.floor(e.random() * (n + 1));
-        [tiles[n], tiles[m]] = [tiles[m], tiles[n]];
-      }
-      for (let n = 0; n < count; n++) if (this.rise(ctx, tiles[n % tiles.length], false)) state.spawned++;
+      for (const tile of walkerTiles(count, () => e.random())) if (this.rise(ctx, tile, false)) state.spawned++;
       state.risen = true;
       state.risenAt = ctx.tick;
       state.readyAt = ctx.tick + 1;

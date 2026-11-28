@@ -756,6 +756,10 @@ class PhosanisNightmareEncounter {
           ? { screenTint: { color: curseTint.color, fadeInMs: curseTint.fadeInMs, since: this.specials.curse.since } }
           : {}),
         ...(this.specials.curse && (this.mechanics?.[curseMarkersKey] ?? false) ? { prayerMarkers: curseMarkers() } : {}),
+        // OBS (Outside, two recordings, 3 infections): varbit 10151 is 1 from "impregnated" to "weakened", 0 again
+        // as the cure weakens it; inferred: with no cure, until it bursts. While it is, the hitpoints orb is pink
+        // (CACHE: sprite 1636, inferred: the one pink orb fill in the cache, as a play-tester saw).
+        ...(this.minions.infection && !this.minions.infection.weak ? { hitpointsOrb: "parasite" } : {}),
       },
       visuals: {},
     };

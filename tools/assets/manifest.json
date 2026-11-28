@@ -1681,6 +1681,7 @@
 {"path":"assets/ui/packs/pack-vanilla/other/minimap_orb_hitpoints.png","bytes":296,"sha256":"b238cf39e1fed6f818956d6b7fd40dc23a326e3d0859e01aa37b7863a71368a6","source":"rp-vanilla:other/minimap_orb_hitpoints.png"},
 {"path":"assets/ui/packs/pack-vanilla/other/minimap_orb_hitpoints_disease.png","bytes":327,"sha256":"29ddb984e462361efeb31a64f7bb6317770cb87d89b152d79c02ffd7d8f5604a","source":"rp-vanilla:other/minimap_orb_hitpoints_disease.png"},
 {"path":"assets/ui/packs/pack-vanilla/other/minimap_orb_hitpoints_icon.png","bytes":212,"sha256":"f0c1278034b7c8aa127b76262d961e4ce81ac97c1e812a7d5e863d11565b903e","source":"rp-vanilla:other/minimap_orb_hitpoints_icon.png"},
+{"path":"assets/ui/packs/pack-vanilla/other/minimap_orb_hitpoints_parasite.png","pixels":"c0e354e338a4f7eaec6fd97dbc6fea178470f3ffcc99f3ed8a37bbab9f126c85","source":"sprite:8/1636/0"},
 {"path":"assets/ui/packs/pack-vanilla/other/minimap_orb_hitpoints_low_life_icon.png","bytes":280,"sha256":"585cbbb9fee4378aeac4ecbe8b86e4896efd7e76338ff61d1c3b7828ad78e41b","source":"rp-vanilla:other/minimap_orb_hitpoints_low_life_icon.png"},
 {"path":"assets/ui/packs/pack-vanilla/other/minimap_orb_hitpoints_poison.png","bytes":268,"sha256":"808cc3d5206ed3875d0e588db228dc95c06ef64848f1715e4e38bbb02d05635a","source":"rp-vanilla:other/minimap_orb_hitpoints_poison.png"},
 {"path":"assets/ui/packs/pack-vanilla/other/minimap_orb_hitpoints_venom.png","bytes":277,"sha256":"af6fbc2f1d815c6bed9e73f07081187ce74b7041034e592976b5c8e328db508c","source":"rp-vanilla:other/minimap_orb_hitpoints_venom.png"},
