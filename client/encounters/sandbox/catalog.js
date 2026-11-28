@@ -106,6 +106,7 @@ export const sandboxCatalogExclusions = {
   14709: "the Doom of Mokhaiotl burrowed: the Doom himself under the floor, between his shield and his surfacing",
   15742: "the Maggot King fights from behind a row of bones, and most of his attacks are his floor's (bile, carrion, slams): he is fought in his own lair",
   15743: "the Ur-maggot larvae have no attack of their own: they fly in from the King's screeches and leech a player under them",
+  16305: "the Mad Angel's specials are her nave's (the ball of light bounced off its floor, the cleaves, the smite): she is fought in her own nave",
   8061: "Vorkath never leaves her place and has no walk, and her breaths, acid and spawn are her crater's: she is fought in her own crater",
   8063: "the zombified spawn never attacks: it walks up to the player and explodes",
 };
