@@ -105,10 +105,20 @@ function planPlayerAttack(attackInput, consumeGuaranteedMaximum, forceGuaranteed
   const playerMinimumHit = attackInput.encounterRules?.playerMinimumHit;
   const formulaStats = attackInput.target.formulaStats;
   const style = attackInput.delivery.style;
+  const spellId = attackInput.spellId;
+  // Optional, per target: spells its style rule leaves out
+  // (alwaysMaximumPlayerHitExceptSpells), and spells that always hit it once
+  // the player's own attack roll is at least a set value
+  // (playerSpellAccurateFromAttackRoll, spell name -> lowest roll).
+  const styleRuleExcludesSpell =
+    undefined !== spellId && formulaStats?.alwaysMaximumPlayerHitExceptSpells?.includes(spellId) === true;
+  const spellAccurateFromRoll =
+    undefined === spellId ? undefined : formulaStats?.playerSpellAccurateFromAttackRoll?.[spellId];
   const guaranteedMaximum =
     (formulaStats?.alwaysMaximumPlayerHit === true &&
       ("magic" === style || "range_arrow" === attackInput.delivery.attackKind)) ||
     ("typeless" !== style &&
+      !styleRuleExcludesSpell &&
       formulaStats?.alwaysMaximumPlayerHitStyles?.includes(style) === true) ||
     forceGuaranteedMaximum ||
     (consumeGuaranteedMaximum &&
@@ -121,6 +131,7 @@ function planPlayerAttack(attackInput, consumeGuaranteedMaximum, forceGuaranteed
   return applyGuaranteedHitOverrides(scaledAttackPlan, {
     guaranteedAccuracy:
       true === attackInput.target.formulaStats?.alwaysAccuratePlayerHit ||
+      (undefined !== spellAccurateFromRoll && attackPlan.diagnostics.baseAttackRoll >= spellAccurateFromRoll) ||
       (undefined !== encounterContext &&
         true === attackInput.encounterRules?.playerAlwaysAccurate?.(encounterContext, attack)),
     guaranteedMaximum: guaranteedMaximum,

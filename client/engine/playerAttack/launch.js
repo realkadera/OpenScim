@@ -1090,6 +1090,7 @@ function performPlayerAutoAttack(player, deps) {
           specialAttackDamageMultiplier: specialAttackDamageMultiplier,
         },
         manualCast: manualCastSpell !== null,
+        ...(castSpell ? { spellId: castSpell.name } : {}),
         isSpecialAttack: isSpecialAttack,
         standardAccuracyMode: standardAccuracyMode,
         ...(deps.encounterRules === undefined

@@ -375,10 +375,11 @@ export const scenarios = [
       if (tick === 116) attackBoss(api); // the next totem is due 200 ticks after this one fell
       // The warbander is frozen where it stands, south of the player. The player walks four tiles on (under Sol)
       // and, the moment it thaws, two tiles back: the warbander finds itself in place with steps left over.
-      if (tick === 130) castOn(api, WARBANDER, "Ice Barrage");
-      if (tick === 138) attackBoss(api);
+      // In ranged gear the barrage can miss (it is not the berserker's sure hit), so it is cast again until it freezes.
       const warbander = api.npcs().find((npc) => npc.id === WARBANDER);
       const thawsAt = warbander?.debuffs?.boundUntilTick;
+      if (tick >= 130 && tick % 6 === 4 && warbander && thawsAt === undefined) castOn(api, WARBANDER, "Ice Barrage");
+      if (thawsAt !== undefined && tick === thawsAt - 24) attackBoss(api);
       if (thawsAt !== undefined) {
         const [wx, wy] = warbander.position;
         if (tick === thawsAt - 4) walkTo(api, wx, wy + 5);

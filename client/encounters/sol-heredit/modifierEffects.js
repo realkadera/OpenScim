@@ -141,6 +141,15 @@ function createBeeSwarmActors(swarmSpawn) {
 // spawnTick, slotOffset, fallbackOffsets?, relentless? }: its attacks are
 // counted from `spawnTick`, and it walks from two ticks after it
 // (minions.js).
+// WIKI (Fremennik warband berserker, seer, archer): Ice Barrage needs "at
+// least a +104 magic attack bonus with Augury, or +140 without Augury, to
+// guarantee a freeze" on each of the three (but "This will not guarantee a
+// max hit"). The wiki gives bonuses, not a roll; inferred: the bar is a
+// magic attack roll, the one of 99 Magic, no prayer, +140:
+// (99 + 8) * (140 + 64) = 21828. With Augury that is +104 (131 * 168 =
+// 22008; +103 also clears it at 21877). The berserker page's elite void
+// line (+52 with Augury) comes out a little short: 186 * 116 = 21576.
+const warbandIceBarrageSureFreezeAttackRoll = 21828;
 function createWarbanderActor(warbanderSpawn) {
   const roleProfile = warbanderRoleConfigs[warbanderSpawn.role];
   const hitpoints = getMonsterHitpoints(roleProfile.npcTypeId);
@@ -174,6 +183,10 @@ function createWarbanderActor(warbanderSpawn) {
     formulaStats: {
       ...structuredClone(formulaStats),
       alwaysMaximumPlayerHitStyles: [roleProfile.weakness],
+      // WIKI (Fortis Colosseum/Strategies): the weakness always hits and max
+      // hits, "The only exception is Ice Barrage on the berserker".
+      alwaysMaximumPlayerHitExceptSpells: ["Ice Barrage"],
+      playerSpellAccurateFromAttackRoll: { "Ice Barrage": warbandIceBarrageSureFreezeAttackRoll },
     },
     combat: {
       attackSpeed: 6,
