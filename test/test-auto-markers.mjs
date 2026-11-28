@@ -28,7 +28,7 @@ assert.deepEqual(await markersOf("inferno", "inferno/zuk-jad-healers-victory"), 
 // A set is a mager and a ranger on one tick: one marker.
 assert.deepEqual(await markersOf("inferno", "inferno/zuk-set-destroys-shield-death"), ["0 wave 69", "72 Zuk's set"]);
 // The Doom: each shield, and the burrow it breaks into from delve 5.
-assert.deepEqual(await markersOf("doom-of-mokhaiotl", "doom/delve-8-ranged"), ["52 shield", "69 burrow", "175 shield", "192 burrow"]);
+assert.deepEqual(await markersOf("doom-of-mokhaiotl", "doom/delve-8-ranged"), ["48 shield", "65 burrow", "156 shield", "173 burrow"]);
 // Phases and enrages.
 assert.deepEqual(await markersOf("sol-heredit", "sol-heredit/melee-through-every-phase"), ["24 phase 2", "65 phase 3", "105 phase 4", "145 phase 5", "176 phase 6"]);
 assert.deepEqual(await markersOf("leviathan", "leviathan/enrage-and-kill"), ["44 enrage"]);

@@ -254,7 +254,11 @@ export class Burrow {
     const player = context.world.getPlayer();
     const playerSheltered = shelters(player.position);
     doom.shockwave.floorSlam(context, centre, 15);
-    for (const tile of standing) if (chebyshev(tile, centre) <= 15 && !shelters(tile)) doom.rocks.crumble(tile, context);
+    // Which rocks go is settled before any does: a rock that crumbles still
+    // shelters the ones behind it from this slam (wiki: "excluding rocks that
+    // were protected by another rock").
+    const crumbling = standing.filter((tile) => chebyshev(tile, centre) <= 15 && !shelters(tile));
+    for (const tile of crumbling) doom.rocks.crumble(tile, context);
     if (!playerSheltered && player.alive) {
       doom.pendingDamages.push({ baseDamage: carSlamDamage, attackType: "typeless", source: "Car slam", playerPosition: [...player.position] });
     }

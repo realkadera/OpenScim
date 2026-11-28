@@ -89,6 +89,9 @@ const shieldStoreCap = 50;
 // fights' red messages use (inferred).
 const delveMessageColor = "#ff3045";
 const eyeOfAyakItemId = 31113;
+// A hit that larvae take as demonbane (hazards.js, Larvae.damage): a demonbane weapon or spell, or the Eye of Ayak (wiki).
+const killsLarvae = (attack) =>
+  isDemonbaneAttack(attack) || (attack.weaponId !== undefined && getBaseItemId(attack.weaponId) === eyeOfAyakItemId);
 
 // The spell of the player's next attack, a cast or the autocast; null for none.
 function playerSpellName(player) {
@@ -321,7 +324,7 @@ class DoomEncounter {
     for (const hit of world.pendingHits) {
       const larva = hit.sourceId === "player" ? world.getNpc(hit.targetId) : undefined;
       if (!larva?.alive || !this.larvae.isLarva(larva) || !hit.accuracySucceeded) continue;
-      const damage = this.larvae.damage(larva, Number(hit.rolledDamage) || 0, hit, isDemonbaneAttack(hit));
+      const damage = this.larvae.damage(larva, Number(hit.rolledDamage) || 0, hit, killsLarvae(hit));
       incoming.set(larva.id, (incoming.get(larva.id) ?? 0) + damage);
     }
     return [...incoming].filter(([id, damage]) => damage >= world.getNpc(id).vitals.hp).map(([id]) => id);
@@ -443,9 +446,11 @@ class DoomEncounter {
     return weaponId !== undefined && (isDemonbaneAttack({ weaponId }) || getBaseItemId(weaponId) === eyeOfAyakItemId);
   }
   playerDamage(damage, player, target, attack) {
-    const demonbane = isDemonbaneAttack(attack);
-    if (this.larvae.isLarva(target)) return this.larvae.damage(target, damage, attack, demonbane);
+    if (this.larvae.isLarva(target)) return this.larvae.damage(target, damage, attack, killsLarvae(attack));
+    // Volatile earth: every hit lands, for at least its 1 hitpoint (hazards.js).
+    if (this.shockwave.earth.has(target.id)) return Math.max(1, damage);
     if (target.id !== bossActorId) return damage;
+    const demonbane = isDemonbaneAttack(attack);
     this.burrow.hit();
     if (this.shield.up) {
       if (demonbane) this.shield.hit(Math.max(1, damage), { restartsCharge: true });
@@ -640,9 +645,12 @@ class DoomEncounter {
     if (!attack) throw new TypeError("Missing formula stats for the Doom of Mokhaiotl");
     return attack;
   }
+  // Not while the volatile earth is up (wiki: never with the throws before
+  // the shockwaves): from delve 5 a throw 5 ticks after he surfaces would
+  // otherwise charge a tick after the earth comes up.
   startCharge(context) {
     const boss = this.boss(context.world);
-    if (this.phase !== "attacks" || this.charge || !boss?.alive) return;
+    if (this.phase !== "attacks" || this.charge || this.shockwave.active || !boss?.alive) return;
     this.charge = { firesAt: context.tick + charge.ticks };
     this.setChargeAccuracy(boss, true);
     this.animate(context, "beamCharge", [{ spotAnimId: spotAnims.beamCharge, target: buildActorVisualTarget(boss), height: 0, delayCycles: 0 }]);
