@@ -43,6 +43,7 @@ export const encounterCatalog = {
   doom_of_mokhaiotl: { category: "boss", aliases: ["doom", "delve", "mokhaiotl", "delves"] },
   maggot_king: { category: "boss", aliases: ["maggot"] },
   vorkath: { category: "boss", aliases: ["vork", "dragon", "zombified spawn", "dragon slayer ii", "ungael"] },
+  brutus: { category: "boss", aliases: ["cow", "bull", "ides of milk", "lumbridge", "demonic brutus", "abyssal potato"] },
   corrupted_hunllef: { category: "minigame", aliases: ["gauntlet", "cg", "hunllef", "corrupted gauntlet", "prifddinas"] },
   sandbox: { category: "other", aliases: ["editor", "custom", "scenario", "build"] },
 };

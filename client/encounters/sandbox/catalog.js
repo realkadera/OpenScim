@@ -108,6 +108,9 @@ export const sandboxCatalogExclusions = {
   15743: "the Ur-maggot larvae have no attack of their own: they fly in from the King's screeches and leech a player under them",
   8061: "Vorkath never leaves her place and has no walk, and her breaths, acid and spawn are her crater's: she is fought in her own crater",
   8063: "the zombified spawn never attacks: it walks up to the player and explodes",
+  15626: "Brutus's stomps and charge are his own encounter's (the tiles beside him, the lane he dashes down): he is fought in his cow field",
+  15628: "Demonic Brutus's ghosts, phases and orbs are his own encounter's: he is fought in his cow field",
+  15629: "Demonic Brutus's ghost: part of his specials",
 };
 
 export const sandboxNpcCatalog = curatedNpcCatalog;

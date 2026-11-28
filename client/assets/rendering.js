@@ -14827,8 +14827,10 @@ function Nb(e, a, t) {
   if (!e) {
     return 0;
   }
-  const n = Math.max(0, Math.min(63, Math.floor(a)));
-  const s = Math.max(0, Math.min(63, Math.floor(t)));
+  // The grid is a map square's 65 x 65 corners, or wider where an encounter's map squares were joined into it
+  // (joinedSquareHeights).
+  const n = Math.max(0, Math.min(e.length - 2, Math.floor(a)));
+  const s = Math.max(0, Math.min((e[0]?.length ?? 65) - 2, Math.floor(t)));
   const r = Math.max(0, Math.min(1, a - n));
   const i = Math.max(0, Math.min(1, t - s));
   const l = e[n]?.[s] ?? 0;
@@ -14836,6 +14838,39 @@ function Nb(e, a, t) {
   const d = e[n]?.[s + 1] ?? 0;
   const g = l + (o - l) * r;
   return g + (d + ((e[n + 1]?.[s + 1] ?? 0) - d) * r - g) * i;
+}
+// The ground heights of an encounter whose map squares are several (mapSquareOffsets): one grid of corners, its
+// first square at 0,0 and each other square at its offset, so that an actor, a graphic or the camera on any of them
+// stands on its ground. Before, the grid was the first square's alone, and on the others they read its edge. A square
+// west or south of the first (a negative offset) can't be in a grid that starts at 0: those keep the first square's
+// edge, as before. A square's own heights win over a neighbour's corners on their shared edge.
+function joinedSquareHeights(squares, mapX, mapY, offsets) {
+  const first = squares.get(`${mapX},${mapY}`).tileHeights[0];
+  const joined = offsets.filter(({ tileOffsetX, tileOffsetY }) => tileOffsetX >= 0 && tileOffsetY >= 0);
+  const width = Math.max(...joined.map(({ tileOffsetX }) => tileOffsetX)) + first.length;
+  const height = Math.max(...joined.map(({ tileOffsetY }) => tileOffsetY)) + (first[0]?.length ?? 65);
+  if (width === first.length && height === (first[0]?.length ?? 65)) {
+    return first;
+  }
+  const grid = Array.from({ length: width }, () => new Int32Array(height));
+  for (const core of [false, true]) {
+    for (const { dx, dy, tileOffsetX, tileOffsetY } of joined) {
+      const heights = squares.get(`${mapX + dx},${mapY + dy}`)?.tileHeights[0];
+      if (!heights) {
+        continue;
+      }
+      for (let x = 0; x < heights.length; x++) {
+        for (let y = 0; y < heights[x].length; y++) {
+          // First every square's corners, then each square's own 64 x 64 over them.
+          if (core && (x === heights.length - 1 || y === heights[x].length - 1)) {
+            continue;
+          }
+          grid[tileOffsetX + x][tileOffsetY + y] = heights[x][y];
+        }
+      }
+    }
+  }
+  return grid;
 }
 function Gb(e, a, t, n, s) {
   if (!e) {
@@ -20346,16 +20381,16 @@ var Projection3D = class {
     if (!this.terrainHeights) {
       return 0;
     }
-    const t = Math.max(0, Math.min(64, Math.floor(e)));
-    const n = Math.max(0, Math.min(64, Math.floor(a)));
+    const t = Math.max(0, Math.min(this.terrainHeights.length - 1, Math.floor(e)));
+    const n = Math.max(0, Math.min((this.terrainHeights[0]?.length ?? 65) - 1, Math.floor(a)));
     return this.terrainHeights[t]?.[n] ?? 0;
   }
   ES(e, a) {
     if (!this.terrainHeights) {
       return 0;
     }
-    const t = Math.max(0, Math.min(63, Math.floor(e)));
-    const n = Math.max(0, Math.min(63, Math.floor(a)));
+    const t = Math.max(0, Math.min(this.terrainHeights.length - 2, Math.floor(e)));
+    const n = Math.max(0, Math.min((this.terrainHeights[0]?.length ?? 65) - 2, Math.floor(a)));
     const s = Math.max(0, Math.min(1, e - t));
     const r = Math.max(0, Math.min(1, a - n));
     const i = this.terrainHeights[t]?.[n] ?? 0;
@@ -48191,7 +48226,7 @@ var SceneCompositor = class e {
     const v = Math.max(
       ...i.map(({ tileOffsetY: tileOffsetY }) => tileOffsetY + 64 - 1),
     );
-    this.setTerrainHeightsAndBounds(m, {
+    this.setTerrainHeightsAndBounds({ ...m, tileHeights: [joinedSquareHeights(c, o, d, i), ...m.tileHeights.slice(1)] }, {
       minX: h,
       maxX: f,
       minY: u,
