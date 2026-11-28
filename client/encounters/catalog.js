@@ -41,6 +41,7 @@ export const encounterCatalog = {
   araxxor: { category: "slayer", aliases: ["rax", "spider", "araxyte", "morytania"] },
   yama_p3: { category: "boss", aliases: ["yama", "contracts", "oathplate", "chasm of fire"] },
   doom_of_mokhaiotl: { category: "boss", aliases: ["doom", "delve", "mokhaiotl", "delves"] },
+  scurrius: { category: "boss", aliases: ["rat", "rat king", "varrock sewers", "giant rat"] },
   maggot_king: { category: "boss", aliases: ["maggot"] },
   vorkath: { category: "boss", aliases: ["vork", "dragon", "zombified spawn", "dragon slayer ii", "ungael"] },
   corrupted_hunllef: { category: "minigame", aliases: ["gauntlet", "cg", "hunllef", "corrupted gauntlet", "prifddinas"] },

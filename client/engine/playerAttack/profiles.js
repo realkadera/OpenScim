@@ -946,7 +946,25 @@ function selectPlayerAttackProfile(profileInput) {
   }
   const slayerAdjustedProfile = adjustProfileForSlayerHelm(baseProfile, canonicalInput);
   const inquisitorCrushRatio = getInquisitorCrushRatio(canonicalInput);
-  return applyChinchompaAccuracy(inquisitorCrushRatio === null ? slayerAdjustedProfile : appendProfileMultiplierStage(slayerAdjustedProfile, inquisitorCrushRatio), canonicalInput);
+  return applyRatBoneBonus(
+    applyChinchompaAccuracy(inquisitorCrushRatio === null ? slayerAdjustedProfile : appendProfileMultiplierStage(slayerAdjustedProfile, inquisitorCrushRatio), canonicalInput),
+    canonicalInput,
+  );
+}
+// WIKI: the rat bone weapons (Bone mace, Bone shortbow, Bone staff) are
+// "effective against all types of rats by adding 10 damage to the player's
+// maximum hit": added to the max hit the rest of the formula gives
+// (plan.js, maxHitFlatBonus), against a target of the "rat" attribute.
+var ratBoneWeaponIdSet = new Set([28792, 28794, 28796]);
+var RAT_BONE_MAX_HIT_BONUS = 10;
+function isRatBoneWeapon(weaponId) {
+  return weaponId !== undefined && ratBoneWeaponIdSet.has(getBaseItemId(weaponId));
+}
+function applyRatBoneBonus(profile, canonicalInput) {
+  if (!isRatBoneWeapon(canonicalInput.weaponId) || canonicalInput.targetAttributes?.includes("rat") !== true) {
+    return profile;
+  }
+  return { ...profile, maxHitFlatBonus: RAT_BONE_MAX_HIT_BONUS };
 }
 var inquisitorCrushBonusByItemId = new Map([
   [24419, 5], // Inquisitor's great helm
@@ -1546,4 +1564,4 @@ function scytheHitFractionsForTargetSize(targetSize) {
     return [RATIO_ONE, RATIO_HALF, RATIO_QUARTER];
   }
 }
-export { selectPlayerAttackProfile };
+export { selectPlayerAttackProfile, isRatBoneWeapon };

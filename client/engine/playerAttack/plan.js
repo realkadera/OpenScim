@@ -31,7 +31,8 @@ function buildReadyAttackPlan(attackSetup, profile) {
   const attackContext = {
     formulaStyle: attackSetup.formulaStyle,
     delivery: attackSetup.delivery,
-    maxHit: resolveProfileMaxHit(baseMaxHit, profile.maxHit),
+    // maxHitFlatBonus: damage added to the max hit, after its stages (profiles.js: the rat bone weapons against rats).
+    maxHit: resolveProfileMaxHit(baseMaxHit, profile.maxHit) + (profile.maxHitFlatBonus ?? 0),
     accuracyRolls: accuracyRolls,
     standardAccuracyMode: attackSetup.standardAccuracyMode ?? "single_roll",
   };

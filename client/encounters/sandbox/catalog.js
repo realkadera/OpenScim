@@ -51,6 +51,7 @@ import { vardorvisSandboxEntries } from "../vardorvis/sandbox.js";
 import { doomSandboxEntries } from "../doom-of-mokhaiotl/sandbox.js";
 import { yamaSandboxEntries } from "../yama/sandbox.js";
 import { araxxorSandboxEntries } from "../araxxor/sandbox.js";
+import { scurriusSandboxEntries } from "../scurrius/sandbox.js";
 
 export const curatedNpcCatalog = [
   ...infernoSandboxEntries,
@@ -60,6 +61,7 @@ export const curatedNpcCatalog = [
   ...doomSandboxEntries,
   ...yamaSandboxEntries,
   ...araxxorSandboxEntries,
+  ...scurriusSandboxEntries,
 ];
 
 // What the encounters draw that is not a monster to place, each with its

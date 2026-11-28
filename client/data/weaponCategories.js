@@ -679,6 +679,7 @@ var weaponCategoryByItemId = {
   27610: "bow",
   29000: "bow",
   29591: "bow",
+  28794: "bow", // WIKI: Bone shortbow, the rat bone shortbow
   9185: "crossbow",
   11785: "crossbow",
   26374: "crossbow",
@@ -741,6 +742,7 @@ var weaponCategoryByItemId = {
   28997: "spiked",
   29850: "spiked",
   30759: "spiked",
+  28792: "spiked", // WIKI: Bone mace, the rat bone mace (Pound, Pummel, Spike, Block)
   11824: "spear",
   11889: "spear",
   22978: "spear",

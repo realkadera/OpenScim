@@ -40,9 +40,10 @@ var variantArrowsByItemId = {
   },
 };
 var atlatlWeaponIds = new Set([29000, 29851]);
-var arrowWeaponIds = new Set([6724, 11235, 20997, 27610, 29591]);
-// WIKI: the Seercull "fires arrows up to Amethyst", so not dragon arrows.
-var arrowsUpToAmethystWeaponIds = new Set([6724]);
+var arrowWeaponIds = new Set([6724, 11235, 20997, 27610, 28794, 29591]);
+// WIKI: the Seercull "fires arrows up to Amethyst", so not dragon arrows; the
+// Bone shortbow "can fire up to amethyst arrows".
+var arrowsUpToAmethystWeaponIds = new Set([6724, 28794]);
 var DRAGON_ARROW_ID = 11212;
 function isDragonArrow(ammoId) {
   const baseArrowId = variantArrowsByItemId[ammoId]?.baseArrowId ?? ammoId;
