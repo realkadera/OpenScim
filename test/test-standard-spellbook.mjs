@@ -1,5 +1,6 @@
-// The Spellbook tab of a fight on the standard spellbook (Zebak) lists the standard combat spells, and a spell
-// clicked there and then on the boss is cast. Its grid was an empty list once, and the tab showed nothing.
+// The Spellbook tab of a fight on the standard spellbook (Zebak) lists the whole book, and a combat spell clicked
+// there and then on the boss is cast. Its grid was an empty list once, and the tab showed nothing; then the combat
+// spells alone.
 import assert from "node:assert/strict";
 import { chromium } from "playwright-core";
 import { browserOptions } from "../tools/browser.mjs";
@@ -7,7 +8,7 @@ import { browserOptions } from "../tools/browser.mjs";
 const browser = await chromium.launch(browserOptions);
 try {
   const page = await browser.newPage({ viewport: { width: 1600, height: 900 } });
-  // The pack has no "_disabled" icons of this spellbook: none may be asked for.
+  // Every icon the tab asks for is in the pack.
   const missing = [];
   page.on("response", (response) => {
     if (response.status() === 404 && response.url().includes("normal_spell")) missing.push(response.url());
@@ -37,8 +38,8 @@ try {
   await page.locator('[aria-label="Spellbook (F6)"]').click();
   await page.waitForSelector('button[data-spell="fire_surge"]');
   const spells = await page.evaluate(() => [...document.querySelectorAll("button[data-spell]")].map((button) => button.dataset.spell));
-  assert.equal(spells.length, 26);
-  for (const spell of ["wind_strike", "fire_surge", "iban_blast"]) assert.ok(spells.includes(spell), spell);
+  assert.equal(spells.length, 75);
+  for (const spell of ["wind_strike", "fire_surge", "iban_blast", "varrock_teleport", "high_level_alchemy"]) assert.ok(spells.includes(spell), spell);
 
   await page.locator('button[data-spell="wind_strike"]').click();
   await page.mouse.click(800, 240); // Zebak, in the middle of the scene

@@ -10540,14 +10540,93 @@ var ANCIENT_GRID = [
     RUNE_ITEM_IDS.law,
   ]),
 ];
+// The standard spellbook (WIKI: Standard spellbook): its spells in level order, ties in the wiki's order (inferred,
+// as the Ancient and Arceuus grids above: the wiki gives no interface order). The combat spells the simulator casts
+// take their icon, level and runes from data/combatSpells.js; the rest show, unavailable, as the other books' do.
+// Alchemic Divergence and Convergence aren't here: the resource pack has no icons for them.
+function standardCombatSpell(name) {
+  return IPe(getSpellIconName(name), name, "combat", getRequiredMagicLevel(name) ?? 1, getSpellRuneTypes(name) ?? []);
+}
+var STANDARD_GRID = [
+  IPe("home_teleport", "Lumbridge Home Teleport", "teleport", 1, [], true),
+  IPe("minigame_teleport", "Minigame Teleport", "teleport", 1, []),
+  standardCombatSpell("Wind Strike"),
+  IPe("confuse", "Confuse", "combat", 3, [RUNE_ITEM_IDS.earth, RUNE_ITEM_IDS.water, RUNE_ITEM_IDS.body]),
+  IPe("enchant_crossbow_bolt", "Enchant Crossbow Bolt", "utility", 4, [RUNE_ITEM_IDS.cosmic]),
+  standardCombatSpell("Water Strike"),
+  IPe("lvl_1_enchant", "Lvl-1 Enchant", "utility", 7, [RUNE_ITEM_IDS.water, RUNE_ITEM_IDS.cosmic]),
+  standardCombatSpell("Earth Strike"),
+  IPe("weaken", "Weaken", "combat", 11, [RUNE_ITEM_IDS.earth, RUNE_ITEM_IDS.water, RUNE_ITEM_IDS.body]),
+  standardCombatSpell("Fire Strike"),
+  IPe("bones_to_bananas", "Bones to Bananas", "utility", 15, [RUNE_ITEM_IDS.earth, RUNE_ITEM_IDS.water, RUNE_ITEM_IDS.nature]),
+  standardCombatSpell("Wind Bolt"),
+  IPe("curse", "Curse", "combat", 19, [RUNE_ITEM_IDS.earth, RUNE_ITEM_IDS.water, RUNE_ITEM_IDS.body]),
+  IPe("bind", "Bind", "combat", 20, [RUNE_ITEM_IDS.earth, RUNE_ITEM_IDS.water, RUNE_ITEM_IDS.nature]),
+  IPe("low_level_alchemy", "Low Level Alchemy", "utility", 21, [RUNE_ITEM_IDS.fire, RUNE_ITEM_IDS.nature]),
+  standardCombatSpell("Water Bolt"),
+  IPe("varrock_teleport", "Varrock Teleport", "teleport", 25, [RUNE_ITEM_IDS.air, RUNE_ITEM_IDS.fire, RUNE_ITEM_IDS.law]),
+  IPe("lvl_2_enchant", "Lvl-2 Enchant", "utility", 27, [RUNE_ITEM_IDS.air, RUNE_ITEM_IDS.cosmic]),
+  standardCombatSpell("Earth Bolt"),
+  IPe("lumbridge_teleport", "Lumbridge Teleport", "teleport", 31, [RUNE_ITEM_IDS.air, RUNE_ITEM_IDS.earth, RUNE_ITEM_IDS.law]),
+  IPe("telekinetic_grab", "Telekinetic Grab", "utility", 33, [RUNE_ITEM_IDS.air, RUNE_ITEM_IDS.law]),
+  standardCombatSpell("Fire Bolt"),
+  IPe("falador_teleport", "Falador Teleport", "teleport", 37, [RUNE_ITEM_IDS.air, RUNE_ITEM_IDS.water, RUNE_ITEM_IDS.law]),
+  standardCombatSpell("Crumble Undead"),
+  IPe("teleport_to_house", "Teleport to House", "teleport", 40, [RUNE_ITEM_IDS.air, RUNE_ITEM_IDS.earth, RUNE_ITEM_IDS.law]),
+  standardCombatSpell("Wind Blast"),
+  IPe("monster_inspect", "Monster Inspect", "utility", 42, [RUNE_ITEM_IDS.body, RUNE_ITEM_IDS.mind]),
+  IPe("superheat_item", "Superheat Item", "utility", 43, [RUNE_ITEM_IDS.fire, RUNE_ITEM_IDS.nature]),
+  IPe("camelot_teleport", "Camelot Teleport", "teleport", 45, [RUNE_ITEM_IDS.air, RUNE_ITEM_IDS.law]),
+  standardCombatSpell("Water Blast"),
+  IPe("teleport_to_kourend", "Kourend Castle Teleport", "teleport", 48, [RUNE_ITEM_IDS.fire, RUNE_ITEM_IDS.water, RUNE_ITEM_IDS.law]),
+  IPe("lvl_3_enchant", "Lvl-3 Enchant", "utility", 49, [RUNE_ITEM_IDS.fire, RUNE_ITEM_IDS.cosmic]),
+  standardCombatSpell("Iban Blast"),
+  standardCombatSpell("Magic Dart"),
+  IPe("snare", "Snare", "combat", 50, [RUNE_ITEM_IDS.earth, RUNE_ITEM_IDS.water, RUNE_ITEM_IDS.nature]),
+  IPe("ardougne_teleport", "Ardougne Teleport", "teleport", 51, [RUNE_ITEM_IDS.water, RUNE_ITEM_IDS.law]),
+  standardCombatSpell("Earth Blast"),
+  IPe("civitas_illa_fortis_teleport", "Civitas illa Fortis Teleport", "teleport", 54, [RUNE_ITEM_IDS.earth, RUNE_ITEM_IDS.fire, RUNE_ITEM_IDS.law]),
+  IPe("high_level_alchemy", "High Level Alchemy", "utility", 55, [RUNE_ITEM_IDS.fire, RUNE_ITEM_IDS.nature]),
+  IPe("charge_water_orb", "Charge Water Orb", "utility", 56, [RUNE_ITEM_IDS.water, RUNE_ITEM_IDS.cosmic]),
+  IPe("teleport_boat_to_me", "Summon Boat", "utility", 56, [RUNE_ITEM_IDS.earth, RUNE_ITEM_IDS.water, RUNE_ITEM_IDS.law]),
+  IPe("lvl_4_enchant", "Lvl-4 Enchant", "utility", 57, [RUNE_ITEM_IDS.earth, RUNE_ITEM_IDS.cosmic]),
+  IPe("watchtower_teleport", "Watchtower Teleport", "teleport", 58, [RUNE_ITEM_IDS.earth, RUNE_ITEM_IDS.law]),
+  standardCombatSpell("Fire Blast"),
+  standardCombatSpell("Saradomin Strike"),
+  standardCombatSpell("Claws of Guthix"),
+  standardCombatSpell("Flames of Zamorak"),
+  IPe("bones_to_peaches", "Bones to Peaches", "utility", 60, [RUNE_ITEM_IDS.earth, RUNE_ITEM_IDS.water, RUNE_ITEM_IDS.nature]),
+  IPe("charge_earth_orb", "Charge Earth Orb", "utility", 60, [RUNE_ITEM_IDS.earth, RUNE_ITEM_IDS.cosmic]),
+  IPe("trollheim_teleport", "Trollheim Teleport", "teleport", 61, [RUNE_ITEM_IDS.fire, RUNE_ITEM_IDS.law]),
+  standardCombatSpell("Wind Wave"),
+  IPe("charge_fire_orb", "Charge Fire Orb", "utility", 63, [RUNE_ITEM_IDS.fire, RUNE_ITEM_IDS.cosmic]),
+  IPe("teleport_to_ape_atoll", "Ape Atoll Teleport", "teleport", 64, [RUNE_ITEM_IDS.fire, RUNE_ITEM_IDS.water, RUNE_ITEM_IDS.law]),
+  standardCombatSpell("Water Wave"),
+  IPe("vulnerability", "Vulnerability", "combat", 66, [RUNE_ITEM_IDS.earth, RUNE_ITEM_IDS.water, RUNE_ITEM_IDS.soul]),
+  IPe("charge_air_orb", "Charge Air Orb", "utility", 66, [RUNE_ITEM_IDS.air, RUNE_ITEM_IDS.cosmic]),
+  IPe("teleport_me_to_boat", "Teleport to Boat", "teleport", 67, [RUNE_ITEM_IDS.earth, RUNE_ITEM_IDS.water, RUNE_ITEM_IDS.law]),
+  IPe("lvl_5_enchant", "Lvl-5 Enchant", "utility", 68, [RUNE_ITEM_IDS.earth, RUNE_ITEM_IDS.water, RUNE_ITEM_IDS.cosmic]),
+  standardCombatSpell("Earth Wave"),
+  IPe("enfeeble", "Enfeeble", "combat", 73, [RUNE_ITEM_IDS.earth, RUNE_ITEM_IDS.water, RUNE_ITEM_IDS.soul]),
+  IPe("teleother_lumbridge", "Teleother Lumbridge", "teleport", 74, [RUNE_ITEM_IDS.earth, RUNE_ITEM_IDS.law, RUNE_ITEM_IDS.soul]),
+  standardCombatSpell("Fire Wave"),
+  IPe("entangle", "Entangle", "combat", 79, [RUNE_ITEM_IDS.earth, RUNE_ITEM_IDS.water, RUNE_ITEM_IDS.nature]),
+  IPe("charge", "Charge", "combat", 80, [RUNE_ITEM_IDS.air, RUNE_ITEM_IDS.fire, RUNE_ITEM_IDS.blood]),
+  IPe("stun", "Stun", "combat", 80, [RUNE_ITEM_IDS.earth, RUNE_ITEM_IDS.water, RUNE_ITEM_IDS.soul]),
+  standardCombatSpell("Wind Surge"),
+  IPe("teleother_falador", "Teleother Falador", "teleport", 82, [RUNE_ITEM_IDS.water, RUNE_ITEM_IDS.law, RUNE_ITEM_IDS.soul]),
+  standardCombatSpell("Water Surge"),
+  IPe("tele_block", "Tele Block", "combat", 85, [RUNE_ITEM_IDS.chaos, RUNE_ITEM_IDS.death, RUNE_ITEM_IDS.law]),
+  IPe("teleport_to_bounty_target", "Teleport to Target", "teleport", 85, [RUNE_ITEM_IDS.chaos, RUNE_ITEM_IDS.death, RUNE_ITEM_IDS.law]),
+  IPe("lvl_6_enchant", "Lvl-6 Enchant", "utility", 87, [RUNE_ITEM_IDS.earth, RUNE_ITEM_IDS.fire, RUNE_ITEM_IDS.cosmic]),
+  standardCombatSpell("Earth Surge"),
+  IPe("teleother_camelot", "Teleother Camelot", "teleport", 90, [RUNE_ITEM_IDS.law, RUNE_ITEM_IDS.soul]),
+  IPe("lvl_7_enchant", "Lvl-7 Enchant", "utility", 93, [RUNE_ITEM_IDS.blood, RUNE_ITEM_IDS.cosmic, RUNE_ITEM_IDS.soul]),
+  standardCombatSpell("Fire Surge"),
+];
 function FPe() {
   return "/assets/ui/packs/" + uie() + "/spells";
 }
-// The standard spellbook: the combat spells the simulator casts, in their order of data/combatSpells.js. The icon
-// pack has these 26 icons only, so the teleports and skilling spells of the game's tab are left out.
-var STANDARD_GRID = getCombatSpellsOfSpellbook("standard").map((ez) =>
-  IPe(getSpellIconName(ez.name), ez.name, "combat", getRequiredMagicLevel(ez.name) ?? 1, getSpellRuneTypes(ez.name) ?? []),
-);
 var SPELLBOOKS = {
   get arceuus() {
     return {
@@ -10570,7 +10649,7 @@ var SPELLBOOKS = {
       type: "standard",
       iconDir: FPe() + "/normal_spell",
       grid: STANDARD_GRID,
-      available: false,
+      available: true,
     };
   },
   get lunar() {
