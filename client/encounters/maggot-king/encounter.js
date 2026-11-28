@@ -29,9 +29,8 @@
 // at 1290).
 //
 // ponytail: not yet: sounds of the encounter's own (those of the sequences'
-// frames play). The engine applies no elemental weakness: the fire weakness is
-// the encounter's own, as near to the wiki's as a rule of the encounter can
-// get (updateStats, playerDamage).
+// frames play). His fire weakness (80% far, 5% near) is the engine's elemental
+// weakness, read from the set of stats he wears (updateStats).
 import { getMonsterFormulaStats, getMonsterHitpoints } from "../../engine/monsterStats.js";
 import { createSeededRandom } from "../../engine/random.js";
 import { applyBurnStack } from "../../engine/specialAttacks.js";
@@ -128,14 +127,14 @@ const punishBonus = 1.5;
 // 7 of 148 crush punishes missed, 29 of 97 other crush hits; that miss rate
 // gives a punish 4.4% to miss.
 const crushPunishDefence = 0.15;
-// WIKI (Elemental weakness): the standard spellbook's strikes to surges of the element.
+// WIKI (Elemental weakness): the standard spellbook's strikes to surges of the element. Their burn is his own.
 const fireSpells = new Map(combatSpells.filter((spell) => spell.element === "fire" && spell.spellbook === "standard").map((spell) => [spell.name, spell]));
 const fireSpell = (name) => fireSpells.get(name) ?? null;
 
 // TABLE: his three sets of stats. Far: Magic defence +150, 80% weak to fire;
-// near: +400, 5%; roaring (screeching): Defence 100.
+// near: +400, 5%; roaring (screeching): Defence 100. Each carries its weakness,
+// which the engine applies.
 const versions = Object.fromEntries(["Far", "Nearby", "Roaring"].map((version) => [version, getMonsterFormulaStats(npcTypeIds.king, version)]));
-const weaknessPercent = { Far: 80, Nearby: 5, Roaring: 80 }; // TABLE
 
 const bossDefinition = defineNpc({
   id: "maggot-king",
@@ -328,10 +327,6 @@ class MaggotKingEncounter {
     const version = this.version(boss);
     const stats = structuredClone(versions[version]);
     stats.defensive.magic = Math.max(0, stats.defensive.magic - burnDefence * (boss.burnStacks?.length ?? 0)); // inferred: never below 0
-    // WIKI: a point of weakness is 1% more magic accuracy. The engine applies
-    // no weakness: here a fire spell's accuracy roll against him is that much
-    // likelier to win, as a lower defence roll for the tick it is cast in.
-    if (fireSpell(playerSpellName(player))) stats.defensive.magic = Math.floor((stats.defensive.magic + 64) / (1 + weaknessPercent[version] / 100)) - 64;
     // The crush punish's lower defence roll, as a lower crush bonus for the tick the slam lands.
     if (this.isSlamTick(this.now) && playerFormulaStyle(player) === "melee_crush") stats.defensive.crush = Math.floor((stats.defensive.crush + 64) * crushPunishDefence) - 64;
     boss.formulaStats = stats;
@@ -617,10 +612,6 @@ class MaggotKingEncounter {
     }
     const spell = fireSpell(attack.spellId);
     if (spell && attack.accuracySucceeded) {
-      // WIKI: the weakness adds its share of the spell's base max hit to the
-      // max hit. inferred: added here as a roll of its own up to that share,
-      // which keeps the max and the mean of the game's single roll.
-      result += this.randomInt(0, Math.floor((spell.maxHit * weaknessPercent[this.version(target)]) / 100));
       applyBurnStack({ target, sourceId: "player", origin: "maggot-king-fire", severity: "normal", pulses: burnPulses, tick: this.now });
     }
     return result;

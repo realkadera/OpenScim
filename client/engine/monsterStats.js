@@ -10,6 +10,8 @@ function getMonsterFormulaStats(npcTypeId, version) {
       freezeResistance: monster.immunities.freeze,
       poisonResistance: monster.immunities.poison,
       attributes: monster.attributes,
+      // { element, percent } (#44), only on a monster that has one: the rest keep the stats they had.
+      ...(monster.elementalWeakness ? { elementalWeakness: monster.elementalWeakness } : {}),
       levels: {
         attack: monster.levels.attack,
         strength: monster.levels.strength,

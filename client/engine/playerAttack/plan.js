@@ -31,8 +31,8 @@ function buildReadyAttackPlan(attackSetup, profile) {
   const attackContext = {
     formulaStyle: attackSetup.formulaStyle,
     delivery: attackSetup.delivery,
-    maxHit: resolveProfileMaxHit(baseMaxHit, profile.maxHit),
-    accuracyRolls: accuracyRolls,
+    maxHit: resolveProfileMaxHit(baseMaxHit, profile.maxHit) + getElementalWeaknessMaxHitBonus(attackSetup),
+    accuracyRolls: applyElementalWeaknessToAccuracy(accuracyRolls, attackSetup.elementalWeaknessPercent),
     standardAccuracyMode: attackSetup.standardAccuracyMode ?? "single_roll",
   };
   return {
@@ -58,6 +58,35 @@ function buildReadyAttackPlan(attackSetup, profile) {
 // a value without a case comes back as it went in. Three others throw in
 // the same place: two with throwUnhandledAttackRuntimeValue, and
 // getBranchSelectionHitChance with a TypeError of its own.
+// Elemental weakness (#44), WIKI (Elemental weakness): against a monster weak to an element, the standard
+// spellbook's strike, bolt, blast, wave and surge spells of that element (no other spell) get 1% more magic accuracy
+// and 1% more damage a point of weakness. The damage: floor(base max hit × weakness%), added after every other magic
+// damage source (equipment, Slayer helmet, Salve amulet). The wiki gives no accuracy formula: inferred, the attack
+// roll × (100 + weakness) / 100, floored, after its other multipliers.
+function getElementalWeaknessPercent(planInput, target) {
+  const weakness = target.formulaStats?.elementalWeakness;
+  if (!weakness || "magic" !== planInput.formulaStyle || "spell" !== planInput.resources.kind) {
+    return 0;
+  }
+  const spell = combatSpells.find((each) => each.name === planInput.resources.spellId);
+  return spell?.spellbook === "standard" && spell.element === weakness.element ? weakness.percent : 0;
+}
+function getElementalWeaknessMaxHitBonus(attackSetup) {
+  const percent = attackSetup.elementalWeaknessPercent ?? 0;
+  const baseMaxHit = attackSetup.attacker.magicBaseMaxHit;
+  return percent > 0 && baseMaxHit !== undefined ? Math.floor((baseMaxHit * percent) / 100) : 0;
+}
+function applyElementalWeaknessToAccuracy(accuracyRolls, percent = 0) {
+  if (!(percent > 0)) {
+    return accuracyRolls;
+  }
+  const attackRoll = Math.floor((accuracyRolls.attackRoll * (100 + percent)) / 100);
+  return {
+    ...accuracyRolls,
+    attackRoll: attackRoll,
+    chance: getSingleRollHitChance(attackRoll, accuracyRolls.defenceRoll),
+  };
+}
 function buildAttackPlanFromProfile(attackSetup) {
   switch (attackSetup.profile.kind) {
     case "unsupported":
@@ -656,6 +685,7 @@ function buildPlayerAttackPlan(planInput) {
           defenceStyle: planInput.defenceStyle,
         }),
     rangedDefenceType: getRangedDefenceType(planInput.player.equipment.weapon),
+    elementalWeaknessPercent: getElementalWeaknessPercent(planInput, planInput.target),
   });
   if (
     "ready" === attackPlan.kind &&
