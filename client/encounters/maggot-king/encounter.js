@@ -199,6 +199,7 @@ class MaggotKingEncounter {
     this.incoming = []; // what will land where: { kind: "bile" | "slam" | "pile" | "fragment", tiles, landsAt }
     this.punish = null;
     this.lastTargetId = null;
+    this.lastHitAt = null; // the tick of the player's last attack on him
     this.begun = false; // he has had his first turn (an attack or a screech)
     this.wentFar = true; // a far rotation has been fought: the next far one takes the other style
     this.floor.reset();
@@ -339,12 +340,26 @@ class MaggotKingEncounter {
 
   // --- his movement --------------------------------------------------------
   // Far, he keeps the player within 4 columns of his middle (OBS); near, he
-  // walks his middle over the player's column, until his first slam; after
+  // walks his middle over the player's column, until his next slam; after
   // a near rotation's screech he keeps to the player's column 2 ticks more,
   // then goes back up (OBS). A tile a tick, diagonally where he can.
   moveBoss(boss, context) {
-    if (!boss.alive || this.movement === "hold") return [];
+    if (!boss.alive) return [];
     const player = context.world.getPlayer();
+    // Once a slam has landed he walks his middle back over the player's column
+    // for the next one (WIKI, Strategies: he aligns "its centre tile with your
+    // current tile, then slam[s]"; players step away a tile or two each slam),
+    // unless the player stands under his body and has hit him since that slam
+    // began (OBS 15 kills: 85 slams after a slam, the player 1 or 2 columns off
+    // his middle and attacking in each, and he never moved between them; WIKI:
+    // the punish's timing "drags the boss"). Inferred:
+    // any hit counts, and he does not move while a slam is coming down.
+    if (this.movement === "hold" && this.phase === "melee" && this.slam && !this.slamComing()) {
+      const under = Math.abs(player.position[0] - centreX(boss)) <= bossSize >> 1;
+      const hit = this.lastHitAt !== null && this.lastHitAt >= this.slam.landsAt - slamTicks;
+      if (!under || !hit) this.movement = "near";
+    }
+    if (this.movement === "hold") return [];
     const [x, y] = boss.position;
     let target;
     if (this.movement === "near") target = [clamp(player.position[0] - (bossSize >> 1), nearX), nearY];
@@ -566,6 +581,9 @@ class MaggotKingEncounter {
   isSlamTick(tick) {
     return this.slam !== null && this.slam.landsAt === tick;
   }
+  slamComing() {
+    return this.slam !== null && this.slam.landsAt > this.now;
+  }
   // A larva in the air shot with standard ranged (a bow: WIKI, "standard
   // ranged"; OBS: the player switched to a bow for them) dies at once. It may
   // be shot while the weapon cools down, unless it was what was attacked last,
@@ -604,6 +622,7 @@ class MaggotKingEncounter {
   }
   onPlayerAttackStarted(attack) {
     this.lastTargetId = attack.targetId;
+    if (attack.targetId === bossActorId) this.lastHitAt = attack.tick;
     if (attack.targetId === bossActorId && this.isSlamTick(attack.tick) && attack.attackKind?.startsWith("melee")) this.punish = { tick: attack.tick };
   }
   playerDamage(damage, target, attack) {

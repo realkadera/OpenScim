@@ -108,6 +108,25 @@ export const scenarios = [
     },
   },
   {
+    // Near at once (990), and the player never attacks: from the floor's
+    // middle, two columns east as the first slam comes down, then nothing.
+    // He walks back over the player for the next slam, and the ones after.
+    name: "maggot-king/near-afk",
+    kind: KIND,
+    seed: 5,
+    ticks: 85,
+    mechanics: { infiniteHealth: true, infinitePrayer: true },
+    ...meleeGear,
+    script(tick, api) {
+      if (tick === 1) {
+        setBossHp(api, 990);
+        protect(api, "ProtectMelee");
+        api.moveTo(31, 36);
+      }
+      if (state(api).slam && same(api.player().position, [31, 36])) api.moveTo(33, 36);
+    },
+  },
+  {
     // Below about 299 (at 290): the first screech fills the room with four larvae.
     // The player shoots two down in the air and lets the others land; one of
     // them crawls under him and leeches him until he steps off.
