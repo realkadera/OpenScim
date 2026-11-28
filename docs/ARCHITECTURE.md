@@ -174,8 +174,9 @@ is dead, the intro is showing or the encounter is won. In order:
 2. the player's queued inputs (prayers, equipment, items, specials): dropped
    while the rule `playerInputLocked` says so, with his attack target and a
    pickup he had ordered; otherwise applied in the order they came. Clicks
-   on equipment slots are not applied by the engine: the encounter's hooks
-   get them as `inputs`;
+   on equipment slots, and inventory items the engine has no use for, are
+   not applied by the engine: the encounter's hooks get them as `inputs`
+   (`equipmentSlotClicks`, `itemUses`);
 3. `encounter.resolveHazards` – ground and timed damage;
 4. the NPC band: pending retaliations, `prepareNpcBand`, then each NPC in
    processing order takes its turn, then `completeNpcBand`. A turn: the hits

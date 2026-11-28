@@ -774,6 +774,10 @@ Without touching a bundle, an encounter gets:
   `acceptsInput({ kind: "equipmentSlotClick", slot })`, and a click the
   encounter accepts arrives as `context.inputs.equipmentSlotClicks` on the
   next tick (Sol Heredit's grapple);
+- the inventory items the engine has no use for (not food, a potion or the
+  like): a click on one arrives as `context.inputs.itemUses`, each
+  `{ inventoryIndex, itemId, option }`, on the tick it is used (the
+  Whisperer's Blackstone fragment). A tick without one has no `itemUses`;
 - how close the player walks to a target (`approachRange`), and moving the
   player itself (`moveDisplacedPlayer`, `context.teleportPlayer`);
 - restarts, replays of the player's inputs, the victory screen, the death

@@ -610,9 +610,10 @@ function getConsumableDefinition(itemId, option = "default") {
         return undefined;
       }
     default:
-      // An option without a case comes back as it went in, where the callers
-      // expect a definition or undefined.
-      return option;
+      // An option this table has no case for (an item's own action, as the
+      // Blackstone fragment's "Activate") uses nothing here. It came back as the
+      // option itself, which the callers took for a definition.
+      return undefined;
   }
 }
 var prepotEffectOpSet = new Set([

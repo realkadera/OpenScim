@@ -1751,7 +1751,9 @@ var SimulationEngine = class {
       player.pendingItemPickup = null;
       clearPlayerAttackTarget(player);
     }
-    this.processPendingInputOps(tick);
+    // Inventory items used this tick that the engine has no use for (not food,
+    // a potion or the like): the encounter's (the Whisperer's Blackstone fragment).
+    const itemUses = this.processPendingInputOps(tick);
     if (this.selfDamageHitPending) {
       this.selfDamageHitPending = false;
       this.tryTriggerRedemption(tick);
@@ -1761,6 +1763,8 @@ var SimulationEngine = class {
     this.pendingEquipmentSlotClicks = [];
     const inputs = {
       equipmentSlotClicks: equipmentSlotClicks,
+      // Only on a tick with one, so that the inputs of every other tick stay as they were.
+      ...(itemUses.length ? { itemUses: itemUses } : {}),
     };
     const npcMovements = new Map();
     const setProtectionPrayer = (prayer) => this.setProtectionPrayer(prayer);
@@ -3163,8 +3167,9 @@ var SimulationEngine = class {
     const player = this.player();
     this.enforcePrayerRestrictions(tick);
     const pendingInputOps = player.pendingInputOps;
+    const itemUses = [];
     if (0 === pendingInputOps.length) {
-      return;
+      return itemUses;
     }
     player.pendingInputOps = [];
     const activePrayer = player.activePrayer;
@@ -3188,7 +3193,7 @@ var SimulationEngine = class {
           this.executeEquipmentOp(inputOp, attackTargetSetThisTick);
           break;
         case "use_item":
-          untrackedItemUsed = this.executeUseItemOp(inputOp, attackTargetSetThisTick, untrackedItemUsed);
+          untrackedItemUsed = this.executeUseItemOp(inputOp, attackTargetSetThisTick, untrackedItemUsed, itemUses);
           break;
         case "drop_item":
           this.executeDropItemOp(inputOp, tick);
@@ -3267,6 +3272,7 @@ var SimulationEngine = class {
         });
       }
     }
+    return itemUses;
   }
   expireTimedProtectionPrayer(tick) {
     const protectionRestriction = this.getEncounterRules()?.prayerRestrictions?.protection;
@@ -3662,7 +3668,7 @@ var SimulationEngine = class {
         : consumable.consume,
     );
   }
-  executeUseItemOp(inputOp, attackTargetSetThisTick, untrackedItemUsed) {
+  executeUseItemOp(inputOp, attackTargetSetThisTick, untrackedItemUsed, itemUses) {
     const player = this.player();
     if (attackTargetSetThisTick) {
       player.attackInteractionActive = false;
@@ -3673,6 +3679,8 @@ var SimulationEngine = class {
     }
     const consumable = getConsumableDefinition(itemRef.id, inputOp.option);
     if (!consumable) {
+      // Not the engine's to use: the encounter's, if it wants it.
+      itemUses.push({ inventoryIndex: inputOp.inventoryIndex, itemId: itemRef.id, option: inputOp.option });
       return untrackedItemUsed;
     }
     const { track: track, delayTicks: delayTicks } = consumable;
