@@ -24,6 +24,7 @@ import { rollNpcAttack, isNpcInAttackRange } from "../shared/npcAttack.js";
 import { getNpcPursuitMoves } from "../shared/npcMovement.js";
 import { buildNpcProjectileVisual, healNpc } from "../shared/npcHelpers.js";
 import { emitInfernoNpcAttack, emitInfernoVisual } from "../inferno/events.js";
+import { vardorvisCombatAchievements } from "./combatAchievements.js";
 
 export const vardorvisKind = "vardorvis";
 export const vardorvisAwakenedKind = "vardorvis_awakened";
@@ -760,6 +761,8 @@ export const vardorvisDefinition = {
   descriptor: {
     kind: vardorvisKind,
     displayName: "Vardorvis",
+    // Its own judges of its combat achievements (client/combatAchievements/tracker.js).
+    combatAchievements: vardorvisCombatAchievements,
     description: "Desert Treasure II. The Stranglewood's ritual site: swinging axes, the head's gaze and darting spikes.",
     // The texts of the page for search engines (client/seo/routes.js).
     seo: {

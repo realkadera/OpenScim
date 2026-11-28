@@ -67,6 +67,7 @@ import { buildActorVisualTarget } from "../shared/npcHelpers.js";
 import { emitInfernoNpcAttack, emitInfernoVisual } from "../inferno/events.js";
 import { centre, heading, isSheltered, lightningSectors, ring, sectorCount, sectorOf, turnSector } from "./geometry.js";
 import { leviathanLoadouts } from "./loadouts.js";
+import { leviathanCombatAchievements } from "./combatAchievements.js";
 
 export const leviathanKind = "leviathan";
 export const leviathanAwakenedKind = "leviathan_awakened"; // dt2/bosses.js, awakenedKind
@@ -1212,6 +1213,8 @@ export const leviathanDefinition = {
     ],
     variantLabel: "Version",
     loadouts: leviathanLoadouts,
+    // Its own judges of its combat achievements (client/combatAchievements/tracker.js).
+    combatAchievements: leviathanCombatAchievements,
   },
   controls: { defaultMechanicsConfig: {}, mechanicsToggles: [], debugActions: [] },
   variantFactories: { [leviathanAwakenedKind]: () => new LeviathanEncounter(leviathanAwakenedKind, versions.awakened) },

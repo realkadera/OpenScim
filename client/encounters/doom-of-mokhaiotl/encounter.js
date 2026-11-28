@@ -47,6 +47,7 @@ import { Rocks, Larvae, Shockwave, Acid, roomDefinitions, bossCentre, holyWater 
 import { Burrow } from "./burrow.js";
 import { larvaTrackerToggles, larvaTrackerKeys, larvaTrackerSetting, larvaColor, larvaCounterInfobox } from "./larvaTracker.js";
 import { doomLoadouts } from "./loadouts.js";
+import { doomOfMokhaiotlCombatAchievements } from "./combatAchievements.js";
 
 export const doomKind = "doom_of_mokhaiotl";
 // The room of the delves, below the Ruins of Mokhaiotl.
@@ -713,6 +714,8 @@ export const doomDefinition = {
     collision: { mode: "auto", seed: playerStart },
     victory: { title: "VICTORY", narrative: "DOOM OF MOKHAIOTL DEFEATED", accent: "blood" },
     loadouts: doomLoadouts,
+    // Its own judges of its combat achievements (client/combatAchievements/tracker.js).
+    combatAchievements: doomOfMokhaiotlCombatAchievements,
     isWorkInProgress: true,
     variants: roomVariants,
     variantLabel: "Delve",

@@ -49,6 +49,7 @@ import {
 import { Floor } from "./floor.js";
 import { Larvae, larvaDefinition } from "./larvae.js";
 import { maggotKingLoadouts } from "./loadouts.js";
+import { maggotKingCombatAchievements } from "./combatAchievements.js";
 
 export const maggotKingKind = "maggot_king";
 // CACHE: region 11645, the square the lair's instance copies (OBS).
@@ -697,6 +698,8 @@ export const maggotKingDefinition = {
     victory: { title: "VICTORY", narrative: "THE MAGGOT KING DEFEATED", accent: "blood" },
     isWorkInProgress: true,
     loadouts: maggotKingLoadouts,
+    // Its own judges of its combat achievements (client/combatAchievements/tracker.js).
+    combatAchievements: maggotKingCombatAchievements,
   },
   controls: { defaultMechanicsConfig: {}, mechanicsToggles: [], debugActions: [] },
 };

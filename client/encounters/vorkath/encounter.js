@@ -47,6 +47,7 @@ import { isArenaFootprintWalkable } from "../shared/npcMovement.js";
 import { emitInfernoNpcAttack, emitInfernoVisual } from "../inferno/events.js";
 import { npcTypeIds, seqIds, spotAnims, mapSquare, bossSize, bossStart, playerStart, acidGrid, sameTile, underBoss, edgeDistance, centreOf } from "./ids.js";
 import { vorkathLoadouts } from "./loadouts.js";
+import { vorkathCombatAchievements } from "./combatAchievements.js";
 
 export const vorkathKind = "vorkath";
 export const vorkathMapSquare = mapSquare;
@@ -648,6 +649,8 @@ export const vorkathDefinition = {
     victory: { title: "VICTORY", narrative: "VORKATH DEFEATED", accent: "gold" },
     isWorkInProgress: true,
     loadouts: vorkathLoadouts,
+    // Her own judges of her combat achievements (client/combatAchievements/tracker.js).
+    combatAchievements: vorkathCombatAchievements,
   },
   controls: { defaultMechanicsConfig: {}, mechanicsToggles: [], debugActions: [] },
 };

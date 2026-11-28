@@ -54,6 +54,7 @@ import {
 import { Specials, drowsyAttackDelay, curseStops } from "./specials.js";
 import { Minions, totemDefinition, huskDefinition, parasiteDefinition, sleepwalkerDefinition, sleepwalkerCounts } from "./minions.js";
 import { phosanisNightmareLoadouts } from "./loadouts.js";
+import { phosanisNightmareCombatAchievements } from "./combatAchievements.js";
 
 export const phosanisNightmareKind = "phosanis_nightmare";
 export const phosanisNightmareMapSquare = mapSquare;
@@ -835,6 +836,8 @@ export const phosanisNightmareDefinition = {
     victory: { title: "VICTORY", narrative: "PHOSANI'S NIGHTMARE DEFEATED", accent: "gold" },
     isWorkInProgress: true,
     loadouts: phosanisNightmareLoadouts,
+    // Its own judges of its combat achievements (client/combatAchievements/tracker.js).
+    combatAchievements: phosanisNightmareCombatAchievements,
     tileMarkerPresets: [{
       id: "phosanis_nightmare_centre", name: "Centre and totems", description: "The tiles of her body at the centre, where her flowers and her blast form put her, and the middle of each totem",
       link: "https://oldschool.runescape.wiki/w/Phosani%27s_Nightmare/Strategies",

@@ -58,6 +58,7 @@ import { createOccupancyStepCheck } from "../../engine/occupancy.js";
 import { emitInfernoNpcAttack, emitInfernoVisual } from "../inferno/events.js";
 import { getCanonicalEquipmentId } from "../../data/equipment.js";
 import { araxxorLoadouts } from "./loadouts.js";
+import { araxxorCombatAchievements } from "./combatAchievements.js";
 
 export const araxxorKind = "araxxor";
 // CACHE: the lair is map square 56,153 (region 14489) and the west edge of
@@ -1350,6 +1351,8 @@ export const araxxorDefinition = {
     collision: { mode: "auto", seed: playerStart },
     victory: { eyebrow: "Triumphant", title: "VICTORY", narrative: "ARAXXOR DEFEATED", accent: "gold" },
     loadouts: araxxorLoadouts,
+    // Its own judges of its combat achievements (client/combatAchievements/tracker.js).
+    combatAchievements: araxxorCombatAchievements,
     // Each number on its egg's south-west tile.
     tileMarkerPresets: [{
       id: "araxxor_eggs", name: "Egg order", description: "The nine eggs in the order they hatch: the south-easternmost first, then clockwise",

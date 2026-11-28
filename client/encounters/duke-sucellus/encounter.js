@@ -34,6 +34,7 @@ import { rollNpcAttack } from "../shared/npcAttack.js";
 import { buildActorVisualTarget } from "../shared/npcHelpers.js";
 import { emitInfernoNpcAttack, emitInfernoVisual } from "../inferno/events.js";
 import { dukeLoadouts } from "./loadouts.js";
+import { dukeSucellusCombatAchievements } from "./combatAchievements.js";
 
 export const dukeKind = "duke_sucellus";
 export const dukeAwakenedKind = "duke_sucellus_awakened"; // dt2/bosses.js, awakenedKind
@@ -582,6 +583,8 @@ export const dukeDefinition = {
     ],
     variantLabel: "Version",
     loadouts: dukeLoadouts,
+    // Its own judges of its combat achievements (client/combatAchievements/tracker.js).
+    combatAchievements: dukeSucellusCombatAchievements,
   },
   controls: { defaultMechanicsConfig: {}, mechanicsToggles: [], debugActions: [] },
   variantFactories: { [dukeAwakenedKind]: () => new DukeSucellusEncounter(dukeAwakenedKind, versions.awakened) },

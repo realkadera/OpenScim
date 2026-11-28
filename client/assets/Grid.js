@@ -3,6 +3,10 @@ import { parseDisplayMode } from "./deployment.js";
 import { attackRangesDefaults, readAttackRangesSettings, isAttackDragProtected } from "/plugins/attackRanges.js";
 import { projectileOverrideDefaults, readProjectileOverrideSettings } from "/plugins/projectileOverride.js";
 import { getDefenceTrackerInfoboxes } from "/plugins/defenceTracker.js";
+import { mountCombatAchievementsPanel } from "/combatAchievements/panel.js";
+import { mountCombatAchievementsSetup, hasCombatAchievements } from "/combatAchievements/setup.js";
+import { getCombatAchievementsEngine } from "/combatAchievements/index.js";
+import { subscribeToChat as subscribeToCombatAchievementsChat, getChatMessages as getCombatAchievementsChat, mergeChatMessages as mergeCombatAchievementsChat } from "/combatAchievements/chat.js";
 import { pickLobbyObject } from "/lobby/gateways.js";
 import { lobbyBeforeTick, lobbyAfterTick, followRemotePlayer, lobbyLink, lobbyFollowFacing } from "/net/lobbyLink.js";
 import { startBackgroundBeat } from "/net/backgroundBeat.js";
@@ -331,6 +335,21 @@ import {
 var pn = toEsModule(requireReact(), 1);
 var gn = requireReactDom();
 var wn = requireJsxRuntime();
+// The list of the fight's combat achievements to go for, in the Practice menu's Setup tab
+// (client/combatAchievements/setup.js, mounted here).
+function CombatAchievementsSetupMount({ kind: kind }) {
+  const ref = (0, pn.useRef)(null);
+  (0, pn.useEffect)(() => (ref.current ? mountCombatAchievementsSetup(ref.current, kind) : undefined), [kind]);
+  return (0, wn.jsx)("div", {
+    ref: ref,
+  });
+}
+// The Combat Achievements tab: its content is client/combatAchievements/panel.js, mounted here.
+function CombatAchievementsContent() {
+  const ref = (0, pn.useRef)(null);
+  (0, pn.useEffect)(() => mountCombatAchievementsPanel(ref.current), []);
+  return (0, wn.jsx)("div", { ref, style: { height: "100%" } });
+}
 var BROWSERS = [
   {
     name: "Chrome",
@@ -12913,6 +12932,16 @@ var MechanicsSettings = ({
         id: "assists",
         title: "Practice aids",
         content: fj(assists),
+      });
+    }
+    const combatAchievementsKind = encounterSnapshot?.kind ?? getCombatAchievementsEngine()?.getEncounterKind?.() ?? null;
+    if (hasCombatAchievements(combatAchievementsKind)) {
+      fp.push({
+        id: "combatAchievements",
+        title: "Combat achievements",
+        content: (0, wn.jsx)(CombatAchievementsSetupMount, {
+          kind: combatAchievementsKind,
+        }),
       });
     }
     if (eC && fl.length > 0 && onExecuteEncounterCommand) {
@@ -52782,6 +52811,8 @@ var GamePanel = Q$e(
             onEquipmentSlotClick: onEquipmentSlotClick,
             objTypeLoader: objTypeLoader,
           });
+        case "combatAchievements":
+          return (0, wn.jsx)(CombatAchievementsContent, {});
         case "settings":
           return (0, wn.jsx)(SettingsContent, {
             subTab: hs,
@@ -52825,6 +52856,13 @@ var GamePanel = Q$e(
           slot: 1,
           icon: nxe.skills,
           label: "Skills",
+        },
+        {
+          tab: "combatAchievements",
+          row: "top",
+          slot: 2,
+          icon: rae("tabs/combat_achievements.png"),
+          label: "Combat Achievements",
         },
         {
           tab: "inventory",
@@ -53241,10 +53279,15 @@ var wBe = (0, pn.memo)(function (ez) {
     return (0, pn.useSyncExternalStore)(eB?.subscribe ?? MLe, eD);
   })();
   // The lobby's public chat (client/net/lobbyChat.js): its lines merged in by time and its input line; without it
-  // (signed out, out of the lobby) the game lines alone, as before.
+  // (signed out, out of the lobby) the game lines alone, as before. The combat achievements' own lines
+  // (client/combatAchievements/chat.js) are merged into the game lines first, by their tick.
   const lobbyChat = (0, pn.useSyncExternalStore)(subscribeLobbyChat, getLobbyChatSnapshot);
+  const combatAchievementsChat = (0, pn.useSyncExternalStore)(subscribeToCombatAchievementsChat, getCombatAchievementsChat);
   const [mergeLines] = (0, pn.useState)(() => createChatboxMerge());
-  const messages = (0, pn.useMemo)(() => chatboxTabLines(mergeLines(eA, lobbyChat.lines), lobbyChat.name ? lobbyChat.tab : "all"), [mergeLines, eA, lobbyChat.lines, lobbyChat.name, lobbyChat.tab]);
+  const messages = (0, pn.useMemo)(
+    () => chatboxTabLines(mergeLines(mergeCombatAchievementsChat(eA, combatAchievementsChat), lobbyChat.lines), lobbyChat.name ? lobbyChat.tab : "all"),
+    [mergeLines, eA, combatAchievementsChat, lobbyChat.lines, lobbyChat.name, lobbyChat.tab],
+  );
   return (0, wn.jsx)(Chatbox, {
     ...ez,
     messages: messages,

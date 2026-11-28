@@ -68,6 +68,15 @@ not a digest to re-record. Record only your own:
   from the Equipment section of its wiki strategies page, for example
   https://oldschool.runescape.wiki/w/The_Leviathan/Strategies. Where the
   client lacks the page's item, use the next best and say so in a comment.
+- A new boss gets its combat achievements listed: its wiki monster and kinds
+  in client/combatAchievements/bosses.js, then `node tools/fetch-combat-
+  achievements.mjs --offline` to copy its tasks into the client. Its tasks
+  worded as many bosses'
+  are (kill counts, speed, no damage) are then judged; the rest are its own
+  judges, its descriptor's `combatAchievements` (client/combatAchievements/
+  tracker.js). Name each hit on the player with a `source`, so a task about a
+  mechanic can count them. `node tools/check-combat-achievements.mjs <kind>`
+  lists the tasks not tracked: put them under "Inferred or missing".
 
 ## Pitfalls
 

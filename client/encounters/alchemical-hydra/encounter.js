@@ -55,6 +55,7 @@ import { Poison } from "./poison.js";
 import { Lightning } from "./lightning.js";
 import { Fire } from "./fire.js";
 import { alchemicalHydraLoadouts } from "./loadouts.js";
+import { alchemicalHydraCombatAchievements } from "./combatAchievements.js";
 
 export const alchemicalHydraKind = "alchemical_hydra";
 // CACHE: the chamber is map square 21,160 (region 5536).
@@ -691,6 +692,8 @@ export const alchemicalHydraDefinition = {
     victory: { title: "VICTORY", narrative: "THE ALCHEMICAL HYDRA DEFEATED", accent: "gold" },
     isWorkInProgress: true,
     loadouts: alchemicalHydraLoadouts,
+    // Its tasks, as WIKI: Combat Achievements lists them (client/combatAchievements/tracker.js).
+    combatAchievements: alchemicalHydraCombatAchievements,
     // The vents, in their colours, and the middle its flame special walks it back to.
     tileMarkerPresets: [{
       id: "alchemical_hydra_vents", name: "Vents", description: "The red, green and blue vents, and the tiles its flame special walks it back to",

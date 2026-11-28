@@ -11,6 +11,7 @@ import { emitInfernoVisual } from "../inferno/events.js";
 import { isCorrectProtectionPrayer } from "../../engine/damage.js";
 import { Prayer } from "../../engine/prayerTables.js";
 import { corruptedHunllefLoadouts } from "./loadouts.js";
+import { corruptedHunllefCombatAchievements } from "./combatAchievements.js";
 
 export const kind = "corrupted_hunllef";
 export const bossId = "corrupted-hunllef";
@@ -344,6 +345,8 @@ export const corruptedHunllefDefinition = { kind, factory: () => new CorruptedHu
   },
   mapSquare, playerStart, collision: { mode: "custom" }, loadsMapLocs: true, isWorkInProgress: true,
   loadouts: corruptedHunllefLoadouts,
+  // Its own judges of its combat achievements (client/combatAchievements/tracker.js).
+  combatAchievements: corruptedHunllefCombatAchievements,
   victory: { title: "VICTORY", narrative: "CORRUPTED HUNLLEF DEFEATED", accent: "blood" },
 }, controls: { defaultMechanicsConfig: { infiniteHealth: true, [startPhaseKey]: "full", [prayerTileMarkersKey]: false,
     [tornadoTileMarkerColorKey]: "#ffffff", [prayerTileMarkerColorKeys.range]: "#00ff00",

@@ -10,6 +10,15 @@ import { projectileOverrideOptions, projectileOverrideDefaults, updateProjectile
 import { blindfoldStore, listenForBlindfold } from "/plugins/blindfold.js";
 import { skyboxStore } from "/plugins/skybox.js";
 import { defenceTrackerStore, setDefenceTrackerEngine } from "/plugins/defenceTracker.js";
+import {
+  setCombatAchievementsEngine,
+  observeCombatAchievements,
+  combatAchievementsStore,
+  currentResults as currentCombatAchievementResults,
+  ensureStyle as ensureCombatAchievementStyle,
+} from "/combatAchievements/index.js";
+import { mountCombatAchievementsSetup, hasCombatAchievements, combatAchievementsCss } from "/combatAchievements/setup.js";
+import { defaultSettings as combatAchievementsDefaults } from "/combatAchievements/store.js";
 // The replay's undo and markers: their options (Settings, Simulation) and keys.
 import { replayMarkerStore, listenForReplayKeys } from "/replay/markers.js";
 import { attackTimerMetronomeStore, setAttackTimerHdHealthBars } from "/plugins/attackTimerMetronome.js";
@@ -16996,6 +17005,9 @@ var EncounterPanel = ({
                     className: "encounter-description",
                     children: description,
                   }),
+                  (0, jsxRuntime.jsx)(EncounterRecord, {
+                    kind: encounterKind,
+                  }),
                   h9 &&
                     (0, jsxRuntime.jsxs)("p", {
                       className: "encounter-beta-note",
@@ -17232,6 +17244,9 @@ var EncounterPanel = ({
                             }),
                           ],
                         }),
+                      (0, jsxRuntime.jsx)(CombatAchievementsSetup, {
+                        kind: encounterKind,
+                      }),
                     ],
                   }),
                 ],
@@ -21316,6 +21331,18 @@ var Yme = [
       ],
       availability: "Resizable layouts, with Transparent chatbox on",
       layouts: ["resizable"],
+    }),
+    Fme("section", ["Interface", "Game chat"], {
+      description: "Chatbox messages of the game: combat achievement task failures.",
+      keywords: ["chat", "game chat", "chatbox", "messages", "combat achievements", "combat tasks"],
+    }),
+    Fme("setting", ["Interface", "Game chat", "Combat Achievements Tasks - Failure"], {
+      description: "A chatbox message saying why, when a combat task fails.",
+      keywords: ["combat achievements", "combat tasks", "ca", "failed", "failure", "task failed", "chat message", "notification"],
+    }),
+    Fme("setting", ["Interface", "Game chat", "Combat Achievements Tasks - Repeat failure"], {
+      description: "The same message for a combat task already completed.",
+      keywords: ["combat achievements", "combat tasks", "ca", "repeat", "completed", "failed", "failure", "chat message"],
     }),
     Fme("section", ["Interface", "Game window"], {
       whenUnavailable: DESKTOP_ONLY,
@@ -31051,6 +31078,7 @@ var InterfaceControls = ({
               }),
           ],
         }),
+      (0, jsxRuntime.jsx)(CombatAchievementsChatControl, {}),
       (0, jsxRuntime.jsx)(ShortcutHintsControl, {
         showShortcutHints: showShortcutHints,
         onShowShortcutHintsToggle: onShowShortcutHintsToggle,
@@ -31237,6 +31265,153 @@ var ViewportPopoutControl = ({
           }),
         ],
       });
+// Settings, Interface, Game chat: the game's two settings of combat achievement failures (WIKI: Settings, Chat,
+// Game Chat), kept with the player's combat achievements (client/combatAchievements/store.js).
+const COMBAT_ACHIEVEMENT_CHAT_SETTINGS = [
+  ["failureMessages", "Combat Achievements Tasks - Failure", "Failing a combat task is followed by a chatbox message saying why it failed."],
+  ["repeatFailureMessages", "Combat Achievements Tasks - Repeat failure", "The same, for a combat task already completed."],
+];
+// The setup header's line of the boss's fights, kept in this browser (client/combatAchievements/store.js, `fights`):
+// the kills, the deaths, and kills to deaths (the kills alone before a death). Settings, Interface, Game chat turns
+// it off.
+const formatRatio = (kills, deaths) => (deaths > 0 ? kills / deaths : kills).toFixed(2);
+function EncounterRecord({ kind: kind }) {
+  const state = (0, React.useSyncExternalStore)(combatAchievementsStore.subscribe, combatAchievementsStore.getState);
+  if (!kind || !state.settings.showRecord) {
+    return null;
+  }
+  const { kills, deaths } = combatAchievementsStore.fightsOf(kind);
+  return (0, jsxRuntime.jsx)("p", {
+    className: "encounter-record",
+    "data-testid": "encounter-record",
+    style: { margin: "4px 0 0", fontSize: "13px", color: "var(--color-text-body, #cec0a3)" },
+    children: "Kills: " + kills + " · Deaths: " + deaths + " · K/D: " + formatRatio(kills, deaths),
+  });
+}
+const ENCOUNTER_RECORD_SETTINGS = [["showRecord", "Boss kill record", "The boss's kills, deaths and kill to death ratio, in the header of its setup."]];
+// The setup window's list of a boss's combat achievements to go for (client/combatAchievements/setup.js, mounted
+// here). The victory screen lists how each chosen task went (CombatAchievementsResults).
+function CombatAchievementsSetup({ kind: kind }) {
+  const ref = (0, React.useRef)(null);
+  const shown = hasCombatAchievements(kind);
+  (0, React.useEffect)(() => (shown && ref.current ? mountCombatAchievementsSetup(ref.current, kind) : undefined), [kind, shown]);
+  if (!shown) {
+    return null;
+  }
+  return (0, jsxRuntime.jsxs)("fieldset", {
+    className: "encounter-assists",
+    children: [
+      (0, jsxRuntime.jsx)("legend", {
+        className: "section-label",
+        children: "Combat achievements",
+      }),
+      (0, jsxRuntime.jsx)("div", {
+        ref: ref,
+      }),
+    ],
+  });
+}
+// The victory screen's section, for a boss with combat achievements: whether the kill counted, and how its tasks
+// went: the ones chosen to go for, or with none chosen, every one completed or failed. A failed one says why and on
+// which tick.
+const combatAchievementStatusText = { completed: "Completed", failed: "Failed", "not completed": "Not completed", "in progress": "In progress" };
+function CombatAchievementsResults() {
+  (0, React.useEffect)(() => ensureCombatAchievementStyle("ca-ui-style", combatAchievementsCss), []);
+  const summary = currentCombatAchievementResults();
+  if (!summary) {
+    return null;
+  }
+  const { chosen, notCounted, rows } = summary;
+  const lines = [];
+  if (notCounted) {
+    lines.push(
+      (0, jsxRuntime.jsxs)("p", {
+        className: "victory-modal-ca-note victory-modal-ca-note--not-counted",
+        children: [
+          "This kill did not count: " + notCounted.reasons.join(", ") + ". ",
+          (0, jsxRuntime.jsx)("span", {
+            className: "victory-modal-ca-tick",
+            children: "Tick " + notCounted.tick,
+          }),
+        ],
+      }, "not-counted"),
+    );
+  }
+  if (!rows.length) {
+    lines.push(
+      (0, jsxRuntime.jsx)("p", {
+        className: "victory-modal-ca-note",
+        children: "No task completed or failed. Choose tasks to go for under Practice, Setup, Options.",
+      }, "none"),
+    );
+  }
+  return (0, jsxRuntime.jsxs)("section", {
+    className: "victory-modal-record victory-modal-ca",
+    "aria-labelledby": "victory-modal-ca-heading",
+    children: [
+      (0, jsxRuntime.jsx)("h2", {
+        id: "victory-modal-ca-heading",
+        className: "victory-modal-record-heading",
+        children: chosen ? "Combat achievements: tasks to go for" : "Combat achievements",
+      }),
+      ...lines,
+      rows.length > 0 &&
+        (0, jsxRuntime.jsx)("ul", {
+          className: "victory-modal-ca-list",
+          children: rows.map(({ task, status, reason, tick }) =>
+            (0, jsxRuntime.jsxs)("li", {
+              className: "victory-modal-ca-row victory-modal-ca-row--" + status.replace(" ", "-"),
+              children: [
+                (0, jsxRuntime.jsx)("span", {
+                  className: "victory-modal-ca-status",
+                  children: combatAchievementStatusText[status],
+                }),
+                (0, jsxRuntime.jsx)("span", {
+                  className: "victory-modal-ca-name",
+                  children: task.name,
+                }),
+                (0, jsxRuntime.jsx)("span", {
+                  className: "victory-modal-ca-tick",
+                  children: status === "failed" && tick != null ? "Tick " + tick : "",
+                }),
+                reason &&
+                  (0, jsxRuntime.jsx)("span", {
+                    className: "victory-modal-ca-reason",
+                    children: reason,
+                  }),
+              ],
+            }, task.id),
+          ),
+        }),
+    ],
+  });
+}
+function CombatAchievementsChatControl() {
+  const settings = (0, React.useSyncExternalStore)(combatAchievementsStore.subscribe, () => combatAchievementsStore.getState().settings);
+  return (0, jsxRuntime.jsxs)("div", {
+    className: "control-group",
+    children: [
+      (0, jsxRuntime.jsx)("div", { className: "group-title", children: "Game chat" }),
+      ...[...COMBAT_ACHIEVEMENT_CHAT_SETTINGS, ...ENCOUNTER_RECORD_SETTINGS].map(([key, label, hint]) =>
+        (0, jsxRuntime.jsx)(
+          SettingRow,
+          {
+            isModified: settings[key] !== combatAchievementsDefaults[key],
+            onReset: () => combatAchievementsStore.setSetting(key, combatAchievementsDefaults[key]),
+            searchId: eR("Interface", "Game chat", label),
+            hint,
+            children: (0, jsxRuntime.jsx)(OsrsCheckbox, {
+              checked: settings[key],
+              onChange: (checked) => combatAchievementsStore.setSetting(key, checked),
+              label,
+            }),
+          },
+          key,
+        ),
+      ),
+    ],
+  });
+}
 var ShortcutHintsControl = ({
   showShortcutHints: h2 = true,
   onShowShortcutHintsToggle: h3 = () => {},
@@ -35222,6 +35397,7 @@ function VictoryModal({
                 }),
               ],
             }),
+            (0, jsxRuntime.jsx)(CombatAchievementsResults, {}),
             (0, jsxRuntime.jsxs)("div", {
               className: "victory-modal-actions",
               children: [
@@ -51543,6 +51719,15 @@ function AppShell({ devHarness: devHarness } = {}) {
   (0, React.useEffect)(() => {
     setDefenceTrackerEngine(() => engineRef.current);
     return () => setDefenceTrackerEngine(() => null);
+  }, []);
+  // Combat achievements (client/combatAchievements/) read the live fight after each tick the game loop publishes.
+  (0, React.useEffect)(() => {
+    setCombatAchievementsEngine(() => engineRef.current);
+    const unsubscribe = fL.subscribe((tick, events) => observeCombatAchievements(events));
+    return () => {
+      unsubscribe();
+      setCombatAchievementsEngine(() => null);
+    };
   }, []);
   (0, React.useEffect)(() => {
     updateProjectileOverride({ enabled: projectileOverrideEnabled, settings: projectileOverride });
