@@ -39276,6 +39276,7 @@ function VP(e) {
         continue;
       }
       const { model: model, modelMatrix: modelMatrix } = s;
+      const faceLifts = s.faceLifts;
       const m = model.contourVerticesY ?? model.verticesY;
       const h = l
         ? {
@@ -39372,7 +39373,7 @@ function VP(e) {
                 : model.indices3[e]) * 3;
           scratch2.positions[a * 3] = g[t];
           scratch2.positions[a * 3 + 1] = g[t + 1];
-          scratch2.positions[a * 3 + 2] = g[t + 2];
+          scratch2.positions[a * 3 + 2] = g[t + 2] + (faceLifts ? faceLifts[e] : 0);
         }
         const v = t[c];
         const p = d[c];
@@ -39969,6 +39970,65 @@ var LocRenderer = class {
     }
   }
 };
+// A floor decoration is often a base with a pattern laid on it, the pattern's faces at the base's own height (the
+// Alchemical Hydra's floor tiles: a light star on a dark square). The game paints the pattern after the base; here
+// both go through the depth test, the two tied, and the pattern broke up in stripes as the camera moved (the
+// play-test of 2026-11-27). A face lying flat within a larger face of the same model, at its height, is drawn one
+// height unit above it for each such face (a tile is 128): a lift no one sees, and the pattern stays on top.
+var FLOOR_DECORATION_FACE_LIFT = 1 / 128;
+var floorDecorationFaceLiftsByModel = new WeakMap();
+function floorDecorationFaceLifts(model) {
+  let lifts = floorDecorationFaceLiftsByModel.get(model);
+  if (lifts === undefined) {
+    lifts = null;
+    const faces = model.faceCount;
+    if (faces > 1 && faces <= 256) {
+      const x = model.verticesX;
+      const y = model.verticesY;
+      const z = model.verticesZ;
+      const corners = (f) => [model.indices1[f], model.indices2[f], model.indices3[f]];
+      // Twice the signed area of a, b, c in the floor's plane.
+      const cross = (ax, az, bx, bz, cx, cz) => (bx - ax) * (cz - az) - (cx - ax) * (bz - az);
+      const flatAt = (f) => {
+        const [a, b, c] = corners(f);
+        return y[a] === y[b] && y[b] === y[c] ? y[a] : null;
+      };
+      const area = (f) => {
+        const [a, b, c] = corners(f);
+        return Math.abs(cross(x[a], z[a], x[b], z[b], x[c], z[c]));
+      };
+      const contains = (f, px, pz) => {
+        const [a, b, c] = corners(f);
+        const d1 = cross(x[a], z[a], x[b], z[b], px, pz);
+        const d2 = cross(x[b], z[b], x[c], z[c], px, pz);
+        const d3 = cross(x[c], z[c], x[a], z[a], px, pz);
+        return !((d1 < 0 || d2 < 0 || d3 < 0) && (d1 > 0 || d2 > 0 || d3 > 0));
+      };
+      for (let f = 0; f < faces; f++) {
+        const height = flatAt(f);
+        if (height === null) {
+          continue;
+        }
+        const [a, b, c] = corners(f);
+        const px = (x[a] + x[b] + x[c]) / 3;
+        const pz = (z[a] + z[b] + z[c]) / 3;
+        const size = area(f);
+        let under = 0;
+        for (let h = 0; h < faces; h++) {
+          if (h !== f && flatAt(h) === height && area(h) > size && contains(h, px, pz)) {
+            under++;
+          }
+        }
+        if (under > 0) {
+          lifts ??= new Float32Array(faces);
+          lifts[f] = under * FLOOR_DECORATION_FACE_LIFT;
+        }
+      }
+    }
+    floorDecorationFaceLiftsByModel.set(model, lifts);
+  }
+  return lifts ? { faceLifts: lifts } : {};
+}
 function i_(e, a) {
   const { loader: loader, locs: locs } = e;
   const s = [];
@@ -40095,6 +40155,7 @@ function i_(e, a) {
         modelMatrix: f,
         ambient: locType.ambient + 64,
         contrast: locType.contrast + 768,
+        ...(b === "floor" ? floorDecorationFaceLifts(w) : {}),
       };
       if (k && b) {
         r.push({
