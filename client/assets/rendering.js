@@ -40717,11 +40717,26 @@ function S_(e) {
 function b_(e) {
   return Array.isArray(e);
 }
+// The client ticks a clip plays for when nothing replaces it. A clip given as
+// `{ seqId, loops: true }` repeats as the game client repeats a sequence with a
+// frame step: back by its frame step at the end, up to its maxLoops times; any
+// other plays once.
+function loopedClipTicks(e) {
+  const n = w_(e);
+  const frameStep = e.seqType.frameStep;
+  if (!e.loops || !(frameStep > 0)) {
+    return n;
+  }
+  return n + Math.max(0, (e.seqType.maxLoops ?? 99) - 1) * Math.min(frameStep, n);
+}
+function clipPlayMode(e) {
+  return e.loops && e.seqType.frameStep > 0 ? "loopFrameStep" : "oneshot";
+}
 function y_(e, a = {}) {
   return {
     clip: e,
     priority: e.seqType.forcedPriority,
-    duration: z_(a.durationClientTicks ?? w_(e)),
+    duration: z_(a.durationClientTicks ?? loopedClipTicks(e)),
     delay: Math.max(0, Math.floor(a.delayClientTicks ?? 0)),
     replaces: false,
   };
@@ -40791,7 +40806,7 @@ var NpcAnimationController = class e {
     this.primaryTrack = e
       ? {
           state: "attack",
-          mode: "oneshot",
+          mode: clipPlayMode(e.clip),
           clip: e.clip,
           elapsedTicks: e.elapsedTicks,
           durationClientTicks: e.duration,
@@ -40946,7 +40961,7 @@ var NpcAnimationController = class e {
     }
     const t = y_(a, e);
     this._turnReleaseCount = 0;
-    this.setPrimary("attack", a, "oneshot", t.duration, t.delay);
+    this.setPrimary("attack", a, clipPlayMode(a), t.duration, t.delay);
   }
   Uw(e) {
     const primaryTrack2 = this.primaryTrack;
@@ -43484,6 +43499,7 @@ var NpcInstanceManager = class {
           skeletalEnd: n.skeletalEnd,
           releaseFrame: a.releaseFrame,
           releaseCycle: a.releaseCycle,
+          loops: a.loops === true,
         };
       } else {
         return null;
@@ -43497,6 +43513,7 @@ var NpcInstanceManager = class {
         seqType: n,
         frameIds: n.frameIds,
         frameLengths: n.frameLengths,
+        loops: a.loops === true,
       };
     } else {
       return null;

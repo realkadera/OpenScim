@@ -34,8 +34,13 @@ const renderConfig = {
       npcTypeId: ids.boss, idleSeqId: seqs.idle, walkSeqId: seqs.idle, deathSeqId: seqs.death, bossDeathAnimationEnabled: true,
       attackClips: {
         spawn: seqs.spawn, orbStart: seqs.orbStart, orbLoop: seqs.orbLoop, orbSingle: seqs.orbSingle, roar: seqs.roar, bite: seqs.bite,
-        stunned: seqs.stunned, lightning: seqs.lightning, lightningLoop: seqs.lightningLoop, lightningEnd: seqs.lightningEnd,
-        spit: seqs.spit, spitLoop: seqs.spitLoop, blast: seqs.blast, orbEnd: seqs.orbEnd,
+        stunned: seqs.stunned, lightningEnd: seqs.lightningEnd, spit: seqs.spit, blast: seqs.blast, orbEnd: seqs.orbEnd,
+        // OBS: each sent once, and it goes on until the next (the loops 35 and 9
+        // ticks). CACHE: the loops are a tick long with a frame step of 30, so the
+        // client repeats them; the lightning's start has a frame step of 1, so it
+        // holds its last frame the tick before its loop.
+        lightning: { seqId: seqs.lightning, loops: true },
+        lightningLoop: { seqId: seqs.lightningLoop, loops: true }, spitLoop: { seqId: seqs.spitLoop, loops: true },
       },
     },
     { npcTypeId: ids.pathfinder, idleSeqId: seqs.pathfinderIdle, walkSeqId: seqs.pathfinderIdle, attackClips: { spawn: seqs.pathfinderSpawn } },

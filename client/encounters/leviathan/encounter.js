@@ -216,6 +216,11 @@ const pathfinderWalkTicks = 3; // OBS, OBS 11/25: and takes its first step 3 tic
 const auraRadius = 2;
 const rockTicks = 7; // OBS: a roar's rock lands 7 ticks after it (1,151 of 1,151)
 const fallingDelayCycles = 50; // OBS
+// The rocks' graphics (one model, 49264) have a shadow and dust drawn flat at
+// their foot (CACHE: 70 black faces and 70 of dust, 0 to 3 below its origin), which
+// the floor of the Scar covers when they stand on the tile's height. Lifted:
+// in the browser 2 is not enough and 8 shows them, with no rock seen off the floor.
+const rockLift = 8;
 const chipTicks = 1; // OBS kills: the roar's chip a tick after its rocks (168 of 168)
 const stunCap = 10; // WIKI: what gets through a hit from the front while it is stunned
 const stunBreakShare = 0.25; // WIKI: "25% of The Leviathan's health in damage"; counted from the stun (inferred)
@@ -745,7 +750,7 @@ class LeviathanEncounter {
       if (this.random() >= this.version.debrisChance || this.rubble.has(key(tile))) continue;
       const fall = debrisFalls[Math.floor(this.random() * debrisFalls.length)];
       const spotAnimId = spots.debris[Math.floor(this.random() * spots.debris.length)];
-      emitInfernoVisual(context.tickEvents, { animations: [], projectiles: [], graphics: [{ spotAnimId, target: tileTarget(tile), height: 0, delayCycles: fall.delay }] });
+      emitInfernoVisual(context.tickEvents, { animations: [], projectiles: [], graphics: [{ spotAnimId, target: tileTarget(tile), height: rockLift, delayCycles: fall.delay }] });
       this.falling.push({ tile: [...tile], lands: this.tick + fall.ticks });
       this.later(fall.ticks, (ctx, hits) => this.rockHits(ctx, hits, tile, "A falling rock", true, false));
     }
@@ -785,7 +790,7 @@ class LeviathanEncounter {
   dropRock(context, at) {
     const tile = [...at];
     const rotation = Math.floor(this.random() * 4);
-    emitInfernoVisual(context.tickEvents, { animations: [], projectiles: [], graphics: [{ spotAnimId: spots.falling[rotation], target: tileTarget(tile), height: 0, delayCycles: fallingDelayCycles }] });
+    emitInfernoVisual(context.tickEvents, { animations: [], projectiles: [], graphics: [{ spotAnimId: spots.falling[rotation], target: tileTarget(tile), height: rockLift, delayCycles: fallingDelayCycles }] });
     this.falling.push({ tile, lands: this.tick + rockTicks });
     this.later(rockTicks, (ctx, hits) => {
       this.rockHits(ctx, hits, tile, "A falling rock", false, true);
@@ -802,7 +807,7 @@ class LeviathanEncounter {
   crumbleRubble(context) {
     if (this.rubble.size === 0) return;
     emitInfernoVisual(context.tickEvents, { animations: [], projectiles: [],
-      graphics: [...this.rubble.values()].map(([x, y]) => ({ spotAnimId: spots.crumble, target: tileTarget([x, y]), height: 0, delayCycles: 0 })) });
+      graphics: [...this.rubble.values()].map(([x, y]) => ({ spotAnimId: spots.crumble, target: tileTarget([x, y]), height: rockLift, delayCycles: 0 })) });
     this.rubble.clear();
     if (this.arenaBase) setArenaConfig(this.arenaWithRubble(), getArenaDefaultWalkable());
   }
@@ -947,7 +952,7 @@ class LeviathanEncounter {
           this.rockHits(later, hits, tile, "A thrown rock", true, true);
           // OBS 11/25: a second rock on a tile leaves nothing more, and is not drawn landing.
           if (this.placeRubble(tile, 0))
-            emitInfernoVisual(later.tickEvents, { animations: [], projectiles: [], graphics: [{ spotAnimId: spots.boulderLands, target: tileTarget(tile), height: 0, delayCycles: 0 }] });
+            emitInfernoVisual(later.tickEvents, { animations: [], projectiles: [], graphics: [{ spotAnimId: spots.boulderLands, target: tileTarget(tile), height: rockLift, delayCycles: 0 }] });
         });
       });
     this.later(smoke.charge, (ctx) => {

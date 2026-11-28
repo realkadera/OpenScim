@@ -447,7 +447,11 @@ has them too):
     your choosing to a sequence id; the encounter names the clip in a
     visual event (section 6). Despite its name it holds every clip an event
     may name, not attacks alone: the waves of the Colosseum have `spawn`,
-    `heal` and `charge` there. The walk sequence is the NPC type's own,
+    `heal` and `charge` there. A clip plays once and the NPC goes back to
+    its stance; given as `{ seqId, loops: true }` it repeats as the game
+    client repeats a sequence with a frame step (back that many frames at
+    its end, up to its maxLoops) until the next clip: a loop the server
+    sends once, as the Leviathan's lightning. The walk sequence is the NPC type's own,
     from the cache; `walkSeqId` in the entry replaces it. `deathDurationMs`
     is how long a dead NPC stays drawn (the length of its death sequence
     when left out).

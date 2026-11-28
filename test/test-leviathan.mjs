@@ -82,6 +82,27 @@ try {
   }, stood);
   assert.equal(blocked, true);
 
+  // Each special's loop goes on until the special moves on (presentation.js),
+  // in the application's own loop: the spit's 8 ticks in, the lightning's 20.
+  for (const [kind, at, loop] of [["smoke", 8, "spitLoop"], ["lightning", 20, "lightningLoop"]]) {
+    await page.evaluate((kind) => {
+      engine.encounter.nextSpecial = kind;
+      engine.encounter.specialDue = true;
+    }, kind);
+    await page.waitForFunction(({ kind, at }) => {
+      const { special } = engine.encounter;
+      return special?.kind === kind && engine.worldState.tick - special.start >= at;
+    }, { kind, at }, { timeout: 60000 });
+    const playing = await page.evaluate(() => {
+      const boss = [...scene.npcInstanceManager.instanceRegistry.values()].find((npc) => npc.npcTypeId === 12214);
+      return boss.animController.primaryTrack?.clip.id ?? null;
+    });
+    assert.equal(playing, loop, kind);
+    await page.evaluate(() => {
+      for (let tick = 0; tick < 60 && engine.encounter.special; tick++) engine.advanceTick(engine.player().position);
+    });
+  }
+
   // Enraged: the pathfinder comes 3 ticks later, in the north-west corner (or the next clockwise one clear of rocks).
   const pathfinder = await page.evaluate(() => {
     engine.setBossHp(170);

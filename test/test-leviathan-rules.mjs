@@ -30,7 +30,7 @@ async function fight({ kind = AWAKENED, ticks, seed = 5, script, mechanics = {},
           if (event.type === "zuk_attack") log.push({ tick, orb: event.attack });
           if (event.type !== "inferno_visual") continue;
           for (const { actorId, clipId } of event.animations) log.push({ tick, clip: clipId, actor: actorId });
-          for (const { spotAnimId, target } of event.graphics) log.push({ tick, graphic: spotAnimId, tile: target.position });
+          for (const { spotAnimId, target, height } of event.graphics) log.push({ tick, graphic: spotAnimId, tile: target.position, height });
           for (const { spotAnimId, target } of event.projectiles) log.push({ tick, projectile: spotAnimId, tile: target.position });
         }
       },
@@ -438,6 +438,8 @@ test("post-quest: after a one-tick volley its end, the roar a tick later; the ch
   assert.deepEqual([end, run.first(clip("roar"))], [last + 1, last + 2]);
   assert.deepEqual(unique(run.ticksOf((entry) => entry.graphic >= 2477 && entry.graphic <= 2480)), [end]);
   assert.ok(run.ticksOf((entry) => entry.graphic === 2475 || entry.graphic === 2476).filter((tick) => tick === end).length > 3, "few loose rocks");
+  // Each rock is drawn up off the tile's height, or the Scar's floor covers its shadow (encounter.js, rockLift).
+  assert.deepEqual(unique(run.log.filter((entry) => entry.graphic >= 2475 && entry.graphic <= 2480).map(({ height }) => height)), [8]);
   // OBS kills: 4 to 7, a tick after the rocks (168 of 168).
   const chip = run.hitsOn("player").filter(({ tick, amount }) => amount > 0 && tick < end + 7); // before its rock lands
   assert.equal(chip.length, 1, chip.map(({ tick, amount }) => `${amount} at ${tick}`).join());
