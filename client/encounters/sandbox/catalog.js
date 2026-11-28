@@ -99,6 +99,8 @@ export const sandboxCatalogExclusions = {
   12167: "Duke Sucellus asleep: only drawn until he wakes, and has no attack",
   12191: "Duke Sucellus never leaves his seat and has no walk: he is fought in his own asylum",
   12214: "the Leviathan never leaves its pool and has no walk: it is fought in its own arena",
+  12204: "the Whisperer: her specials, the Shadow Realm and her sanity are her cathedral's, and her volleys come with tentacles that need its floor: she is fought in her own cathedral",
+  12205: "the Whisperer as she binds the player and walks after them: only drawn for that chase",
   12825: "the healing totem of a Colosseum modifier: it heals and never moves",
   13668: "Araxxor is 7 x 7 and cannot reach the player in the sandbox's arenas; his eggs, specials and enrage are his lair's",
   13671: "the Mirrorback Araxyte takes a share of what Araxxor is dealt and throws it back: alone it has nothing to share",

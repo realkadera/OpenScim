@@ -32,9 +32,12 @@ try {
   assert.ok(!names.includes("Lobby"));
   const sections = (await page.locator(".ep-section").allInnerTexts()).map((text) => text.replace(/\s*\d+$/, "").trim());
   for (const section of ["Raids", "Waves", "Desert Treasure II", "Bosses"]) assert.ok(sections.includes(section), "section " + section);
-  // What is announced and not built is listed, and cannot be fought.
-  await page.locator(".ep-tile.soon").first().click();
-  assert.equal(await page.locator(".ep-fight").count(), 0);
+  // What is announced and not built is listed, and cannot be fought. (Nothing is, since the Whisperer was built;
+  // test-encounter-picker.mjs lists such a fight from a catalog of its own.)
+  if (await page.locator(".ep-tile.soon").count()) {
+    await page.locator(".ep-tile.soon").first().click();
+    assert.equal(await page.locator(".ep-fight").count(), 0);
+  }
 
   // The search box has the keyboard: a search by another name finds the
   // encounter, one that names a mode chooses it, and the arrows walk the tiles.

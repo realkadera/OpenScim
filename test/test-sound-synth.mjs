@@ -59,8 +59,9 @@ const originalSiteConverter = (
 // volume 20 of 100 under an envelope that peaks at 35914 of 65535, which is 3590
 // of 32768; its volume is modulated by a noise that does not move on in that
 // time and halves it, and the filter leaves 1486 of that, which is 5 of 128.
+// CACHE, 7262 (a sound of the Whisperer's, 1.6 seconds): its loudest sample, as synthesized, is 10 of 128.
 const AUDIBLE = 12;
-const faint = new Map([[10352, 4], [3052, 5]]);
+const faint = new Map([[10352, 4], [3052, 5], [7262, 10]]);
 
 test("every sound effect in the trimmed cache synthesizes to audible PCM", async () => {
   assert.equal(SAMPLE_RATE, 22050);

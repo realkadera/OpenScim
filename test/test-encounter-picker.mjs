@@ -13,7 +13,7 @@ for (const [kind, listed] of Object.entries(encounterCatalog)) assert.ok(categor
 // after them the fights that are announced and not built.
 const encounterDefinitions = [
   ...["lobby", "toa_nexus", "yama_p3", "inferno", "vardorvis", "training_ground"].map((kind) => ({ kind, registered: true })),
-  { kind: "whisperer", registered: false },
+  { kind: "announced_boss", registered: false },
   { kind: "unlisted_boss", registered: false },
 ];
 
@@ -37,7 +37,11 @@ const descriptors = [
 const entries = buildEncounterEntries({
   descriptors,
   kinds: encounterDefinitions,
-  catalog: encounterCatalog,
+  // A fight that is announced and not built gives its name, text and portrait in its catalog line.
+  catalog: {
+    ...encounterCatalog,
+    announced_boss: { category: "dt2", aliases: ["dt2", "announced"], title: "The Announced Boss", description: "Announced, not built.", portrait: { npcTypeId: 12204, framing: { yaw: -20, pitch: -10, focusHeight: 0.55, span: 0.8 } } },
+  },
   getPresentation: (kind) => (kind === "yama_p3" ? { title: "Yama", tagline: "Chasm of Fire", thumb: "/yama.png" } : undefined),
   hasTutorial: (kind) => kind === "yama_p3",
   hiddenKinds: ["lobby", "toa_nexus"],
@@ -60,16 +64,16 @@ assert.equal(byKind.inferno.variantLabel, "Mode");
 assert.equal(byKind.training_ground.category, "other");
 // The kinds the engine knows and no one has written are coming soon, once,
 // with the name and the portrait the catalog gives them, or their kind.
-assert.deepEqual(entries.filter((entry) => entry.status === "soon").map((entry) => entry.title), ["The Whisperer", "unlisted_boss"]);
-assert.equal(byKind.whisperer.available, false);
-assert.equal(byKind.whisperer.presentation.portrait.npcTypeId, 12204);
-assert.deepEqual(byKind.whisperer.variants, []);
+assert.deepEqual(entries.filter((entry) => entry.status === "soon").map((entry) => entry.title), ["The Announced Boss", "unlisted_boss"]);
+assert.equal(byKind.announced_boss.available, false);
+assert.equal(byKind.announced_boss.presentation.portrait.npcTypeId, 12204);
+assert.deepEqual(byKind.announced_boss.variants, []);
 assert.equal(entries.filter((entry) => entry.kind === "vardorvis").length, 1);
 
 // The sections follow the catalog's order, and what cannot be fought comes last.
 const sections = groupEncounters(entries, encounterCategories);
 assert.deepEqual(sections.map((section) => section.id), ["wave", "dt2", "boss", "other"]);
-assert.deepEqual(sections[1].entries.map((entry) => entry.kind), ["vardorvis", "whisperer"]);
+assert.deepEqual(sections[1].entries.map((entry) => entry.kind), ["vardorvis", "announced_boss"]);
 assert.deepEqual(sections[3].entries.map((entry) => entry.kind), ["training_ground", "unlisted_boss"]);
 assert.equal(sections.reduce((count, section) => count + section.entries.length, 0), entries.length);
 
@@ -84,8 +88,8 @@ const kindsFound = (query) => searchEncounters(entries, query, encounterCategori
 assert.deepEqual(kindsFound(""), entries.map((entry) => entry.kind));
 // By an alias, and by the name of a section.
 assert.equal(kindsFound("zuk")[0], "inferno");
-assert.deepEqual(kindsFound("dt2"), ["vardorvis", "whisperer"]);
-assert.deepEqual(kindsFound("desert treasure"), ["vardorvis", "whisperer"]);
+assert.deepEqual(kindsFound("dt2"), ["vardorvis", "announced_boss"]);
+assert.deepEqual(kindsFound("desert treasure"), ["vardorvis", "announced_boss"]);
 // Every word has to be found.
 assert.deepEqual(kindsFound("yama zzz"), []);
 // A search that names a mode says which.

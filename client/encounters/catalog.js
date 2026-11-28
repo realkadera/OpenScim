@@ -29,14 +29,7 @@ export const encounterCatalog = {
   vardorvis: { category: "dt2", aliases: ["dt2", "vard", "awakened", "strangler", "forgotten four"] },
   duke_sucellus: { category: "dt2", aliases: ["dt2", "duke", "awakened", "forgotten four"] },
   leviathan: { category: "dt2", aliases: ["dt2", "levi", "awakened", "forgotten four"] },
-  whisperer: {
-    category: "dt2",
-    aliases: ["dt2", "whisperer", "awakened", "forgotten four"],
-    title: "The Whisperer",
-    description: "The Lassar Undercity. Not playable yet.",
-    // CACHE: NPC 12204, The Whisperer.
-    portrait: { npcTypeId: 12204, framing: { yaw: -20, pitch: -10, focusHeight: 0.55, span: 0.8 } },
-  },
+  whisperer: { category: "dt2", aliases: ["dt2", "whisperer", "awakened", "forgotten four", "shadow realm"] },
   alchemical_hydra: { category: "slayer", aliases: ["hydra", "karuulm", "konar"] },
   araxxor: { category: "slayer", aliases: ["rax", "spider", "araxyte", "morytania"] },
   yama_p3: { category: "boss", aliases: ["yama", "contracts", "oathplate", "chasm of fire"] },

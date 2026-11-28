@@ -31087,6 +31087,9 @@ function pLe(ez, eA, eB, eC, eD) {
         eN = () => eC.onEquipFromInventory?.(eA);
       } else if ("Drop" === eM) {
         eN = () => eC.onDropItem?.(eA);
+      } else {
+        // An item's own action (the Blackstone fragment's "Activate"): the engine hands it to the encounter.
+        eN = () => eC.onUseItem?.(eA, eM);
       }
       eI.push({
         action: eM,
@@ -34597,10 +34600,10 @@ var InventoryContent = ({
         if (objTypeLoader) {
           try {
             const fy = objTypeLoader.load(fx.id);
-            const fz = getInventoryActions(fx.id, fy.inventoryActions)
+            const firstAction = getInventoryActions(fx.id, fy.inventoryActions)
               .find((fA) => fA !== undefined)
-              ?.trim()
-              .toLowerCase();
+              ?.trim();
+            const fz = firstAction?.toLowerCase();
             if (fz === "wield" || "wear" === fz) {
               const fA = onEquipFromInventory?.(ft);
               if (fA) {
@@ -34621,6 +34624,11 @@ var InventoryContent = ({
                 "yellow",
                 fv.timeStamp,
               );
+            } else if (firstAction) {
+              // An item's own action (the Blackstone fragment's "Activate"): the engine hands it to the encounter.
+              f3(null);
+              onUseItem?.(ft, firstAction);
+              onReplayCursorClick?.(fv.clientX, fv.clientY, "yellow", fv.timeStamp);
             }
           } catch {}
         } else {
